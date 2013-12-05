@@ -1,0 +1,93 @@
+<html>
+	<head>
+		<title>StormEngineC</title>
+		<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+		
+		
+		<script id="stormEngineC" src="include/StormEngineC/StormEngineC.class.js"></script>
+		
+		<style>
+			body{
+				background:#66ACA4;
+				color:#FFF;
+			}
+		</style>
+	</head>
+	
+	<body>
+		<img src="include/StormEngineC/resources/stormenginec_logo.png" border="0" />
+		<div id="gg"></div>
+		<canvas id="stormCanvas" width="512" height="256"></canvas>
+		<canvas id="DIVIDrender" width="512" height="256"></canvas>
+		<script>
+			stormEngineC.createWebGL('stormCanvas', function(elapsed){} );
+			
+			// LIGHTS
+			stormEngineC.setAmbientColor($V3([0.7, 0.75, 0.8]));
+			
+			/*var lightSun = stormEngineC.createLight({	'type':'sun',
+									'direction':$V3([-0.49,-1.0,-0.20]), // type sun only direction param
+									'color':5770 // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
+									});*/
+			
+			/*var light = stormEngineC.createLight({	'type':'spot', // TYPE SPOT (MAX 10)
+									'position':$V3([-1.0, 2.0, 0.0]),
+									'direction':$V3([-0.49,-1.0,-0.20]), //on render spot is omni
+									'color':$V3([1.0, 1.0, 1.0]) // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
+									});*/
+			
+			var lightB = stormEngineC.createLight({	'type':'spot', // TYPE SPOT (MAX 10)
+									'position':$V3([1.0, 2.5, 0.0]),
+									'direction':$V3([-0.49,-1.0,-0.20]), //on render spot is omni
+									'color':3200 // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
+									});
+			
+			
+			
+			
+			// CAMERA
+			var nodeCam = stormEngineC.createCamera($V3([0.0, 0.0, 0.0]), 1.0); // create one camera
+			stormEngineC.setWebGLCam(nodeCam);
+			
+			// SCENE
+		    var nodeGround = stormEngineC.createNode();
+			var meshGround = new StormMesh();
+		    meshGround.loadObj(nodeGround, "resources/obj/cornellBoxClose.obj"); 
+			
+		    nodeGround.setPosition($V3([0.0, 0.0, 0.0]));
+			
+			
+			var nodeTorus = stormEngineC.createNode();
+			var meshTorus = new StormMesh();
+		    meshTorus.loadObj(nodeTorus, "resources/obj/boxHole.obj");
+			
+		    nodeTorus.setPosition($V3([0.0, 0.58, 0.0]));
+			
+			
+			
+			// ACTION
+		    stormEngineC.go();
+			
+			rF = function() {
+				stormEngineC.renderFrame('DIVIDrender',function(req){
+						document.getElementById('gg').innerHTML = req.sample+' '+req.sampleTime;
+					} );
+			}
+		</script>
+		
+		<br />
+		WASD keys: Move
+		<br />
+		<input type="button" onclick="stormEngineC.setWebGLpause();" value="Pause viewport"/>
+		<input type="button" onclick="stormEngineC.getWebGLCam().switchCam('freecam', 8.0);" value="freecam"/>
+		<input type="button" onclick="stormEngineC.getWebGLCam().switchCam('player', 8.0);" value="player"/>
+		<input type="button" onclick="stormEngineC.getWebGLCam().switchCam('node', 8.0, nodeCar);" value="car"/>
+		<input type="button" onclick="rF();" value="render"/>
+		<input type="button" onclick="stormEngineC.renderFrameStop();" value="stopRender"/>
+		<br />
+		<input type="button" onclick="lightB.setLightColor($V3([0.0, 1.0, 0.0]));" value="greenColor"/>
+		<input type="button" onclick="lightB.setLightColor(4500);" value="Kelvins"/>
+		
+		
+	</body>
+</html>

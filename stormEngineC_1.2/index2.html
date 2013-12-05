@@ -1,0 +1,217 @@
+<html>
+	<head>
+		<title>StormEngineC</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8">
+		<script src="StormEngineC/StormEngineC.class.js"></script>
+		<style>
+			body{
+				background:#66ACA4;
+				color:#FFF;
+			}
+		</style>
+	</head>
+	
+	<body>
+		<div id="gg"></div>
+		<div id="ggB"></div>
+		<div id="ggc"></div>
+		<canvas id="stormCanvas" width="512" height="256"></canvas> 
+		 
+		<script>
+			var nodePole,nodeParticles;
+			
+			stormEngineC.createWebGL({	'target':	'stormCanvas', // ID canvas
+										'callback':	function(elapsed){},
+										'editMode':	true,
+										'enableRender':true});
+			stormEngineC.setWebGLSSAO(true, 3.2);
+			stormEngineC.setWebGLBackground('environmentMap');   
+			
+			// LIGHTS
+			stormEngineC.setAmbientColor($V3([0.7, 0.75, 0.8]));
+			
+			/*var lightSun = stormEngineC.createLight({	'type':'sun',
+									'direction':$V3([-0.49,-1.0,-0.20]), // type sun only direction param
+									'color':5770 // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
+									});*/
+			
+			/*var lightB = stormEngineC.createLight({	'type':'spot', // TYPE SPOT (MAX 10)
+									'position':$V3([-0.9,3.4,0.0]),
+									'direction':$V3([0.1,-1.0,0.1]), //on render spot is omni
+									'color':3200 // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
+									});*/
+			
+			
+			
+			
+			// CAMERA
+			var nodeCam = stormEngineC.createCamera($V3([0.0, 1.5, 4.0])); // create one camera
+			stormEngineC.setWebGLCam(nodeCam);
+			nodeCam.setRotationY(3.14156, false); 
+			//nodeCam.setView('TOP');
+			//nodeCam.enableDOF();
+			
+			stormEngineC.PanelAnimationTimeline.setStart(0);
+			stormEngineC.PanelAnimationTimeline.setEnd(151);
+			
+			// SCENE
+			/*var groupGround = stormEngineC.createGroup();
+			var meshGround = new StormMesh();
+			meshGround.loadCollada({'group':groupGround,
+									'daeUrl':"dae.DAE",
+									//'setCam':"Camera002",
+									'onload':function() {
+												groupGround.setPosition($V3([0.0, -0.5, 0.0]));
+											}
+									});*/
+			
+			
+			//stormEngineC.PanelAnimationTimeline.play();
+			
+			
+			/*nodeSphere = stormEngineC.createNode();
+			nodeSphere.loadObj({'objUrl':"UNUSED/torus.obj",
+								'textureUniqueUrl':"UNUSED/white.jpg"});
+			nodeSphere.setPosition($V3([0.0, 0.0, 0.0]));*/
+			
+		nodeSphere = stormEngineC.createNode();	nodeSphere.loadObj({'objUrl':"UNUSED/sponza.obj"});
+			//nodeSphere = stormEngineC.createNode();	nodeSphere.loadObj({'objUrl':"boxhole.obj"});
+			nodeSphere = stormEngineC.createNode();	nodeSphere.loadObj({'objUrl':"UNUSED/cornellBox3wall.obj", textureUniqueUrl:"UNUSED/white.jpg"});
+			nodeSphere.setPosition($V3([0.0, 0.0, 2.0])); 
+			
+			/*nodePlane = stormEngineC.createNode();	
+			nodePlane.loadQuad(2,2);
+			nodePlane.setPosition($V3([0.0, 0.0, 0.0]));
+			nodePlane.setRotation(stormEngineC.utils.degToRad(90), $V3([1.0,0.0,0.0]));*/
+			
+			
+			var nodeGround = stormEngineC.createNode();nodeGround.loadObj({'objUrl':"UNUSED/bunny.obj", textureUniqueUrl:"UNUSED/white.jpg"});
+			nodeGround.setPosition($V3([0.0, -0.5, 0.0]));
+			
+			
+			var nodeB = stormEngineC.createNode();
+			var meshB = new StormMesh();
+			meshB.loadObj(nodeB, "UNUSED/interior/sphereD_0p5.obj");
+			nodeB.setPosition($V3([0.2, 1.4, 0.2]));
+			
+			var nodeB = stormEngineC.createNode();
+			var meshB = new StormMesh();
+			meshB.loadObj(nodeB, "UNUSED/interior/sphereD_0p51.obj");
+			nodeB.setPosition($V3([0.4, -0.2, 2.7]));
+			
+			var nodeB = stormEngineC.createNode();
+			var meshB = new StormMesh();
+			meshB.loadObj(nodeB, "UNUSED/interior/sphereD_0p52.obj");
+			nodeB.setPosition($V3([-0.5, 0.1, 2.3]));
+
+   
+			/*var nodeBH = stormEngineC.createNode();
+			var meshBH = new StormMesh();
+			nodeBH.onmouseup = function() {
+				nodeBH.setTimelineControl('LocalTimeline', 1);
+			};
+			
+			meshBH.loadObj(nodeBH, "boxHole.obj");
+			nodeBH.setPosition($V3([0.0, 0.5, 0.0]));
+			nodeBH.setAnimKey(0);
+			nodeBH.setPosition($V3([0.5, 0.7, 0.5]));
+			nodeBH.setAnimKey(100);
+			
+			nodeBH.setTimelineControl('LocalTimeline', 0); // 'GlobalTimeline' or 'LocalTimeline'
+			nodeBH.enableLocalTimelineLayerLoop(true); // enable loop
+			nodeBH.setPosition($V3([0.0, 0.0, 0.0]));
+			nodeBH.setAnimKey(0);
+			nodeBH.setPosition($V3([0.0, 1.7, 0.0]));
+			nodeBH.setAnimKey(100);
+			
+			nodeBH.setTimelineControl('LocalTimeline', 1); // 'GlobalTimeline' or 'LocalTimeline'
+			nodeBH.enableLocalTimelineLayerLoop(true); // enable loop
+			nodeBH.setPosition($V3([0.0, 0.0, 0.0]));
+			nodeBH.setAnimKey(0);
+			nodeBH.setPosition($V3([1.7, 0.0, 0.0]));
+			nodeBH.setAnimKey(50);
+			
+			nodeBH.setTimelineControl('LocalTimeline', 0);
+			nodeBH.playLocal(); // play 'LocalTimeline' for this node*/
+			
+			
+			
+			
+			
+			/*nodeCam.setTimelineControl('LocalTimeline', 0); // 'GlobalTimeline' or 'LocalTimeline'
+			nodeCam.enableLocalTimelineLayerLoop(true); // enable loop
+			nodeCam.nodeGoal.setPosition($V3([0.0, 0.0, 2.0]));
+			nodeCam.nodePivot.setPosition($V3([0.0, 0.0, 0.0]));
+			nodeCam.setAnimKey(0);
+			nodeCam.nodeGoal.setPosition($V3([0.0, 1.0, 4.0]));
+			nodeCam.nodePivot.setPosition($V3([0.0, 0.0, 0.0]));
+			nodeCam.setAnimKey(140); 
+			nodeCam.playLocal(); // play 'LocalTimeline' for this node*/
+			
+			
+			
+			//stormEngineC.upWebsocketPathTracing("localhost", 3400); 
+			
+			
+			// ACTION
+			
+			
+			/*nodeParticles = stormEngineC.createParticles();
+			nodeParticles.generateParticles({	amount:256*256,  
+												disposal:{radius:1.0},   
+												color:$V3([1.0,1.0,1.0]), //document.getElementById('imgLena')
+												pointSize:1.0,   
+												polarity:0,
+												direction:$V3([0.0,0.0,0.0]), 
+												lifeDistance:0.0});     */
+													
+			/*nodeParticles = stormEngineC.createParticles();
+			nodeParticles.particlesPositioned({	array:[$V3([0.0,0.0,0.0]),$V3([0.1,0.1,0.0]),$V3([0.2,0.1,0.0]),$V3([0.3,0.05,0.0])],
+												pointSize:1.0});*/
+			
+			/*nodePole = stormEngineC.createPolarityPoint({polarity:1,force:0.5});  
+			nodePole.get({node:nodeParticles});
+			nodePole.setPosition($V3([0.0, 0.0, 0.0]));*/
+			
+			//nodeForce = stormEngineC.createForceField({direction:$V3([0.0,-0.4,0.0])});
+			//nodeForce.get({node:nodeParticles});
+				
+				
+				
+				
+			destVolume = function() {
+				var voxelizator = stormEngineC.createVoxelizator();
+				voxelizator.generateFromScene({size:111,
+												resolution:256,
+												ongenerate:function() {												
+													// enable WebGL GI  
+													var gi = new StormGI();
+													gi.setVoxelizator(voxelizator);
+													
+													
+												}});     
+				
+			};
+			giv2 = function() {
+				var voxelizator = stormEngineC.createVoxelizator();
+				voxelizator.generateFromScene({size:8,
+												resolution:128,
+												fillmode:["albedo","position","normal"],
+												ongenerate:function() {												
+													// enable WebGL GI  
+													var gi = new StormGI();
+													gi.setVoxelizator(voxelizator);
+													
+													
+												}});     
+				
+			};
+		</script>
+		<button type="button" onclick="giv2();">dest</button>
+		<br />
+		WASD keys: Move
+		<br /><br />
+		
+		
+	</body>
+</html>

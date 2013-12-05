@@ -1,0 +1,122 @@
+<html>
+	<head>
+		<title>StormEngineC</title>
+		<meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+		
+	</head>
+	
+	<body>
+
+		
+		<br />
+		WASD keys: Move
+		<br />
+		<input type="button" onclick="stormEngineC.setWebGLpause();" value="Pause viewport"/>
+		<input type="button" onclick="stormEngineC.getWebGLCam().switchCam('freecam', 8.0);" value="freecam"/>
+		<input type="button" onclick="stormEngineC.getWebGLCam().switchCam('player', 8.0);" value="player"/>
+		<input type="button" onclick="stormEngineC.getWebGLCam().switchCam('node', 8.0, nodeCar);" value="car"/>
+		<input type="button" onclick="stormEngineC.renderFramee(512, 256);" value="render"/>
+		<div id="ddd"></div>
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		lightDepth
+		0<input type="radio" name="ld" onclick="stormEngineC.stormGLContext.view_LightDepth=false;" />
+		1<input type="radio" name="ld" onclick="stormEngineC.stormGLContext.view_LightDepth=true;" />
+		<br />
+		shadows
+		0<input type="radio" name="sss" onclick="stormEngineC.stormGLContext.view_Shadows=false;" />
+		1<input type="radio" name="sss" onclick="stormEngineC.stormGLContext.view_Shadows=true;" />
+		<br />
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		<select id="BLEND_source">
+			<option value="this.gl.ZERO">ZERO</option>
+			<option value="this.gl.ONE">ONE</option>
+			<option value="this.gl.SRC_COLOR">SRC_COLOR</option>
+			<option value="this.gl.ONE_MINUS_SRC_COLOR">ONE_MINUS_SRC_COLOR</option>
+			<option value="this.gl.DST_COLOR">DST_COLOR</option>
+			<option value="this.gl.ONE_MINUS_DST_COLOR">ONE_MINUS_DST_COLOR</option>
+			<option value="this.gl.SRC_ALPHA">SRC_ALPHA</option>
+			<option value="this.gl.ONE_MINUS_SRC_ALPHA">ONE_MINUS_SRC_ALPHA</option>
+			<option value="this.gl.DST_ALPHA">DST_ALPHA</option>
+			<option value="this.gl.ONE_MINUS_DST_ALPHA">ONE_MINUS_DST_ALPHA</option>
+			<option value="this.gl.SRC_ALPHA_SATURATE">SRC_ALPHA_SATURATE</option>
+			<option value="this.gl.CONSTANT_COLOR">CONSTANT_COLOR</option>
+			<option value="this.gl.ONE_MINUS_CONSTANT_COLOR">ONE_MINUS_CONSTANT_COLOR</option>
+			<option value="this.gl.CONSTANT_ALPHA">CONSTANT_ALPHA</option>
+			<option value="this.gl.ONE_MINUS_CONSTANT_ALPHA">ONE_MINUS_CONSTANT_ALPHA</option>
+		</select>
+		<select id="BLEND_destination">
+			<option value="this.gl.ZERO">ZERO</option>
+			<option value="this.gl.ONE">ONE</option>
+			<option value="this.gl.SRC_COLOR">SRC_COLOR</option>
+			<option value="this.gl.ONE_MINUS_SRC_COLOR">ONE_MINUS_SRC_COLOR</option>
+			<option value="this.gl.DST_COLOR">DST_COLOR</option>
+			<option value="this.gl.ONE_MINUS_DST_COLOR">ONE_MINUS_DST_COLOR</option>
+			<option value="this.gl.SRC_ALPHA">SRC_ALPHA</option>
+			<option value="this.gl.ONE_MINUS_SRC_ALPHA">ONE_MINUS_SRC_ALPHA</option>
+			<option value="this.gl.DST_ALPHA">DST_ALPHA</option>
+			<option value="this.gl.ONE_MINUS_DST_ALPHA">ONE_MINUS_DST_ALPHA</option>
+			<option value="this.gl.SRC_ALPHA_SATURATE">SRC_ALPHA_SATURATE</option>
+			<option value="this.gl.CONSTANT_COLOR">CONSTANT_COLOR</option>
+			<option value="this.gl.ONE_MINUS_CONSTANT_COLOR">ONE_MINUS_CONSTANT_COLOR</option>
+			<option value="this.gl.CONSTANT_ALPHA">CONSTANT_ALPHA</option>
+			<option value="this.gl.ONE_MINUS_CONSTANT_ALPHA">ONE_MINUS_CONSTANT_ALPHA</option>
+		</select>
+		<br />
+		<select id="BLENDsun_source">
+			<option value="this.gl.ZERO">ZERO</option>
+			<option value="this.gl.ONE">ONE</option>
+			<option value="this.gl.SRC_COLOR">SRC_COLOR</option>
+			<option value="this.gl.ONE_MINUS_SRC_COLOR">ONE_MINUS_SRC_COLOR</option>
+			<option value="this.gl.DST_COLOR">DST_COLOR</option>
+			<option value="this.gl.ONE_MINUS_DST_COLOR">ONE_MINUS_DST_COLOR</option>
+			<option value="this.gl.SRC_ALPHA">SRC_ALPHA</option>
+			<option value="this.gl.ONE_MINUS_SRC_ALPHA">ONE_MINUS_SRC_ALPHA</option>
+			<option value="this.gl.DST_ALPHA">DST_ALPHA</option>
+			<option value="this.gl.ONE_MINUS_DST_ALPHA">ONE_MINUS_DST_ALPHA</option>
+			<option value="this.gl.SRC_ALPHA_SATURATE">SRC_ALPHA_SATURATE</option>
+			<option value="this.gl.CONSTANT_COLOR">CONSTANT_COLOR</option>
+			<option value="this.gl.ONE_MINUS_CONSTANT_COLOR">ONE_MINUS_CONSTANT_COLOR</option>
+			<option value="this.gl.CONSTANT_ALPHA">CONSTANT_ALPHA</option>
+			<option value="this.gl.ONE_MINUS_CONSTANT_ALPHA">ONE_MINUS_CONSTANT_ALPHA</option>
+		</select>
+		<select id="BLENDsun_destination">
+			<option value="this.gl.ZERO">ZERO</option>
+			<option value="this.gl.ONE">ONE</option>
+			<option value="this.gl.SRC_COLOR">SRC_COLOR</option>
+			<option value="this.gl.ONE_MINUS_SRC_COLOR">ONE_MINUS_SRC_COLOR</option>
+			<option value="this.gl.DST_COLOR">DST_COLOR</option>
+			<option value="this.gl.ONE_MINUS_DST_COLOR">ONE_MINUS_DST_COLOR</option>
+			<option value="this.gl.SRC_ALPHA">SRC_ALPHA</option>
+			<option value="this.gl.ONE_MINUS_SRC_ALPHA">ONE_MINUS_SRC_ALPHA</option>
+			<option value="this.gl.DST_ALPHA">DST_ALPHA</option>
+			<option value="this.gl.ONE_MINUS_DST_ALPHA">ONE_MINUS_DST_ALPHA</option>
+			<option value="this.gl.SRC_ALPHA_SATURATE">SRC_ALPHA_SATURATE</option>
+			<option value="this.gl.CONSTANT_COLOR">CONSTANT_COLOR</option>
+			<option value="this.gl.ONE_MINUS_CONSTANT_COLOR">ONE_MINUS_CONSTANT_COLOR</option>
+			<option value="this.gl.CONSTANT_ALPHA">CONSTANT_ALPHA</option>
+			<option value="this.gl.ONE_MINUS_CONSTANT_ALPHA">ONE_MINUS_CONSTANT_ALPHA</option>
+		</select>
+	</body>
+</html>
