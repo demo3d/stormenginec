@@ -17,7 +17,7 @@ StormEngineC provides the following features:<br />
 ► HTML CanvasRenderingContext2D integrated.<br />
 ► WebGL global illumination with traversal ray voxel.<br />
 <img alt="WebGL global illumination using traversal ray voxel" src="http://stormcolour.appspot.com/CONTENT/stormviewer/live/voxelGI.jpg" />
-AO+DOF and AO+GI+DOF comparison.
+AO+DOF and AO+GI+DOF comparison.<br />
 <img alt="WebGL global illumination using traversal ray voxel" src="http://stormcolour.appspot.com/CONTENT/stormviewer/live/sibenikGI.jpg" />
 AO and AO+GI comparison
 <br />
