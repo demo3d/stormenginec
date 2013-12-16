@@ -66,7 +66,7 @@ StormMaterial.prototype.writeNow = function(arr, arrDimensions) {
 /**
 * Set color
 * @type Void
-* @param {StormV3|String|Array|Float32Array|Uint8Array|WebGLTexture|HTMLImageElement} textureUrl
+* @param {StormV3|String|Array|Float32Array|Uint8Array|WebGLTexture|HTMLImageElement} color
 * @param {String} [typeTexture="albedo"] 'albedo' or 'bump'
 */
 StormMaterial.prototype.write = function(color, typeTexture) { 
