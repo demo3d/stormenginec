@@ -157,8 +157,17 @@
 }
 /* MENUS CONTENT */
 .SECmenuContent {
+	min-width:220px;
 	cursor:default;
 	padding:5px; 
 	color:#FFF;
 	background:rgba(50,50,50,0.95);
+}
+
+
+
+
+
+.boxMat {
+
 }

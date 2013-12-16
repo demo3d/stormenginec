@@ -73,7 +73,7 @@ StormGLContext = function(stormCanvasObject, loadScene) {
 	// STACK SHADER COMPILATION
 	this.stackShaders = []; 
 	this.stackShadersRunning = false;
-	this._SHOW_ANGLE_HLSL_SOURCE = true; // start chrome with –-enable-privileged-webgl-extensions (–-use-gl=desktop if stormEngineC.enableVO())
+	this._SHOW_ANGLE_HLSL_SOURCE = false; // start chrome with –-enable-privileged-webgl-extensions (–-use-gl=desktop if stormEngineC.enableVO())
 	
 	// VIEW FBS 
 	this.view_Normals = false;
@@ -122,7 +122,8 @@ StormGLContext.prototype.initContext = function() {
 		alert('Your browser does not support WebGL. Download <a href="http://www.mozilla.com/">Firefox</a> o <a href="http://www.google.es/chrome">Chrome</a>');
 		return false;
 	} 
-	this.gl.getExtension('OES_texture_float')
+	this.gl.getExtension('OES_texture_float');
+	this.gl.getExtension('OES_texture_float_linear');
 	var highPrecisionSupport = this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.HIGH_FLOAT);
 	this.precision = (highPrecisionSupport != 0) ? 'precision highp float;\n\nprecision highp int;\n\n' : 'precision mediump float;\n\nprecision mediump int;\n\n';
 	

@@ -683,6 +683,11 @@ StormEngineC.prototype.makePanel = function(panelobj, panelname, paneltitle, htm
 	panelobj.$ = $("#"+panelname+"_MENU");
 	
 	$("#"+panelname+"_MENU").draggable();
+	$("#"+panelname+"_MENU").resizable({resize:function(event, ui) {
+			$("#"+panelname+"_MENU").css({width: ui.size.width, height: ui.size.height});
+			$("#"+panelname+"_MENU .SECmenuContent").css({	width: (ui.size.width-10)+'px',
+															height: (ui.size.height-$("#"+panelname+"_MENU .SECmenuTitle").height()-10)+'px'});
+		}});
 	$("#"+panelname+"_MENU .SECmenuTitle").on('mousedown', function() {
 		$(".SECmenu").css('z-index','0');
 		$("#"+panelname+"_MENU").css('z-index','99');    
@@ -1079,7 +1084,7 @@ StormEngineC.prototype.upWebsocket = function(ip, port) {
 											'node':node});
 			var mesh = new StormMesh();
 			//mesh.loadBox(node, $V3([1.0,1.0,1.0]));
-			//node.setKdColor($V3([1.0,1.0,1.0])); 
+			//node.setAlbedo($V3([1.0,1.0,1.0])); 
 			mesh.loadBox($V3([1.0,1.0,1.0])); // the mesh to be used should be placed at the point 0,0,0 before exporting
 			node.setPosition($V3([-13.0, 2.0, -30.0]));
 		}
@@ -1100,7 +1105,7 @@ StormEngineC.prototype.upWebsocket = function(ip, port) {
 		
 		var mesh = new StormMesh();
 		//mesh.loadBox(node, $V3([1.0,1.0,1.0]));
-		//node.setKdColor($V3([1.0,1.0,1.0])); 
+		//node.setAlbedo($V3([1.0,1.0,1.0])); 
 		mesh.loadBox($V3([1.0,1.0,1.0])); // the mesh to be used should be placed at the point 0,0,0 before exporting
 		node.setPosition($V3([-13.0, 2.0, -30.0]));
 	});
@@ -1423,62 +1428,6 @@ StormEngineC.prototype.createMaterial = function() {
 };
 
 /**
-* Crear textura en el contexto WebGL a partir de un elemento imagen de HTML
-* @private
-* @type Void
-* @param {HTMLImageElement}
-* @param {StormMaterial}
-* @param {String} [type=Kd] Kd or Bump
-*/
-StormEngineC.prototype.addGLTexture = function(imageElement, material, type) {
-	var gl = this.stormGLContext.gl;
-	
-	if(type == undefined || type == 'Kd') {
-		material.materialType = 'texture';
-		
-		material.textureObjectKd = gl.createTexture();
-		material.imageElement_Kd = imageElement;
-		
-		material.canvasKd = document.createElement('canvas');
-		material.canvasKd.width = imageElement.width;
-		material.canvasKd.height = imageElement.height;
-		
-		var ctx2DTEX = material.canvasKd.getContext("2d");		
-		ctx2DTEX.drawImage(imageElement, 0, 0);
-		var gid = ctx2DTEX.getImageData(0, 0, imageElement.width, imageElement.height); 
-		material.arrayTEX_Kd = gid.data;
-	} else if(type == 'Bump') {
-		material.textureObjectBump = gl.createTexture();
-		material.imageElement_bump = imageElement;
-		
-		material.canvasBump = document.createElement('canvas');
-		material.canvasBump.width = imageElement.width;
-		material.canvasBump.height = imageElement.height;
-		
-		var ctx2DTEX = material.canvasBump.getContext("2d");		
-		ctx2DTEX.drawImage(imageElement, 0, 0);
-		var gid = ctx2DTEX.getImageData(0, 0, imageElement.width, imageElement.height); 
-		material.arrayTEX_bump = gid.data;
-	}
-	
-	
-	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-	if(type == undefined || type == 'Kd') {
-		gl.bindTexture(gl.TEXTURE_2D, material.textureObjectKd);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, imageElement.width, imageElement.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(material.arrayTEX_Kd));
-	} else if(type == 'Bump') {
-		gl.bindTexture(gl.TEXTURE_2D, material.textureObjectBump);
-		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, imageElement.width, imageElement.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(material.arrayTEX_bump));
-	}
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-	gl.generateMipmap(gl.TEXTURE_2D);
-	
-	gl.bindTexture(gl.TEXTURE_2D, null);
-};
-
-/**
 * Create StormGroupNodes object
 * @returns {StormGroupNodes}
 */
@@ -1512,7 +1461,7 @@ StormEngineC.prototype.createCamera = function(vec, distance) {
 	nodeCam.nodePivot.nodeFocus.visibleOnContext = false; 
 	nodeCam.nodePivot.nodeFocus.visibleOnRender = false; 
 	nodeCam.nodePivot.nodeFocus.loadBox($V3([0.12,0.12,0.12]));
-	nodeCam.nodePivot.nodeFocus.setKdColor($V3([0.3,0.8,0.3])); 
+	nodeCam.nodePivot.nodeFocus.setAlbedo($V3([0.3,0.8,0.3])); 
 	
 	if(distance != undefined) {
 		var posGoal = nodeCam.nodePivot.getPosition().add($V3([0.0,0.0,distance]));  
@@ -1627,7 +1576,7 @@ StormEngineC.prototype.createLight = function(jsonIn) {
 	} else {
 		light.setLightColor(5770);
 	}
-	light.nodeCtxWebGL.setKdColor(light.color); 
+	light.nodeCtxWebGL.setAlbedo(light.color);  
 	
 	if(jsonIn.direction != undefined) {
 		light.setDirection($V3([jsonIn.direction.e[0], jsonIn.direction.e[1], jsonIn.direction.e[2]]));

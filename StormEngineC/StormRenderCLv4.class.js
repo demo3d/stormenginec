@@ -1201,8 +1201,9 @@ StormRender.prototype.updateObjects = function() {
 					
 					numTRIS++;
 				}
-				this.arrayBuffersTextures[numNB] = clContext.createImage2D(WebCL.CL_MEM_READ_ONLY, format,this.nodes[n].buffersObjects[nb].material.canvasKd.width, this.nodes[n].buffersObjects[nb].material.canvasKd.height, 0);	
-				clCmdQueue.enqueueWriteImage(this.arrayBuffersTextures[numNB], true, [0,0,0], [this.nodes[n].buffersObjects[nb].material.canvasKd.width,this.nodes[n].buffersObjects[nb].material.canvasKd.height,1], 0, 0, this.nodes[n].buffersObjects[nb].material.arrayTEX_Kd, []);
+				this.arrayBuffersTextures[numNB] = clContext.createImage2D(WebCL.CL_MEM_READ_ONLY, format,this.nodes[n].materialUnits[0].textureObjectKd.W, this.nodes[n].materialUnits[0].textureObjectKd.H, 0);	
+				var ar = this.nodes[n].materialUnits[0].textureObjectKd.inData;
+				clCmdQueue.enqueueWriteImage(this.arrayBuffersTextures[numNB], true, [0,0,0], [this.nodes[n].materialUnits[0].textureObjectKd.W,this.nodes[n].materialUnits[0].textureObjectKd.H,1], 0, 0, new Uint8Array([ar[0],ar[1],ar[2],ar[3]]), []);
 				numNB++;
 			}
 		}
@@ -1251,11 +1252,13 @@ StormRender.prototype.updateObjects = function() {
 					numTRIS++;
 				}
 				this.arrayBuffersTextures[numNB] = clContext.createImage2D(WebCL.CL_MEM_READ_ONLY, format,1, 1, 0);	
-				clCmdQueue.enqueueWriteImage(this.arrayBuffersTextures[numNB], true, [0,0,0], [1,1,1], 0, 0, this.lights[n].buffersObjects[nb].material.arrayTEX_Kd, []);
+				var ar = this.lights[n].materialUnits[0].textureObjectKd.inData;
+				clCmdQueue.enqueueWriteImage(this.arrayBuffersTextures[numNB], true, [0,0,0], [1,1,1], 0, 0, new Uint8Array([ar[0],ar[1],ar[2],ar[3]]), []);
 				numNB++;
 			}
-			//this.arrayBuffersTexturesLightRay[n] = clContext.createImage2D(WebCL.CL_MEM_READ_ONLY, format,this.lights[n].buffersObjects[0].material.canvasKd.width, this.lights[n].buffersObjects[0].material.canvasKd.height, 0);
-			//clCmdQueue.enqueueWriteImage(this.arrayBuffersTexturesLightRay[n], true, [0,0,0], [this.lights[n].buffersObjects[0].material.canvasKd.width,this.lights[n].buffersObjects[0].material.canvasKd.height,1], 0, 0, this.lights[n].buffersObjects[0].material.arrayTEX_Kd, []);
+			//this.arrayBuffersTexturesLightRay[n] = clContext.createImage2D(WebCL.CL_MEM_READ_ONLY, format,this.nodes[n].materialUnits[0].textureObjectKd.W, this.nodes[n].materialUnits[0].textureObjectKd.H, 0);
+			//var ar = this.lights[n].materialUnits[0].textureObjectKd.inData;
+			//clCmdQueue.enqueueWriteImage(this.arrayBuffersTexturesLightRay[n], true, [0,0,0], [this.lights[n].materialUnits[0].textureObjectKd.W,this.lights[n].materialUnits[0].textureObjectKd.H,1], 0, 0, new Uint8Array([ar[0],ar[1],ar[2],ar[3]]), []);
 			
 			this.buffShadowNearDistance[n] = clContext.createBuffer(WebCL.CL_MEM_READ_WRITE, this.bufferSize);
 			this.buffShadowNearNodeTypeLight[n] = clContext.createBuffer(WebCL.CL_MEM_READ_WRITE, this.bufferSize);
@@ -1301,8 +1304,8 @@ StormRender.prototype.setCam = function(nodeCam) {
 	for(var n = 0, f = this.nodes.length; n < f; n++) {
 		if(this.nodes[n].visibleOnRender == true) {
 			for(var nb = 0, fnb = this.nodes[n].buffersObjects.length; nb < fnb; nb++) {
-				this.clKernel_PrimaryRays.setKernelArg(21, this.nodes[n].buffersObjects[nb].material.canvasKd.width, WebCL.types.UINT);
-				this.clKernel_PrimaryRays.setKernelArg(22, this.nodes[n].buffersObjects[nb].material.canvasKd.height, WebCL.types.UINT);
+				this.clKernel_PrimaryRays.setKernelArg(21, this.nodes[n].materialUnits[0].textureObjectKd.W, WebCL.types.UINT);
+				this.clKernel_PrimaryRays.setKernelArg(22, this.nodes[n].materialUnits[0].textureObjectKd.H, WebCL.types.UINT);
 				this.clKernel_PrimaryRays.setKernelArg(24, this.nodes[n].buffersObjects[nb].material.Ns, WebCL.types.FLOAT);
 				this.clKernel_PrimaryRays.setKernelArg(46, this.arrayBuffersTextures[numbNB]);
 				for(var b = 0, fb = this.nodes[n].buffersObjects[nb].nodeMeshIndexArray.length/3; b < fb; b++) {
@@ -1343,7 +1346,7 @@ StormRender.prototype.setCam = function(nodeCam) {
 			for(var nb = 0, fnb = this.lights[n].buffersObjects.length; nb < fnb; nb++) {
 				this.clKernel_PrimaryRays.setKernelArg(21, 1, WebCL.types.UINT);
 				this.clKernel_PrimaryRays.setKernelArg(22, 1, WebCL.types.UINT);
-				this.clKernel_PrimaryRays.setKernelArg(24, this.lights[n].buffersObjects[nb].material.Ns, WebCL.types.FLOAT);
+				this.clKernel_PrimaryRays.setKernelArg(24, this.lights[n].buffersObjects[nb].materialUnits[0].Ns, WebCL.types.FLOAT);
 				this.clKernel_PrimaryRays.setKernelArg(46, this.arrayBuffersTextures[numbNB]);
 				for(var b = 0, fb = this.lights[n].buffersObjects[nb].nodeMeshIndexArray.length/3; b < fb; b++) {
 					this.clKernel_PrimaryRays.setKernelArg(0, this.arrayL_VAx[numb], WebCL.types.FLOAT);
@@ -1447,9 +1450,9 @@ StormRender.prototype.makeRender = function() {
 			if(this.nodes[n].visibleOnRender == true) {
 			this.clKernel_SecundaryRays.setKernelArg(26, (this.nodes[n].type == 'sun')?0:1, WebCL.types.UINT);
 				for(var nb = 0, fnb = this.nodes[n].buffersObjects.length; nb < fnb; nb++) {
-					this.clKernel_SecundaryRays.setKernelArg(23, this.nodes[n].buffersObjects[nb].material.canvasKd.width, WebCL.types.UINT);
-					this.clKernel_SecundaryRays.setKernelArg(24, this.nodes[n].buffersObjects[nb].material.canvasKd.height, WebCL.types.UINT);
-					this.clKernel_SecundaryRays.setKernelArg(27, this.nodes[n].buffersObjects[nb].material.Ns, WebCL.types.FLOAT);
+					this.clKernel_SecundaryRays.setKernelArg(23, this.nodes[n].buffersObjects[nb].materialUnits[0].textureObjectKd.W, WebCL.types.UINT);
+					this.clKernel_SecundaryRays.setKernelArg(24, this.nodes[n].buffersObjects[nb].materialUnits[0].textureObjectKd.H, WebCL.types.UINT);
+					this.clKernel_SecundaryRays.setKernelArg(27, this.nodes[n].buffersObjects[nb].materialUnits[0].Ns, WebCL.types.FLOAT);
 					this.clKernel_SecundaryRays.setKernelArg(59, this.arrayBuffersTextures[numbNB]);
 					for(var b = 0, fb = this.nodes[n].buffersObjects[nb].nodeMeshIndexArray.length/3; b < fb; b++) {
 						this.clKernel_SecundaryRays.setKernelArg(2, this.arrayN_VAx[numb], WebCL.types.FLOAT);
@@ -1491,7 +1494,7 @@ StormRender.prototype.makeRender = function() {
 				for(var nb = 0, fnb = this.lights[n].buffersObjects.length; nb < fnb; nb++) {
 					this.clKernel_SecundaryRays.setKernelArg(23, 1, WebCL.types.UINT);
 					this.clKernel_SecundaryRays.setKernelArg(24, 1, WebCL.types.UINT);
-					this.clKernel_SecundaryRays.setKernelArg(27, this.lights[n].buffersObjects[nb].material.Ns, WebCL.types.FLOAT);
+					this.clKernel_SecundaryRays.setKernelArg(27, this.lights[n].buffersObjects[nb].materialUnits[0].Ns, WebCL.types.FLOAT);
 					this.clKernel_SecundaryRays.setKernelArg(59, this.arrayBuffersTextures[numbNB]);
 					for(var b = 0, fb = this.lights[n].buffersObjects[nb].nodeMeshIndexArray.length/3; b < fb; b++) {
 						if(this.lights[n].id == this.lights[0].id) {

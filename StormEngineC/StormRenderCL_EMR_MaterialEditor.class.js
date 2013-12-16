@@ -775,7 +775,7 @@ StormRenderEMR_MaterialEditor.prototype.drawSpectrum = function(idMaterial) {
 	for(var n = 0, f = stormEngineC.nodes.length; n < f; n++) {
 		if(stormEngineC.nodes[n].materialEMR != undefined) {
 			if(stormEngineC.nodes[n].materialEMR.idMaterial == stormEngineC.EMR_Materials[idMaterial].idMaterial) {
-				stormEngineC.nodes[n].setKdColor(this.rgbReflect);
+				stormEngineC.nodes[n].setAlbedo(this.rgbReflect);
 			}
 		}
 	}
@@ -783,7 +783,7 @@ StormRenderEMR_MaterialEditor.prototype.drawSpectrum = function(idMaterial) {
 		if(stormEngineC.lights[n].materialEMR != undefined) {
 			if(stormEngineC.lights[n].materialEMR.idMaterial == stormEngineC.EMR_Materials[idMaterial].idMaterial) {
 				stormEngineC.lights[n].setLightColor(this.rgb);
-				stormEngineC.lights[n].nodeCtxWebGL.setKdColor(this.rgb);
+				stormEngineC.lights[n].nodeCtxWebGL.setAlbedo(this.rgb);
 			}
 		}
 	}
@@ -832,12 +832,12 @@ StormRenderEMR_MaterialEditor.prototype.applyMaterial = function(rgb,rgbReflect)
 	if(stormEngineC.nearNode != undefined) {
 		if(stormEngineC.nearNode.objectType == 'light') {
 			if(stormEngineC.EMR_Materials[stormEngineC.selectedEMRMaterial].type == 'emission') {
-				stormEngineC.nearNode.nodeCtxWebGL.setKdColor(rgb);
+				stormEngineC.nearNode.nodeCtxWebGL.setAlbedo(rgb);
 				stormEngineC.nearNode.materialEMR = stormEngineC.EMR_Materials[stormEngineC.selectedEMRMaterial];
 			} else {alert('Absorption spectrum only on objects');}
 		} else if(stormEngineC.nearNode.objectType == 'node') {
 			if(stormEngineC.EMR_Materials[stormEngineC.selectedEMRMaterial].type == 'absorption') {
-				stormEngineC.nearNode.setKdColor(rgbReflect);
+				stormEngineC.nearNode.setAlbedo(rgbReflect);
 				stormEngineC.nearNode.materialEMR = stormEngineC.EMR_Materials[stormEngineC.selectedEMRMaterial];
 			} else {alert('Emission spectrum only on lights');}
 		} else {

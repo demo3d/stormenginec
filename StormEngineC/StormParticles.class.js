@@ -163,7 +163,7 @@ StormParticles.prototype.setDisposal = function(jsonIn) {
 	this.buffersObjects = [];
 	var bObject = this.attachMeshSeparateXYZ(arrayX,arrayY,arrayZ);
 	//var color = (jsonIn.color != undefined) ? jsonIn.color : $V3([1.0,1.0,1.0]);
-	//bObject.material.attachColor(color);
+	//bObject.material.write(color);
 	
 	this.webCLGL.enqueueWriteBuffer(this.buffer_InitPos, arra);
 	this.webCLGL.enqueueWriteBuffer(this.buffer_PosX, arrayX);

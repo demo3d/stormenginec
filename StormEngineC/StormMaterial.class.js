@@ -33,102 +33,78 @@ StormMaterial = function() {
 	this.idNum;
 	this.Ns = 0.8928571428571429; // roughness 0.0-100.0 ->/112=(0.0 - 0.8928571428571429) 
 	this.illumination = 0.0;
+	this.solid = true;
+	this.name = '';
 	
-	this.materialType = 'color'; // color | texture
 	
-	this.imageElement_Kd = undefined; // HTML image object map albedo //imageElement_Kd.width imageElement_Kd.height
-	this.canvasKd = document.createElement('canvas');
+	this.typeTexture = 'albedo'; // temporal variable. albedo|bump
+	
 	this.textureKdName = undefined; // string name map albedo
-	this.Kd = $V3([1.0,1.0,1.0]); // vector3 color albedo
-	this.textureObjectKd = undefined; // WebGL texture albedo
-	this.arrayTEX_Kd = new Uint8Array([255,255,255,255]); // Typed array map albedo
+	this.textureObjectKd = stormEngineC.clgl.createBuffer([1,1], "FLOAT4", 0, false); // WebGL texture albedo
+	stormEngineC.clgl.enqueueWriteBuffer(this.textureObjectKd, [1,1,1,1]);	
 	
-	this.imageElement_bump = undefined; // HTML image object map bump
-	this.canvasBump = document.createElement('canvas');
 	this.textureBumpName = undefined; // string name map bump
 	this.textureObjectBump = undefined; // WebGL texture map bump
-	this.arrayTEX_bump = new Uint8Array(); // Typed array map bump
 };
 
-/**
-* Attach a solid color
-* @type Void
-* @param {StormV3} color normalize vector
-*/
-StormMaterial.prototype.attachColor = function(vecColor) {
-	var gl = this.gl;
-	
-	this.materialType = 'color';
-	
-	this.textureObjectKd = gl.createTexture();
-	textureObj = this.textureObjectKd;
-	
-	this.canvasKd = document.createElement('canvas');
-	this.canvasKd.width = 1;
-	this.canvasKd.height = 1;
-	this.canvasKd.data = new Uint8Array([vecColor.e[0]*255,vecColor.e[1]*255,vecColor.e[2]*255,255]);
-	this.arrayTEX_Kd = this.canvasKd.data;
-	this.textureKdName = 'color '+this.arrayTEX_Kd[0]+','+this.arrayTEX_Kd[1]+','+this.arrayTEX_Kd[2];
-	
-	
-	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-	gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-	gl.bindTexture(gl.TEXTURE_2D, this.textureObjectKd);
-	//gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageElement);
-	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.arrayTEX_Kd);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-	gl.generateMipmap(gl.TEXTURE_2D);
-	
-	gl.bindTexture(gl.TEXTURE_2D, null);
-};
-
-/**
-* Attach a image in this material.
-* @type Void
-* @param {String} textureUrl
-* @param {String} [typeTexture="map_kd"] 'map_kd' or 'map_bump'
-*/
-StormMaterial.prototype.attachTexture = function(textureUrl, typeTexture) { 
-	var typeTexture = typeTexture == undefined ? 'map_kd' : typeTexture;
-	
-	this.materialType = 'texture';
-	
-	var explTextureUrl = textureUrl.split('/');
-	var tt;
-	if(typeTexture == 'map_kd') {
-		tt = 'Kd';
-		this.textureKdName = explTextureUrl[explTextureUrl.length-1];
-	} else if(typeTexture == 'map_bump') {
-		tt = 'Bump';
-		this.textureBumpName = explTextureUrl[explTextureUrl.length-1];
+/** @private */
+StormMaterial.prototype.writeNow = function(arr, arrDimensions) {
+	this.solid = false;
+	if(this.typeTexture == 'albedo') {
+		this.textureObjectKd = stormEngineC.clgl.createBuffer(arrDimensions, "FLOAT4", 0, true); 
+		stormEngineC.clgl.enqueueWriteBuffer(this.textureObjectKd, arr, true);
+	} else if(this.typeTexture == 'bump') {
+		this.textureObjectBump = stormEngineC.clgl.createBuffer(arrDimensions, "FLOAT4", 0, true);  
+		stormEngineC.clgl.enqueueWriteBuffer(this.textureObjectKd, arr, true); 
 	}
 	
-	var req = new XMLHttpRequest();
-	req.material = this;
-	req.tt = tt;
-	req.open("GET", textureUrl, true);
-	req.responseType = "blob";
+	if(this.typeTexture == 'albedo')
+		this.textureKdName = this.name;
+	else if(this.typeTexture == 'bump')
+		this.textureBumpName = this.name;
+};
+/**
+* Set color
+* @type Void
+* @param {StormV3|String|Array|Float32Array|Uint8Array|WebGLTexture|HTMLImageElement} textureUrl
+* @param {String} [typeTexture="albedo"] 'albedo' or 'bump'
+*/
+StormMaterial.prototype.write = function(color, typeTexture) { 
+	this.typeTexture = typeTexture == undefined ? 'albedo' : typeTexture;
 	
-	req.onload = function() {
-		var filereader = new FileReader();
-		filereader.onload = function(event) {
-			var dataUrl = event.target.result;
-			
-			var image = new Image();
-			image.onload = function() {
-				stormEngineC.setStatus({id:'texture'+textureUrl,
-									str:''});
-				stormEngineC.addGLTexture(image, req.material, req.tt);
+	if(color instanceof StormV3) { 
+		this.writeNow([color.e[0],color.e[1],color.e[2],1], [1,1]);  
+	} else if(typeof color === 'string') { 
+		var explTextureUrl = color.split('/');
+		this.name = explTextureUrl[explTextureUrl.length-1];
+		
+		var req = new XMLHttpRequest();
+		req.material = this;
+		req.open("GET", color, true);
+		req.responseType = "blob";
+		
+		req.onload = function() {
+			var filereader = new FileReader();
+			filereader.onload = function(event) {
+				var dataUrl = event.target.result;
+				
+				var image = new Image();
+				image.onload = function() {
+					stormEngineC.setStatus({id:'texture'+color,
+											str:''});
+					req.material.writeNow(image, [image.width, image.height]);
+				};
+				image.src = dataUrl;
 			};
-			image.src = dataUrl;
+			filereader.readAsDataURL(req.response);
 		};
-		filereader.readAsDataURL(req.response);
-	};
-	stormEngineC.setStatus({id:'texture'+textureUrl,
-							str:'Loading texture...'+textureUrl,
-							req:req});
-	req.send(null);
+		stormEngineC.setStatus({id:'texture'+color,
+								str:'Loading texture...'+color,
+								req:req});
+		req.send(null);
+	} else {
+		this.writeNow(color, color.length);
+	}
 };
 
 /**
@@ -137,9 +113,9 @@ StormMaterial.prototype.attachTexture = function(textureUrl, typeTexture) {
 * @param {String} materialName
 * @param {String} materialFileUrl .mtl file url
 */
-StormMaterial.prototype.attachTextureFromMTLFile = function(materialName, mtlsFile) { 
+StormMaterial.prototype.writeFromMTLFile = function(materialName, mtlsFile) { 
 	var req = new XMLHttpRequest();
-	req.bObject = this;
+	req.material = this;
 	req.open("GET", mtlsFile, true);
 	req.responseType = "blob";
 	
@@ -149,7 +125,7 @@ StormMaterial.prototype.attachTextureFromMTLFile = function(materialName, mtlsFi
 			var text = event.target.result;
 			
 			stormEngineC.setStatus({id:'material'+mtlsFile,
-								str:''});
+									str:''});
 								
 			var stringObjDirectory = '';
 			var separat = '';
@@ -171,21 +147,23 @@ StormMaterial.prototype.attachTextureFromMTLFile = function(materialName, mtlsFi
 				if(encontradoMaterial == true) {
 					if(line.match(/^Ns/gi) != null) { // roughness (.obj exports = 0.0 - 100.0) 
 						var array = line.split(" ");
-						req.bObject.Ns = array[1]/112.0; // 100/112.0 -> 0.0-0.8928571428571429
+						req.material.Ns = array[1]/112.0; // 100/112.0 -> 0.0-0.8928571428571429
 					}
 					if(line.match(/^Kd/gi) != null) { // albedo
 						var array = line.split(" ");
-						req.bObject.Kd = $V3([array[1],array[2],array[3]]);
+						req.material.textureObjectKd.inData[0] = array[1];
+						req.material.textureObjectKd.inData[1] = array[2];
+						req.material.textureObjectKd.inData[2] = array[3];
 					}
 					if(line.match(/^map_Kd/gi) != null) { // map albedo
 						var array = line.split("\\");
-						req.bObject.attachTexture(stringObjDirectory+array[array.length-1], 'map_kd');
-						req.bObject.textureKdName = array[array.length-1];
+						req.material.write(stringObjDirectory+array[array.length-1], 'albedo');
+						req.material.textureKdName = array[array.length-1];
 					}
-					if(line.match(/^map_bump/gi) != null) { // map bump
+					if(line.match(/^bump/gi) != null) { // map bump
 						var array = line.split("\\");
-						req.bObject.attachTexture(stringObjDirectory+array[array.length-1], 'map_bump');
-						req.bObject.textureBumpName = array[array.length-1];
+						req.material.write(stringObjDirectory+array[array.length-1], 'bump');
+						req.material.textureBumpName = array[array.length-1];
 					}
 					if(line.match(/^newmtl /gi) != null) {
 						encontradoMaterial = false;

@@ -662,9 +662,9 @@ StormNode.prototype.loadShapeFromArray2D = function(jsonIn) {
 	
 	var bObject = this.attachMesh(meshObject);
 	if(jsonIn.textureUniqueUrl == undefined) { 
-		this.materialUnits[0].attachColor($V3([color.e[0], color.e[1], color.e[2]])); 
+		this.materialUnits[0].write($V3([color.e[0], color.e[1], color.e[2]])); 
 	} else {
-		this.materialUnits[0].attachTexture(jsonIn.textureUniqueUrl, 'map_kd');
+		this.materialUnits[0].write(jsonIn.textureUniqueUrl);
 	}
 	
 	if(jsonIn.extrudeDimension != undefined) {
@@ -948,37 +948,19 @@ StormNode.prototype.extrudeThisTriangles = function(jsonIn) {
 		
 		//var materialUnits = BO.materialUnits;
 		this.buffersObjects[B] = bObject;
-		//this.materialUnits[0].attachColor($V3([color.e[0], color.e[1], color.e[2]])); 
+		//this.materialUnits[0].write($V3([color.e[0], color.e[1], color.e[2]])); 
 		//this.buffersObjects[B].materialUnits = materialUnits; 
 	}
 	return arrCapTriangles;
 };
 
-
-
 /**
-* Apply solid color to node
+* Apply albedo color to node
 * @type Void
-* @param {StormV3} vecColor normalize color
+* @param {StormV3|String|Array|Float32Array|Uint8Array|WebGLTexture|HTMLImageElement} color color
 */
-StormNode.prototype.setKdColor = function(vecColor) { 
-	for(var n = 0, f = this.materialUnits.length; n < f; n++) {
-		this.materialUnits[n].Kd = vecColor;
-		this.materialUnits[n].attachColor(vecColor);
-	}
-};
-
-/**
-* Apply image texture to entire node
-* @type Void
-* @param {String} imageUrl
-* @param {String} [type="map_kd"] "map_kd" or "map_bump"
-*/
-StormNode.prototype.attachTextureUnique = function(imageUrl, type) {
-	var typeTexture = type == undefined ? 'map_kd' : type;
-	for(var n = 0, f = this.materialUnits.length; n < f; n++) {
-		this.materialUnits[n].attachTexture(imageUrl, typeTexture); 
-	}
+StormNode.prototype.setAlbedo = function(color) {
+	for(var n = 0, f = this.materialUnits.length; n < f; n++) this.materialUnits[n].write(color); 
 };
 
 /**

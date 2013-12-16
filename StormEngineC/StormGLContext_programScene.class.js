@@ -645,9 +645,23 @@ StormGLContext.prototype.renderSceneNow = function(node, buffersObject) {
 		
 	var next = this.OCCUPIEDSAMPLES_SHADERSCENE; 
 	for(var n = 0; (n < node.materialUnits.length && n < _this.MAX_TEXTURESKD); n++) {
-		eval("this.gl.activeTexture(this.gl.TEXTURE"+(next)+");")
-		this.gl.bindTexture(this.gl.TEXTURE_2D, node.materialUnits[n].textureObjectKd);    
-		this.gl.uniform1i(this.samplers_Scene_objectTexturesKd[n], next);
+		if(next == 5) this.gl.activeTexture(this.gl.TEXTURE5);
+		else if(next == 6) this.gl.activeTexture(this.gl.TEXTURE6);
+		else if(next == 7) this.gl.activeTexture(this.gl.TEXTURE7);
+		else if(next == 8) this.gl.activeTexture(this.gl.TEXTURE8);
+		else if(next == 9) this.gl.activeTexture(this.gl.TEXTURE9);
+		else if(next == 10) this.gl.activeTexture(this.gl.TEXTURE10);
+		else if(next == 11) this.gl.activeTexture(this.gl.TEXTURE11);
+		else if(next == 12) this.gl.activeTexture(this.gl.TEXTURE12);
+		else if(next == 13) this.gl.activeTexture(this.gl.TEXTURE13);
+		else if(next == 14) this.gl.activeTexture(this.gl.TEXTURE14);
+		else if(next == 15) this.gl.activeTexture(this.gl.TEXTURE15);
+		else if(next == 16) this.gl.activeTexture(this.gl.TEXTURE16);
+		else this.gl.activeTexture(this.gl.TEXTURE16);
+		if(node.materialUnits[n].textureObjectKd.textureData != undefined) {
+			this.gl.bindTexture(this.gl.TEXTURE_2D, node.materialUnits[n].textureObjectKd.textureData);    
+			this.gl.uniform1i(this.samplers_Scene_objectTexturesKd[n], next);
+		}
 		next++;
 		
 		this.gl.uniform1f(this.us_Scene_roughness[n], node.materialUnits[n].Ns);

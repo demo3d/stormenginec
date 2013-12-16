@@ -1386,8 +1386,9 @@ StormRenderEMR.prototype.updateObjects = function() {
 						
 						numTRIS++;
 					}
-					//this.arrayBuffersTextures[numNB] = clContext.createImage2D(WebCL.CL_MEM_READ_ONLY, format,this.nodes[n].buffersObjects[nb].material.canvasKd.width, this.nodes[n].buffersObjects[nb].material.canvasKd.height, 0);	
-					//clCmdQueue.enqueueWriteImage(this.arrayBuffersTextures[numNB], true, [0,0,0], [this.nodes[n].buffersObjects[nb].material.canvasKd.width,this.nodes[n].buffersObjects[nb].material.canvasKd.height,1], 0, 0, this.nodes[n].buffersObjects[nb].material.arrayTEX_Kd, []);
+					//this.arrayBuffersTextures[numNB] = clContext.createImage2D(WebCL.CL_MEM_READ_ONLY, format,this.nodes[n].materialUnits[0].textureObjectKd.W, this.nodes[n].materialUnits[0].textureObjectKd.H, 0);	
+					//var ar = this.nodes[n].materialUnits[0].textureObjectKd.inData;
+					//clCmdQueue.enqueueWriteImage(this.arrayBuffersTextures[numNB], true, [0,0,0], [this.nodes[n].materialUnits[0].textureObjectKd.W,this.nodes[n].materialUnits[0].textureObjectKd.H,1], 0, 0, new Uint8Array([ar[0],ar[1],ar[2],ar[3]]), []);
 					numNB++;
 				}
 			}
@@ -1481,8 +1482,8 @@ StormRenderEMR.prototype.makeRender = function() {
 				this.clKernel_SecundaryRays.setKernelArg(26, (this.nodes[n].type == 'sun')?0:1, WebCL.types.UINT);
 				this.clKernel_SecundaryRays.setKernelArg(90, this.nodes[n].materialEMR.idMaterial, WebCL.types.UINT);
 				for(var nb = 0, fnb = this.nodes[n].buffersObjects.length; nb < fnb; nb++) {
-					this.clKernel_SecundaryRays.setKernelArg(23, this.nodes[n].buffersObjects[nb].material.canvasKd.width, WebCL.types.UINT);
-					this.clKernel_SecundaryRays.setKernelArg(24, this.nodes[n].buffersObjects[nb].material.canvasKd.height, WebCL.types.UINT);
+					this.clKernel_SecundaryRays.setKernelArg(23, this.nodes[n].buffersObjects[nb].materialUnits[0].textureObjectKd.W, WebCL.types.UINT);
+					this.clKernel_SecundaryRays.setKernelArg(24, this.nodes[n].buffersObjects[nb].materialUnits[0].textureObjectKd.H, WebCL.types.UINT);
 					this.clKernel_SecundaryRays.setKernelArg(27, (this.nodes[n].materialEMR.Ns/100.0), WebCL.types.FLOAT);
 					this.clKernel_SecundaryRays.setKernelArg(59, 1, WebCL.types.UINT);
 					for(var b = 0, fb = this.nodes[n].buffersObjects[nb].nodeMeshIndexArray.length/3; b < fb; b++) {

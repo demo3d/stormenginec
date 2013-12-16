@@ -71,10 +71,9 @@ StormLight.prototype.setLightColor = function(color) {
 	
 	this.color = vecColor;
 	for(var n = 0, f = this.buffersObjects.length; n < f; n++) {
-		this.buffersObjects[n].Kd = vecColor;
-		this.buffersObjects[n].arrayTEX_Kd = new Uint8Array([parseInt(vecColor.e[0]*255), parseInt(vecColor.e[1]*255), parseInt(vecColor.e[2]*255), 255]); // Typed array map albedo
+		stormEngineC.clgl.enqueueWriteBuffer(this.materialUnits[0].textureObjectKd, [vecColor.e[0], vecColor.e[1], vecColor.e[2], 255]);	
 	}
-	this.nodeCtxWebGL.setKdColor(vecColor);
+	this.nodeCtxWebGL.setAlbedo(vecColor);
 };
 /**
 * @type Void

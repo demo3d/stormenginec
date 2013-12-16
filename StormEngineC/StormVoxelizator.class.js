@@ -244,13 +244,14 @@ StormVoxelizator.prototype.generateFromSceneNow = function(jsonIn) {
 				this.MATS[mu] = new StormMaterial();
 				this.glVoxelizator.pixelStorei(this.glVoxelizator.UNPACK_FLIP_Y_WEBGL, false);      	 
 				this.glVoxelizator.pixelStorei(this.glVoxelizator.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-				this.MATS[mu].textureObjectKd = this.glVoxelizator.createTexture();
-				this.glVoxelizator.bindTexture(this.glVoxelizator.TEXTURE_2D, this.MATS[mu].textureObjectKd); 
+				this.MATS[mu].textureObjectKd.textureData = this.glVoxelizator.createTexture();
+				this.glVoxelizator.bindTexture(this.glVoxelizator.TEXTURE_2D, this.MATS[mu].textureObjectKd.textureData); 
+				var ar = nodes[n].materialUnits[mu].textureObjectKd.inData;
 				this.glVoxelizator.texImage2D(this.glVoxelizator.TEXTURE_2D, 0, this.glVoxelizator.RGBA,
-												nodes[n].materialUnits[mu].canvasKd.width,
-												nodes[n].materialUnits[mu].canvasKd.height,
+												nodes[n].materialUnits[mu].textureObjectKd.W,
+												nodes[n].materialUnits[mu].textureObjectKd.H,
 												0, this.glVoxelizator.RGBA, this.glVoxelizator.UNSIGNED_BYTE,
-												new Uint8Array(nodes[n].materialUnits[mu].arrayTEX_Kd));
+												new Uint8Array(ar));
 				this.glVoxelizator.texParameteri(this.glVoxelizator.TEXTURE_2D, this.glVoxelizator.TEXTURE_MAG_FILTER, this.glVoxelizator.NEAREST);
 				this.glVoxelizator.texParameteri(this.glVoxelizator.TEXTURE_2D, this.glVoxelizator.TEXTURE_MIN_FILTER, this.glVoxelizator.NEAREST);
 				this.glVoxelizator.texParameteri(this.glVoxelizator.TEXTURE_2D, this.glVoxelizator.TEXTURE_WRAP_S, this.glVoxelizator.CLAMP_TO_EDGE);
@@ -442,7 +443,7 @@ StormVoxelizator.prototype.renderVoxelHeightPass = function() {
 		var next = 0; 
 		for(var n = 0; (n < this.MATS.length); n++) {
 			eval("this.glVoxelizator.activeTexture(this.glVoxelizator.TEXTURE"+(next)+");")
-			this.glVoxelizator.bindTexture(this.glVoxelizator.TEXTURE_2D, this.MATS[n].textureObjectKd);    
+			this.glVoxelizator.bindTexture(this.glVoxelizator.TEXTURE_2D, this.MATS[n].textureObjectKd.textureData);    
 			this.glVoxelizator.uniform1i(this.samplers_Voxelizator_objectTexturesKd[n], next);
 			next++;
 		}

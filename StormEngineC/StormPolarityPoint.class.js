@@ -117,7 +117,7 @@ StormPolarityPoint.prototype.setPolarity = function(polarity) {
 	this.polarity = polarity;
 	if(this.polarity == 1) this.color = $V3([1.0,0.0,0.0]);
 	else this.color = $V3([0.0,0.0,1.0]);
-	this.setKdColor(this.color);
+	this.setAlbedo(this.color);
 	
 	for(var n = 0, f = this.nodesProc.length; n < f; n++) this.nodesProc[n].updatekernelDir_Arguments(); 
 };

@@ -47,7 +47,7 @@ StormMesh.prototype.loadPoint = function(node) {
 	if(node != undefined) { 
 		var bObject = node.attachMesh(meshObject);
 		node.materialUnits[0] = stormEngineC.createMaterial();
-		node.materialUnits[0].attachColor($V3([Math.random(), Math.random(), Math.random()]));
+		node.materialUnits[0].write($V3([Math.random(), Math.random(), Math.random()]));
 		bObject.drawElementsMode = 0;
 	} else {
 		return this; 
@@ -82,7 +82,7 @@ StormMesh.prototype.loadTriangle = function(node) {
 	if(node != undefined) { 
 		var bObject = node.attachMesh(meshObject);
 		node.materialUnits[0] = stormEngineC.createMaterial();
-		node.materialUnits[0].attachColor($V3([Math.random(), Math.random(), Math.random()]));
+		node.materialUnits[0].write($V3([Math.random(), Math.random(), Math.random()]));
 	} else {
 		return this; 
 	}
@@ -210,7 +210,7 @@ StormMesh.prototype.loadBox = function(node, vecDim) {
 	if(node != undefined) { 
 		var bObject = node.attachMesh(meshObject);
 		node.materialUnits[0] = stormEngineC.createMaterial();
-		node.materialUnits[0].attachColor($V3([Math.random(), Math.random(), Math.random()]));
+		node.materialUnits[0].write($V3([Math.random(), Math.random(), Math.random()]));
 	} else {
 		return this; 
 	}
@@ -249,7 +249,7 @@ StormMesh.prototype.loadQuad = function(node, length, height) {
 	if(node != undefined) { 
 		var bObject = node.attachMesh(meshObject);
 		node.materialUnits[0] = stormEngineC.createMaterial();
-		node.materialUnits[0].attachColor($V3([Math.random(), Math.random(), Math.random()]));
+		node.materialUnits[0].write($V3([Math.random(), Math.random(), Math.random()]));
 	} else {
 		return this; 
 	}
@@ -420,9 +420,9 @@ StormMesh.prototype.loadSphere = function(jsonIn) {
 		var bObject = jsonIn.node.attachMesh(meshObject);
 		jsonIn.node.materialUnits[0] = stormEngineC.createMaterial();
 		if(jsonIn.color != undefined) {
-			jsonIn.node.materialUnits[0].attachColor($V3([jsonIn.color.e[0], jsonIn.color.e[1], jsonIn.color.e[2]]));
+			jsonIn.node.materialUnits[0].write($V3([jsonIn.color.e[0], jsonIn.color.e[1], jsonIn.color.e[2]]));
 		} else {
-			jsonIn.node.materialUnits[0].attachColor($V3([Math.random(), Math.random(), Math.random()]));
+			jsonIn.node.materialUnits[0].write($V3([Math.random(), Math.random(), Math.random()]));
 		}
 	} else {
 		return this; 
@@ -581,12 +581,12 @@ StormMesh.prototype.loadObjFromSourceText = function(jsonIn) {
 			
 			if(_textureUniqueUrl == undefined) {
 				if(_objDirectory != undefined) {
-					_node.materialUnits[currentTextureUnit].attachTextureFromMTLFile(currentMtlName, _objDirectory+mtlFile);
+					_node.materialUnits[currentTextureUnit].writeFromMTLFile(currentMtlName, _objDirectory+mtlFile);
 				} else {
-					_node.materialUnits[currentTextureUnit].attachColor($V3([Math.random(), Math.random(), Math.random()]));
+					_node.materialUnits[currentTextureUnit].write($V3([Math.random(), Math.random(), Math.random()]));
 				}
 			} else {
-				_node.materialUnits[currentTextureUnit].attachTexture(_textureUniqueUrl, 'map_kd')
+				_node.materialUnits[currentTextureUnit].write(_textureUniqueUrl)
 			}
 			currentTextureUnit++;
 		}
@@ -1092,16 +1092,16 @@ StormMesh.prototype.loadColladaFromSourceText = function(jsonIn) {
 						if(jsonIn.textureUniqueUrl == undefined) {
 							if(jsonIn.daeDirectory != undefined) {
 								if(nameTextureKd != '') {
-									nodeC.materialUnits[0].attachTexture(jsonIn.daeDirectory+nameTextureKd, 'map_kd'); 
-									//if(nameTextureBump != '') nodeC.materialUnits[0].attachTexture(jsonIn.daeDirectory+nameTextureBump, 'map_bump');
+									nodeC.materialUnits[0].write(jsonIn.daeDirectory+nameTextureKd); 
+									//if(nameTextureBump != '') nodeC.materialUnits[0].write(jsonIn.daeDirectory+nameTextureBump, 'bump');
 								} else {
-									nodeC.materialUnits[0].attachColor($V3([colorKd[0], colorKd[1], colorKd[2]]));
+									nodeC.materialUnits[0].write($V3([colorKd[0], colorKd[1], colorKd[2]]));
 								}
 							} else {
-								nodeC.materialUnits[0].attachColor($V3([Math.random(), Math.random(), Math.random()]));
+								nodeC.materialUnits[0].write($V3([Math.random(), Math.random(), Math.random()]));
 							}
 						} else {
-							nodeC.materialUnits[0].attachTexture(jsonIn.textureUniqueUrl, 'map_kd')
+							nodeC.materialUnits[0].write(jsonIn.textureUniqueUrl)
 						}
 						if(nodeC.useJigLibTrimesh)nodeC.generateTrimesh(mesh);
 						
