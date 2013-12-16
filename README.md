@@ -51,6 +51,13 @@ Voxel resolution of 256
 <h3>Last changes</h3>
 <div style="font-size:9px">
 
+<b>StormEngineC 1.2 BETA47</b> Dec 16, 2013<br />
+Renamed function setKdColor & attachTextureUnique to setAlbedo in node objects.<br />
+Renamed function attachColor & attachTexture to write in material objects.<br />
+Renamed function attachTextureFromMTLFile to writeFromMTLFile.<br />
+Added optional parameter "linear" in createBuffer function (WebCLGL objects).<br />
+Length parameter in createBuffer function (WebCLGL objects) allow also array with width & height.<br />
+<br />
 <b>StormEngineC 1.2 BETA46</b> Dec 4, 2013<br />
 Added function stormEngineC.setWebGLResize.<br />
 <br />
