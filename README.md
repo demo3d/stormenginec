@@ -27,15 +27,15 @@ Voxel resolution of 256
 
 ► WebCL Nokia Path Tracing Render (with triangles scenes)<br />
 - Render Farm option using Websocket server with NODEJS<br />
-<a href="http://stormcolour.appspot.com/?sec=stormViewer&secb=webcl-path-tracing" target="_blank"><img src="http://stormcolour.appspot.com/CONTENT/stormviewer/webcl-path-tracing/image.jpg" /></a>
+<a href="http://stormcolour.appspot.com/stormenginec/webcl-path-tracing" target="_blank"><img src="http://stormcolour.appspot.com/CONTENT/stormviewer/webcl-path-tracing/image.jpg" /></a>
 <br />
-<a href="http://stormcolour.appspot.com/?sec=stormViewer&secb=webcl-path-tracing-interior" target="_blank"><img src="http://stormcolour.appspot.com/CONTENT/stormviewer/webcl-path-tracing-interior/image.jpg" /></a>
+<a href="http://stormcolour.appspot.com/stormenginec/webcl-path-tracing-interior" target="_blank"><img src="http://stormcolour.appspot.com/CONTENT/stormviewer/webcl-path-tracing-interior/image.jpg" /></a>
 <br />
 <br />
 <br />
 <h2><a href="http://code.google.com/p/stormenginec/wiki/StormEngineC_1_2">Quick reference</a></h2>
 <h2><a href="http://stormcolour.appspot.com/CONTENT/StormEngineC-1.2-API-Doc/StormEngineC.html">API Doc</a></h2>
-<h2><a href="http://stormcolour.appspot.com/?sec=stormViewer">DEMOS</a></h2>
+<h2><a href="http://stormcolour.appspot.com/stormenginec/demos">DEMOS</a></h2>
 <br />
 <h2><a href="https://plus.google.com/u/0/communities/104803988390152921139">G+ Community</a></h2>
 <br />
