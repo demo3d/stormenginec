@@ -85,13 +85,13 @@ StormCamera.prototype.enableMouseControls = function() {
 };
 
 /**
-* Set side view. This change the proyection to orthographic.
+* Set side view. This change the projection to orthographic.
 * @type Void
 * @param {String} view 'LEFT','RIGHT','FRONT','BACK','TOP','BOTTOM'
  */
 StormCamera.prototype.setView = function(view) {
 	if(this.controllerType != 0) this.setController({'mode':'freecam'});
-	this.setProyectionType('o');
+	this.setProjectionType('o');
 	this.nodePivot.resetAxis();
 	this.resetAxis();
 	switch(view) {

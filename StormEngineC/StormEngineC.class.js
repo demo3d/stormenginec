@@ -527,8 +527,8 @@ StormEngineC.prototype.loadManager = function() {
 		$("#STORMMENUBTN_C1_03").on('click', function() {
 			stormEngineC.PanelEnvironment.show();
 		});
-		$("#STORMMENUBTN_C2_01_PE").on('click', function() {stormEngineC.defaultCamera.setProyectionType("p");}); 
-		$("#STORMMENUBTN_C2_01_OR").on('click', function() {stormEngineC.defaultCamera.setProyectionType("o");});
+		$("#STORMMENUBTN_C2_01_PE").on('click', function() {stormEngineC.defaultCamera.setProjectionType("p");}); 
+		$("#STORMMENUBTN_C2_01_OR").on('click', function() {stormEngineC.defaultCamera.setProjectionType("o");});
 		$("#STORMMENUBTN_C2_01_LEFT").on('click', function() {stormEngineC.defaultCamera.setView("LEFT");});
 		$("#STORMMENUBTN_C2_01_RIGHT").on('click', function() {stormEngineC.defaultCamera.setView("RIGHT");}); 
 		$("#STORMMENUBTN_C2_01_FRONT").on('click', function() {stormEngineC.defaultCamera.setView("FRONT");});
@@ -1471,7 +1471,7 @@ StormEngineC.prototype.createCamera = function(vec, distance) {
 		nodeCam.setController({'mode':'freecam'});      
 	}
 	
-	nodeCam.setProyectionType('p');
+	nodeCam.setProjectionType('p');
 	
 	return nodeCam;
 };
@@ -1539,8 +1539,8 @@ StormEngineC.prototype.createLight = function(jsonIn) {
 			light.visibleOnContext = true;
 			light.visibleOnRender = true;
 			light.nodeCtxWebGL.visibleOnContext = true;
-			light.setProyectionType('o');  
-			//light.mPMatrix = $M16().setOrthographicProyection(-150, 150, -150, 150, 0.0, 200.0); 
+			light.setProjectionType('o');  
+			//light.mPMatrix = $M16().setOrthographicProjection(-150, 150, -150, 150, 0.0, 200.0); 
 			light.setFov(45);
 		}
 	} else {
@@ -1566,7 +1566,7 @@ StormEngineC.prototype.createLight = function(jsonIn) {
 		mesh.loadBox(light, $V3([0.03,0.03,0.03])); 
 		
 		light.type = jsonIn.type; // sun | spot
-		light.setProyectionType('p');
+		light.setProjectionType('p');
 	}
 	 
 	

@@ -317,10 +317,10 @@ StormVoxelizator.prototype.generateFromSceneNow = function(jsonIn) {
 	this.glVoxelizator.viewport(0, 0, this.resolution, this.resolution);
 	
 	var fovy = this.size/2;
-	var Mproyection = $M16().setOrthographicProyection(-fovy, fovy, -fovy, fovy, 0.0, this.cs);      
+	var Mprojection = $M16().setOrthographicProjection(-fovy, fovy, -fovy, fovy, 0.0, this.cs);      
 	/*var fovy = 179.1;
-	var Mproyection = $M16().setPerspectiveProyection(fovy, this.resolution/this.resolution, 0.000001, this.cs+0.000002);  */ 	
-	this.glVoxelizator.uniformMatrix4fv(this.u_Voxelizator_PMatrix, false, Mproyection.transpose().e); 
+	var Mprojection = $M16().setPerspectiveProjection(fovy, this.resolution/this.resolution, 0.000001, this.cs+0.000002);  */ 	
+	this.glVoxelizator.uniformMatrix4fv(this.u_Voxelizator_PMatrix, false, Mprojection.transpose().e); 
 	
 	this.glVoxelizator.uniform1f(this.u_Voxelizator_gridsize, this.size);
 	

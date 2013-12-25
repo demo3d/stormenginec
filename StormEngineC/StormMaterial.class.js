@@ -108,14 +108,20 @@ StormMaterial.prototype.write = function(color, typeTexture) {
 };
 
 /**
-* Attach the image corresponding to the existing 'materialName' on the materials file 'mtlsFile'.
+* Set the corresponding values of 'materialName' from the MTL file
 * @type Void
 * @param {String} materialName
 * @param {String} materialFileUrl .mtl file url
+* @param {Object} jsonIn
+* 	@param {Object} [jsonIn.albedo=true] Use albedo values
+* 	@param {Object} [jsonIn.roughness=true] Use roughness values
 */
-StormMaterial.prototype.writeFromMTLFile = function(materialName, mtlsFile) { 
+StormMaterial.prototype.writeFromMTLFile = function(materialName, mtlsFile, jsonIn) { 
+	var albedo = (jsonIn.albedo != undefined) ? jsonIn.albedo : true;
+	var roughness = (jsonIn.roughness != undefined) ? jsonIn.roughness : true;
+	
 	var req = new XMLHttpRequest();
-	req.material = this;
+	req.material = this; 
 	req.open("GET", mtlsFile, true);
 	req.responseType = "blob";
 	
@@ -145,7 +151,7 @@ StormMaterial.prototype.writeFromMTLFile = function(materialName, mtlsFile) {
 				}
 
 				if(encontradoMaterial == true) {
-					if(line.match(/^Ns/gi) != null) { // roughness (.obj exports = 0.0 - 100.0) 
+					if(line.match(/^Ns/gi) != null && roughness) { // roughness (.obj exports = 0.0 - 100.0) 
 						var array = line.split(" ");
 						req.material.Ns = array[1]/112.0; // 100/112.0 -> 0.0-0.8928571428571429
 					}
@@ -156,9 +162,13 @@ StormMaterial.prototype.writeFromMTLFile = function(materialName, mtlsFile) {
 						req.material.textureObjectKd.inData[2] = array[3];
 					}
 					if(line.match(/^map_Kd/gi) != null) { // map albedo
-						var array = line.split("\\");
-						req.material.write(stringObjDirectory+array[array.length-1], 'albedo');
-						req.material.textureKdName = array[array.length-1];
+						if(albedo) {
+							var array = line.split("\\");
+							req.material.write(stringObjDirectory+array[array.length-1], 'albedo');
+							req.material.textureKdName = array[array.length-1];
+						} else {
+							req.material.write($V3([Math.random(), Math.random(), Math.random()]), 'albedo');
+						}
 					}
 					if(line.match(/^bump/gi) != null) { // map bump
 						var array = line.split("\\");

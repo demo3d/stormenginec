@@ -472,10 +472,12 @@ StormMesh.prototype.loadObj = function(jsonIn) {
 			
 			stormEngineC.setStatus({id:'node'+_objUrl, 
 									str:'Opening obj...'+_objUrl});
-			stormEngineC.stormMesh.loadObjFromSourceText({	'node':_node,
-															'sourceText':text,
-															'objDirectory':objDirectory,
-															'textureUniqueUrl':_textureUniqueUrl});
+			stormEngineC.stormMesh.loadObjFromSourceText({	node: _node,
+															sourceText: text,
+															objDirectory: objDirectory,
+															textureUniqueUrl: _textureUniqueUrl,
+															albedo: jsonIn.albedo,
+															roughness: jsonIn.roughness	});
 															
 			stormEngineC.setStatus({id:'node'+_objUrl,
 									str:''});
@@ -581,7 +583,7 @@ StormMesh.prototype.loadObjFromSourceText = function(jsonIn) {
 			
 			if(_textureUniqueUrl == undefined) {
 				if(_objDirectory != undefined) {
-					_node.materialUnits[currentTextureUnit].writeFromMTLFile(currentMtlName, _objDirectory+mtlFile);
+					_node.materialUnits[currentTextureUnit].writeFromMTLFile(currentMtlName, _objDirectory+mtlFile, {albedo:jsonIn.albedo, roughness:jsonIn.roughness});
 				} else {
 					_node.materialUnits[currentTextureUnit].write($V3([Math.random(), Math.random(), Math.random()]));
 				}

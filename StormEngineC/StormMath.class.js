@@ -399,7 +399,7 @@ StormM16.prototype.makeLookAt = function(ex, ey, ez, cx, cy, cz, ux, uy, uz) {
 /**
  * @private 
  */
-StormM16.prototype.setPerspectiveProyection = function(fovy, aspect, znear, zfar) { 
+StormM16.prototype.setPerspectiveProjection = function(fovy, aspect, znear, zfar) { 
 	var top = Math.tan(fovy * Math.PI / 360) * znear;
     var bottom = -top;
     var left = aspect * bottom;
@@ -422,7 +422,7 @@ StormM16.prototype.setPerspectiveProyection = function(fovy, aspect, znear, zfar
 /**
  * @private 
  */
-StormM16.prototype.setOrthographicProyection = function(left, right, bottom, top, znear, zfar) {
+StormM16.prototype.setOrthographicProjection = function(left, right, bottom, top, znear, zfar) {
 	var tx = - (right + left) / (right - left);
 	var ty = - (top + bottom) / (top - bottom);
 	var tz = - (zfar + znear) / (zfar - znear);

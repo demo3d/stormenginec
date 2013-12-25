@@ -48,7 +48,7 @@ StormNode = function() {
 	this.name = '';
 	this.objectType = 'node'; // 'node', 'camera' or 'light'
 	
-	this.proy = 1; // proyection type 1=perspective 2=ortho
+	this.proy = 1; // projection type 1=perspective 2=ortho
 	this.mPMatrix = $M16([	1.0, 0.0, 0.0, 0.0,
 							0.0, 1.0, 0.0, 0.0,
 							0.0, 0.0, 1.0, 0.0,
@@ -192,14 +192,18 @@ StormNode.prototype.removeMeshes = function() {
 * 	@param {String} [jsonIn.textureUniqueUrl] Image file url for apply a unique texture
 * 	@param {String} [jsonIn.name] Name for this node
 * 	@param {Function} [jsonIn.onload] Function to call after load
+* 	@param {Bool} [jsonIn.albedo=true] Use albedo values
+* 	@param {Bool} [jsonIn.roughness=true] Use roughness values
 */
 StormNode.prototype.loadObj = function(jsonIn) {		
 	var mesh = new StormMesh();
-	mesh.loadObj({	'node':this,
-					'objUrl':jsonIn.objUrl,
-					'textureUniqueUrl':jsonIn.textureUniqueUrl,
-					'name':jsonIn.name,
-					'onload':jsonIn.onload});
+	mesh.loadObj({	node: this,
+					objUrl: jsonIn.objUrl,
+					textureUniqueUrl: jsonIn.textureUniqueUrl,
+					name: jsonIn.name,
+					onload: jsonIn.onload,
+					albedo: jsonIn.albedo,
+					roughness: jsonIn.roughness	});
 };
 /**
 * Load a object on this node from text-plain on obj format <br>
@@ -209,13 +213,17 @@ StormNode.prototype.loadObj = function(jsonIn) {
 * 	@param {String} jsonIn.sourceText The source text
 * 	@param {String} jsonIn.objDirectory Directory of the .mtl file for obtain the textures
 * 	@param {String} [jsonIn.textureUniqueUrl] Image file url for apply a unique texture
+* 	@param {Bool} [jsonIn.albedo=true] Use albedo values
+* 	@param {Bool} [jsonIn.roughness=true] Use roughness values
 */
 StormNode.prototype.loadObjFromSourceText = function(jsonIn) {
 	var mesh = new StormMesh();
-	mesh.loadObjFromSourceText({	'node':this,
-									'sourceText':jsonIn.sourceText,
-									'objDirectory':jsonIn.objDirectory,
-									'textureUniqueUrl':jsonIn.textureUniqueUrl});
+	mesh.loadObjFromSourceText({	node: this,
+									sourceText: jsonIn.sourceText,
+									objDirectory: jsonIn.objDirectory,
+									textureUniqueUrl: jsonIn.textureUniqueUrl,
+									albedo: jsonIn.albedo,
+									roughness: jsonIn.roughness});
 };
 /**
 * Load a point on node
@@ -960,7 +968,8 @@ StormNode.prototype.extrudeThisTriangles = function(jsonIn) {
 * @param {StormV3|String|Array|Float32Array|Uint8Array|WebGLTexture|HTMLImageElement} color color
 */
 StormNode.prototype.setAlbedo = function(color) {
-	for(var n = 0, f = this.materialUnits.length; n < f; n++) this.materialUnits[n].write(color); 
+	for(var n = 0, f = this.materialUnits.length; n < f; n++)
+		this.materialUnits[n].write(color); 
 };
 
 /**
@@ -969,9 +978,8 @@ StormNode.prototype.setAlbedo = function(color) {
 * @param {Float} value
 */
 StormNode.prototype.setIllumination = function(value) { 
-	for(var n = 0, f = this.materialUnits.length; n < f; n++) {
+	for(var n = 0, f = this.materialUnits.length; n < f; n++)
 		this.materialUnits[n].setIllumination(value);
-	}
 };
 
 /**
@@ -980,9 +988,8 @@ StormNode.prototype.setIllumination = function(value) {
 * @param {Float} value 0.0-100
 */
 StormNode.prototype.setRoughness = function(value) { 
-	for(var n = 0, f = this.materialUnits.length; n < f; n++) {
+	for(var n = 0, f = this.materialUnits.length; n < f; n++)
 		this.materialUnits[n].Ns = value/112.0; //(0.0 - 0.8928571428571429) 
-	}
 };
 
 /**
@@ -1052,14 +1059,14 @@ StormNode.prototype.setShadows = function(active) {
 };
 
 /**
-* Proyection type for cameras and lights
+* Projection type for cameras and lights
 * @type Void
 * @param {String} [value="p"] "p" for perspective type or "o" for orthographic
  */
-StormNode.prototype.setProyectionType = function(value) {
+StormNode.prototype.setProjectionType = function(value) {
 	this.proy = (value != undefined) ? (value=="p")?1:2 : 1;// p=1 o=2
 	
-	this.updateProyectionMatrix();
+	this.updateProjectionMatrix();
 };
 /**
 * Fov angle for cameras 
@@ -1073,7 +1080,7 @@ StormNode.prototype.setFov = function(value) {
 	if(this.proy == 1 && this.fov >= 180) this.fov = 179;
 	if(this.fov <= 0) this.fov = 1; 
 	
-	this.updateProyectionMatrix(); 
+	this.updateProjectionMatrix(); 
 }; 
 /**
 * Get current Fov angle
@@ -1083,18 +1090,18 @@ StormNode.prototype.getFov = function() {
 	return (this.proy == 1)?this.fov:this.fovOrtho;
 }; 
 /**
- * Update proyection for cameras and lights
+ * Update projection for cameras and lights
  * @private 
  */
-StormNode.prototype.updateProyectionMatrix = function() {
+StormNode.prototype.updateProjectionMatrix = function() {
 	var fovy =(this.proy == 1) ? this.fov : this.fovOrtho;
 	var aspect = stormEngineC.stormGLContext.viewportWidth / stormEngineC.stormGLContext.viewportHeight;
 	var znear = 0.1;
 	var zfar = stormEngineC.stormGLContext.far;
 	
-	if(this.proy == 1) this.mPMatrix = $M16().setPerspectiveProyection(fovy, aspect, znear, zfar);
-	else this.mPMatrix = $M16().setOrthographicProyection(-fovy, fovy, -fovy, fovy, -1000.0, 1000.0);
-		//this.mPMatrix = $M16().setOrthographicProyection(-20, 20, -20, 20, 0.1, 100.0); 
+	if(this.proy == 1) this.mPMatrix = $M16().setPerspectiveProjection(fovy, aspect, znear, zfar);
+	else this.mPMatrix = $M16().setOrthographicProjection(-fovy, fovy, -fovy, fovy, -1000.0, 1000.0);
+		//this.mPMatrix = $M16().setOrthographicProjection(-20, 20, -20, 20, 0.1, 100.0); 
 };
 
 
@@ -1147,15 +1154,12 @@ StormNode.prototype.setPosition = function(vec) {
 * @returns {StormV3}
 */
 StormNode.prototype.getPosition = function() {
-	if(this.nodePivot == undefined) {
-		if(this.objectType == 'light') {
-			return $V3([this.mrealWMatrix.e[3], this.mrealWMatrix.e[7], this.mrealWMatrix.e[11]]);
-		} else {
-			return $V3([this.MPOS.e[3], this.MPOS.e[7], this.MPOS.e[11]]);
-		}
-	} else {
+	if(this.objectType == 'light')
+		return $V3([this.mrealWMatrix.e[3], this.mrealWMatrix.e[7], this.mrealWMatrix.e[11]]);
+	else if(this.objectType == 'camera')
 		return $V3([this.nodePivot.MPOS.e[3], this.nodePivot.MPOS.e[7], this.nodePivot.MPOS.e[11]]);
-	}
+	else
+		return $V3([this.MPOS.e[3], this.MPOS.e[7], this.MPOS.e[11]]);
 };
 
 /**
