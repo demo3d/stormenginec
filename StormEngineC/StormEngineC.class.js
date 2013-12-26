@@ -234,8 +234,11 @@ StormEngineC = function() {
 	this.divPositionY = 0;
 	this.mousePosX = 0;
 	this.mousePosY = 0;
+	this.mouseOldPosX = 0;
+	this.mouseOldPosY = 0;
 	this.oldMousePosClickX = 0;
 	this.oldMousePosClickY = 0; 
+	this.draggingNodeNow = false;
 	
 	this.stormGLContext,this.clgl,this.utils,this.stormMesh;
 	this.giv2;
@@ -299,7 +302,6 @@ StormEngineC.prototype.createWebGL = function(jsonIn) {
 		this.$ = $('#'+this.target.id);
 		this.editMode = (jsonIn != undefined && jsonIn.editMode != undefined) ? jsonIn.editMode : true;
 		this.resizable = (jsonIn != undefined && jsonIn.resizable != undefined) ? jsonIn.resizable : 2; 
-		this._enableSelectNode = 1;
 		this.enableRender = (jsonIn != undefined && jsonIn.enableRender != undefined) ? jsonIn.enableRender : true;
 		
 		if(jsonIn.callback != undefined) {this.callback = jsonIn.callback;}
@@ -656,7 +658,7 @@ StormEngineC.prototype.loadManager = function() {
 		var ar = (this.resizable == 1) ? true : false;
 		this.$.resizable({	aspectRatio: ar,
 							resize:function(event,ui) {
-								stormEngineC.setWebGLResize(ui.size.width, ui.size.height); 
+								stormEngineC.setWebGLResize(ui.size.width, ui.size.height);  
 							}});
 	}
 };
@@ -681,6 +683,7 @@ StormEngineC.prototype.makePanel = function(panelobj, panelname, paneltitle, htm
 		'</div>';
 	$('body').append(str);
 	panelobj.$ = $("#"+panelname+"_MENU");
+	panelobj.De = DGE(panelname);
 	
 	$("#"+panelname+"_MENU").draggable();
 	$("#"+panelname+"_MENU").resizable({resize:function(event, ui) {
@@ -709,12 +712,9 @@ StormEngineC.prototype.makePanel = function(panelobj, panelname, paneltitle, htm
 /**  @private */
 StormEngineC.prototype.mouseup = function(e) {
 	//e.preventDefault();
+	stormEngineC.stormGLContext.queryNodePickType = 2; // 0=noquery, 1=mousedown, 2=mouseup
 	
 	stormEngineC.setZeroSamplesGIVoxels();
-	
-	if(stormEngineC._enableSelectNode && (stormEngineC.mousePosX == stormEngineC.oldMousePosClickX && stormEngineC.mousePosY == stormEngineC.oldMousePosClickY)) {
-		stormEngineC.stormGLContext.picking = true;
-	}
 	
 	if(stormEngineC.preloads == 0) stormEngineC.defaultCamera.controller.mouseUpFC(e);
 	if(stormEngineC.stormRender != undefined && stormEngineC.renderStop == false) {
@@ -727,15 +727,22 @@ StormEngineC.prototype.mouseup = function(e) {
 };
 /**  @private */
 StormEngineC.prototype.mousedown = function(e) {
-	//e.preventDefault(); // si se habilita no funciona sobre un iframe
-	if(e.targetTouches != undefined) {
-		e = e.targetTouches[0];
-		e.button = 0;
+	if(stormEngineC.draggingNodeNow == false) {
+		if(e.targetTouches != undefined) {
+			console.log(e.targetTouches)
+			e = e.targetTouches[0];
+			e.button = 0;
+			stormEngineC.identifierTouchMoveOwner = e.identifier;
+		}
 	}
+	//e.preventDefault(); // si se habilita no funciona sobre un iframe
 	
-	stormEngineC.setZeroSamplesGIVoxels();
 	stormEngineC.oldMousePosClickX = stormEngineC.mousePosX;
 	stormEngineC.oldMousePosClickY = stormEngineC.mousePosY; 
+	
+	stormEngineC.stormGLContext.queryNodePickType = 1; // 0=noquery, 1=mousedown, 2=mouseup
+	
+	stormEngineC.setZeroSamplesGIVoxels();
 	
 	stormEngineC.PanelAnimationTimeline.stop();
 	stormEngineC.runningAnim = false;
@@ -755,17 +762,31 @@ StormEngineC.prototype.mousedown = function(e) {
 /**  @private */
 StormEngineC.prototype.mousemove = function(e) {
 	e.preventDefault();
+	var isMoveOwner = false;
 	if(e.targetTouches != undefined) {
-		e = e.targetTouches[0];
-		e.button = 0;
-	} 
-	
-	stormEngineC.mousePosX = (e.clientX - stormEngineC.divPositionX);
-	stormEngineC.mousePosY = (e.clientY - stormEngineC.divPositionY);
-	
-	if(stormEngineC.defaultCamera.controller.leftButton == 1 || stormEngineC.defaultCamera.controller.middleButton == 1) {
-		stormEngineC.setZeroSamplesGIVoxels();
-		if(stormEngineC.preloads == 0) stormEngineC.defaultCamera.controller.mouseMoveFC(e);
+		for(var n = 0, fn = e.targetTouches.length; n < fn; n++) {
+			if(e.targetTouches[n].identifier == stormEngineC.identifierTouchMoveOwner) {
+				e = e.targetTouches[0];
+				e.button = 0;
+				isMoveOwner = true;
+			}
+		}
+	}
+	if(e.targetTouches == undefined || (e.targetTouches != undefined && isMoveOwner)) {
+		stormEngineC.mouseOldPosX = stormEngineC.mousePosX;   
+		stormEngineC.mouseOldPosY = stormEngineC.mousePosY;
+		stormEngineC.mousePosX = (e.clientX - stormEngineC.divPositionX);
+		stormEngineC.mousePosY = (e.clientY - stormEngineC.divPositionY);
+		
+		if(stormEngineC.draggingNodeNow != false) {
+			var dir = stormEngineC.utils.getDraggingMoveVector(); 
+			stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));  
+		}	
+		
+		if(stormEngineC.defaultCamera.controller.leftButton == 1 || stormEngineC.defaultCamera.controller.middleButton == 1) {
+			stormEngineC.setZeroSamplesGIVoxels();
+			if(stormEngineC.preloads == 0) stormEngineC.defaultCamera.controller.mouseMoveFC(e);
+		}
 	}
 };
 /**  @private */
@@ -818,9 +839,6 @@ StormEngineC.prototype.selectNode = function(node) {
 			stormEngineC.setDebugValue(0, vec, stormEngineC.nearNode.name); 
 		} 
 	}
-	if(this.nearNode.onmouseupFunction != undefined) this.nearNode.onmouseupFunction();
-	
-	
 };
 
 /**
@@ -828,10 +846,7 @@ StormEngineC.prototype.selectNode = function(node) {
 * @returns {StormNode} 
 */
 StormEngineC.prototype.getSelectedNode = function() {
-	if(stormEngineC._enableSelectNode) {
-		return this.nearNode;
-	}
-	return 0;
+	return this.nearNode;
 };
 
 /** @private */

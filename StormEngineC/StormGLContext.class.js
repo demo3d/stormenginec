@@ -62,7 +62,7 @@ StormGLContext = function(stormCanvasObject, loadScene) {
 	this.shadowsEnable = true;
 	
 	// PICKING
-	this.picking = false;
+	this.queryNodePickType = 0; // 0=noquery, 1=mousedown, 2=mouseup
 	
 	// BG
 	this.useEnvironment = false;
@@ -577,38 +577,40 @@ StormGLContext.prototype.renderGLContext = function() {
 			stormEngineC.clgl.copy(this.textureFB_GIVoxel_TEMP, this.textureFB_GIVoxel);  
 		}
 	}
-	if(this.Shader_Normals_READY == true) {
+	if(this.Shader_Normals_READY) {
 		this.render_Normals();
 		if(this.view_Normals) return;
 	}
-	if(this.Shader_LightDepth_READY == true && this.Shader_LightDepthParticles_READY == true && this.Shader_Shadows_READY == true && this.shadowsEnable == true) {
-		this.render_LightDepth();
-		if(this.view_LightDepth || this.view_Shadows) return;
+	if(	this.Shader_LightDepth_READY &&
+		this.Shader_LightDepthParticles_READY &&
+		this.Shader_Shadows_READY &&
+		this.shadowsEnable) {
+			this.render_LightDepth();
+			if(this.view_LightDepth || this.view_Shadows) return;
 	}
-	if(this.Shader_BG_READY == true && this.useEnvironment == true) {
+	if(this.Shader_BG_READY && this.useEnvironment) {
 		this.render_BG();
 	}
-    if(this.Shader_Scene_READY == true) {
+    if(this.Shader_Scene_READY) {
 		this.render_Scene();
 		if(this.view_SceneNoDOF) return;
 	}
-	if(this.Shader_Lines_READY == true && this.lines.length > 0) {
+	if(this.Shader_Lines_READY && this.lines.length > 0) {
 		this.render_Lines();
 	}
-	if(this.Shader_ParticlesAux_READY == true && this.particles.length > 0) {
+	if(this.Shader_ParticlesAux_READY && this.particles.length > 0) {
 		this.render_ParticlesAux();
 	}
-	if(this.Shader_Pick_READY == true && this.picking == true) {
-		this.render_Pick();
+	if(this.Shader_Pick_READY) {
+		this.queryNodePick();
 		this.hitRectRegion_onclick();
-		this.picking = false;
 	}
-	if(this.Shader_DOF_READY == true && stormEngineC.defaultCamera.DOFenable == true) {
+	if(this.Shader_DOF_READY && stormEngineC.defaultCamera.DOFenable) {
 		this.render_DOF(); 
 	}
 	this.hitRectRegion_onmouseover();
 	this.hitRectRegion_onmouseout();
-	if(this.Shader_Ctx2D_READY == true) {
+	if(this.Shader_Ctx2D_READY) {
 		this.render_Ctx2D();
 	}
 };

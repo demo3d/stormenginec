@@ -41,6 +41,8 @@ StormNode = function() {
 	this.childNodes = [];
 	this.buffersObjects = [];
 	this.onloadFunction = undefined; 
+	this.isDraggable = false;
+	this.onmousedownFunction = undefined;
 	this.onmouseupFunction = undefined;
 	this.onCollisionFunction = undefined;
 	
@@ -117,11 +119,27 @@ StormNode = function() {
 	//
 };
 /**
+* Allow dragging this node when to be selected
+* @param {Bool} draggable
+*/
+StormNode.prototype.draggable = function(draggable) {
+	this.isDraggable = draggable;
+};
+/**
+* Onmousedown callback function
+* @param {Function} func
+*/
+StormNode.prototype.onmousedown = function(func) {
+	if(typeof(func) == 'function') this.onmousedownFunction = func;
+	else console.log('The argument in event onmousedown is not a function');
+};
+/**
 * Onmouseup callback function
-* @param {Function} eventFunction
+* @param {Function} func
 */
 StormNode.prototype.onmouseup = function(func) {
-	if(typeof(func) == 'function') this.onmouseupFunction = func; else console.log('The argument in event onmouseup is not a function');
+	if(typeof(func) == 'function') this.onmouseupFunction = func;
+	else console.log('The argument in event onmouseup is not a function');
 };
 
 /**
@@ -1069,7 +1087,7 @@ StormNode.prototype.setProjectionType = function(value) {
 	this.updateProjectionMatrix();
 };
 /**
-* Fov angle for cameras 
+* Fov angle for cameras and lights
 * @type Void
 * @param {Int} [value=45]
  */
@@ -1259,11 +1277,6 @@ StormNode.prototype.getForward = function() {
 };
 
 /**
-* @private
-* @deprecated
-*/
-StormNode.prototype.setMatrixIdentity = function() {this.resetAxisRotation();};
-/**
 * Reset the rotation matrix
 * @type Void
 */
@@ -1311,13 +1324,13 @@ StormNode.prototype.createChildNode = function() {
 *	 @param {Float} jsonIn.engineBreak Only if type is 'car'
 *	 @param {Float} jsonIn.steerAngle Only if type is 'car'
 * @example
-* node.setCollision({type:'sphere',
-*                    dimensions:0.5,
-*                    mass':0.38,
-*                    friction:0.5,
-*                    restitution:0.2});
+* node.bodyEnable({	type: 'sphere',
+*                   dimensions: 0.5,
+*                   mass': 0.38,
+*                   friction: 0.5,
+*                   restitution: 0.2	});
 */
-StormNode.prototype.setCollision = function(jsonIn) {
+StormNode.prototype.bodyEnable = function(jsonIn) {
 	this.jigLibTrimeshParams = jsonIn;
 	
 	var makeNow = false;
@@ -1368,6 +1381,19 @@ StormNode.prototype.setCollision = function(jsonIn) {
 	
 	if(makeNow) this.setCollisionBody(shape);
 };
+/** @private */
+StormNode.prototype.setCollision = function(jsonIn) {this.bodyEnable(jsonIn);}; // deprecated
+
+/**
+* Active the body
+* @param {Bool} [active=true]
+*/
+StormNode.prototype.bodyActive = function(active) { 
+	if(this.body != undefined) {
+		if(!active) this.body.setInactive();
+		else this.body.setActive();
+	}
+};
 
 /**
 * Add wheels to car node
@@ -1377,7 +1403,7 @@ StormNode.prototype.setCollision = function(jsonIn) {
 *	 @param {Float} [jsonIn.r=1.0] Radius
 *	 @param {Float} [jsonIn.damping=0.7] Suspension
 */
-StormNode.prototype.setCarWheels = function(jsonIn) { 
+StormNode.prototype.bodySetCarWheels = function(jsonIn) { 
 	var sideFriction = (jsonIn.damping != undefined) ? (2.0+(jsonIn.damping*2.0)) : 4.0; //2.0; 0.0-4.0
 	var fwdFriction = (jsonIn.damping != undefined) ? (2.0+(jsonIn.damping*2.0)) : 4.0; // 2.0; 0.0-4.0
 	var travel = 2.0; // 1.0-2.0
@@ -1406,10 +1432,10 @@ StormNode.prototype.setCarWheels = function(jsonIn) {
 	this.car.setupWheel(3, new Vector3D(this.ndWheelBR.MPOS.e[3], this.ndWheelBR.MPOS.e[7],  this.ndWheelBR.MPOS.e[11]), sideFriction, fwdFriction, travel, wheelRadius, restingFrac, dampingFrac, rays, true);
 	this.wheelBR = this.car.get_wheels()[3];
 };
-/**
-* @type Void
-* @private
-*/
+/** @private */
+StormNode.prototype.setCarWheels = function(jsonIn) {this.bodySetCarWheels(jsonIn);}; // deprecated
+
+/** @private */
 StormNode.prototype.generateTrimesh = function(stormMeshObject) {
 	arrayVertex = [];
 	arrayIndex = [];
@@ -1429,10 +1455,7 @@ StormNode.prototype.generateTrimesh = function(stormMeshObject) {
 	this.setCollisionBody(shape);
 };
 
-/**
-* @type Void
-* @private
-*/
+/** @private */
 StormNode.prototype.setCollisionBody = function(shape) {
 	var jsonIn = this.jigLibTrimeshParams;
 	
@@ -1466,32 +1489,41 @@ StormNode.prototype.setCollisionBody = function(shape) {
 * @param {StormV3} vector for the force and direction
 * @requires Enable collisions with setCollision function
 */
-StormNode.prototype.setGravity = function(value) {
+StormNode.prototype.bodySetGravity = function(value) {
 	this.body._gravity = new Vector3D(value.e[0],value.e[1],value.e[2],0); 
 };
+/** @private */
+StormNode.prototype.setGravity = function(value) {this.bodySetGravity(value);}; // deprecated
+
 /**
 * Set the friction for this node
 * @param {Float} value Values from 0.0 to 1.0
 * @requires Enable collisions with setCollision function
 */
-StormNode.prototype.setFriction = function(value) {
+StormNode.prototype.bodySetFriction = function(value) {
 	this.body._material.friction = value; 
 };
+/** @private */
+StormNode.prototype.setFriction = function(value) {this.bodySetFriction(value);}; // deprecated
+
 /**
 * Set the restitution for this node
 * @param {Float} value Values from 0.0 to 1.0
 * @requires Enable collisions with setCollision function
 */
-StormNode.prototype.setRestitution = function(value) {
+StormNode.prototype.bodySetRestitution = function(value) {
 	this.body._material.restitution = value; 
 };
+/** @private */
+StormNode.prototype.setRestitution = function(value) {this.bodySetRestitution(value);}; // deprecated
+
 
 /**
 * Get the collision normal of this node with other node if collision exists. Otherwise return false.
 * @returns {StormV3|Bool}
 * @requires Enable collisions on the two nodes with setCollision function
 */
-StormNode.prototype.getCollisionNormalWithNode = function(node) {
+StormNode.prototype.bodyGetCollisionNormalWithNode = function(node) {
 	if(this.nodePivot != undefined) {
 		if(this.nodePivot.body != undefined) body = this.nodePivot.body;
 	} else {
@@ -1508,40 +1540,49 @@ StormNode.prototype.getCollisionNormalWithNode = function(node) {
 	
 	return false;
 };
+/** @private */
+StormNode.prototype.getCollisionNormalWithNode = function(node) {this.bodyGetCollisionNormalWithNode(node);}; // deprecated
 
 /**
 * Set the function to execute when occurred collision event 
 * @param {Function} eventFunction
 * @requires Enable collisions with setCollision function
 */
-StormNode.prototype.onCollision = function(func) {
+StormNode.prototype.bodyOnCollision = function(func) {
 	if(typeof(func) == 'function') {
 		this.onCollisionFunction = func;
 	} else {
 		console.log('The argument in event onCollision is not a function');
 	}
 };
+/** @private */
+StormNode.prototype.onCollision = function(func) {this.bodyOnCollision(func);}; // deprecated
+
 /**
 * Get the current direction vector.
 * @returns {StormV3}
 * @requires Enable collisions with setCollision function
 */
-StormNode.prototype.getCurrentDir = function() {
+StormNode.prototype.bodyGetCurrentDir = function() {
 	return $V3([this.body._currState.linVelocity.x, this.body._currState.linVelocity.y, this.body._currState.linVelocity.z]);
 };
+/** @private */
+StormNode.prototype.getCurrentDir = function() {this.bodyGetCurrentDir();}; // deprecated
 
 /**
 * Get the current velocity.
 * @returns {Float}
 * @requires Enable collisions with setCollision function
 */
-StormNode.prototype.getCurrentVelocity = function() {
+StormNode.prototype.bodyGetCurrentVelocity = function() {
 	var velocityDir = $V3([this.body._currState.linVelocity.x, this.body._currState.linVelocity.y, this.body._currState.linVelocity.z]);
  
 	//var meshDir = $V3([this.MPOS.e[2], this.MPOS.e[6], this.MPOS.e[10]]);
 
 	return velocityDir.modulus();
 };
+/** @private */
+StormNode.prototype.getCurrentVelocity = function() {this.bodyGetCurrentVelocity();}; // deprecated
 
 /**
 * Apply a impulse.
@@ -1551,17 +1592,19 @@ StormNode.prototype.getCurrentVelocity = function() {
 *	 @param {Int} [jsonIn.milis=1000] Miliseconds
 * @requires Enable collisions with setCollision function
 */
-StormNode.prototype.applyImpulse = function(jsonIn) {
-	this.timeImpulse = new Date().getTime();
-	clearTimeout(this.intervalImpulse);
-	
-	this.body.setActive();
-	this.applyImpulseNow(jsonIn);
+StormNode.prototype.bodyApplyImpulse = function(jsonIn) {
+	if(this.body != undefined) {
+		this.timeImpulse = new Date().getTime();
+		clearTimeout(this.intervalImpulse);
+		
+		this.body.setActive();
+		this.applyImpulseNow(jsonIn);
+	}
 };
-/**
-* @type Void
-* @private
-*/
+/** @private */
+StormNode.prototype.applyImpulse = function(jsonIn) {this.bodyApplyImpulse(jsonIn);}; // deprecated
+
+/** @private */
 StormNode.prototype.applyImpulseNow = function(jsonIn) {
 	var milis = (jsonIn.milis != undefined) ? jsonIn.milis : 1000;
 	var timeNow = new Date().getTime();
@@ -1588,52 +1631,62 @@ StormNode.prototype.applyImpulseNow = function(jsonIn) {
 *	 @param {StormV3} jsonIn.parentOffset Offset.
 * @requires Enable collisions with setCollision function
 */
-StormNode.prototype.addConstraint = function(jsonIn) {
+StormNode.prototype.bodyAddConstraint = function(jsonIn) {
 	this.setPosition(jsonIn.parentNode.getPosition().add(jsonIn.parentOffset));
 	this.constraint = new jiglib.JConstraintWorldPoint(this.body, new Vector3D(jsonIn.parentOffset.e[0]*-1.0, jsonIn.parentOffset.e[1]*-1.0, jsonIn.parentOffset.e[2]*-1.0, 0), new Vector3D(jsonIn.parentNode.getPosition().e[0], jsonIn.parentNode.getPosition().e[1], jsonIn.parentNode.getPosition().e[2], 0));
 	stormEngineC.stormJigLibJS.dynamicsWorld.addConstraint(this.constraint);
 	this.body.setActive();
 	this.constraintParentNode = jsonIn.parentNode;
 };
+/** @private */
+StormNode.prototype.addConstraint = function(jsonIn) {this.bodyAddConstraint(jsonIn);}; // deprecated
+
 /**
 * Remove a constraint.
 * @type Void
 * @requires Enable collisions with setCollision function
 */
-StormNode.prototype.removeConstraint = function() {
+StormNode.prototype.bodyRemoveConstraint = function() {
 	stormEngineC.stormJigLibJS.dynamicsWorld.removeConstraint(this.constraint);
 	this.constraint = undefined;
 	this.constraintParentNode = undefined;
 	this.body.setActive();
 };
+/** @private */
+StormNode.prototype.removeConstraint = function() {this.bodyRemoveConstraint();}; // deprecated
  
 /**
 * Get the maximum speed of the car.
 * @returns {Float}
 * @requires Enable collisions with setCollision function
 */
-StormNode.prototype.getMaxVelocityValue = function() {
+StormNode.prototype.bodyGetMaxVelocityValue = function() {
 	return this.carMaxVelocity;
 };
+/** @private */
+StormNode.prototype.getMaxVelocityValue = function() {this.bodyGetMaxVelocityValue();}; // deprecated
 
 /**
 * Get the braking value of the car.
 * @returns {Float}
 * @requires Enable collisions with setCollision function
 */
-StormNode.prototype.getEngineBreakValue = function() {
+StormNode.prototype.bodyGetEngineBreakValue = function() {
 	return this.carEngineBreakValue;
 };
+/** @private */
+StormNode.prototype.getEngineBreakValue = function() {this.bodyGetEngineBreakValue();}; // deprecated
 
 /**
 * Flip the car.
 * @type Void
 * @requires Enable collisions with setCollision function
 */
-StormNode.prototype.carFlip = function() {
+StormNode.prototype.bodyCarFlip = function() {
 	this.body.roll(180);
 };
-
+/** @private */
+StormNode.prototype.carFlip = function() {this.bodyCarFlip();}; // deprecated
 
 
 
