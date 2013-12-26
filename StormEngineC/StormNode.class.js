@@ -1518,7 +1518,7 @@ StormNode.prototype.bodyGetCollisionNormalWithNode = function(node) {
 	return false;
 };
 /** @private */
-StormNode.prototype.getCollisionNormalWithNode = function(node) {this.bodyGetCollisionNormalWithNode(node);}; // deprecated
+StormNode.prototype.getCollisionNormalWithNode = function(node) {return this.bodyGetCollisionNormalWithNode(node);}; // deprecated
 
 /**
 * Set the function to execute when occurred collision event 
@@ -1544,7 +1544,7 @@ StormNode.prototype.bodyGetCurrentDir = function() {
 	return $V3([this.body._currState.linVelocity.x, this.body._currState.linVelocity.y, this.body._currState.linVelocity.z]);
 };
 /** @private */
-StormNode.prototype.getCurrentDir = function() {this.bodyGetCurrentDir();}; // deprecated
+StormNode.prototype.getCurrentDir = function() {return this.bodyGetCurrentDir();}; // deprecated
 
 /**
 * Get the current velocity.
@@ -1559,7 +1559,7 @@ StormNode.prototype.bodyGetCurrentVelocity = function() {
 	return velocityDir.modulus();
 };
 /** @private */
-StormNode.prototype.getCurrentVelocity = function() {this.bodyGetCurrentVelocity();}; // deprecated
+StormNode.prototype.getCurrentVelocity = function() {return this.bodyGetCurrentVelocity();}; // deprecated
 
 /**
 * Apply a impulse.
@@ -1641,7 +1641,7 @@ StormNode.prototype.bodyGetMaxVelocityValue = function() {
 	return this.carMaxVelocity;
 };
 /** @private */
-StormNode.prototype.getMaxVelocityValue = function() {this.bodyGetMaxVelocityValue();}; // deprecated
+StormNode.prototype.getMaxVelocityValue = function() {return this.bodyGetMaxVelocityValue();}; // deprecated
 
 /**
 * Get the braking value of the car.
@@ -1652,7 +1652,7 @@ StormNode.prototype.bodyGetEngineBreakValue = function() {
 	return this.carEngineBreakValue;
 };
 /** @private */
-StormNode.prototype.getEngineBreakValue = function() {this.bodyGetEngineBreakValue();}; // deprecated
+StormNode.prototype.getEngineBreakValue = function() {return this.bodyGetEngineBreakValue();}; // deprecated
 
 /**
 * Flip the car.
