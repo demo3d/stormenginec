@@ -512,7 +512,10 @@ StormGLContext.prototype.createShader = function(gl, name, sourceVertex, sourceF
  */
 StormGLContext.prototype.renderGLContext = function() {
 	this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
-	
+	if(this.Shader_Pick_READY) {
+		this.queryNodePick();
+		this.hitRectRegion_onclick();
+	}
 	if(this.Shader_GIv2_READY == true && this.GIv2enable == true) {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fBuffer);
 		this.gl.clearColor(1.0,1.0,1.0, 1.0);
@@ -578,10 +581,7 @@ StormGLContext.prototype.renderGLContext = function() {
 	if(this.Shader_ParticlesAux_READY && this.particles.length > 0) {
 		this.render_ParticlesAux();
 	}
-	if(this.Shader_Pick_READY) {
-		this.queryNodePick();
-		this.hitRectRegion_onclick();
-	}
+	
 	if(this.Shader_DOF_READY && stormEngineC.defaultCamera.DOFenable) {
 		this.render_DOF(); 
 	}
