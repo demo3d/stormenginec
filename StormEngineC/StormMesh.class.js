@@ -8,6 +8,9 @@ StormMesh = function() {
 	this.textureArray;	
 	this.textureUnitArray;
 	this.indexArray;
+	
+	this.objIndex = []; // for store new indexes
+	this.indexMax=0; 
 };
 
 /**
@@ -231,7 +234,160 @@ StormMesh.prototype.loadQuad = function(node, length, height) {
 		return this; 
 	}
 };
+StormMesh.prototype.testIfInIndices = function(vA1, norm, tA1) {
+	var indexA = undefined;
+	for(var nB = 0, fb = this.objIndex.length; nB < fb; nB++) {
+		if(this.objIndex[nB].v.e[0] == vA1.e[0] && this.objIndex[nB].v.e[1] == vA1.e[1] && this.objIndex[nB].v.e[2] == vA1.e[2]) {
+			indexA = this.objIndex[nB].i;
+		}
+	}
+	if(indexA == undefined) {
+		indexA = this.indexMax; 
+		this.objIndex.push({i:indexA,v:$V3([vA1.e[0],vA1.e[1],vA1.e[2]])});
+		this.indexMax++;
+		this.vertexArray.push(vA1.e[0],vA1.e[1],vA1.e[2]);
+		this.normalArray.push(norm.e[0],norm.e[1],norm.e[2]);
+		this.textureArray.push(tA1.e[0],tA1.e[1],tA1.e[2]);
+		this.textureUnitArray.push(0.0);
+	}
+	return indexA;
+};
+/**
+* Load a tube on node
+* @private 
+* @type Void
+*/
+StormMesh.prototype.loadTube = function(jsonIn) {  
+	var hei = (jsonIn.height != undefined) ? jsonIn.height : 1.0;  
+	var segments = (jsonIn.segments != undefined) ? jsonIn.segments : 6;  
+	var outerRadius = (jsonIn.outerRadius != undefined) ? jsonIn.outerRadius : 1.0;  
+	var innerRadius = (jsonIn.innerRadius != undefined) ? jsonIn.innerRadius : 0.7;  
 
+	this.vertexArray = [];
+	this.normalArray = [];
+	this.textureArray = [];
+	this.textureUnitArray = [];
+	this.indexArray = [];
+	
+	this.objIndex = [];
+	this.indexMax=0; 
+	
+	
+	cos = function(val) {return Math.cos(stormEngineC.utils.degToRad(val))};
+	sin = function(val) {return Math.sin(stormEngineC.utils.degToRad(val))};
+	var stepAngle = 180.0/(segments+1); 
+	var numSegH = 360.0/stepAngle;
+	for(var h=1, fh = numSegH; h <= fh; h++) { 
+		var currAngleH = stepAngle*h;
+	
+		// OUTER FACE
+		var currAngleV = 90.0;
+		// vertices
+		var vA1 = $V3([	cos(currAngleH-stepAngle) * outerRadius, 	0.0, sin(currAngleH-stepAngle) * outerRadius]);
+		var vB1 = $V3([	cos(currAngleH) * outerRadius, 				0.0, sin(currAngleH) * outerRadius]);
+		var vC1 = $V3([	cos(currAngleH-stepAngle) * outerRadius, 	hei, sin(currAngleH-stepAngle) * outerRadius]);
+		var vD1 = $V3([	cos(currAngleH) * outerRadius, 				hei, sin(currAngleH) * outerRadius]);
+		// normales
+		var norm = vB1.subtract(vA1).cross(vC1.subtract(vA1)).normalize();
+		// texturas
+		var tA1 = $V3([(currAngleH-stepAngle)/360.0, 	0.0, 0.0]);
+		var tB1 = $V3([(currAngleH)/360.0,				0.0, 0.0]);
+		var tC1 = $V3([(currAngleH-stepAngle)/360.0, 	1.0, 0.0]);
+		var tD1 = $V3([(currAngleH)/360.0,				1.0, 0.0]);
+		//indices
+		var indexA = this.testIfInIndices(vA1, norm, tA1);
+		var indexB = this.testIfInIndices(vB1, norm, tB1);
+		var indexC = this.testIfInIndices(vC1, norm, tC1);
+		var indexD = this.testIfInIndices(vD1, norm, tD1);
+		
+		this.indexArray.push(indexA,indexB,indexD, indexD,indexC,indexA); 	 
+		
+		// INNER FACE
+		var currAngleV = 90.0;
+		// vertices
+		var vA1 = $V3([	cos(currAngleH-stepAngle) * innerRadius, 	0.0, sin(currAngleH-stepAngle) * innerRadius]);
+		var vB1 = $V3([	cos(currAngleH) * innerRadius, 				0.0, sin(currAngleH) * innerRadius]);
+		var vC1 = $V3([	cos(currAngleH-stepAngle) * innerRadius, 	hei, sin(currAngleH-stepAngle) * innerRadius]);
+		var vD1 = $V3([	cos(currAngleH) * innerRadius, 				hei, sin(currAngleH) * innerRadius]);
+		// normales
+		var norm = vB1.subtract(vA1).cross(vC1.subtract(vA1)).normalize();
+		// texturas
+		var tA1 = $V3([(currAngleH-stepAngle)/360.0, 	0.0, 0.0]);
+		var tB1 = $V3([(currAngleH)/360.0,				0.0, 0.0]);
+		var tC1 = $V3([(currAngleH-stepAngle)/360.0, 	1.0, 0.0]);
+		var tD1 = $V3([(currAngleH)/360.0,				1.0, 0.0]);
+		//indices
+		var indexA = this.testIfInIndices(vA1, norm, tA1);
+		var indexB = this.testIfInIndices(vB1, norm, tB1);
+		var indexC = this.testIfInIndices(vC1, norm, tC1);
+		var indexD = this.testIfInIndices(vD1, norm, tD1);
+		
+		this.indexArray.push(indexA,indexB,indexD, indexD,indexC,indexA); 	 
+		
+		// BOTTOM FACE
+		var currAngleV = 0.0;
+		// vertices
+		var vA1 = $V3([	cos(currAngleH-stepAngle) * outerRadius, 	0.0, sin(currAngleH-stepAngle) * outerRadius]);
+		var vB1 = $V3([	cos(currAngleH) * outerRadius, 				0.0, sin(currAngleH) * outerRadius]);
+		var vC1 = $V3([	cos(currAngleH-stepAngle) * innerRadius, 	0.0, sin(currAngleH-stepAngle) * innerRadius]);
+		var vD1 = $V3([	cos(currAngleH) * innerRadius, 				0.0, sin(currAngleH) * innerRadius]);
+		// normales
+		var norm = vB1.subtract(vA1).cross(vC1.subtract(vA1)).normalize();
+		// texturas
+		var tA1 = $V3([(currAngleH-stepAngle)/360.0, 	1.0-((currAngleV-stepAngle)/180.0), 0.0]);
+		var tB1 = $V3([(currAngleH)/360.0,				1.0-(currAngleV/180.0), 			0.0]);
+		var tC1 = $V3([(currAngleH-stepAngle)/360.0, 	1.0-((currAngleV-stepAngle)/180.0), 0.0]);
+		var tD1 = $V3([(currAngleH)/360.0,				1.0-((currAngleV)/180.0),			0.0]);
+		//indices
+		var indexA = this.testIfInIndices(vA1, norm, tA1);
+		var indexB = this.testIfInIndices(vB1, norm, tB1);
+		var indexC = this.testIfInIndices(vC1, norm, tC1);
+		var indexD = this.testIfInIndices(vD1, norm, tD1);
+		
+		this.indexArray.push(indexA,indexB,indexD, indexD,indexC,indexA); 	 
+
+		// TOP FACE
+		var currAngleV = 0.0;
+		// vertices
+		var vA1 = $V3([	cos(currAngleH-stepAngle) * outerRadius, 	hei, sin(currAngleH-stepAngle) * outerRadius]);
+		var vB1 = $V3([	cos(currAngleH) * outerRadius, 				hei, sin(currAngleH) * outerRadius]);
+		var vC1 = $V3([	cos(currAngleH-stepAngle) * innerRadius, 	hei, sin(currAngleH-stepAngle) * innerRadius]);
+		var vD1 = $V3([	cos(currAngleH) * innerRadius, 				hei, sin(currAngleH) * innerRadius]);
+		// normales
+		var norm = vB1.subtract(vA1).cross(vC1.subtract(vA1)).normalize();
+		// texturas
+		var tA1 = $V3([(currAngleH-stepAngle)/360.0, 	1.0-((currAngleV-stepAngle)/180.0), 0.0]);
+		var tB1 = $V3([(currAngleH)/360.0,				1.0-(currAngleV/180.0), 			0.0]);
+		var tC1 = $V3([(currAngleH-stepAngle)/360.0, 	1.0-((currAngleV-stepAngle)/180.0), 0.0]);
+		var tD1 = $V3([(currAngleH)/360.0,				1.0-((currAngleV)/180.0),			0.0]);
+		//indices
+		var indexA = this.testIfInIndices(vA1, norm, tA1);
+		var indexB = this.testIfInIndices(vB1, norm, tB1);
+		var indexC = this.testIfInIndices(vC1, norm, tC1);
+		var indexD = this.testIfInIndices(vD1, norm, tD1);
+		
+		this.indexArray.push(indexA,indexB,indexD, indexD,indexC,indexA);
+	}		
+
+	var meshObject = new Object;
+	meshObject.vertexArray = this.vertexArray;
+	meshObject.normalArray = this.normalArray;
+	meshObject.textureArray = this.textureArray;
+	meshObject.textureUnitArray = this.textureUnitArray;
+	meshObject.indexArray = this.indexArray;
+	
+	if(jsonIn.node != undefined) { 
+		var bObject = jsonIn.node.attachMesh(meshObject);
+		jsonIn.node.materialUnits[0] = stormEngineC.createMaterial();
+		if(jsonIn.color != undefined) {
+			jsonIn.node.materialUnits[0].write($V3([jsonIn.color.e[0], jsonIn.color.e[1], jsonIn.color.e[2]]));
+		} else {
+			jsonIn.node.materialUnits[0].write($V3([Math.random(), Math.random(), Math.random()]));
+		}
+	} else {
+		return this; 
+	}
+};
 /**
 * Load a sphere on node
 * @private 
@@ -247,8 +403,8 @@ StormMesh.prototype.loadSphere = function(jsonIn) {
 	this.textureUnitArray = [];
 	this.indexArray = [];
 	
-	var objIndex = []; // for store new indexes
-	var indexMax=0;  
+	this.objIndex = []; // for store new indexes
+	this.indexMax=0;  
 	
 	
 	var stepAngle = 180.0/(segments+1); 
@@ -282,45 +438,10 @@ StormMesh.prototype.loadSphere = function(jsonIn) {
 				var tB1 = $V3([(currAngleH-stepAngle)/360.0, 1.0-(currAngleV/180.0), 0.0]);
 				var tC1 = $V3([currAngleH/360.0, 1.0-((currAngleV-stepAngle)/180.0), 0.0]);
 				//indices
-				var indexA=undefined,indexB=undefined,indexC=undefined;
-				for(var nB = 0, fb = objIndex.length; nB < fb; nB++) {
-					if(objIndex[nB].v.e[0] == vA1.e[0] && objIndex[nB].v.e[1] == vA1.e[1] && objIndex[nB].v.e[2] == vA1.e[2]) {
-						indexA = objIndex[nB].i;
-					}
-					if(objIndex[nB].v.e[0] == vB1.e[0] && objIndex[nB].v.e[1] == vB1.e[1] && objIndex[nB].v.e[2] == vB1.e[2]) {
-						indexB = objIndex[nB].i;
-					}
-					if(objIndex[nB].v.e[0] == vC1.e[0] && objIndex[nB].v.e[1] == vC1.e[1] && objIndex[nB].v.e[2] == vC1.e[2]) {
-						indexC = objIndex[nB].i;
-					}
-				}
-				if(indexA == undefined) {
-					indexA = indexMax; 
-					objIndex.push({i:indexA,v:$V3([vA1.e[0],vA1.e[1],vA1.e[2]])});
-					indexMax++;
-					this.vertexArray.push(vA1.e[0],vA1.e[1],vA1.e[2]);
-					this.normalArray.push(norm.e[0],norm.e[1],norm.e[2]);
-					this.textureArray.push(tA1.e[0],tA1.e[1],tA1.e[2]);
-					this.textureUnitArray.push(0.0);
-				}
-				if(indexB == undefined) {
-					indexB = indexMax;
-					objIndex.push({i:indexB,v:$V3([vB1.e[0],vB1.e[1],vB1.e[2]])});
-					indexMax++;
-					this.vertexArray.push(vB1.e[0],vB1.e[1],vB1.e[2]);
-					this.normalArray.push(norm.e[0],norm.e[1],norm.e[2]);
-					this.textureArray.push(tB1.e[0],tB1.e[1],tB1.e[2]);
-					this.textureUnitArray.push(0.0);
-				}
-				if(indexC == undefined) {
-					indexC = indexMax;
-					objIndex.push({i:indexC,v:$V3([vC1.e[0],vC1.e[1],vC1.e[2]])});
-					indexMax++;
-					this.vertexArray.push(vC1.e[0],vC1.e[1],vC1.e[2]);
-					this.normalArray.push(norm.e[0],norm.e[1],norm.e[2]);
-					this.textureArray.push(tC1.e[0],tC1.e[1],tC1.e[2]);
-					this.textureUnitArray.push(0.0);
-				}
+				var indexA = this.testIfInIndices(vA1, norm, tA1);
+				var indexB = this.testIfInIndices(vB1, norm, tB1);
+				var indexC = this.testIfInIndices(vC1, norm, tC1);
+				
 				this.indexArray.push(indexA,indexB,indexC);
 			}
 			if(v>1) { // último(1 triángulo hacia abajo) e intermedios
@@ -342,45 +463,10 @@ StormMesh.prototype.loadSphere = function(jsonIn) {
 				var tB2 = $V3([currAngleH/360.0, 1.0-((currAngleV-stepAngle)/180.0), 0.0]);
 				var tC2 = $V3([(currAngleH-stepAngle)/360.0, 1.0-(currAngleV/180.0), 0.0]);
 				//indices
-				var indexA=undefined,indexB=undefined,indexC=undefined;
-				for(var nB = 0, fb = objIndex.length; nB < fb; nB++) {
-					if(objIndex[nB].v.e[0] == vA2.e[0] && objIndex[nB].v.e[1] == vA2.e[1] && objIndex[nB].v.e[2] == vA2.e[2]) {
-						indexA = objIndex[nB].i;
-					}
-					if(objIndex[nB].v.e[0] == vB2.e[0] && objIndex[nB].v.e[1] == vB2.e[1] && objIndex[nB].v.e[2] == vB2.e[2]) {
-						indexB = objIndex[nB].i;
-					}
-					if(objIndex[nB].v.e[0] == vC2.e[0] && objIndex[nB].v.e[1] == vC2.e[1] && objIndex[nB].v.e[2] == vC2.e[2]) {
-						indexC = objIndex[nB].i;
-					}
-				}
-				if(indexA == undefined) {
-					indexA = indexMax; 
-					objIndex.push({i:indexA,v:$V3([vA2.e[0],vA2.e[1],vA2.e[2]])});
-					indexMax++;
-					this.vertexArray.push(vA2.e[0],vA2.e[1],vA2.e[2]);
-					this.normalArray.push(norm.e[0],norm.e[1],norm.e[2]);
-					this.textureArray.push(tA2.e[0],tA2.e[1],tA2.e[2]);
-					this.textureUnitArray.push(0.0);
-				}
-				if(indexB == undefined) {
-					indexB = indexMax;
-					objIndex.push({i:indexB,v:$V3([vB2.e[0],vB2.e[1],vB2.e[2]])});
-					indexMax++;
-					this.vertexArray.push(vB2.e[0],vB2.e[1],vB2.e[2]);
-					this.normalArray.push(norm.e[0],norm.e[1],norm.e[2]);
-					this.textureArray.push(tB2.e[0],tB2.e[1],tB2.e[2]);
-					this.textureUnitArray.push(0.0);
-				}
-				if(indexC == undefined) {
-					indexC = indexMax;
-					objIndex.push({i:indexC,v:$V3([vC2.e[0],vC2.e[1],vC2.e[2]])});
-					indexMax++;
-					this.vertexArray.push(vC2.e[0],vC2.e[1],vC2.e[2]);
-					this.normalArray.push(norm.e[0],norm.e[1],norm.e[2]);
-					this.textureArray.push(tC2.e[0],tC2.e[1],tC2.e[2]);
-					this.textureUnitArray.push(0.0);
-				}
+				var indexA = this.testIfInIndices(vA2, norm, tA2);
+				var indexB = this.testIfInIndices(vB2, norm, tB2);
+				var indexC = this.testIfInIndices(vC2, norm, tC2);
+				
 				this.indexArray.push(indexA,indexB,indexC);
 			}
 		}		

@@ -75,6 +75,7 @@ var includesF = [//'/StormMathMin.class.js',
 				'/StormGLContext_programNormalsDepth.class.js',
 				'/StormGLContext_programParticles.class.js',
 				'/StormGLContext_programPick.class.js',
+				'/StormGLContext_programOverlay.class.js',
 				'/StormGLContext_programScene.class.js',
 				'/StormGLContext_programShadows.class.js',
 				/*'/WebCLGL_2.0.Min.class.js',*/
@@ -238,6 +239,7 @@ StormEngineC = function() {
 	this.mouseOldPosY = 0;
 	this.oldMousePosClickX = 0;
 	this.oldMousePosClickY = 0; 
+	this.isMouseDown = false;
 	this.draggingNodeNow = false;
 	
 	this.stormGLContext,this.clgl,this.utils,this.stormMesh;
@@ -317,6 +319,8 @@ StormEngineC.prototype.createWebGL = function(jsonIn) {
 StormEngineC.prototype.loadManager = function() {
 	this.stormGLContext = new StormGLContext(this.target);
 	
+	
+	// INIT SHADERS
 	this.stormGLContext.addToStackShaders('CTX2D', this.stormGLContext.initShader_Ctx2D);
 	this.update2DContext();
 	this.stormGLContext.addToStackShaders('NORMALS', this.stormGLContext.initShader_Normals);
@@ -329,6 +333,7 @@ StormEngineC.prototype.loadManager = function() {
 	this.stormGLContext.addToStackShaders('LINES', this.stormGLContext.initShader_Lines);
 	this.stormGLContext.addToStackShaders('DOF', this.stormGLContext.initShader_DOF);
 	this.stormGLContext.addToStackShaders('PICK', this.stormGLContext.initShader_Pick);
+	this.stormGLContext.addToStackShaders('OVERLAY', this.stormGLContext.initShader_Overlay);
 	
 	
 	this.clgl = new WebCLGL(this.stormGLContext.gl);
@@ -336,6 +341,21 @@ StormEngineC.prototype.loadManager = function() {
 	this.stormMesh = new StormMesh();
 	this.giv2 = new StormGI();
 	
+	// OVERLAY TRANSFORMS  
+	this.stormGLContext.nodeOverlayPosX = new StormNode();
+	this.stormGLContext.nodeOverlayPosX.loadBox($V3([0.1,1.0,0.1]));
+	this.stormGLContext.nodeOverlayPosX.setRotationZ(stormEngineC.utils.degToRad(90));
+	
+	this.stormGLContext.nodeOverlayPosY = new StormNode();
+	this.stormGLContext.nodeOverlayPosY.loadBox($V3([0.1,1.0,0.1]));
+	this.stormGLContext.nodeOverlayPosY.setRotationZ(stormEngineC.utils.degToRad(180));
+	
+	this.stormGLContext.nodeOverlayPosZ = new StormNode();
+	this.stormGLContext.nodeOverlayPosZ.loadBox($V3([0.1,1.0,0.1]));
+	this.stormGLContext.nodeOverlayPosZ.setRotationX(stormEngineC.utils.degToRad(-90));
+	
+	
+	// DEFAULT CAMERA AND SUN LIGHT
 	var nodeCam = this.createCamera($V3([0.0, 0.0, 0.0]));
 	this.setWebGLCam(nodeCam); 
 	this.cameraGoalCurrentPos = this.defaultCamera.nodeGoal.getPosition();
@@ -347,7 +367,8 @@ StormEngineC.prototype.loadManager = function() {
 	light.visibleOnContext = false;
 	light.visibleOnRender = false;
 	light.nodeCtxWebGL.visibleOnContext = false;
-													
+	
+	// PHYSICS
 	this.stormJigLibJS = new StormJigLibJS();
 	this.stormJigLibJS.createJigLibWorld();
 	
@@ -683,7 +704,7 @@ StormEngineC.prototype.makePanel = function(panelobj, panelname, paneltitle, htm
 		'</div>';
 	$('body').append(str);
 	panelobj.$ = $("#"+panelname+"_MENU");
-	panelobj.De = DGE(panelname);
+	panelobj.De = DGE(panelname+"_MENU");
 	
 	$("#"+panelname+"_MENU").draggable();
 	$("#"+panelname+"_MENU").resizable({resize:function(event, ui) {
@@ -711,6 +732,7 @@ StormEngineC.prototype.makePanel = function(panelobj, panelname, paneltitle, htm
 };
 /**  @private */
 StormEngineC.prototype.mouseup = function(e) {
+	stormEngineC.isMouseDown = false;
 	//e.preventDefault();
 	stormEngineC.stormGLContext.queryNodePickType = 2; // 0=noquery, 1=mousedown, 2=mouseup
 	
@@ -727,7 +749,8 @@ StormEngineC.prototype.mouseup = function(e) {
 };
 /**  @private */
 StormEngineC.prototype.mousedown = function(e) {
-	if(stormEngineC.draggingNodeNow == false) {
+	stormEngineC.isMouseDown = true;
+	if(stormEngineC.draggingNodeNow === false) {
 		if(e.targetTouches != undefined) {
 			console.log(e.targetTouches)
 			e = e.targetTouches[0];
@@ -740,8 +763,14 @@ StormEngineC.prototype.mousedown = function(e) {
 	stormEngineC.oldMousePosClickX = stormEngineC.mousePosX;
 	stormEngineC.oldMousePosClickY = stormEngineC.mousePosY; 
 	
-	stormEngineC.stormGLContext.queryNodePickType = 1; // 0=noquery, 1=mousedown, 2=mouseup
-	
+	stormEngineC.stormGLContext.queryNodePickType = 1; // 0=noquery, 1=mousedown, 2=mouseup 
+	if(	stormEngineC.isMouseDown == true &&
+		stormEngineC.getSelectedNode() != undefined &&
+		stormEngineC.stormGLContext.transformOverlaySelected != 0) {
+			stormEngineC.getSelectedNode().bodyActive(false);
+			stormEngineC.draggingNodeNow = true;
+	}
+		
 	stormEngineC.setZeroSamplesGIVoxels();
 	
 	stormEngineC.PanelAnimationTimeline.stop();
@@ -778,10 +807,22 @@ StormEngineC.prototype.mousemove = function(e) {
 		stormEngineC.mousePosX = (e.clientX - stormEngineC.divPositionX);
 		stormEngineC.mousePosY = (e.clientY - stormEngineC.divPositionY);
 		
-		if(stormEngineC.draggingNodeNow != false) {
-			var dir = stormEngineC.utils.getDraggingMoveVector(); 
-			stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));  
-		}	
+		if(stormEngineC.draggingNodeNow !== false) { 
+			if(stormEngineC.stormGLContext.transformOverlaySelected != 0) {
+				var dir;
+				if(stormEngineC.stormGLContext.transformOverlaySelected == 1)
+					dir = stormEngineC.utils.getDraggingPosXVector(); 
+				if(stormEngineC.stormGLContext.transformOverlaySelected == 2)
+					dir = stormEngineC.utils.getDraggingPosYVector(); 
+				if(stormEngineC.stormGLContext.transformOverlaySelected == 3)
+					dir = stormEngineC.utils.getDraggingPosZVector(); 
+					
+				stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));
+			} else {
+				var dir = stormEngineC.utils.getDraggingScreenVector(); 
+				stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));  
+			}
+		}
 		
 		if(stormEngineC.defaultCamera.controller.leftButton == 1 || stormEngineC.defaultCamera.controller.middleButton == 1) {
 			stormEngineC.setZeroSamplesGIVoxels();
@@ -814,11 +855,16 @@ StormEngineC.prototype.selectNode = function(node) {
 	this.nearNode = node;   
 	
 	if(this.editMode) {
-		if(document.getElementById('DIVID_StormPanelAnimationTimeline').style.display == 'block') this.PanelAnimationTimeline.drawTimelineGrid();
-		this.PanelListObjects.showListObjects(); 
-		this.PanelListObjects.show();
-		this.PanelEditNode.show();
-		this.PanelEditNode.updateNearNode();
+		if(this.PanelAnimationTimeline.De.style.display == 'block')
+			this.PanelAnimationTimeline.drawTimelineGrid();
+		if(this.PanelListObjects.De.style.display == "block") {
+			this.PanelListObjects.showListObjects(); 
+			this.PanelListObjects.show();
+		}
+		if(this.PanelEditNode.De.style.display == "block") {
+			this.PanelEditNode.show();
+			this.PanelEditNode.updateNearNode();
+		}
 		
 		this.debugValues = [];
 		if(this.nearNode.objectType == 'line') {

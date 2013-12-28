@@ -134,11 +134,11 @@ StormUtils.prototype.invsqrt = function(value) {
 };
 
 /**
-* Get vector translation for dragging
+* Get vector translation for screen dragging
 * @private
 * @returns {StormV3}
 */
-StormUtils.prototype.getDraggingMoveVector = function() {
+StormUtils.prototype.getDraggingScreenVector = function() {
 	var factordist = stormEngineC.getWebGLCam().getPosition().distance(stormEngineC.getSelectedNode().getPosition());
 	var factorxdim = (stormEngineC.mouseOldPosX - stormEngineC.mousePosX) * factordist;
 	var factorydim = (stormEngineC.mouseOldPosY - stormEngineC.mousePosY) * factordist;
@@ -147,6 +147,54 @@ StormUtils.prototype.getDraggingMoveVector = function() {
 	var sig = (stormEngineC.getWebGLCam().controller.controllerType == 1) ? -1.0 : 1.0;
 	var X = stormEngineC.getWebGLCam().nodePivot.MPOS.x(stormEngineC.getWebGLCam().nodePivot.MROTXYZ).getLeft().x(factorx*sig); 
 	var Y = stormEngineC.getWebGLCam().nodePivot.MPOS.x(stormEngineC.getWebGLCam().nodePivot.MROTXYZ).getUp().x(factory); 
+	return X.add(Y);
+};
+/**
+* Get vector translation for x local dragging
+* @private
+* @returns {StormV3}
+*/
+StormUtils.prototype.getDraggingPosXVector = function() {
+	var factordist = stormEngineC.getWebGLCam().getPosition().distance(stormEngineC.getSelectedNode().getPosition());
+	var factorxdim = (stormEngineC.mouseOldPosX - stormEngineC.mousePosX) * factordist;
+	var factorydim = (stormEngineC.mouseOldPosY - stormEngineC.mousePosY) * factordist;
+	var factorx = factorxdim * (this.invsqrt(stormEngineC.stormGLContext.viewportWidth/13000)*1000.0) *0.0000000613; 
+	var factory = factorydim * (this.invsqrt(stormEngineC.stormGLContext.viewportHeight/13000)*1000.0) *0.0000000613; 
+	//var X = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getLeft().x(factorx*sig); 
+	var X = $V3([1.0,0.0,0.0]).x(-factorx); 
+	var Y = $V3([1.0,0.0,0.0]).x(-factory); 
+	return X.add(Y);
+};
+/**
+* Get vector translation for y local dragging
+* @private
+* @returns {StormV3}
+*/
+StormUtils.prototype.getDraggingPosYVector = function() {
+	var factordist = stormEngineC.getWebGLCam().getPosition().distance(stormEngineC.getSelectedNode().getPosition());
+	var factorxdim = (stormEngineC.mouseOldPosX - stormEngineC.mousePosX) * factordist;
+	var factorydim = (stormEngineC.mouseOldPosY - stormEngineC.mousePosY) * factordist;
+	var factorx = factorxdim * (this.invsqrt(stormEngineC.stormGLContext.viewportWidth/13000)*1000.0) *0.0000000613; 
+	var factory = factorydim * (this.invsqrt(stormEngineC.stormGLContext.viewportHeight/13000)*1000.0) *0.0000000613; 
+	//var X = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getLeft().x(factorx*sig); 
+	var X = $V3([0.0,1.0,0.0]).x(factorx); 
+	var Y = $V3([0.0,1.0,0.0]).x(factory); 
+	return X.add(Y);
+};
+/**
+* Get vector translation for z local dragging
+* @private
+* @returns {StormV3}
+*/
+StormUtils.prototype.getDraggingPosZVector = function() {
+	var factordist = stormEngineC.getWebGLCam().getPosition().distance(stormEngineC.getSelectedNode().getPosition());
+	var factorxdim = (stormEngineC.mouseOldPosX - stormEngineC.mousePosX) * factordist;
+	var factorydim = (stormEngineC.mouseOldPosY - stormEngineC.mousePosY) * factordist;
+	var factorx = factorxdim * (this.invsqrt(stormEngineC.stormGLContext.viewportWidth/13000)*1000.0) *0.0000000613; 
+	var factory = factorydim * (this.invsqrt(stormEngineC.stormGLContext.viewportHeight/13000)*1000.0) *0.0000000613; 
+	//var X = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getLeft().x(factorx*sig); 
+	var X = $V3([0.0,0.0,1.0]).x(-factorx); 
+	var Y = $V3([0.0,0.0,1.0]).x(-factory); 
 	return X.add(Y);
 };
 /**

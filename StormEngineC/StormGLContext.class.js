@@ -40,6 +40,7 @@ StormGLContext = function(stormCanvasObject, loadScene) {
 	
 	// PICKING
 	this.queryNodePickType = 0; // 0=noquery, 1=mousedown, 2=mouseup
+	this.transformOverlaySelected = 0.0; //1=posx,2=posy,3=posz, 4=rotx,5=roty,6=rotz 
 	
 	// BG
 	this.useEnvironment = false;
@@ -117,6 +118,8 @@ StormGLContext.prototype.initContext = function() {
 	this.indexBuffer_QUAD = this.gl.createBuffer();
 	this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer_QUAD);
 	this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.indexArray), this.gl.STATIC_DRAW);
+	
+	
 	
 	// WEBGL FB
 	this.rBuffer = this.gl.createRenderbuffer();
@@ -514,8 +517,7 @@ StormGLContext.prototype.renderGLContext = function() {
 	this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
 	if(this.Shader_Pick_READY) {
 		this.queryNodePick();
-		this.hitRectRegion_onclick();
-	}
+	} 
 	if(this.Shader_GIv2_READY == true && this.GIv2enable == true) {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fBuffer);
 		this.gl.clearColor(1.0,1.0,1.0, 1.0);
@@ -581,10 +583,13 @@ StormGLContext.prototype.renderGLContext = function() {
 	if(this.Shader_ParticlesAux_READY && this.particles.length > 0) {
 		this.render_ParticlesAux();
 	}
-	
+	this.hitRectRegion_onclick(); 
 	if(this.Shader_DOF_READY && stormEngineC.defaultCamera.DOFenable) {
 		this.render_DOF(); 
 	}
+	if(this.Shader_Overlay_READY) {
+		this.render_Overlay();
+	}   
 	this.hitRectRegion_onmouseover();
 	this.hitRectRegion_onmouseout();
 	if(this.Shader_Ctx2D_READY) {

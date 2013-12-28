@@ -248,6 +248,25 @@ StormNode.prototype.loadBox = function(vecDim) {
 	mesh.loadBox(this, vecDim);
 };
 /**
+* Load a tube on node
+* @type Void
+* @param {Object} jsonIn
+* 	@param {Float} [jsonIn.height=1.0] Height
+* 	@param {Float} [jsonIn.outerRadius=1.0]	Outer radius
+* 	@param {Float} [jsonIn.innerRadius=0.7] Inner radius
+* 	@param {Int} [jsonIn.segments=6] Segments
+* 	@param {StormV3} [jsonIn.color] Color
+*/
+StormNode.prototype.loadTube = function(jsonIn) {
+	var mesh = new StormMesh();
+	mesh.loadTube({ node: this,
+					height: jsonIn.height,
+					outerRadius: jsonIn.outerRadius,
+					innerRadius: jsonIn.innerRadius,
+					segments: jsonIn.segments,
+					color: jsonIn.color});
+};
+/**
 * Load a quad on node
 * @type Void
 * @param {Float} width
@@ -261,7 +280,7 @@ StormNode.prototype.loadQuad = function(length, height) {
 * Load a sphere on node
 * @type Void
 * @param {Object} jsonIn
-* 	@param {StormV3} jsonIn.color Color
+* 	@param {StormV3} [jsonIn.color] Color
 * 	@param {Float} [jsonIn.radius=1.0] Radius
 * 	@param {Int} [jsonIn.segments=6] Segments
 */
