@@ -14,6 +14,7 @@ StormGLContext.prototype.initShader_Scene = function() {
 		'attribute float aTextureUnit;\n'+
 		
 		'uniform mat4 u_nodeWMatrix;\n'+
+		'uniform vec3 u_nodeVScale;\n'+
 		'uniform mat4 u_cameraWMatrix;\n'+
 		'uniform vec3 u_cameraPos;\n'+
 		'uniform mat4 uPMatrix;\n'+
@@ -37,11 +38,12 @@ StormGLContext.prototype.initShader_Scene = function() {
 		'const mat4 ScaleMatrix = mat4(0.5, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 1.0);'+
 		
 		'void main(void) {\n'+
-			'vWPos = u_nodeWMatrix * vec4(aVertexPosition, 1.0);\n'+
-			'vposition = u_cameraWMatrix * u_nodeWMatrix * vec4(aVertexPosition, 1.0);\n'+
+			'vec3 vp = vec3(aVertexPosition.x*u_nodeVScale.x, aVertexPosition.y*u_nodeVScale.y, aVertexPosition.z*u_nodeVScale.z);\n'+
+			'vWPos = u_nodeWMatrix * vec4(vp, 1.0);\n'+
+			'vposition = u_cameraWMatrix * u_nodeWMatrix * vec4(vp, 1.0);\n'+
 			
-			'vpositionViewportRegion = ScaleMatrix * uPMatrix * u_cameraWMatrix * u_nodeWMatrix * vec4(aVertexPosition, 1.0);\n'+
-			'gl_Position = uPMatrix * u_cameraWMatrix * u_nodeWMatrix * vec4(aVertexPosition, 1.0);\n'+
+			'vpositionViewportRegion = ScaleMatrix * uPMatrix * u_cameraWMatrix * u_nodeWMatrix * vec4(vp, 1.0);\n'+
+			'gl_Position = uPMatrix * u_cameraWMatrix * u_nodeWMatrix * vec4(vp, 1.0);\n'+
 			'gl_PointSize = 2.0;\n'+
 			
 			'vTextureCoord = aTextureCoord;\n'+
@@ -456,6 +458,7 @@ StormGLContext.prototype.pointers_Scene = function() {
 	_this.u_Scene_cameraWMatrix = _this.gl.getUniformLocation(_this.shader_Scene, "u_cameraWMatrix");
 	_this.u_Scene_cameraPos = _this.gl.getUniformLocation(_this.shader_Scene, "u_cameraPos");
 	_this.u_Scene_nodeWMatrix = _this.gl.getUniformLocation(_this.shader_Scene, "u_nodeWMatrix");
+	_this.u_Scene_nodeVScale = _this.gl.getUniformLocation(_this.shader_Scene, "u_nodeVScale");
 	_this.u_Scene_nodeWMatrixInverse = _this.gl.getUniformLocation(_this.shader_Scene, "u_nodeWMatrixInverse");
 	_this.u_Scene_nodeWVMatrixInverse = _this.gl.getUniformLocation(_this.shader_Scene, "u_nodeWVMatrixInverse");
 	_this.Shader_Scene_READY = true;
@@ -683,6 +686,7 @@ StormGLContext.prototype.renderSceneNow = function(node, buffersObject) {
 	
 	
 	this.gl.uniformMatrix4fv(this.u_Scene_nodeWMatrix, false, node.MPOSFrame.transpose().e);
+	this.gl.uniform3f(this.u_Scene_nodeVScale, node.VSCALE.e[0], node.VSCALE.e[1], node.VSCALE.e[2]); 
 	this.gl.uniformMatrix4fv(this.u_Scene_nodeWMatrixInverse, false, node.MPOSFrame.inverse().e);
 	this.gl.uniformMatrix4fv(this.u_Scene_nodeWVMatrixInverse, false, node.MCAMPOSFrame.inverse().e);
 	

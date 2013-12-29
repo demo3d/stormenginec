@@ -342,6 +342,9 @@ StormEngineC.prototype.loadManager = function() {
 	this.giv2 = new StormGI();
 	
 	// OVERLAY TRANSFORMS  
+	this.defaultTransform = 0; // 0=position, 1=rotation, 2=scale
+	this.defaultTransformMode = 0; // 0=world, 1=local
+	// ►pos detector and display
 	this.stormGLContext.nodeOverlayPosX = new StormNode();
 	this.stormGLContext.nodeOverlayPosX.loadBox($V3([0.1,1.0,0.1]));
 	this.stormGLContext.nodeOverlayPosX.setRotationZ(stormEngineC.utils.degToRad(90));
@@ -354,6 +357,56 @@ StormEngineC.prototype.loadManager = function() {
 	this.stormGLContext.nodeOverlayPosZ.loadBox($V3([0.1,1.0,0.1]));
 	this.stormGLContext.nodeOverlayPosZ.setRotationX(stormEngineC.utils.degToRad(-90));
 	
+	// ►rot detector
+	this.stormGLContext.nodeOverlayRotDetX = new StormNode();
+	this.stormGLContext.nodeOverlayRotDetX.loadTube({height: 0.1, outerRadius: 1.0, innerRadius: 0.9, segments: 14}); 
+	this.stormGLContext.nodeOverlayRotDetX.setRotationZ(stormEngineC.utils.degToRad(90));
+	
+	this.stormGLContext.nodeOverlayRotDetY = new StormNode();
+	this.stormGLContext.nodeOverlayRotDetY.loadTube({height: 0.1, outerRadius: 1.0, innerRadius: 0.9, segments: 14}); 
+	//this.stormGLContext.nodeOverlayRotDetY.setRotationZ(stormEngineC.utils.degToRad(90));
+	
+	this.stormGLContext.nodeOverlayRotDetZ = new StormNode();
+	this.stormGLContext.nodeOverlayRotDetZ.loadTube({height: 0.1, outerRadius: 1.0, innerRadius: 0.9, segments: 14}); 
+	this.stormGLContext.nodeOverlayRotDetZ.setRotationX(stormEngineC.utils.degToRad(-90));
+	// ►rot display
+	this.stormGLContext.nodeOverlayRotX = new StormNode();
+	this.stormGLContext.nodeOverlayRotX.loadTube({height: 0.01, outerRadius: 1.0, innerRadius: 0.99, segments: 14}); 
+	this.stormGLContext.nodeOverlayRotX.setRotationZ(stormEngineC.utils.degToRad(90));
+	
+	this.stormGLContext.nodeOverlayRotY = new StormNode();
+	this.stormGLContext.nodeOverlayRotY.loadTube({height: 0.01, outerRadius: 1.0, innerRadius: 0.99, segments: 14}); 
+	//this.stormGLContext.nodeOverlayRotY.setRotationZ(stormEngineC.utils.degToRad(90));
+	
+	this.stormGLContext.nodeOverlayRotZ = new StormNode();
+	this.stormGLContext.nodeOverlayRotZ.loadTube({height: 0.01, outerRadius: 1.0, innerRadius: 0.99, segments: 14}); 
+	this.stormGLContext.nodeOverlayRotZ.setRotationX(stormEngineC.utils.degToRad(-90));
+	
+	// ►scale detector
+	this.stormGLContext.nodeOverlayScaDetX = new StormNode();
+	this.stormGLContext.nodeOverlayScaDetX.loadBox($V3([0.1,1.0,0.1]));
+	this.stormGLContext.nodeOverlayScaDetX.setRotationZ(stormEngineC.utils.degToRad(90));
+	
+	this.stormGLContext.nodeOverlayScaDetY = new StormNode();
+	this.stormGLContext.nodeOverlayScaDetY.loadBox($V3([0.1,1.0,0.1]));
+	this.stormGLContext.nodeOverlayScaDetY.setRotationZ(stormEngineC.utils.degToRad(180));
+	
+	this.stormGLContext.nodeOverlayScaDetZ = new StormNode();
+	this.stormGLContext.nodeOverlayScaDetZ.loadBox($V3([0.1,1.0,0.1]));
+	this.stormGLContext.nodeOverlayScaDetZ.setRotationX(stormEngineC.utils.degToRad(-90));
+	
+	// ►scale display
+	this.stormGLContext.nodeOverlayScaX = new StormNode();
+	this.stormGLContext.nodeOverlayScaX.loadBox($V3([0.1,0.1,0.1]));
+	this.stormGLContext.nodeOverlayScaX.setRotationZ(stormEngineC.utils.degToRad(90));
+	
+	this.stormGLContext.nodeOverlayScaY = new StormNode();
+	this.stormGLContext.nodeOverlayScaY.loadBox($V3([0.1,0.1,0.1]));
+	this.stormGLContext.nodeOverlayScaY.setRotationZ(stormEngineC.utils.degToRad(180));
+	
+	this.stormGLContext.nodeOverlayScaZ = new StormNode();
+	this.stormGLContext.nodeOverlayScaZ.loadBox($V3([0.1,0.1,0.1]));
+	this.stormGLContext.nodeOverlayScaZ.setRotationX(stormEngineC.utils.degToRad(-90));
 	
 	// DEFAULT CAMERA AND SUN LIGHT
 	var nodeCam = this.createCamera($V3([0.0, 0.0, 0.0]));
@@ -402,9 +455,23 @@ StormEngineC.prototype.loadManager = function() {
 	
 	if(this.editMode) {
 		var strBtns = ''+
-		'<table id="TABLEID_STORMMENU"><tr>'+
-			'<td>'+
-				'<ul class="TABLESTORMMENU">'+
+		
+		'<div id="TABLEID_STORMMENU" style="display:table;background-color:#262626;font-size:11px;">'+
+				'<div style="display:table">'+
+					'<div style="display:table-cell;">'+
+						'<div style="padding:2px">LOCAL<input type="checkbox" id="CHECKID_STOMTOOLBAR_LOCAL" /></div>'+
+					'</div>'+
+					'<div style="display:table-cell;cursor:pointer;" id="BTNID_STOMTOOLBAR_MOVE">'+
+						'<div style="padding:2px">Move</div>'+
+					'</div>'+
+					'<div style="display:table-cell;cursor:pointer;" id="BTNID_STOMTOOLBAR_ROTATE">'+
+						'<div style="padding:2px">Rotate</div>'+
+					'</div>'+
+					'<div style="display:table-cell;cursor:pointer;" id="BTNID_STOMTOOLBAR_SCALE">'+
+						'<div style="padding:2px">Scale</div>'+
+					'</div>'+
+				'</div>'+
+				'<ul data-type="STORMMENU" style="display:table-cell">'+
 					"<li>"+
 						"<a id='STORMMENU_H0'>File</a>"+
 						'<ul>'+
@@ -413,9 +480,7 @@ StormEngineC.prototype.loadManager = function() {
 						'</ul>'+
 					"</li>"+
 				'</ul>'+
-			'</td>'+
-			'<td>'+
-				'<ul class="TABLESTORMMENU">'+
+				'<ul data-type="STORMMENU" style="display:table-cell">'+
 					"<li>"+
 						"<a id='STORMMENU_H1'>Edit</a>"+
 						'<ul>'+
@@ -425,9 +490,7 @@ StormEngineC.prototype.loadManager = function() {
 						'</ul>'+
 					"</li>"+
 				'</ul>'+
-			'</td>'+
-			'<td>'+
-				'<ul class="TABLESTORMMENU">'+
+				'<ul data-type="STORMMENU" style="display:table-cell">'+
 					"<li>"+
 						"<a id='STORMMENU_H2'>View</a>"+
 						'<ul>'+
@@ -458,9 +521,7 @@ StormEngineC.prototype.loadManager = function() {
 						'</ul>'+
 					"</li>"+
 				'</ul>'+
-			'</td>'+
-			'<td>'+
-				'<ul class="TABLESTORMMENU">'+
+				'<ul data-type="STORMMENU" style="display:table-cell">'+
 					"<li>"+
 						"<a id='STORMMENU_H3'>Create</a>"+
 						'<ul>'+
@@ -476,9 +537,7 @@ StormEngineC.prototype.loadManager = function() {
 						'</ul>'+
 					"</li>"+
 				'</ul>'+
-			'</td>'+
-			'<td>'+
-				'<ul class="TABLESTORMMENU">'+
+				'<ul data-type="STORMMENU" style="display:table-cell">'+
 					"<li>"+
 						"<a id='STORMMENU_H4'>Materials</a>"+
 						'<ul>'+
@@ -487,9 +546,7 @@ StormEngineC.prototype.loadManager = function() {
 						'</ul>'+
 					"</li>"+
 				'</ul>'+
-			'</td>'+
-			'<td>'+
-				'<ul class="TABLESTORMMENU">'+
+				'<ul data-type="STORMMENU" style="display:table-cell">'+
 					"<li id='LIID_STORMMENU_5'>"+
 						"<a id='STORMMENU_H5'>Render</a>"+
 						'<ul>'+
@@ -497,22 +554,60 @@ StormEngineC.prototype.loadManager = function() {
 						'</ul>'+
 					"</li>"+
 				'</ul>'+
-			'</td>'+
-		'</tr></table>';
+			'</div>'+
+		'</div>';
 		this.$.parent().append(strBtns);
 		
-
+		DGE("BTNID_STOMTOOLBAR_MOVE").addEventListener("click", function(e) {
+			stormEngineC.defaultTransform = 0; // 0=position, 1=rotation, 2=scale
+		}, false);
+		DGE("BTNID_STOMTOOLBAR_MOVE").addEventListener("mouseover", function(e) {
+			this.style.backgroundColor = "#AAA";
+			this.style.color = "#262626";
+		}, false);
+		DGE("BTNID_STOMTOOLBAR_MOVE").addEventListener("mouseout", function(e) {
+			this.style.backgroundColor = "#262626";
+			this.style.color = "#FFF";
+		}, false);
+		
+		DGE("BTNID_STOMTOOLBAR_ROTATE").addEventListener("click", function(e) {
+			stormEngineC.defaultTransform = 1; // 0=position, 1=rotation, 2=scale
+		}, false);
+		DGE("BTNID_STOMTOOLBAR_ROTATE").addEventListener("mouseover", function(e) {
+			this.style.backgroundColor = "#AAA";
+			this.style.color = "#262626";
+		}, false);
+		DGE("BTNID_STOMTOOLBAR_ROTATE").addEventListener("mouseout", function(e) {
+			this.style.backgroundColor = "#262626";
+			this.style.color = "#FFF";
+		}, false);
+		
+		DGE("BTNID_STOMTOOLBAR_SCALE").addEventListener("click", function(e) {
+			stormEngineC.defaultTransform = 2; // 0=position, 1=rotation, 2=scale
+		}, false);
+		DGE("BTNID_STOMTOOLBAR_SCALE").addEventListener("mouseover", function(e) {
+			this.style.backgroundColor = "#AAA";
+			this.style.color = "#262626";
+		}, false);
+		DGE("BTNID_STOMTOOLBAR_SCALE").addEventListener("mouseout", function(e) {
+			this.style.backgroundColor = "#262626";
+			this.style.color = "#FFF";
+		}, false);
+		
+		DGE("CHECKID_STOMTOOLBAR_LOCAL").addEventListener("click", function(e) {
+			stormEngineC.defaultTransformMode = (stormEngineC.defaultTransformMode == 0) ? 1 : 0; // 0=world, 1=local
+		}, false);
+		
 		if(this.enableRender == false) {
 			$('#LIID_STORMMENU_5').hide();
 			$('#STORMMENUBTN_C4_01').hide();
 		}
-		$("#TABLEID_STORMMENU td").css({'width':parseInt(this.stormGLContext.viewportWidth/6)+'px','padding':'0px'});
-		$(".TABLESTORMMENU").menu({ position: {my:"left bottom", at:"left top"},
+		$("[data-type]").menu({ position: {my:"left bottom", at:"left top"},
 									select: function( event, ui ) {
-										$(".TABLESTORMMENU").menu( "collapseAll", null, true );
+										$("[data-type]").menu( "collapseAll", null, true );
 									}}); 
-		$(".TABLESTORMMENU").find('li a span').removeClass('ui-menu-icon ui-icon ui-icon-carat-1-e');
-		$(".TABLESTORMMENU").css({ 	'cursor':'pointer',
+		$("[data-type]").find('li a span').removeClass('ui-menu-icon ui-icon ui-icon-carat-1-e');
+		$("[data-type]").css({ 	'cursor':'pointer',
 									'font-size':'9px',
 									'margin':'0px',
 									'padding':'0px'});
@@ -808,16 +903,66 @@ StormEngineC.prototype.mousemove = function(e) {
 		stormEngineC.mousePosY = (e.clientY - stormEngineC.divPositionY);
 		
 		if(stormEngineC.draggingNodeNow !== false) { 
-			if(stormEngineC.stormGLContext.transformOverlaySelected != 0) {
-				var dir;
-				if(stormEngineC.stormGLContext.transformOverlaySelected == 1)
-					dir = stormEngineC.utils.getDraggingPosXVector(); 
-				if(stormEngineC.stormGLContext.transformOverlaySelected == 2)
-					dir = stormEngineC.utils.getDraggingPosYVector(); 
-				if(stormEngineC.stormGLContext.transformOverlaySelected == 3)
-					dir = stormEngineC.utils.getDraggingPosZVector(); 
-					
-				stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));
+			var selOver = stormEngineC.stormGLContext.transformOverlaySelected;
+			if(selOver != 0) {
+				if(selOver == 1 || selOver == 2 || selOver == 3) {
+					var dir;
+					if(selOver == 1) {
+						if(stormEngineC.defaultTransformMode == 0)
+							dir = stormEngineC.utils.getDraggingPosXVector(); 
+						else 
+							dir = stormEngineC.utils.getDraggingPosXVector(false); 
+					} else if(selOver == 2) {
+						if(stormEngineC.defaultTransformMode == 0)
+							dir = stormEngineC.utils.getDraggingPosYVector(); 
+						else 
+							dir = stormEngineC.utils.getDraggingPosYVector(false); 
+					} else if(selOver == 3) {
+						if(stormEngineC.defaultTransformMode == 0)
+							dir = stormEngineC.utils.getDraggingPosZVector(); 
+						else 
+							dir = stormEngineC.utils.getDraggingPosZVector(false); 
+					}
+					stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));
+				} else if(selOver == 4 || selOver == 5 || selOver == 6) {
+					if(selOver == 4) {
+						if(stormEngineC.defaultTransformMode == 0) {
+							var val = stormEngineC.utils.getDraggingScreenVector(); 
+							stormEngineC.getSelectedNode().setRotationX(val.e[0]+val.e[1]+val.e[2]);
+						} else {
+							var val = stormEngineC.utils.getDraggingScreenVector(); 
+							stormEngineC.getSelectedNode().MROTXYZ = stormEngineC.getSelectedNode().MROTXYZ.setRotationX(val.e[0]+val.e[1]+val.e[2]);
+						}
+					} else if(selOver == 5) {
+						if(stormEngineC.defaultTransformMode == 0) {
+							var val = stormEngineC.utils.getDraggingScreenVector(); 
+							stormEngineC.getSelectedNode().setRotationY(val.e[0]+val.e[1]+val.e[2]);
+						} else {
+							var val = stormEngineC.utils.getDraggingScreenVector(); 
+							stormEngineC.getSelectedNode().MROTXYZ = stormEngineC.getSelectedNode().MROTXYZ.setRotationY(val.e[0]+val.e[1]+val.e[2]);
+						}
+					} else if(selOver == 6) {
+						if(stormEngineC.defaultTransformMode == 0) {
+							var val = stormEngineC.utils.getDraggingScreenVector(); 
+							stormEngineC.getSelectedNode().setRotationZ(val.e[0]+val.e[1]+val.e[2]);
+						} else {
+							var val = stormEngineC.utils.getDraggingScreenVector(); 
+							stormEngineC.getSelectedNode().MROTXYZ = stormEngineC.getSelectedNode().MROTXYZ.setRotationZ(val.e[0]+val.e[1]+val.e[2]);
+						}
+					}
+				} else if(stormEngineC.defaultTransformMode == 1 && (selOver == 7 || selOver == 8 || selOver == 9)) {
+					var val;
+					if(selOver == 7) {
+						val = stormEngineC.utils.getDraggingScreenVector();  
+						stormEngineC.getSelectedNode().setScaleX(val.e[0]+val.e[1]+val.e[2]);
+					} else if(selOver == 8) {
+						val = stormEngineC.utils.getDraggingScreenVector(); 
+						stormEngineC.getSelectedNode().setScaleY(val.e[0]+val.e[1]+val.e[2]);
+					} else if(selOver == 9) {
+						val = stormEngineC.utils.getDraggingScreenVector(); 
+						stormEngineC.getSelectedNode().setScaleZ(val.e[0]+val.e[1]+val.e[2]);
+					}
+				}
 			} else {
 				var dir = stormEngineC.utils.getDraggingScreenVector(); 
 				stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));  
@@ -861,7 +1006,7 @@ StormEngineC.prototype.selectNode = function(node) {
 			this.PanelListObjects.showListObjects(); 
 			this.PanelListObjects.show();
 		}
-		if(this.PanelEditNode.De.style.display == "block") {
+		if(this.PanelListObjects.De.style.display == "block") {
 			this.PanelEditNode.show();
 			this.PanelEditNode.updateNearNode();
 		}

@@ -73,6 +73,7 @@ StormVoxelizator.prototype.initShader_VoxelizatorMaker = function() {
 			'uniform mat4 uPMatrix;\n'+
 			'uniform mat4 u_cameraWMatrix;\n'+
 			'uniform mat4 u_nodeWMatrix;\n'+
+			'uniform vec3 u_nodeVScale;\n'+
 			
 			'uniform int uCurrentOffset;\n'+
 			'uniform float uGridsize;\n'+
@@ -82,7 +83,8 @@ StormVoxelizator.prototype.initShader_VoxelizatorMaker = function() {
 			'varying float vTextureUnit;\n'+
 			
 			'void main(void) {\n'+
-				'vec3 vertexPositionFlipX = aVertexPosition*vec3(1.0,1.0,1.0);'+
+				'vec3 vp = vec3(aVertexPosition.x*u_nodeVScale.x, aVertexPosition.y*u_nodeVScale.y, aVertexPosition.z*u_nodeVScale.z);\n'+
+				'vec3 vertexPositionFlipX = vp*vec3(1.0,1.0,1.0);'+
 				'vec4 vPosition = uPMatrix*u_cameraWMatrix*u_nodeWMatrix*vec4(vertexPositionFlipX,1.0);'+  
 				'vec3 verP; float doffset = 0.01*uGridsize*vPosition.z;'+       
 				'if(uCurrentOffset == 0) verP = vec3(vertexPositionFlipX)+(vec3(	doffset,	0.0,	doffset));'+  
@@ -163,6 +165,7 @@ StormVoxelizator.prototype.pointers_VoxelizatorMaker = function() {
 	this.u_Voxelizator_PMatrix = this.glVoxelizator.getUniformLocation(this.shader_Voxelizator, "uPMatrix");
 	this.u_Voxelizator_cameraWMatrix = this.glVoxelizator.getUniformLocation(this.shader_Voxelizator, "u_cameraWMatrix");
 	this.u_Voxelizator_nodeWMatrix = this.glVoxelizator.getUniformLocation(this.shader_Voxelizator, "u_nodeWMatrix");
+	this.u_Voxelizator_nodeVScale = this.glVoxelizator.getUniformLocation(this.shader_Voxelizator, "u_nodeVScale");
 	
 	this.samplers_Voxelizator_objectTexturesKd = [];
 	for(var n = 0; n < stormEngineC.stormGLContext.MAX_TEXTURESKD; n++) {
@@ -416,6 +419,7 @@ StormVoxelizator.prototype.renderVoxelHeightPass = function() {
 	for(var B = 0, fB = this.BOS.length; B < fB; B++) { 
 		BO = this.BOS[B];
 		this.glVoxelizator.uniformMatrix4fv(this.u_Voxelizator_nodeWMatrix, false, BO.node.MPOS.x(BO.node.MROTXYZ).transpose().e);
+		this.glVoxelizator.uniform3f(this.u_Voxelizator_nodeVScale, BO.node.VSCALE.e[0], BO.node.VSCALE.e[1], BO.node.VSCALE.e[2]);   
 		
 		var next = 0; 
 		for(var n = 0; (n < this.MATS.length); n++) {

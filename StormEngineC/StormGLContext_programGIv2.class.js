@@ -9,6 +9,7 @@ StormGLContext.prototype.initShader_GIv2 = function() {
 		'attribute vec3 aVertexNormal;\n'+
 		
 		'uniform mat4 u_nodeWMatrix;\n'+
+		'uniform vec3 u_nodeVScale;\n'+
 		'uniform mat4 u_cameraWMatrix;\n'+
 		'uniform mat4 uPMatrix;\n'+
 		
@@ -19,9 +20,10 @@ StormGLContext.prototype.initShader_GIv2 = function() {
 		'const mat4 ScaleMatrix = mat4(0.5, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.0, 0.0, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 1.0);'+
 		
 		'void main(void) {\n'+
-			'vposition = u_nodeWMatrix * vec4(aVertexPosition*vec3(1.0,1.0,1.0), 1.0);\n'+
+			'vec3 vp = vec3(aVertexPosition.x*u_nodeVScale.x, aVertexPosition.y*u_nodeVScale.y, aVertexPosition.z*u_nodeVScale.z);\n'+
+			'vposition = u_nodeWMatrix * vec4(vp*vec3(1.0,1.0,1.0), 1.0);\n'+
 			'vnormal = vec4(aVertexNormal*vec3(1.0,1.0,1.0), 1.0);\n'+
-			'vec4 pos = uPMatrix * u_cameraWMatrix * u_nodeWMatrix * vec4(aVertexPosition, 1.0);'+
+			'vec4 pos = uPMatrix * u_cameraWMatrix * u_nodeWMatrix * vec4(vp, 1.0);'+
 			'vposScreen = ScaleMatrix * pos;\n'+
 			'gl_Position = pos;\n'+
 		'}';
@@ -186,6 +188,7 @@ StormGLContext.prototype.pointers_GIv2 = function() {
 	_this.u_GIv2_PMatrix = _this.gl.getUniformLocation(_this.shader_GIv2, "uPMatrix");
 	_this.u_GIv2_cameraWMatrix = _this.gl.getUniformLocation(_this.shader_GIv2, "u_cameraWMatrix");
 	_this.u_GIv2_nodeWMatrix = _this.gl.getUniformLocation(_this.shader_GIv2, "u_nodeWMatrix");
+	_this.u_GIv2_nodeVScale = _this.gl.getUniformLocation(_this.shader_GIv2, "u_nodeVScale");
 	_this.Shader_GIv2_READY = true;
 	stormEngineC.setZeroSamplesGIVoxels();
 };
@@ -201,7 +204,8 @@ StormGLContext.prototype.render_GIv2_AUX = function() {
 			for(var nb = 0, fb = this.nodes[n].buffersObjects.length; nb < fb; nb++) {	
 				this.gl.uniformMatrix4fv(this.u_GIv2_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
 				this.gl.uniformMatrix4fv(this.u_GIv2_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
-				this.gl.uniformMatrix4fv(this.u_GIv2_nodeWMatrix, false, this.nodes[n].MPOSFrame.transpose().e);   
+				this.gl.uniformMatrix4fv(this.u_GIv2_nodeWMatrix, false, this.nodes[n].MPOSFrame.transpose().e); 
+				this.gl.uniform3f(this.u_GIv2_nodeVScale, this.nodes[n].VSCALE.e[0], this.nodes[n].VSCALE.e[1], this.nodes[n].VSCALE.e[2]);   
 				
 				this.gl.activeTexture(this.gl.TEXTURE0);
 				this.gl.bindTexture(this.gl.TEXTURE_2D, this.stormVoxelizatorObject.clglBuff_VoxelsPositionX.textureData);

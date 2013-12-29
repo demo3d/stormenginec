@@ -11,6 +11,7 @@ StormGLContext.prototype.initShader_LightDepth = function() {
 		
 		
 		'uniform mat4 u_nodeWMatrix;\n'+
+		'uniform vec3 u_nodeVScale;\n'+
 		'uniform mat4 u_lightWMatrix;\n'+
 		'uniform mat4 uPMatrix;\n'+
 		
@@ -21,7 +22,8 @@ StormGLContext.prototype.initShader_LightDepth = function() {
 		'varying vec3 vTextureCoord;\n'+
 		
 		'void main(void) {\n'+
-			'vposition = u_lightWMatrix * u_nodeWMatrix * vec4(aVertexPosition, 1.0);\n'+
+			'vec3 vp = vec3(aVertexPosition.x*u_nodeVScale.x, aVertexPosition.y*u_nodeVScale.y, aVertexPosition.z*u_nodeVScale.z);\n'+
+			'vposition = u_lightWMatrix * u_nodeWMatrix * vec4(vp, 1.0);\n'+
 			'gl_Position = uPMatrix * vposition;\n'+
 			
 			'vTextureCoord = aTextureCoord;\n'+
@@ -92,6 +94,7 @@ StormGLContext.prototype.pointers_LightDepth = function() {
 	_this.u_LightDepth_PMatrix = _this.gl.getUniformLocation(_this.shader_LightDepth, "uPMatrix");
 	_this.u_LightDepth_lightWMatrix = _this.gl.getUniformLocation(_this.shader_LightDepth, "u_lightWMatrix");
 	_this.u_LightDepth_nodeWMatrix = _this.gl.getUniformLocation(_this.shader_LightDepth, "u_nodeWMatrix");
+	_this.u_LightDepth_nodeVScale = _this.gl.getUniformLocation(_this.shader_LightDepth, "u_nodeVScale");
 	_this.Shader_LightDepth_READY = true;
 };
 /**
@@ -317,6 +320,7 @@ StormGLContext.prototype.renderFromLight = function(node, buffersObject, light) 
 		this.gl.uniformMatrix4fv(this.u_LightDepth_PMatrix, false, light.mPMatrix.transpose().e);
 		this.gl.uniformMatrix4fv(this.u_LightDepth_lightWMatrix, false, light.MPOS.transpose().e);
 		this.gl.uniformMatrix4fv(this.u_LightDepth_nodeWMatrix, false, node.MPOSFrame.transpose().e);
+		this.gl.uniform3f(this.u_LightDepth_nodeVScale, node.VSCALE.e[0], node.VSCALE.e[1], node.VSCALE.e[2]);   
 
 		this.gl.enableVertexAttribArray(this.attr_LightDepth_pos);
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffersObject.nodeMeshVertexBuffer);
@@ -351,6 +355,7 @@ StormGLContext.prototype.initShader_Shadows = function() {
 		
 		'uniform mat4 uPMatrix;\n'+
 		'uniform mat4 u_nodeWMatrix;\n'+
+		'uniform vec3 u_nodeVScale;\n'+
 		'uniform mat4 u_cameraWMatrix;\n'+
 		'uniform mat4 u_lightWMatrix;\n'+
 		'uniform mat4 uPMatrixLight;\n'+
@@ -376,17 +381,18 @@ StormGLContext.prototype.initShader_Shadows = function() {
 		'}'+
 		
 		'void main(void) {\n'+
+			'vec3 vp = vec3(aVertexPosition.x*u_nodeVScale.x, aVertexPosition.y*u_nodeVScale.y, aVertexPosition.z*u_nodeVScale.z);\n'+
 			'if(uTypeParticles == 0) {'+
-				'vNodeWMatrix = u_nodeWMatrix * vec4(aVertexPosition, 1.0);'+
+				'vNodeWMatrix = u_nodeWMatrix * vec4(vp, 1.0);'+
 				
 				'vpositionLightViewportRegion = ScaleMatrix * uPMatrixLight * u_lightWMatrix * vNodeWMatrix;\n'+
 				'vpositionLight = u_lightWMatrix * vNodeWMatrix;\n'+
 				
 				'gl_Position = uPMatrix * u_cameraWMatrix * vNodeWMatrix;\n'+
 			'} else {'+
-				'float texturePosX = ((aVertexPositionX.x)*'+(stormEngineC.particlesOffset*2).toFixed(2)+')-'+stormEngineC.particlesOffset.toFixed(2)+';\n'+  
-				'float texturePosY = ((aVertexPositionY.x)*'+(stormEngineC.particlesOffset*2).toFixed(2)+')-'+stormEngineC.particlesOffset.toFixed(2)+';\n'+  
-				'float texturePosZ = ((aVertexPositionZ.x)*'+(stormEngineC.particlesOffset*2).toFixed(2)+')-'+stormEngineC.particlesOffset.toFixed(2)+';\n'+  
+				'float texturePosX = ((aVertexPositionX.x*u_nodeVScale.x)*'+(stormEngineC.particlesOffset*2).toFixed(2)+')-'+stormEngineC.particlesOffset.toFixed(2)+';\n'+  
+				'float texturePosY = ((aVertexPositionY.x*u_nodeVScale.y)*'+(stormEngineC.particlesOffset*2).toFixed(2)+')-'+stormEngineC.particlesOffset.toFixed(2)+';\n'+  
+				'float texturePosZ = ((aVertexPositionZ.x*u_nodeVScale.z)*'+(stormEngineC.particlesOffset*2).toFixed(2)+')-'+stormEngineC.particlesOffset.toFixed(2)+';\n'+  
 			
 				'vNodeWMatrix = vec4(texturePosX,texturePosY,texturePosZ, 1.0);'+
 				
@@ -479,6 +485,7 @@ StormGLContext.prototype.pointers_Shadows = function() {
 	_this.u_Shadows_PMatrixLight = _this.gl.getUniformLocation(_this.shader_Shadows, "uPMatrixLight");
 	_this.u_Shadows_cameraWMatrix = _this.gl.getUniformLocation(_this.shader_Shadows, "u_cameraWMatrix");
 	_this.u_Shadows_nodeWMatrix = _this.gl.getUniformLocation(_this.shader_Shadows, "u_nodeWMatrix");
+	_this.u_Shadows_nodeVScale = _this.gl.getUniformLocation(_this.shader_Shadows, "u_nodeVScale");
 	_this.u_Shadows_lightWMatrix = _this.gl.getUniformLocation(_this.shader_Shadows, "u_lightWMatrix");
 	
 	_this.u_Shadows_positionLight = _this.gl.getUniformLocation(_this.shader_Shadows, "u_positionLight");
@@ -514,6 +521,7 @@ StormGLContext.prototype.render_Shadows = function(currentLight) {
 				this.gl.uniformMatrix4fv(this.u_Shadows_PMatrixLight, false, light.mPMatrix.transpose().e); 
 				this.gl.uniformMatrix4fv(this.u_Shadows_lightWMatrix, false, light.MPOS.transpose().e);
 				this.gl.uniformMatrix4fv(this.u_Shadows_nodeWMatrix, false, this.nodes[n].MPOSFrame.transpose().e);
+				this.gl.uniform3f(this.u_Shadows_nodeVScale, this.nodes[n].VSCALE.e[0], this.nodes[n].VSCALE.e[1], this.nodes[n].VSCALE.e[2]); 
 				this.gl.uniformMatrix4fv(this.u_Shadows_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
 				this.gl.uniform3f(this.u_Shadows_positionLight, false, light.getPosition().e[0], light.getPosition().e[1], light.getPosition().e[2]);
 				

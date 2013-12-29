@@ -583,11 +583,13 @@ StormGLContext.prototype.renderGLContext = function() {
 	if(this.Shader_ParticlesAux_READY && this.particles.length > 0) {
 		this.render_ParticlesAux();
 	}
+	
+	
 	this.hitRectRegion_onclick(); 
 	if(this.Shader_DOF_READY && stormEngineC.defaultCamera.DOFenable) {
 		this.render_DOF(); 
 	}
-	if(this.Shader_Overlay_READY) {
+	if(this.Shader_Overlay_READY && stormEngineC.editMode) { 
 		this.render_Overlay();
 	}   
 	this.hitRectRegion_onmouseover();

@@ -47,7 +47,7 @@ StormNode = function() {
 	this.MROTY = $M16([1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0]);
 	this.MROTZ = $M16([1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0]);
 	this.MROTXYZ = $M16([1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0]);
-	
+	this.VSCALE = $V3([1.0,1.0,1.0]);
 	this.materialUnits = [];
 	
 	
@@ -1177,7 +1177,7 @@ StormNode.prototype.getPosition = function() {
 };
 
 /**
-* Rotate the node type StormNode
+* Rotate the node
 * @type Void
 * @param {Float} radians
 * @param {Bool} [relative=true] false for absolute rotation
@@ -1199,29 +1199,27 @@ StormNode.prototype.setRotation = function(radians, relative, axis) {
 		if(relative == undefined || relative == true)
 			this.MROTX = this.MROTX.setRotationX(radians,true);
 		else
-			this.MROTX = this.MROTX.setRotationX(radians,false); 
+			this.MROTX = this.MROTX.setRotationX(radians,false);  
+		if(this.body != undefined) this.body.pitch(radians);
 	}
 	if(axis == undefined || axis.e[1]) {
 		if(relative == undefined || relative == true)
 			this.MROTY = this.MROTY.setRotationY(radians,true);
 		else
 			this.MROTY = this.MROTY.setRotationY(radians,false);
+		if(this.body != undefined) this.body.yaw(radians);
 	}
 	if(axis != undefined && axis.e[2]) {  
 		if(relative == undefined || relative == true)
 			this.MROTZ = this.MROTZ.setRotationZ(radians,true);
 		else
 			this.MROTZ = this.MROTZ.setRotationZ(radians,false); 
+		if(this.body != undefined) this.body.roll(radians);
 	}
 	
 	this.MROTXYZ = this.MROTZ.x(this.MROTY.x(this.MROTX));
 	
-	if(this.body != undefined) {
-		this.body._currState.orientation._rawData = $M16([	this.MROTXYZ.e[0], this.MROTXYZ.e[1], this.MROTXYZ.e[2], 0.0,
-															this.MROTXYZ.e[4], this.MROTXYZ.e[5], this.MROTXYZ.e[6], 0.0,
-															this.MROTXYZ.e[8], this.MROTXYZ.e[9], this.MROTXYZ.e[10], 0.0,
-															0.0, 0.0, 0.0, 1.0]).e;
-	}
+
 };
 /**
 * Rotate the node in x axis
@@ -1249,6 +1247,60 @@ StormNode.prototype.setRotationY = function(radians, relative) {
 */
 StormNode.prototype.setRotationZ = function(radians, relative) {
 	this.setRotation(radians, relative, $V3([0.0,0.0,1.0]));
+};
+/**
+* Scale the node
+* @type Void
+* @param {Float} scale
+* @param {Bool} [relative=true] false for absolute scale
+* @param {StormV3} [axis=$V3([0.0,1.0,0.0])]
+*/
+StormNode.prototype.setScale = function(scale, relative, axis) {	
+	if(axis != undefined && axis.e[0]) {
+		if(relative == undefined || relative == true)
+			this.VSCALE.e[0] = this.VSCALE.e[0]+scale;
+		else
+			this.VSCALE.e[0] = scale;
+	}
+	if(axis == undefined || axis.e[1]) {
+		if(relative == undefined || relative == true)
+			this.VSCALE.e[1] = this.VSCALE.e[1]+scale;
+		else
+			this.VSCALE.e[1] = scale;
+	}
+	if(axis != undefined && axis.e[2]) {  
+		if(relative == undefined || relative == true)
+			this.VSCALE.e[2] = this.VSCALE.e[2]+scale;
+		else
+			this.VSCALE.e[2] = scale;
+	}
+};
+/**
+* Scale the node in x axis
+* @type Void
+* @param {Float} scale
+* @param {Bool} [relative=true] false for absolute scale
+*/
+StormNode.prototype.setScaleX = function(scale, relative) {
+	this.setScale(scale, relative, $V3([1.0,0.0,0.0]));
+};
+/**
+* Scale the node in y axis
+* @type Void
+* @param {Float} scale
+* @param {Bool} [relative=true] false for absolute scale
+*/
+StormNode.prototype.setScaleY = function(scale, relative) {
+	this.setScale(scale, relative, $V3([0.0,1.0,0.0]));
+};
+/**
+* Scale the node in z axis
+* @type Void
+* @param {Float} scale
+* @param {Bool} [relative=true] false for absolute scale
+*/
+StormNode.prototype.setScaleZ = function(scale, relative) {
+	this.setScale(scale, relative, $V3([0.0,0.0,1.0]));
 };
 /**
 * Get vector left

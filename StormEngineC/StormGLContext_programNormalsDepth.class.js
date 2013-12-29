@@ -10,6 +10,7 @@ StormGLContext.prototype.initShader_Normals = function() {
 		'attribute vec3 aVertexNormal;\n'+
 		
 		'uniform mat4 u_nodeWMatrix;\n'+
+		'uniform vec3 u_nodeVScale;\n'+
 		'uniform mat4 u_cameraWMatrix;\n'+
 		'uniform mat4 uPMatrix;\n'+
 		
@@ -17,7 +18,8 @@ StormGLContext.prototype.initShader_Normals = function() {
 		'varying vec4 vNormal;\n'+
 		
 		'void main(void) {\n'+
-			'vposition = u_cameraWMatrix * u_nodeWMatrix * vec4(aVertexPosition, 1.0);\n'+
+			'vec3 vp = vec3(aVertexPosition.x*u_nodeVScale.x, aVertexPosition.y*u_nodeVScale.y, aVertexPosition.z*u_nodeVScale.z);\n'+
+			'vposition = u_cameraWMatrix * u_nodeWMatrix * vec4(vp, 1.0);\n'+
 			'gl_Position = uPMatrix * vposition;\n'+
 			
 			'vNormal = vec4(aVertexNormal, 1.0);\n'+
@@ -50,6 +52,7 @@ StormGLContext.prototype.pointers_Normals = function() {
 	_this.u_Normals_PMatrix = _this.gl.getUniformLocation(_this.shader_Normals, "uPMatrix");
 	_this.u_Normals_cameraWMatrix = _this.gl.getUniformLocation(_this.shader_Normals, "u_cameraWMatrix");
 	_this.u_Normals_nodeWMatrix = _this.gl.getUniformLocation(_this.shader_Normals, "u_nodeWMatrix");
+	_this.u_Normals_nodeVScale = _this.gl.getUniformLocation(_this.shader_Normals, "u_nodeVScale");
 	_this.Shader_Normals_READY = true;
 };
 /**
@@ -71,6 +74,7 @@ StormGLContext.prototype.render_Normals = function() {
 				this.gl.uniformMatrix4fv(this.u_Normals_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
 				this.gl.uniformMatrix4fv(this.u_Normals_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
 				this.gl.uniformMatrix4fv(this.u_Normals_nodeWMatrix, false, this.nodes[n].MPOSFrame.transpose().e); 
+				this.gl.uniform3f(this.u_Normals_nodeVScale, this.nodes[n].VSCALE.e[0], this.nodes[n].VSCALE.e[1], this.nodes[n].VSCALE.e[2]);   
 				
 				this.gl.enableVertexAttribArray(this.attr_Normals_pos);
 				this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodes[n].buffersObjects[nb].nodeMeshVertexBuffer);

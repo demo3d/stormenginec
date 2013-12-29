@@ -308,6 +308,78 @@ StormM16.prototype.setRotationZ = function(radians, relative) {
 	return this.setRotation(radians, relative, $V3([0.0,0.0,1.0]));
 };
 /**
+* Set scale in axis
+* @returns {StormM16}
+* @param {Float} scale Scale
+* @param {String} [relative=true] false for absolute scale
+* @param {StormV3} [axis=$V3([0.0,1.0,0.0])]
+*/
+StormM16.prototype.setScale = function(scale, relative, axis) { 
+	if(axis != undefined && axis.e[0]) {
+		if(relative == undefined || relative == true)
+			return this.x($M16([	scale,	0.0,	0.0, 	0.0,
+									0.0,	1.0,	0.0,	0.0,
+									0.0,	0.0,	1.0,	0.0,
+									0.0, 	0.0, 	0.0,	1.0])); 
+		else
+			return $M16([	scale,	0.0,	0.0, 	0.0,
+							0.0,	1.0,	0.0,	0.0,
+							0.0,	0.0,	1.0,	0.0,
+							0.0, 	0.0, 	0.0, 	1.0]); 
+	}
+	if(axis == undefined || axis.e[1]) {
+		if(relative == undefined || relative == true)
+			return this.x($M16([	1.0,	0.0,	0.0, 	0.0,
+									0.0,	scale,	0.0,	0.0,
+									0.0,	0.0,	1.0,	0.0,
+									0.0, 	0.0, 	0.0,	1.0])); 	
+		else
+			return $M16([	1.0,	0.0,	0.0, 	0.0,
+							0.0,	scale,	0.0,	0.0,
+							0.0,	0.0,	1.0,	0.0,
+							0.0, 	0.0, 	0.0, 	1.0]); 
+	}
+	if(axis != undefined && axis.e[2]) { 
+		if(relative == undefined || relative == true)
+			return this.x($M16([	1.0,	0.0,	0.0, 	0.0,
+									0.0,	1.0,	0.0,	0.0,
+									0.0,	0.0,	scale,	0.0,
+									0.0, 	0.0, 	0.0,	1.0])); 
+		else
+			return $M16([	1.0,	0.0,	0.0, 	0.0,
+							0.0,	1.0,	0.0,	0.0,
+							0.0,	0.0,	scale,	0.0,
+							0.0, 	0.0, 	0.0, 	1.0]); 
+	}
+};
+/**
+* Set scale x
+* @returns {StormM16}
+* @param {Float} scale Scale
+* @param {String} [relative=true] false for absolute scale
+*/
+StormM16.prototype.setScaleX = function(scale, relative) { 
+	return this.setScale(scale, relative, $V3([1.0,0.0,0.0]));
+};
+/**
+* Set scale y
+* @returns {StormM16}
+* @param {Float} scale Scale
+* @param {String} [relative=true] false for absolute scale
+*/
+StormM16.prototype.setScaleY = function(scale, relative) {
+	return this.setScale(scale, relative, $V3([0.0,1.0,0.0]));
+};
+/**
+* Set scale z
+* @returns {StormM16}
+* @param {Float} scale Scale
+* @param {String}[relative=true] false for absolute scale
+*/
+StormM16.prototype.setScaleZ = function(scale, relative) {
+	return this.setScale(scale, relative, $V3([0.0,0.0,1.0]));
+};
+/**
 * Get the position vector
 * @returns {StormV3}
 */
