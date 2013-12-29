@@ -81,90 +81,10 @@ StormGLContext.prototype.pointers_Pick = function() {
 
 /** @private */
 StormGLContext.prototype.queryNodePick = function() {
-	if(stormEngineC.draggingNodeNow === false && this.queryNodePickType == 1)
-		this.queryNodeMouseDown();
-	else if(this.queryNodePickType == 2)
-		this.queryNodeMouseUp();  
-	this.queryNodePickType = 0; 	
-	if(stormEngineC.editMode) 
-		this.queryNodeMouseMove();  
-		
-	
-};
-/** @private */
-StormGLContext.prototype.queryNodeMouseDown = function() {
 	this.gl.enable(this.gl.BLEND);
 	this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA); 
 	this.gl.useProgram(this.shader_Pick);
 	
-	this.queryDraw();
-	
-	this.gl.disable(this.gl.BLEND);
-	
-	if(this.makeQuerySelect == true) {
-		if(stormEngineC.stormGLContext.transformOverlaySelected == 0) {
-			var selectedNode = this.querySelect();
-			if(selectedNode !== false && selectedNode instanceof StormNode) {
-				if(selectedNode.isDraggable) {
-					stormEngineC.selectNode(selectedNode);
-					selectedNode.bodyActive(false);
-					selectedNode.setPosition(selectedNode.getPosition());  
-					stormEngineC.draggingNodeNow = selectedNode;
-				}
-				if(selectedNode.onmousedownFunction != undefined) selectedNode.onmousedownFunction();
-			}
-		}
-	}
-};
-
-/** @private */
-StormGLContext.prototype.queryNodeMouseMove = function() {
-	this.gl.enable(this.gl.BLEND);
-	this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA); 
-	this.gl.useProgram(this.shader_Pick);
-	
-	this.queryDraw();
-	
-	this.gl.disable(this.gl.BLEND);
-	
-	if(this.makeQuerySelect == true) {
-		var selectedNode = this.querySelect();
-		/*if(selectedNode !== false) 
-			if(stormEngineC.getSelectedNode() == undefined || stormEngineC.getSelectedNode().idNum != selectedNode.idNum)
-				stormEngineC.selectNode(selectedNode);*/
-	}
-};
-
-/** @private */
-StormGLContext.prototype.queryNodeMouseUp = function() {
-	if(stormEngineC.draggingNodeNow !== false) {
-		stormEngineC.getSelectedNode().bodyActive(true);
-		var dir = stormEngineC.utils.getDraggingScreenVector();
-		stormEngineC.getSelectedNode().bodyApplyImpulse({vector: dir.x(100), milis: 10});
-		stormEngineC.draggingNodeNow = false;
-	}
-	 
-	this.gl.enable(this.gl.BLEND);
-	this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA); 
-	this.gl.useProgram(this.shader_Pick);
-	
-	this.queryDraw();
-	
-	this.gl.disable(this.gl.BLEND);
-	
-	if(this.makeQuerySelect == true) {
-		var selectedNode = this.querySelect();
-		if(selectedNode !== false) {
-			if(	stormEngineC.mousePosX == stormEngineC.oldMousePosClickX &&
-				stormEngineC.mousePosY == stormEngineC.oldMousePosClickY) {
-					stormEngineC.selectNode(selectedNode);
-			}
-			if(selectedNode.onmouseupFunction != undefined) selectedNode.onmouseupFunction();
-		}
-	}
-};
-/** @private */
-StormGLContext.prototype.queryDraw = function() { 
 	this.gl.uniform1f(this.u_Pick_far, this.far);
 	//alert(node.idNum/this.nodes.length);
 	
@@ -175,11 +95,73 @@ StormGLContext.prototype.queryDraw = function() {
 	this.gl.uniformMatrix4fv(this.u_Pick_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
 	this.gl.uniformMatrix4fv(this.u_Pick_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
 	
+	
+	if(stormEngineC.draggingNodeNow === false && this.queryNodePickType == 1)
+		this.queryNodeMouseDown();
+	else if(this.queryNodePickType == 2)
+		this.queryNodeMouseUp();  
+	this.queryNodePickType = 0; 	
+	if(stormEngineC.editMode) 
+		this.queryNodeMouseMove();  
+		
+	this.gl.disable(this.gl.BLEND);
+};
+/** @private */
+StormGLContext.prototype.queryNodeMouseDown = function() {
 	this.makeQuerySelect = false;
-	for(var n = 0, f = this.nodes.length; n < f; n++) { 
-		if(	this.nodes[n].visibleOnContext && this.nodes[n].objectType != 'light') {
-			var node = this.nodes[n];
-			this.gl.uniform1f(this.u_Pick_nodeId, ((node.idNum+1)/this.nodes.length));
+	this.queryDraw(this.nodes);
+	if(this.makeQuerySelect == true) {
+		if(stormEngineC.stormGLContext.transformOverlaySelected == 0) {
+			var selectedNode = this.querySelect(this.nodes);
+			if(selectedNode !== false && selectedNode instanceof StormNode) {
+				if(selectedNode.isDraggable) {
+					stormEngineC.selectNode(selectedNode);
+					selectedNode.bodyActive(false);
+					selectedNode.setPosition(selectedNode.getPosition());  
+					stormEngineC.draggingNodeNow = selectedNode;
+				}
+				if(selectedNode.onmousedownFunction != undefined) selectedNode.onmousedownFunction();
+			}
+		}
+	} 
+};
+
+/** @private */
+StormGLContext.prototype.queryNodeMouseMove = function() {
+	this.makeQuerySelect = false;
+	this.queryDraw(this.nodes);
+	if(this.makeQuerySelect == true)
+		var selectedNode = this.querySelect(this.nodes);
+};
+
+/** @private */
+StormGLContext.prototype.queryNodeMouseUp = function() {
+	if(stormEngineC.draggingNodeNow !== false) {
+		stormEngineC.getSelectedNode().bodyActive(true);
+		var dir = stormEngineC.utils.getDraggingScreenVector();
+		stormEngineC.getSelectedNode().bodyApplyImpulse({vector: dir.x(100), milis: 10});
+		stormEngineC.draggingNodeNow = false;
+	}
+	
+	this.makeQuerySelect = false;
+	this.queryDraw(this.nodes); 
+	if(this.makeQuerySelect == true) {
+		var selectedNode = this.querySelect(this.nodes);
+		if(selectedNode !== false) {
+			if(	stormEngineC.mousePosX == stormEngineC.oldMousePosClickX &&
+				stormEngineC.mousePosY == stormEngineC.oldMousePosClickY) {
+					stormEngineC.selectNode(selectedNode);
+			}
+			if(selectedNode.onmouseupFunction != undefined) selectedNode.onmouseupFunction();
+		}
+	}
+};
+/** @private */
+StormGLContext.prototype.queryDraw = function(nodes) { 
+	for(var n = 0, f = nodes.length; n < f; n++) { 
+		if(	nodes[n].visibleOnContext && nodes[n].objectType != 'light') {
+			var node = nodes[n];
+			this.gl.uniform1f(this.u_Pick_nodeId, ((node.idNum+1)/nodes.length));
 			for(var nb = 0, fb = node.buffersObjects.length; nb < fb; nb++) {	
 				this.makeQuerySelect = true;
 				
@@ -200,10 +182,10 @@ StormGLContext.prototype.queryDraw = function() {
 		}
 	}
 	
-	for(var n = 0, f = this.nodes.length; n < f; n++) { 
-		if(	this.nodes[n].visibleOnContext && this.nodes[n].objectType != 'light') {
-			var node = this.nodes[n];
-			this.gl.uniform1f(this.u_Pick_nodeId, ((node.idNum+1)/this.nodes.length));
+	for(var n = 0, f = nodes.length; n < f; n++) { 
+		if(	nodes[n].visibleOnContext && nodes[n].objectType != 'light') {
+			var node = nodes[n];
+			this.gl.uniform1f(this.u_Pick_nodeId, ((node.idNum+1)/nodes.length));
 			if(stormEngineC.editMode && stormEngineC.getSelectedNode() != undefined && stormEngineC.getSelectedNode().idNum == this.nodes[n].idNum) {
 				for(var nb = 0, fb = node.buffersObjects.length; nb < fb; nb++) {	
 					this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
@@ -328,18 +310,15 @@ StormGLContext.prototype.queryDraw = function() {
 			}
 		}
 	}
-	
-		
-	
 };
 /** @private */
-StormGLContext.prototype.querySelect = function(node) {
+StormGLContext.prototype.querySelect = function(nodes) {
 	if(stormEngineC.draggingNodeNow === false) {
 		var arrayPick = new Uint8Array(4);  
 		this.gl.readPixels(stormEngineC.mousePosX, (stormEngineC.$.height()-(stormEngineC.mousePosY)), 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, arrayPick);
 		if(arrayPick[0] != 0 || arrayPick[1] != 0) {
-			var nodeIdNum = Math.floor(parseFloat(arrayPick[0]/255)*(this.nodes.length-1));
-			var selectedNode = stormEngineC.nodes[nodeIdNum];  
+			var nodeIdNum = Math.floor(parseFloat(arrayPick[0]/255)*(nodes.length-1));
+			var selectedNode = nodes[nodeIdNum];  
 			var transformNum = parseFloat(arrayPick[1]/255).toFixed(1);
 			
 			if(transformNum == 0.1) {  

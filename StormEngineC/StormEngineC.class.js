@@ -1761,12 +1761,11 @@ StormEngineC.prototype.createLight = function(jsonIn) {
 		light.materialUnits[0] = material; 
 		this.lights.push(light); 
 		
-		light.nodeCtxWebGL = stormEngineC.createNode();//malla nodeCtxWebGL para luz
+		light.nodeCtxWebGL = stormEngineC.createNode();//malla nodeCtxWebGL para luz 
 		light.nodeCtxWebGL.visibleOnContext = true; 
 		light.nodeCtxWebGL.visibleOnRender = false; 
 		var meshCtxWebGL = new StormMesh();
 		meshCtxWebGL.loadBox(light.nodeCtxWebGL, $V3([0.1,0.1,0.1])); 
-		light.nodeCtxWebGL.objectType = 'light';
 		
 		var mesh = new StormMesh();
 		mesh.loadBox(light, $V3([0.03,0.03,0.03])); 
