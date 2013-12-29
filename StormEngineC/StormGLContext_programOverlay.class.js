@@ -93,141 +93,148 @@ StormGLContext.prototype.pointers_Overlay = function() {
 
 /** @private */
 StormGLContext.prototype.render_Overlay = function() {	
-	this.gl.enable(this.gl.BLEND);
-	this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA); 
-	this.gl.useProgram(this.shader_Overlay);
-	this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
 	for(var n = 0, f = this.nodes.length; n < f; n++) { 
-		if(	this.nodes[n].visibleOnContext && this.nodes[n].objectType != 'light') {
-			this.render_OverlayAux(this.nodes[n]);
+		if(stormEngineC.editMode &&	stormEngineC.getSelectedNode() != undefined) {
+			if(	this.nodes[n].visibleOnContext &&
+				this.nodes[n].objectType != 'light' &&
+				this.nodes[n].idNum == stormEngineC.getSelectedNode().idNum) {
+					this.render_OverlayAux(this.nodes[n]);
+			}
 		}
 	}
-	this.gl.disable(this.gl.BLEND);
 };
 /** @private */
 StormGLContext.prototype.render_OverlayAux = function(node) {	
-	if(stormEngineC.editMode && stormEngineC.getSelectedNode() != undefined && stormEngineC.getSelectedNode().idNum == node.idNum) {
-		this.gl.uniform1f(this.u_Overlay_far, this.far);
-		this.gl.uniform1i(this.u_Overlay_overlaySelected, stormEngineC.stormGLContext.transformOverlaySelected);
-		this.gl.uniformMatrix4fv(this.u_Overlay_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
-		this.gl.uniformMatrix4fv(this.u_Overlay_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
+	this.gl.enable(this.gl.BLEND);
+	this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA); 
+	this.gl.useProgram(this.shader_Overlay);
+	
+	//this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
+	this.gl.disable(this.gl.DEPTH_TEST);
+	
+	this.gl.uniform1f(this.u_Overlay_far, this.far);
+	this.gl.uniform1i(this.u_Overlay_overlaySelected, stormEngineC.stormGLContext.transformOverlaySelected);
+	this.gl.uniformMatrix4fv(this.u_Overlay_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
+	this.gl.uniformMatrix4fv(this.u_Overlay_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
+	
+	if(stormEngineC.defaultTransformMode == 0) // world
+		this.gl.uniformMatrix4fv(this.u_Overlay_nodeWMatrix, false, node.MPOS.transpose().e); 
+	else // local
+		this.gl.uniformMatrix4fv(this.u_Overlay_nodeWMatrix, false, node.MPOSFrame.transpose().e); 
 		
-		if(stormEngineC.defaultTransformMode == 0) // world
-			this.gl.uniformMatrix4fv(this.u_Overlay_nodeWMatrix, false, node.MPOS.transpose().e); 
-		else // local
-			this.gl.uniformMatrix4fv(this.u_Overlay_nodeWMatrix, false, node.MPOSFrame.transpose().e); 
+	if(stormEngineC.defaultTransform == 0 || (stormEngineC.defaultTransform == 2 && stormEngineC.defaultTransformMode == 1)) {
+		// overlay pos X
+		this.gl.uniform1f(this.u_Overlay_nodeId, 0.1); 
 			
-		if(stormEngineC.defaultTransform == 0 || (stormEngineC.defaultTransform == 2 && stormEngineC.defaultTransformMode == 1)) {
-			// overlay pos X
-			this.gl.uniform1f(this.u_Overlay_nodeId, 0.1); 
-				
-			this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayPosX.MPOS.x(this.nodeOverlayPosX.MROTXYZ).transpose().e);
-			
-			this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
-			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayPosX.buffersObjects[0].nodeMeshVertexBuffer);
-			this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
-			
-			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayPosX.buffersObjects[0].nodeMeshIndexBuffer);
-			
-			this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayPosX.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
-			
-			// overlay pos Y
-			this.gl.uniform1f(this.u_Overlay_nodeId, 0.2); 
-			this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayPosY.MPOS.x(this.nodeOverlayPosY.MROTXYZ).transpose().e);
-			
-			this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
-			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayPosY.buffersObjects[0].nodeMeshVertexBuffer);
-			this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
-			
-			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayPosY.buffersObjects[0].nodeMeshIndexBuffer);
-			
-			this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayPosY.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
-			
-			// overlay pos Z
-			this.gl.uniform1f(this.u_Overlay_nodeId, 0.3); 
-			this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayPosZ.MPOS.x(this.nodeOverlayPosZ.MROTXYZ).transpose().e);
-			
-			this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
-			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayPosZ.buffersObjects[0].nodeMeshVertexBuffer);
-			this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
-			
-			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayPosZ.buffersObjects[0].nodeMeshIndexBuffer);
-			
-			this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayPosZ.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
-		}
-		if(stormEngineC.defaultTransform == 1) {
-			// overlay rot X
-			this.gl.uniform1f(this.u_Overlay_nodeId, 0.4); 
-			this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayRotX.MPOS.x(this.nodeOverlayRotX.MROTXYZ).transpose().e);
-			
-			this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
-			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayRotX.buffersObjects[0].nodeMeshVertexBuffer);
-			this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
-			
-			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayRotX.buffersObjects[0].nodeMeshIndexBuffer);
-			
-			this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayRotX.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
-			
-			// overlay rot Y
-			this.gl.uniform1f(this.u_Overlay_nodeId, 0.5); 
-			this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayRotY.MPOS.x(this.nodeOverlayRotY.MROTXYZ).transpose().e);
-			
-			this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
-			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayRotY.buffersObjects[0].nodeMeshVertexBuffer);
-			this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
-			
-			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayRotY.buffersObjects[0].nodeMeshIndexBuffer);
-			
-			this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayRotY.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
-			
-			// overlay rot Z
-			this.gl.uniform1f(this.u_Overlay_nodeId, 0.6); 
-			this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayRotZ.MPOS.x(this.nodeOverlayRotZ.MROTXYZ).transpose().e);
-			
-			this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
-			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayRotZ.buffersObjects[0].nodeMeshVertexBuffer);
-			this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
-			
-			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayRotZ.buffersObjects[0].nodeMeshIndexBuffer);
-			
-			this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayRotZ.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
-		}
-		if(stormEngineC.defaultTransform == 2 && stormEngineC.defaultTransformMode == 1) {
-			// overlay scale X
-			this.gl.uniform1f(this.u_Overlay_nodeId, 0.7); 
-			this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayScaX.MPOS.x(this.nodeOverlayScaX.MROTXYZ).transpose().e);
-			
-			this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
-			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayScaX.buffersObjects[0].nodeMeshVertexBuffer);
-			this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
-			
-			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayScaX.buffersObjects[0].nodeMeshIndexBuffer);
-			
-			this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayScaX.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
-			
-			// overlay scale Y
-			this.gl.uniform1f(this.u_Overlay_nodeId, 0.8); 
-			this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayScaY.MPOS.x(this.nodeOverlayScaY.MROTXYZ).transpose().e);
-			
-			this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
-			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayScaY.buffersObjects[0].nodeMeshVertexBuffer);
-			this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
-			
-			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayScaY.buffersObjects[0].nodeMeshIndexBuffer);
-			
-			this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayScaY.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
-			
-			// overlay scale Z
-			this.gl.uniform1f(this.u_Overlay_nodeId, 0.9); 
-			this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayScaZ.MPOS.x(this.nodeOverlayScaZ.MROTXYZ).transpose().e);
-			
-			this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
-			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayScaZ.buffersObjects[0].nodeMeshVertexBuffer);
-			this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
-			
-			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayScaZ.buffersObjects[0].nodeMeshIndexBuffer);
-			
-			this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayScaZ.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
-		}
+		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayPosX.MPOS.x(this.nodeOverlayPosX.MROTXYZ).transpose().e);
+		
+		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayPosX.buffersObjects[0].nodeMeshVertexBuffer);
+		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
+		
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayPosX.buffersObjects[0].nodeMeshIndexBuffer);
+		
+		this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayPosX.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
+		
+		// overlay pos Y
+		this.gl.uniform1f(this.u_Overlay_nodeId, 0.2); 
+		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayPosY.MPOS.x(this.nodeOverlayPosY.MROTXYZ).transpose().e);
+		
+		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayPosY.buffersObjects[0].nodeMeshVertexBuffer);
+		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
+		
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayPosY.buffersObjects[0].nodeMeshIndexBuffer);
+		
+		this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayPosY.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
+		
+		// overlay pos Z
+		this.gl.uniform1f(this.u_Overlay_nodeId, 0.3); 
+		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayPosZ.MPOS.x(this.nodeOverlayPosZ.MROTXYZ).transpose().e);
+		
+		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayPosZ.buffersObjects[0].nodeMeshVertexBuffer);
+		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
+		
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayPosZ.buffersObjects[0].nodeMeshIndexBuffer);
+		
+		this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayPosZ.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
 	}
+	if(stormEngineC.defaultTransform == 1) {
+		// overlay rot X
+		this.gl.uniform1f(this.u_Overlay_nodeId, 0.4); 
+		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayRotX.MPOS.x(this.nodeOverlayRotX.MROTXYZ).transpose().e);
+		
+		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayRotX.buffersObjects[0].nodeMeshVertexBuffer);
+		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
+		
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayRotX.buffersObjects[0].nodeMeshIndexBuffer);
+		
+		this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayRotX.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
+		
+		// overlay rot Y
+		this.gl.uniform1f(this.u_Overlay_nodeId, 0.5); 
+		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayRotY.MPOS.x(this.nodeOverlayRotY.MROTXYZ).transpose().e);
+		
+		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayRotY.buffersObjects[0].nodeMeshVertexBuffer);
+		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
+		
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayRotY.buffersObjects[0].nodeMeshIndexBuffer);
+		
+		this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayRotY.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
+		
+		// overlay rot Z
+		this.gl.uniform1f(this.u_Overlay_nodeId, 0.6); 
+		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayRotZ.MPOS.x(this.nodeOverlayRotZ.MROTXYZ).transpose().e);
+		
+		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayRotZ.buffersObjects[0].nodeMeshVertexBuffer);
+		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
+		
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayRotZ.buffersObjects[0].nodeMeshIndexBuffer);
+		
+		this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayRotZ.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
+	}
+	if(stormEngineC.defaultTransform == 2 && stormEngineC.defaultTransformMode == 1) {
+		// overlay scale X
+		this.gl.uniform1f(this.u_Overlay_nodeId, 0.7); 
+		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayScaX.MPOS.x(this.nodeOverlayScaX.MROTXYZ).transpose().e);
+		
+		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayScaX.buffersObjects[0].nodeMeshVertexBuffer);
+		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
+		
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayScaX.buffersObjects[0].nodeMeshIndexBuffer);
+		
+		this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayScaX.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
+		
+		// overlay scale Y
+		this.gl.uniform1f(this.u_Overlay_nodeId, 0.8); 
+		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayScaY.MPOS.x(this.nodeOverlayScaY.MROTXYZ).transpose().e);
+		
+		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayScaY.buffersObjects[0].nodeMeshVertexBuffer);
+		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
+		
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayScaY.buffersObjects[0].nodeMeshIndexBuffer);
+		
+		this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayScaY.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
+		
+		// overlay scale Z
+		this.gl.uniform1f(this.u_Overlay_nodeId, 0.9); 
+		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayScaZ.MPOS.x(this.nodeOverlayScaZ.MROTXYZ).transpose().e);
+		
+		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayScaZ.buffersObjects[0].nodeMeshVertexBuffer);
+		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
+		
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayScaZ.buffersObjects[0].nodeMeshIndexBuffer);
+		
+		this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayScaZ.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
+	}
+	
+	this.gl.enable(this.gl.DEPTH_TEST);
+	this.gl.disable(this.gl.BLEND);
 };

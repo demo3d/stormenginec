@@ -100,6 +100,7 @@ var includesF = [//'/StormMathMin.class.js',
 				'/StormGI.class.js',
 				'/StormRayTriangle.class.js',
 				'/StormLineSceneCollision.class.js',
+				'/stormPanel/stormPanel.js',
 				'/StormPanelEnvironment.class.js',
 				'/StormPanelListObjects.class.js',
 				'/StormPanelEditNode.class.js',
@@ -300,8 +301,14 @@ StormEngineC = function() {
 */
 StormEngineC.prototype.createWebGL = function(jsonIn) {
 	if(jsonIn != undefined && jsonIn.target != undefined) {
-		this.target = (jsonIn.target instanceof HTMLCanvasElement) ? jsonIn.target : document.getElementById(jsonIn.target);
+		this.target = (jsonIn.target instanceof HTMLCanvasElement) ? jsonIn.target : DGE(jsonIn.target);
+		var e = DCE('div');
+		e.id = "SEC_"+this.target.id;
+		this.target.parentNode.insertBefore(e,this.target);
+		this.target.parentNode.removeChild(this.target);
+		e.appendChild(this.target);  
 		this.$ = $('#'+this.target.id);
+		
 		this.editMode = (jsonIn != undefined && jsonIn.editMode != undefined) ? jsonIn.editMode : true;
 		this.resizable = (jsonIn != undefined && jsonIn.resizable != undefined) ? jsonIn.resizable : 2; 
 		this.enableRender = (jsonIn != undefined && jsonIn.enableRender != undefined) ? jsonIn.enableRender : true;
@@ -456,7 +463,7 @@ StormEngineC.prototype.loadManager = function() {
 	if(this.editMode) {
 		var strBtns = ''+
 		
-		'<div id="TABLEID_STORMMENU" style="display:table;background-color:#262626;font-size:11px;">'+
+		'<div id="TABLEID_STORMMENU" style="display:table;background-color:#262626;font-size:11px;color:#FFF;">'+
 				'<div style="display:table">'+
 					'<div style="display:table-cell;">'+
 						'<div style="padding:2px">LOCAL<input type="checkbox" id="CHECKID_STOMTOOLBAR_LOCAL" /></div>'+
@@ -784,46 +791,10 @@ StormEngineC.prototype.updateDivPosition = function(e) {
 	stormEngineC.divPositionY = stormEngineC.utils.getElementPosition(stormEngineC.target).y;
 };
 /**  @private */
-StormEngineC.prototype.makePanel = function(panelobj, panelname, paneltitle, html) {
-	var str = ''+
-		'<div id="'+panelname+'_MENU" class="SECmenu SECround5" style="left:50%;top:20%;">'+ 
-			'<div class="SECround5TL SECround5TR SECmenuTitle">'+
-				'<div class="SECmenuTitleText">'+paneltitle+'</div>'+
-				'<div class="SECmenuTitleClose"><div class="SECmenuTitleCloseImg"></div></div>'+
-			'</div>'+
-			'<div id="'+panelname+'" class="SECround5BL SECround5BR SECmenuContent">'+ 
-					
-				html+
-				
-			'</div>'+
-		'</div>';
-	$('body').append(str);
-	panelobj.$ = $("#"+panelname+"_MENU");
-	panelobj.De = DGE(panelname+"_MENU");
-	
-	$("#"+panelname+"_MENU").draggable();
-	$("#"+panelname+"_MENU").resizable({resize:function(event, ui) {
-			$("#"+panelname+"_MENU").css({width: ui.size.width, height: ui.size.height});
-			$("#"+panelname+"_MENU .SECmenuContent").css({	width: (ui.size.width-10)+'px',
-															height: (ui.size.height-$("#"+panelname+"_MENU .SECmenuTitle").height()-10)+'px'});
-		}});
-	$("#"+panelname+"_MENU .SECmenuTitle").on('mousedown', function() {
-		$(".SECmenu").css('z-index','0');
-		$("#"+panelname+"_MENU").css('z-index','99');    
-	});	
-	
-	$("#"+panelname+"_MENU .SECmenuTitleCloseImg").on('mousedown', function(e) {
-		e.stopPropagation();
-	});		
-	$("#"+panelname+"_MENU .SECmenuTitleCloseImg").on('click', function(e) {
-		$("#"+panelname+"_MENU").hide();
-	});	
-	
-	$("#"+panelname+"_MENU .SECmenuContent").on('mousedown', function(e) {
-		e.stopPropagation();
-		$(".SECmenu").css('z-index','0');
-		$("#"+panelname+"_MENU").css('z-index','99'); 
-	});	
+StormEngineC.prototype.makePanel = function(panelobj, strAttrID, paneltitle, html) {
+	var p = new StormPanel(strAttrID, paneltitle, html);
+	panelobj.$ = p.$;
+	panelobj.De = p.De;
 };
 /**  @private */
 StormEngineC.prototype.mouseup = function(e) {
