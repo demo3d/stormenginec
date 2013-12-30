@@ -5,7 +5,7 @@
 
 * @property {String} objectType
 */
-StormPolarityPoint = function(jsonIn) {
+StormPolarityPoint = function(jsonIn) {	StormNode.call(this); 
 	this.objectType = 'polarityPoint';
 	
 	this.pointSize = 2.0;
@@ -13,15 +13,11 @@ StormPolarityPoint = function(jsonIn) {
 	this.orbit = (jsonIn != undefined && jsonIn.orbit != undefined) ? jsonIn.orbit : 0;
 	this.force = (jsonIn != undefined && jsonIn.force != undefined) ? jsonIn.force : 0.5;  
 	this.nodesProc = [];
-	//this.loadSphere();
-	if(this.polarity == 1) this.color = $V3([1.0,0.0,0.0]);
-	else this.color = $V3([0.0,0.0,1.0]);
 	
-	this.pointDisplay =  new StormNode();
-	this.pointDisplay.loadSphere({color:this.color,radius:0.1});
-	this.buffersObjects = this.pointDisplay.buffersObjects;
+	if(this.polarity == 1) this.color = $V3([1.0,0.0,0.0]);
+	else this.color = $V3([0.0,0.0,1.0]); 
 };
-StormPolarityPoint.prototype = new StormNode();
+StormPolarityPoint.prototype = Object.create(StormNode.prototype);
 
 /**
 * Delete this polarity point

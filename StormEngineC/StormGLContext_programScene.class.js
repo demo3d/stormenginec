@@ -675,7 +675,8 @@ StormGLContext.prototype.renderSceneNow = function(node, buffersObject) {
 	//if(node.materialUnits[0].textureObjectBump != undefined) this.gl.uniform1i(this.u_Scene_useBump, 1);
 	
 	this.gl.uniform1i(this.u_Scene_selectedNode, 0);
-	if(stormEngineC.editMode == true && stormEngineC.nearNode != null && node.idNum != undefined && node.idNum == stormEngineC.nearNode.idNum) this.gl.uniform1i(this.u_Scene_selectedNode, 1);
+	if(stormEngineC.editMode == true && stormEngineC.nearNode != null && node == stormEngineC.nearNode)
+		this.gl.uniform1i(this.u_Scene_selectedNode, 1);
 	
 	
 	this.gl.uniform1f(this.u_Scene_illumination, node.materialUnits[0].illumination);

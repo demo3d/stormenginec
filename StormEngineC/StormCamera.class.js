@@ -8,7 +8,7 @@
 * @property {StomrNode} nodeGoal
 * @property {StormControllerFreeCam|StormControllerTargetCam|StormControllerPlayer|StormControllerPlayerCar|StormControllerFollow} controller Camera controller
 */
-StormCamera = function() {
+StormCamera = function() { StormNode.call(this); 
 	this.objectType = 'camera';
 	
 	this.controller; // camera controller
@@ -37,7 +37,7 @@ StormCamera = function() {
 	this.refIndex = 1.46;
 	this.focusIntern = 2.135105374746873;// EMR RENDER
 };
-StormCamera.prototype = new StormNode();
+StormCamera.prototype = Object.create(StormNode.prototype);
 
 
 

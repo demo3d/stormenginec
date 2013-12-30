@@ -5,14 +5,14 @@
 
 * @property {String} objectType
 */
-StormForceField = function(jsonIn) {
+StormForceField = function(jsonIn) { StormNode.call(this); 
 	this.objectType = 'forceField';
 	this.forceFieldType = 'direction'; // direction or gravity
 	
 	this.direction = (jsonIn != undefined && jsonIn.direction != undefined) ? jsonIn.direction : $V3([0.0,-9.8,0.0]);   
 	this.nodesProc = [];
 };
-StormForceField.prototype = new StormNode();
+StormForceField.prototype = Object.create(StormNode.prototype);
 
 /** @private */
 StormForceField.prototype.updateJigLib = function() {  

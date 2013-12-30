@@ -6,7 +6,7 @@ var numIdBullet = 0;
   
 * @property {Int} idNum
 * @property {String} name
-* @property {String} objectType 'node', 'camera' or 'light'
+* @property {String} objectType 'node'|'camera'|'light'|'particles'|'polarityPoint'|'forceField'
 * @property {Array<StormBufferObject>} buffersObjects StormBufferObjects associated with the node
 * @property {StormM16} MPOS
 * @property {StormM16} MROTX 

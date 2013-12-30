@@ -97,8 +97,16 @@ StormGLContext.prototype.render_Overlay = function() {
 		if(stormEngineC.editMode &&	stormEngineC.getSelectedNode() != undefined) {
 			if(	this.nodes[n].visibleOnContext &&
 				this.nodes[n].objectType != 'light' &&
-				this.nodes[n].idNum == stormEngineC.getSelectedNode().idNum) {
+				this.nodes[n] == stormEngineC.getSelectedNode()) {
 					this.render_OverlayAux(this.nodes[n]);
+			}
+		}
+	}
+	for(var n = 0, f = this.polarityPoints.length; n < f; n++) { 
+		if(stormEngineC.editMode &&	stormEngineC.getSelectedNode() != undefined) {
+			if(	this.polarityPoints[n].visibleOnContext &&
+				this.polarityPoints[n] == stormEngineC.getSelectedNode()) { 
+					this.render_OverlayAux(this.polarityPoints[n]);
 			}
 		}
 	}

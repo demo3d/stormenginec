@@ -994,30 +994,31 @@ StormEngineC.prototype.selectNode = function(node) {
 	if(this.editMode) {
 		if(this.PanelAnimationTimeline.De.style.display == 'block')
 			this.PanelAnimationTimeline.drawTimelineGrid();
-		if(this.PanelListObjects.De.style.display == "block") {
+			
+		//if(this.PanelListObjects.De.style.display == "block") {
 			this.PanelListObjects.showListObjects(); 
 			this.PanelListObjects.show();
-		}
-		if(this.PanelListObjects.De.style.display == "block") {
+		//}
+		//if(this.PanelListObjects.De.style.display == "block") {
 			this.PanelEditNode.show();
 			this.PanelEditNode.updateNearNode();
-		}
+		//}
 		
 		this.debugValues = [];
 		if(this.nearNode.objectType == 'line') {
-			var vecTranslation = $V3([stormEngineC.nearNode.origin.e[0], stormEngineC.nearNode.origin.e[1], stormEngineC.nearNode.origin.e[2]]);
-			var vecTranslationE = $V3([stormEngineC.nearNode.end.e[0], stormEngineC.nearNode.end.e[1], stormEngineC.nearNode.end.e[2]]);
+			var vecTranslation = stormEngineC.nearNode.origin;
+			var vecTranslationE = stormEngineC.nearNode.end; 
 			this.debugValues = [];
 			stormEngineC.setDebugValue(0, vecTranslation, stormEngineC.nearNode.name+' origin');
 			stormEngineC.setDebugValue(1, vecTranslationE, stormEngineC.nearNode.name+' end');
 		} else if(this.nearNode.objectType == 'camera') {
-			var vecGoal = $V3([stormEngineC.nearNode.nodeGoal.getPosition().e[0], stormEngineC.nearNode.nodeGoal.getPosition().e[1], stormEngineC.nearNode.nodeGoal.getPosition().e[2]]);
-			var vecPivot = $V3([stormEngineC.nearNode.nodePivot.getPosition().e[0], stormEngineC.nearNode.nodePivot.getPosition().e[1], stormEngineC.nearNode.nodePivot.getPosition().e[2]]);
+			var vecGoal = stormEngineC.nearNode.nodeGoal.getPosition();
+			var vecPivot = stormEngineC.nearNode.nodePivot.getPosition();
 			this.debugValues = [];
 			stormEngineC.setDebugValue(0, vecGoal, stormEngineC.nearNode.name+' nodeGoal');
 			stormEngineC.setDebugValue(1, vecPivot, stormEngineC.nearNode.name+' nodePivot');
 		} else if(stormEngineC.nearNode.getPosition != undefined) {    
-			var vec = $V3([stormEngineC.nearNode.getPosition().e[0], stormEngineC.nearNode.getPosition().e[1], stormEngineC.nearNode.getPosition().e[2]]);
+			var vec = stormEngineC.nearNode.getPosition();
 			this.debugValues = [];
 			stormEngineC.setDebugValue(0, vec, stormEngineC.nearNode.name); 
 		} 
@@ -1813,8 +1814,9 @@ StormEngineC.prototype.createPolarityPoint = function(jsonIn) {
 	var polarityPoint = new StormPolarityPoint(jsonIn);
 	polarityPoint.idNum = this.polarityPoints.length;
 	polarityPoint.name = 'polarityPoint '+this.idxPolarityPoint++;
-	var material = stormEngineC.createMaterial();
+	var material = stormEngineC.createMaterial();  
 	polarityPoint.materialUnits[0] = material; 
+	polarityPoint.loadSphere({color: polarityPoint.color, radius: 0.5});   
 	this.polarityPoints.push(polarityPoint); 
 	return polarityPoint;
 };

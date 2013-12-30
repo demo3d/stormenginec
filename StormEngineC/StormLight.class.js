@@ -6,7 +6,7 @@
 * @property {String} objectType
 * @property {StormV3} direction
 */
-StormLight = function() {
+StormLight = function() { StormNode.call(this); 
 	this.objectType = 'light';
 	
 	this.type; // sun | spot
@@ -24,7 +24,7 @@ StormLight = function() {
 											   0.0, 0.0, 1.0, 0.0,
 											   0.0, 0.0, 0.0, 1.0]);
 };
-StormLight.prototype = new StormNode();
+StormLight.prototype = Object.create(StormNode.prototype);
  
 /**
 * @type Void

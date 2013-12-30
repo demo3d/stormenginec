@@ -124,6 +124,23 @@ StormGLContext.prototype.queryNodeMouseDown = function() {
 			}
 		}
 	} 
+	
+	this.makeQuerySelect = false;
+	this.queryDraw(this.polarityPoints);
+	if(this.makeQuerySelect == true) {
+		if(stormEngineC.stormGLContext.transformOverlaySelected == 0) {
+			var selectedNode = this.querySelect(this.polarityPoints);
+			if(selectedNode !== false && selectedNode instanceof StormPolarityPoint) {
+				if(selectedNode.isDraggable) {
+					stormEngineC.selectNode(selectedNode);
+					selectedNode.bodyActive(false);
+					selectedNode.setPosition(selectedNode.getPosition());  
+					stormEngineC.draggingNodeNow = selectedNode;
+				}
+				if(selectedNode.onmousedownFunction != undefined) selectedNode.onmousedownFunction();
+			}
+		}
+	} 
 };
 
 /** @private */
@@ -132,6 +149,11 @@ StormGLContext.prototype.queryNodeMouseMove = function() {
 	this.queryDraw(this.nodes);
 	if(this.makeQuerySelect == true)
 		var selectedNode = this.querySelect(this.nodes);
+		
+	this.makeQuerySelect = false;
+	this.queryDraw(this.polarityPoints);
+	if(this.makeQuerySelect == true)
+		var selectedNode = this.querySelect(this.polarityPoints);
 };
 
 /** @private */
@@ -143,10 +165,24 @@ StormGLContext.prototype.queryNodeMouseUp = function() {
 		stormEngineC.draggingNodeNow = false;
 	}
 	
+	
 	this.makeQuerySelect = false;
 	this.queryDraw(this.nodes); 
 	if(this.makeQuerySelect == true) {
 		var selectedNode = this.querySelect(this.nodes);
+		if(selectedNode !== false) {
+			if(	stormEngineC.mousePosX == stormEngineC.oldMousePosClickX &&
+				stormEngineC.mousePosY == stormEngineC.oldMousePosClickY) {
+					stormEngineC.selectNode(selectedNode);
+			}
+			if(selectedNode.onmouseupFunction != undefined) selectedNode.onmouseupFunction();
+		}
+	}
+	
+	this.makeQuerySelect = false;
+	this.queryDraw(this.polarityPoints); 
+	if(this.makeQuerySelect == true) {
+		var selectedNode = this.querySelect(this.polarityPoints);
 		if(selectedNode !== false) {
 			if(	stormEngineC.mousePosX == stormEngineC.oldMousePosClickX &&
 				stormEngineC.mousePosY == stormEngineC.oldMousePosClickY) {

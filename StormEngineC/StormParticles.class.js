@@ -5,7 +5,7 @@
   
 * @property {String} objectType
 */
-StormParticles = function() {
+StormParticles = function() { StormNode.call(this); 
 	this.objectType = 'particles';
 	
 	this.polarity = 1; // positive
@@ -18,7 +18,7 @@ StormParticles = function() {
 	
 	this.selfshadows = true;
 };
-StormParticles.prototype = new StormNode();
+StormParticles.prototype = Object.create(StormNode.prototype);
 
 /**
 * Delete this particles

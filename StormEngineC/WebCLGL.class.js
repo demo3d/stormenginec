@@ -192,8 +192,8 @@ WebCLGL.prototype.copy = function(valueToRead, valueToWrite) {
 };
 /**
 * Create a empty WebCLGLBuffer 
-* @param {Int} length Length of buffer. 
-* @param {Array<Float>} length Array with width and height values if is for a WebGLTexture
+* @param {Int|Array<Float>} length Length of buffer.<br>
+									* Or Array with width and height values if is for a WebGLTexture
 * @param {String} [type="FLOAT"] type FLOAT or FLOAT4
 * @param {Int} [offset=0] If 0 the range is from 0.0 to 1.0 else if >0 then the range is from -offset.0 to offset.0
 * @property {Bool} [linear=false] linear texParameteri type for the WebGLTexture
