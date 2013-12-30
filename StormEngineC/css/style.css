@@ -114,54 +114,32 @@
 	-moz-border-radius-bottomright:5px;	
 } 
 
-/* MENUS */
-.SECmenu {
-	display:none;
-	position:absolute;
-	min-width:200px;
-	font-size:12px;
-	-webkit-box-shadow:rgba(0, 0, 0, 0.683594) 3px 3px 8px 1px,rgb(255, 255, 255) 0px 0px 5px 0px inset;
-	-moz-box-shadow:rgba(0, 0, 0, 0.683594) 3px 3px 8px 1px,rgb(255, 255, 255) 0px 0px 5px 0px inset;
-	box-shadow:rgba(0, 0, 0, 0.683594) 3px 3px 8px 1px,rgb(255, 255, 255) 0px 0px 5px 0px inset;
-}
-/* MENUS TITLE */
-.SECmenuTitle {
-	width:100%;
-	background:rgba(200,200,200,0.7);
-	cursor:move;
-	display:table;
-}
-.SECmenuTitleText {
-	padding-left:5px;
-	font-size:14px;
-	color:#000;
-	font-weight:bold;
-	display:table-cell;
-	vertical-align:middle;
-}
-.SECmenuTitleClose {
-	width:22px;
-	padding:2px;
-	display:table-cell;
-	vertical-align:middle;
-}
-.SECmenuTitleCloseImg {
-	width:22px;
-	height:23px;
-	background:url(../resources/close.png);
-	background-position:0px 0px;
-	cursor:pointer;
-}
-.SECmenuTitleCloseImg:hover {
-	background-position:22px 0px;
-}
-/* MENUS CONTENT */
-.SECmenuContent {
-	min-width:220px;
-	cursor:default;
-	padding:5px; 
+
+
+
+/* MENU MOUSE */
+.SECmenuMouse {
+	display : none;
+	position : absolute;
+	background-color : #262626;
 	color:#FFF;
-	background:rgba(50,50,50,0.95);
+	padding : 1px;
+	font-size : 11px;
+	cursor : pointer;
+}
+.SECmenuMouse div:hover {
+	background-color : #CCC;
+	color:#262626;
+}
+
+/* BUTTONS */
+.SECbutton {
+	background-color : #262626;
+	color:#FFF;
+}
+.SECbutton div:hover {
+	background-color : #CCC;
+	color:#262626;
 }
 
 

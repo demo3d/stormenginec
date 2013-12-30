@@ -39,30 +39,27 @@ if(webglExist == undefined) {
 if(webglExist != undefined) {
 
 // includes
-var stormEngineCDirectory = ''; 
-var currScripts = document.getElementsByTagName("script");
-var expl;
-for(var n = 0, f = currScripts.length; n < f; n++) {
-	if(currScripts[n].src.match(/StormEngineC\.class\.js/gim) != null) {
-		expl = currScripts[n].src.split("StormEngineC.class.js")[0]+'StormEngineC.class.js';
-		expl = expl.split("/"); break;
-	}
-}
-var separat = '';
-for(var n = 0, f = expl.length-1; n < f; n++) {
-	stormEngineCDirectory = stormEngineCDirectory+separat+expl[n];
-	separat = '/';
-}
+var stormEngineCDirectory = document.querySelector('script[src$="StormEngineC.class.js"]').getAttribute('src');
+var page = stormEngineCDirectory.split('/').pop(); 
+stormEngineCDirectory = stormEngineCDirectory.replace('/'+page,"");
+
+// CSS
 if(window.jQuery == undefined) {
 	document.write('<link rel="stylesheet" type="text/css" href="'+stormEngineCDirectory+'/JQuery/ui/jquery-ui-1.10.3.custom.min.css" />');
+}
+document.write('<link rel="stylesheet" type="text/css" href="'+stormEngineCDirectory+'/colorPicker/css/colorpicker.css" />');
+document.write('<link rel="stylesheet" type="text/css" href="'+stormEngineCDirectory+'/css/style.css" />');
+document.write('<link rel="stylesheet" type="text/css" href="'+stormEngineCDirectory+'/stormPanel/stormPanel.css" />');
+document.write('<link rel="stylesheet" type="text/css" href="'+stormEngineCDirectory+'/stormMenu/stormMenu.css" />');
+
+// JS
+if(window.jQuery == undefined) {
 	document.write('<script type="text/javascript" src="'+stormEngineCDirectory+'/JQuery/jquery-1.9.1.js"></script>');	
 	document.write('<script type="text/javascript" src="'+stormEngineCDirectory+'/JQuery/ui/jquery-ui-1.10.3.custom.min.js"></script>');
 }
-
-document.write('<link rel="stylesheet" type="text/css" href="'+stormEngineCDirectory+'/colorPicker/css/colorpicker.css" />');
 document.write('<script type="text/javascript" src="'+stormEngineCDirectory+'/colorPicker/colorpicker.js"></script>');
 
-document.write('<link rel="stylesheet" type="text/css" href="'+stormEngineCDirectory+'/css/style.css" />');
+
 var includesF = [//'/StormMathMin.class.js', 
 				 '/StormMath.class.js',
 				'/StormMaterial.class.js',
@@ -101,6 +98,7 @@ var includesF = [//'/StormMathMin.class.js',
 				'/StormRayTriangle.class.js',
 				'/StormLineSceneCollision.class.js',
 				'/stormPanel/stormPanel.js',
+				'/stormMenu/stormMenu.js',
 				'/StormPanelEnvironment.class.js',
 				'/StormPanelListObjects.class.js',
 				'/StormPanelEditNode.class.js',
@@ -462,165 +460,179 @@ StormEngineC.prototype.loadManager = function() {
 	
 	if(this.editMode) {
 		var strBtns = ''+
+		"<div id='TABLEID_STORMMENU' style='display:table;background-color:#262626;font-size:11px;color:#FFF;'>"+
+			"<div style='display:table-cell'>"+ 
+				"<div style='padding:2px'>LOCAL<input type='checkbox' id='CHECKID_STOMTOOLBAR_LOCAL' /></div>"+
+			"</div>"+
+			"<div style='display:table-cell'>"+
+				"<div id='STORMMENU0' data-menucontent>"+  
+					"<div><a id='STORMMENUBTN_C0_01'>Import Wavefront (.obj)..</a> <input id='INPUTID_StormFileImport' type='file' style='display:none;'/></div>"+
+					"<div><a id='STORMMENUBTN_C0_02'>Import Collada (.DAE)..</a> <input id='INPUTID_StormFileImportCollada' type='file' style='display:none;'/></div>"+
+				"</div>"+
+				"<div>File</div>"+
+			"</div>"+
+			"<div style='display:table-cell'>"+
+				"<div id='STORMMENU1' data-menucontent>"+
+					"<div><a id='STORMMENUBTN_C1_01'>List Objects..</a></div>"+
+					"<div><a id='STORMMENUBTN_C1_02'>Edit object..</a></div>"+
+					"<div><a id='STORMMENUBTN_C1_03'>Environment..</a></div>"+
+				"</div>"+
+				"<div>Edit</div>"+
+			"</div>"+
+			"<div style='display:table-cell'>"+
+				"<div id='STORMMENU2' data-menucontent>"+
+					"<div data-menucontent>"+
+						"<div><a id='STORMMENUBTN_C2_01_PE'>PERSPECTIVE</a></div>"+
+						"<div><a id='STORMMENUBTN_C2_01_OR'>ORTHOGRAPHIC</a></div>"+
+						"<div><div style='height:2px;background-color:#FFF;'></div></div>"+
+						"<div><a id='STORMMENUBTN_C2_01_LEFT'>LEFT</a></div>"+
+						"<div><a id='STORMMENUBTN_C2_01_RIGHT'>RIGHT</a></div>"+ 
+						"<div><a id='STORMMENUBTN_C2_01_FRONT'>FRONT</a></div>"+
+						"<div><a id='STORMMENUBTN_C2_01_BACK'>BACK</a></div>"+ 
+						"<div><a id='STORMMENUBTN_C2_01_TOP'>TOP</a></div>"+
+						"<div><a id='STORMMENUBTN_C2_01_BOTTOM'>BOTTOM</a></div>"+  
+						"<div><div style='height:2px;background-color:#FFF;'></div></div>"+
+						"<div><a id='STORMMENUBTN_C2_01_01'>TRIANGLES</a></div>"+
+						"<div><a id='STORMMENUBTN_C2_01_02'>TRIANGLE_FAN</a></div>"+
+						"<div><a id='STORMMENUBTN_C2_01_03'>TRIANGLE_STRIP</a></div>"+
+						"<div><a id='STORMMENUBTN_C2_01_04'>LINES</a></div>"+
+						"<div><a id='STORMMENUBTN_C2_01_05'>LINE_LOOP</a></div>"+
+						"<div><a id='STORMMENUBTN_C2_01_06'>LINE_STRIP</a></div>"+
+						"<div><a id='STORMMENUBTN_C2_01_07'>POINTS</a></div>"+
+					"</div>"+
+					"<div><a id='STORMMENU_C2_01'>View</a></div>"+
+					"<div><a id='STORMMENUBTN_C2_02'>Pause viewport</a></div>"+
+					"<div><a id='STORMMENUBTN_C2_03'>Timeline</a></div>"+
+				"</div>"+
+				"<div>View</div>"+
+			"</div>"+
+			"<div style='display:table-cell'>"+
+				"<div id='STORMMENU3' data-menucontent>"+
+					"<div><a id='STORMMENUBTN_C3_01'>Spot light</a></div>"+
+					"<div><a id='STORMMENUBTN_C3_02'>Sun light</a></div>"+
+					"<div><a id='STORMMENUBTN_C3_03'>Camera</a></div>"+
+					"<div><a id='STORMMENUBTN_C3_04'>Line</a></div>"+
+					"<div><a id='STORMMENUBTN_C3_05'>Particles</a></div>"+
+					"<div><a id='STORMMENUBTN_C3_06'>Polarity point</a></div>"+
+					"<div><a id='STORMMENUBTN_C3_07'>Force field</a></div>"+
+					"<div><a id='STORMMENUBTN_C3_08'>Gravity force</a></div>"+
+					"<div><a id='STORMMENUBTN_C3_09'>Voxelizator</a></div>"+
+				"</div>"+
+				"<div>Create</div>"+
+			"</div>"+
+			"<div style='display:table-cell'>"+
+				"<div id='STORMMENU4' data-menucontent>"+
+					"<div><a id='STORMMENUBTN_C4_01'>EMR Spectrum Editor..</a></div>"+
+					"<div><a id='STORMMENUBTN_C4_02'>Material Editor..</a></div>"+
+				"</div>"+
+				"<div>Materials</div>"+
+			"</div>"+
+			"<div style='display:table-cell'>"+
+				"<div id='STORMMENU5' data-menucontent>"+
+					"<div><a id='STORMMENUBTN_C5_01'>Render settings..</a></div>"+
+				"</div>"+
+				"<div>Render</div>"+
+			"</div>"+
+		"</div>"+
+		"<div id='STORMMENU_MOUSE'>"+
+			"<div><a id='BTNID_STOMTOOLBAR_MOVE'>MOVE</a></div>"+
+			"<div><a id='BTNID_STOMTOOLBAR_ROTATE'>ROTATE</a></div>"+
+			"<div><a id='BTNID_STOMTOOLBAR_SCALE'>SCALE</a></div>"+
+		"</div>";
+		var e = DCE('div');
+		e.innerHTML = strBtns;
+		this.target.parentNode.appendChild(e);
 		
-		'<div id="TABLEID_STORMMENU" style="display:table;background-color:#262626;font-size:11px;color:#FFF;">'+
-				'<div style="display:table">'+
-					'<div style="display:table-cell;">'+
-						'<div style="padding:2px">LOCAL<input type="checkbox" id="CHECKID_STOMTOOLBAR_LOCAL" /></div>'+
-					'</div>'+
-					'<div style="display:table-cell;cursor:pointer;" id="BTNID_STOMTOOLBAR_MOVE">'+
-						'<div style="padding:2px">Move</div>'+
-					'</div>'+
-					'<div style="display:table-cell;cursor:pointer;" id="BTNID_STOMTOOLBAR_ROTATE">'+
-						'<div style="padding:2px">Rotate</div>'+
-					'</div>'+
-					'<div style="display:table-cell;cursor:pointer;" id="BTNID_STOMTOOLBAR_SCALE">'+
-						'<div style="padding:2px">Scale</div>'+
-					'</div>'+
-				'</div>'+
-				'<ul data-type="STORMMENU" style="display:table-cell">'+
-					"<li>"+
-						"<a id='STORMMENU_H0'>File</a>"+
-						'<ul>'+
-							"<li><a id='STORMMENUBTN_C0_01'>Import Wavefront (.obj)..</a> <input id='INPUTID_StormFileImport' type='file' style='display:none;'/></li>"+
-							"<li><a id='STORMMENUBTN_C0_02'>Import Collada (.DAE)..</a> <input id='INPUTID_StormFileImportCollada' type='file' style='display:none;'/></li>"+
-						'</ul>'+
-					"</li>"+
-				'</ul>'+
-				'<ul data-type="STORMMENU" style="display:table-cell">'+
-					"<li>"+
-						"<a id='STORMMENU_H1'>Edit</a>"+
-						'<ul>'+
-							"<li><a id='STORMMENUBTN_C1_01'>List Objects..</a></li>"+
-							"<li><a id='STORMMENUBTN_C1_02'>Edit object..</a></li>"+
-							"<li><a id='STORMMENUBTN_C1_03'>Environment..</a></li>"+
-						'</ul>'+
-					"</li>"+
-				'</ul>'+
-				'<ul data-type="STORMMENU" style="display:table-cell">'+
-					"<li>"+
-						"<a id='STORMMENU_H2'>View</a>"+
-						'<ul>'+
-							"<li>"+
-								"<a id='STORMMENU_C2_01'>View</a>"+
-								'<ul>'+
-									"<li><a id='STORMMENUBTN_C2_01_PE'>PERSPECTIVE</a></li>"+
-									"<li><a id='STORMMENUBTN_C2_01_OR'>ORTHOGRAPHIC</a></li>"+
-									"<li><div style='height:2px;background-color:#FFF;'></div></li>"+
-									"<li><a id='STORMMENUBTN_C2_01_LEFT'>LEFT</a></li>"+
-									"<li><a id='STORMMENUBTN_C2_01_RIGHT'>RIGHT</a></li>"+ 
-									"<li><a id='STORMMENUBTN_C2_01_FRONT'>FRONT</a></li>"+
-									"<li><a id='STORMMENUBTN_C2_01_BACK'>BACK</a></li>"+ 
-									"<li><a id='STORMMENUBTN_C2_01_TOP'>TOP</a></li>"+
-									"<li><a id='STORMMENUBTN_C2_01_BOTTOM'>BOTTOM</a></li>"+  
-									"<li><div style='height:2px;background-color:#FFF;'></div></li>"+
-									"<li><a id='STORMMENUBTN_C2_01_01'>TRIANGLES</a></li>"+
-									"<li><a id='STORMMENUBTN_C2_01_02'>TRIANGLE_FAN</a></li>"+
-									"<li><a id='STORMMENUBTN_C2_01_03'>TRIANGLE_STRIP</a></li>"+
-									"<li><a id='STORMMENUBTN_C2_01_04'>LINES</a></li>"+
-									"<li><a id='STORMMENUBTN_C2_01_05'>LINE_LOOP</a></li>"+
-									"<li><a id='STORMMENUBTN_C2_01_06'>LINE_STRIP</a></li>"+
-									"<li><a id='STORMMENUBTN_C2_01_07'>POINTS</a></li>"+
-								'</ul>'+
-							"</li>"+
-							"<li><a id='STORMMENUBTN_C2_02'>Pause viewport</a></li>"+
-							"<li><a id='STORMMENUBTN_C2_03'>Timeline</a></li>"+
-						'</ul>'+
-					"</li>"+
-				'</ul>'+
-				'<ul data-type="STORMMENU" style="display:table-cell">'+
-					"<li>"+
-						"<a id='STORMMENU_H3'>Create</a>"+
-						'<ul>'+
-							"<li><a id='STORMMENUBTN_C3_01'>Spot light</a></li>"+
-							"<li><a id='STORMMENUBTN_C3_02'>Sun light</a></li>"+
-							"<li><a id='STORMMENUBTN_C3_03'>Camera</a></li>"+
-							"<li><a id='STORMMENUBTN_C3_04'>Line</a></li>"+
-							"<li><a id='STORMMENUBTN_C3_05'>Particles</a></li>"+
-							"<li><a id='STORMMENUBTN_C3_06'>Polarity point</a></li>"+
-							"<li><a id='STORMMENUBTN_C3_07'>Force field</a></li>"+
-							"<li><a id='STORMMENUBTN_C3_08'>Gravity force</a></li>"+
-							"<li><a id='STORMMENUBTN_C3_09'>Voxelizator</a></li>"+
-						'</ul>'+
-					"</li>"+
-				'</ul>'+
-				'<ul data-type="STORMMENU" style="display:table-cell">'+
-					"<li>"+
-						"<a id='STORMMENU_H4'>Materials</a>"+
-						'<ul>'+
-							"<li><a id='STORMMENUBTN_C4_01'>EMR Spectrum Editor..</a></li>"+
-							"<li><a id='STORMMENUBTN_C4_02'>Material Editor..</a></li>"+
-						'</ul>'+
-					"</li>"+
-				'</ul>'+
-				'<ul data-type="STORMMENU" style="display:table-cell">'+
-					"<li id='LIID_STORMMENU_5'>"+
-						"<a id='STORMMENU_H5'>Render</a>"+
-						'<ul>'+
-							"<li><a id='STORMMENUBTN_C5_01'>Render settings..</a></li>"+
-						'</ul>'+
-					"</li>"+
-				'</ul>'+
-			'</div>'+
-		'</div>';
-		this.$.parent().append(strBtns);
+		if(this.enableRender == false) {
+			$('#STORMMENU5').hide();
+			$('#STORMMENUBTN_C4_01').hide();
+		} 
+		
+		
+		// MOUSE MENU
+		document.addEventListener("contextmenu", function(e){
+			e.preventDefault();
+		}, false);
+		DGE('STORMMENU_MOUSE').classList.add("SECmenuMouse");
+		DGE('STORMMENU_MOUSE').addEventListener('mouseout', function(e) {
+			var obj = e.relatedTarget;//prevent if over childs
+			while(obj != undefined) {
+				if(obj == this) return;
+				obj=obj.parentNode;
+			}
+		
+			this.style.display = "none";
+		}, true);	
 		
 		DGE("BTNID_STOMTOOLBAR_MOVE").addEventListener("click", function(e) {
 			stormEngineC.defaultTransform = 0; // 0=position, 1=rotation, 2=scale
-		}, false);
-		DGE("BTNID_STOMTOOLBAR_MOVE").addEventListener("mouseover", function(e) {
-			this.style.backgroundColor = "#AAA";
-			this.style.color = "#262626";
-		}, false);
-		DGE("BTNID_STOMTOOLBAR_MOVE").addEventListener("mouseout", function(e) {
-			this.style.backgroundColor = "#262626";
-			this.style.color = "#FFF";
+			var event = new CustomEvent("mouseout");
+			DGE('STORMMENU_MOUSE').dispatchEvent(event);
 		}, false);
 		
 		DGE("BTNID_STOMTOOLBAR_ROTATE").addEventListener("click", function(e) {
 			stormEngineC.defaultTransform = 1; // 0=position, 1=rotation, 2=scale
-		}, false);
-		DGE("BTNID_STOMTOOLBAR_ROTATE").addEventListener("mouseover", function(e) {
-			this.style.backgroundColor = "#AAA";
-			this.style.color = "#262626";
-		}, false);
-		DGE("BTNID_STOMTOOLBAR_ROTATE").addEventListener("mouseout", function(e) {
-			this.style.backgroundColor = "#262626";
-			this.style.color = "#FFF";
+			var event = new CustomEvent("mouseout");
+			DGE('STORMMENU_MOUSE').dispatchEvent(event);
 		}, false);
 		
 		DGE("BTNID_STOMTOOLBAR_SCALE").addEventListener("click", function(e) {
 			stormEngineC.defaultTransform = 2; // 0=position, 1=rotation, 2=scale
-		}, false);
-		DGE("BTNID_STOMTOOLBAR_SCALE").addEventListener("mouseover", function(e) {
-			this.style.backgroundColor = "#AAA";
-			this.style.color = "#262626";
-		}, false);
-		DGE("BTNID_STOMTOOLBAR_SCALE").addEventListener("mouseout", function(e) {
-			this.style.backgroundColor = "#262626";
-			this.style.color = "#FFF";
-		}, false);
+			var event = new CustomEvent("mouseout");
+			DGE('STORMMENU_MOUSE').dispatchEvent(event);
+		}, false); 
 		
+		
+		// BOTTOM MENU
+		// local checkbox
 		DGE("CHECKID_STOMTOOLBAR_LOCAL").addEventListener("click", function(e) {
 			stormEngineC.defaultTransformMode = (stormEngineC.defaultTransformMode == 0) ? 1 : 0; // 0=world, 1=local
 		}, false);
 		
-		if(this.enableRender == false) {
-			$('#LIID_STORMMENU_5').hide();
-			$('#STORMMENUBTN_C4_01').hide();
-		}
-		$("[data-type]").menu({ position: {my:"left bottom", at:"left top"},
-									select: function( event, ui ) {
-										$("[data-type]").menu( "collapseAll", null, true );
-									}}); 
-		$("[data-type]").find('li a span').removeClass('ui-menu-icon ui-icon ui-icon-carat-1-e');
-		$("[data-type]").css({ 	'cursor':'pointer',
-									'font-size':'9px',
-									'margin':'0px',
-									'padding':'0px'});
+		// menus
+		var menuObjs = [];
+		var menu = new StormMenu({	content: DGE('STORMMENU0'),
+									mouseover: function() {
+													for(var nb = 0;nb < menuObjs.length;nb++)
+														if(this != menuObjs[nb]) menuObjs[nb].close();
+												}});  
+		menuObjs.push(menu);
+		var menu = new StormMenu({	content: DGE('STORMMENU1'),
+									mouseover: function() {
+													for(var nb = 0;nb < menuObjs.length;nb++)
+														if(this != menuObjs[nb]) menuObjs[nb].close();
+												}});
+		menuObjs.push(menu);
+		var menu = new StormMenu({	content: DGE('STORMMENU2'),
+									mouseover: function() {
+													for(var nb = 0;nb < menuObjs.length;nb++)
+														if(this != menuObjs[nb]) menuObjs[nb].close();
+												}}); 
+		menuObjs.push(menu);
+		var menu = new StormMenu({	content: DGE('STORMMENU3'),
+									mouseover: function() {
+													for(var nb = 0;nb < menuObjs.length;nb++)
+														if(this != menuObjs[nb]) menuObjs[nb].close();
+												}});
+		menuObjs.push(menu);
+		var menu = new StormMenu({	content: DGE('STORMMENU4'),
+									mouseover: function() {
+													for(var nb = 0;nb < menuObjs.length;nb++)
+														if(this != menuObjs[nb]) menuObjs[nb].close();
+												}});
+		menuObjs.push(menu);		
+		var menu = new StormMenu({	content: DGE('STORMMENU5'),
+									mouseover: function() {
+													for(var nb = 0;nb < menuObjs.length;nb++)
+														if(this != menuObjs[nb]) menuObjs[nb].close();
+												}});
+		menuObjs.push(menu);
 		
+		
+		
+	
+	
 		// SUBBTN ACTIONS
-		
 		$("#STORMMENUBTN_C0_01").on('click', function() {
 			$('#INPUTID_StormFileImport').click();
 			$('#INPUTID_StormFileImport').on('change', function() {
@@ -826,32 +838,41 @@ StormEngineC.prototype.mousedown = function(e) {
 	}
 	//e.preventDefault(); // si se habilita no funciona sobre un iframe
 	
-	stormEngineC.oldMousePosClickX = stormEngineC.mousePosX;
-	stormEngineC.oldMousePosClickY = stormEngineC.mousePosY; 
-	
-	stormEngineC.stormGLContext.queryNodePickType = 1; // 0=noquery, 1=mousedown, 2=mouseup 
-	if(	stormEngineC.isMouseDown == true &&
-		stormEngineC.getSelectedNode() != undefined &&
-		stormEngineC.stormGLContext.transformOverlaySelected != 0) {
-			stormEngineC.getSelectedNode().bodyActive(false);
-			stormEngineC.draggingNodeNow = true;
-	}
+	if(e.button == 2) { // right button
+		if(stormEngineC.editMode) {
+			DGE('STORMMENU_MOUSE').style.display = "block";
+			DGE('STORMMENU_MOUSE').style.left = stormEngineC.mousePosX;
+			DGE('STORMMENU_MOUSE').style.top = stormEngineC.mousePosY;
+			return false;
+		}
+	} else {
+		stormEngineC.oldMousePosClickX = stormEngineC.mousePosX;
+		stormEngineC.oldMousePosClickY = stormEngineC.mousePosY; 
 		
-	stormEngineC.setZeroSamplesGIVoxels();
-	
-	stormEngineC.PanelAnimationTimeline.stop();
-	stormEngineC.runningAnim = false;
-	stormEngineC.defaultCamera.enableAnimFrames = false;
-	if(stormEngineC.preloads == 0) {
-		stormEngineC.defaultCamera.controller.lastX = e.screenX;
-		stormEngineC.defaultCamera.controller.lastY = e.screenY;
-		stormEngineC.defaultCamera.controller.mouseDownFC(e);
-	}
-	if(stormEngineC.stormRender != undefined && stormEngineC.renderStop == false) {
-		stormEngineC.pauseRender = true;
-		clearTimeout(stormEngineC.stormRender.timerRender);
+		stormEngineC.stormGLContext.queryNodePickType = 1; // 0=noquery, 1=mousedown, 2=mouseup 
+		if(	stormEngineC.isMouseDown == true &&
+			stormEngineC.getSelectedNode() != undefined &&
+			stormEngineC.stormGLContext.transformOverlaySelected != 0) {
+				stormEngineC.getSelectedNode().bodyActive(false);
+				stormEngineC.draggingNodeNow = true;
+		}
+			
+		stormEngineC.setZeroSamplesGIVoxels();
 		
-		stormEngineC.pause = false;
+		stormEngineC.PanelAnimationTimeline.stop();
+		stormEngineC.runningAnim = false;
+		stormEngineC.defaultCamera.enableAnimFrames = false;
+		if(stormEngineC.preloads == 0) {
+			stormEngineC.defaultCamera.controller.lastX = e.screenX;
+			stormEngineC.defaultCamera.controller.lastY = e.screenY;
+			stormEngineC.defaultCamera.controller.mouseDownFC(e);
+		}
+		if(stormEngineC.stormRender != undefined && stormEngineC.renderStop == false) {
+			stormEngineC.pauseRender = true;
+			clearTimeout(stormEngineC.stormRender.timerRender);
+			
+			stormEngineC.pause = false;
+		}
 	}
 };
 /**  @private */
@@ -2091,7 +2112,13 @@ StormEngineC.prototype.update2DContext = function() {
 StormEngineC.prototype.addHitRectRegion = function(jsonIn) {
 	var idx = this.idxHitsRectRegions;
 	this.idxHitsRectRegions++;
-	this.arrHitsRectRegions.push({'_id':idx,'_over':false,'x':jsonIn.x,'y':jsonIn.y,'width':jsonIn.width,'height':jsonIn.height,'onclick':jsonIn.onclick,'onmouseover':jsonIn.onmouseover,'onmouseout':jsonIn.onmouseout});
+	this.arrHitsRectRegions.push({	_id: idx,
+									_over: false,
+									x: jsonIn.x, y: jsonIn.y,
+									width: jsonIn.width, height: jsonIn.height,
+									onclick: jsonIn.onclick,
+									onmouseover: jsonIn.onmouseover,
+									onmouseout: jsonIn.onmouseout});
 	
 	var ctx;
 	if(jsonIn.fillStyle != undefined || jsonIn.strokeStyle != undefined) {

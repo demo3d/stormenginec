@@ -614,8 +614,8 @@ StormGLContext.prototype.hitRectRegion_onclick = function() {
 				if(	stormEngineC.mousePosX > (this.arrHitsRectRegions[n].x) &&
 					stormEngineC.mousePosX < (this.arrHitsRectRegions[n].x+this.arrHitsRectRegions[n].width) &&
 					stormEngineC.mousePosY > (this.arrHitsRectRegions[n].y) &&
-					stormEngineC.mousePosY < (this.arrHitsRectRegions[n].y+this.arrHitsRectRegions[n].height)
-					) {
+					stormEngineC.mousePosY < (this.arrHitsRectRegions[n].y+this.arrHitsRectRegions[n].height) &&
+					stormEngineC.isMouseDown	) {
 					this.arrHitsRectRegions[n].onclick();
 				}
 			}
