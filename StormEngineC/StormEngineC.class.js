@@ -550,7 +550,7 @@ StormEngineC.prototype.loadManager = function() {
 		
 		
 		// MOUSE MENU
-		document.addEventListener("contextmenu", function(e){
+		DGE('STORMMENU_MOUSE').addEventListener("contextmenu", function(e){
 			e.preventDefault();
 		}, false);
 		DGE('STORMMENU_MOUSE').classList.add("SECmenuMouse");
@@ -841,8 +841,8 @@ StormEngineC.prototype.mousedown = function(e) {
 	if(e.button == 2) { // right button
 		if(stormEngineC.editMode) {
 			DGE('STORMMENU_MOUSE').style.display = "block";
-			DGE('STORMMENU_MOUSE').style.left = stormEngineC.mousePosX;
-			DGE('STORMMENU_MOUSE').style.top = stormEngineC.mousePosY;
+			DGE('STORMMENU_MOUSE').style.left = stormEngineC.mousePosX+"px";
+			DGE('STORMMENU_MOUSE').style.top = stormEngineC.mousePosY+"px";
 			return false;
 		}
 	} else {
