@@ -797,6 +797,14 @@ StormEngineC.prototype.loadManager = function() {
 							}});
 	}
 };
+/**
+* Set the tranform
+* @type Void
+* @param {Int} [mode=0] 0 for world transform; 1 for local transform
+*/
+StormEngineC.prototype.transformMode = function(mode) {
+	this.defaultTransformMode = mode||0;
+};
 /**  @private */
 StormEngineC.prototype.updateDivPosition = function(e) {
 	stormEngineC.divPositionX = stormEngineC.utils.getElementPosition(stormEngineC.target).x;
