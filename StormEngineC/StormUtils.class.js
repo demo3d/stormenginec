@@ -350,17 +350,17 @@ StormUtils.prototype.getWebGLContextFromCanvas = function(canvas, ctxOpt) {
 		if(ctxOpt == undefined) gl = canvas.getContext("webgl");
 		else gl = canvas.getContext("webgl", ctxOpt);
 	} catch(e) {
-		gl = false;
+		gl = null;
     }
-	if(gl == false) {
+	if(gl == null) {
 		try {
 			if(ctxOpt == undefined) gl = canvas.getContext("experimental-webgl");
 			else gl = canvas.getContext("experimental-webgl", ctxOpt);
 		} catch(e) {
-			gl = false;
+			gl = null;
 		}
 	}
-
+	if(gl == null) gl = false;
 	return gl;
 };
 /** @private */
