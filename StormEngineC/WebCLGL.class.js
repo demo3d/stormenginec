@@ -278,7 +278,23 @@ WebCLGL.prototype.enqueueNDRangeKernel = function(kernel, buffer) {
 		this.gl.useProgram(kernel.kernel);  
 		
 		for(var n = 0, f = kernel.samplers.length; n < f; n++) {
-			eval("this.gl.activeTexture(this.gl.TEXTURE"+n+");")
+			if(n == 0) this.gl.activeTexture(this.gl.TEXTURE0);
+			else if(n == 1) this.gl.activeTexture(this.gl.TEXTURE1);
+			else if(n == 2) this.gl.activeTexture(this.gl.TEXTURE2);
+			else if(n == 3) this.gl.activeTexture(this.gl.TEXTURE3);
+			else if(n == 4) this.gl.activeTexture(this.gl.TEXTURE4);
+			else if(n == 5) this.gl.activeTexture(this.gl.TEXTURE5);
+			else if(n == 6) this.gl.activeTexture(this.gl.TEXTURE6);
+			else if(n == 7) this.gl.activeTexture(this.gl.TEXTURE7);
+			else if(n == 8) this.gl.activeTexture(this.gl.TEXTURE8);
+			else if(n == 9) this.gl.activeTexture(this.gl.TEXTURE9);
+			else if(n == 10) this.gl.activeTexture(this.gl.TEXTURE10);
+			else if(n == 11) this.gl.activeTexture(this.gl.TEXTURE11);
+			else if(n == 12) this.gl.activeTexture(this.gl.TEXTURE12);
+			else if(n == 13) this.gl.activeTexture(this.gl.TEXTURE13);
+			else if(n == 14) this.gl.activeTexture(this.gl.TEXTURE14);
+			else if(n == 15) this.gl.activeTexture(this.gl.TEXTURE15);
+			else this.gl.activeTexture(this.gl.TEXTURE16);
 			this.gl.bindTexture(this.gl.TEXTURE_2D, kernel.samplers[n].value.textureData);
 			this.gl.uniform1i(kernel.samplers[n].location, n);
 		}
