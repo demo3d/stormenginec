@@ -1206,7 +1206,7 @@ StormNode.prototype.setRotation = function(radians, relative, axis) {
 			this.MROTX = this.MROTX.setRotationX(radians,false);  
 			this.rotX = radians;
 		}
-		if(this.body != undefined) this.body.pitch(radians);
+		if(this.body != undefined) this.body.set_rotationX(stormEngineC.utils.radToDeg(this.rotX));
 	}
 	if(axis == undefined || axis.e[1]) {
 		if(relative == undefined || relative == true) {
@@ -1216,7 +1216,7 @@ StormNode.prototype.setRotation = function(radians, relative, axis) {
 			this.MROTY = this.MROTY.setRotationY(radians,false);
 			this.rotY = radians;
 		}
-		if(this.body != undefined) this.body.yaw(radians);
+		if(this.body != undefined) this.body.set_rotationY(stormEngineC.utils.radToDeg(this.rotY));
 	}
 	if(axis != undefined && axis.e[2]) {  
 		if(relative == undefined || relative == true) {
@@ -1225,8 +1225,8 @@ StormNode.prototype.setRotation = function(radians, relative, axis) {
 		} else {
 			this.MROTZ = this.MROTZ.setRotationZ(radians,false); 
 			this.rotZ = radians;
-		}
-		if(this.body != undefined) this.body.roll(radians);
+		} 
+		if(this.body != undefined) this.body.set_rotationZ(stormEngineC.utils.radToDeg(this.rotZ));
 	}
 	
 	this.MROTXYZ = this.MROTZ.x(this.MROTY.x(this.MROTX));
