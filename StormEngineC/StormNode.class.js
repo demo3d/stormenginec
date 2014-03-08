@@ -47,6 +47,9 @@ StormNode = function() {
 	this.MROTY = $M16([1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0]);
 	this.MROTZ = $M16([1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0]);
 	this.MROTXYZ = $M16([1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0]);
+	this.rotX = 0.0;
+	this.rotY = 0.0;
+	this.rotZ = 0.0;
 	this.VSCALE = $V3([1.0,1.0,1.0]);
 	this.materialUnits = [];
 	
@@ -1196,24 +1199,33 @@ StormNode.prototype.setRotation = function(radians, relative, axis) {
 	}
 	
 	if(axis != undefined && axis.e[0]) {
-		if(relative == undefined || relative == true)
+		if(relative == undefined || relative == true) {
 			this.MROTX = this.MROTX.setRotationX(radians,true);
-		else
+			this.rotX = this.rotX+radians;
+		} else {
 			this.MROTX = this.MROTX.setRotationX(radians,false);  
+			this.rotX = radians;
+		}
 		if(this.body != undefined) this.body.pitch(radians);
 	}
 	if(axis == undefined || axis.e[1]) {
-		if(relative == undefined || relative == true)
+		if(relative == undefined || relative == true) {
 			this.MROTY = this.MROTY.setRotationY(radians,true);
-		else
+			this.rotY = this.rotY+radians;
+		} else {
 			this.MROTY = this.MROTY.setRotationY(radians,false);
+			this.rotY = radians;
+		}
 		if(this.body != undefined) this.body.yaw(radians);
 	}
 	if(axis != undefined && axis.e[2]) {  
-		if(relative == undefined || relative == true)
+		if(relative == undefined || relative == true) {
 			this.MROTZ = this.MROTZ.setRotationZ(radians,true);
-		else
+			this.rotZ = this.rotZ+radians;
+		} else {
 			this.MROTZ = this.MROTZ.setRotationZ(radians,false); 
+			this.rotZ = radians;
+		}
 		if(this.body != undefined) this.body.roll(radians);
 	}
 	
@@ -1247,6 +1259,27 @@ StormNode.prototype.setRotationY = function(radians, relative) {
 */
 StormNode.prototype.setRotationZ = function(radians, relative) {
 	this.setRotation(radians, relative, $V3([0.0,0.0,1.0]));
+};
+/**
+* Rotate the node in x axis
+* @returns {Float}
+*/
+StormNode.prototype.getRotationX = function() {
+	return this.rotX;
+};
+/**
+* Rotate the node in y axis
+* @returns {Float}
+*/
+StormNode.prototype.getRotationY = function() {
+	return this.rotY;
+};
+/**
+* Rotate the node in z axis
+* @returns {Float}
+*/
+StormNode.prototype.getRotationZ = function() {
+	return this.rotZ;
 };
 /**
 * Scale the node
