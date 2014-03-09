@@ -50,7 +50,7 @@ WebCLGL = function(webglcontext) {
 	this.gl.getExtension('OES_texture_float') ? true : false;
 	this.gl.getExtension('OES_texture_float_linear') ? true : false;
 	var highPrecisionSupport = this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.HIGH_FLOAT);
-	this.precision = (highPrecisionSupport != 0) ? 'precision highp float;\n\n' : 'precision mediump float;\n\n';
+	this.precision = (highPrecisionSupport.precision != 0) ? 'precision highp float;\n\nprecision highp int;\n\n' : 'precision lowp float;\n\nprecision lowp int;\n\n';
 	
 	this.gl.viewport(0, 0, 32, 32);  
 	this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
@@ -72,7 +72,8 @@ WebCLGL = function(webglcontext) {
 	
 	
 	// SHADER READPIXELS
-	var sourceVertex = 	'attribute vec3 aVertexPosition;\n'+
+	var sourceVertex = 	this.precision+
+			'attribute vec3 aVertexPosition;\n'+
 			'attribute vec2 aTextureCoord;\n'+
 			
 			'varying vec2 vTextureCoord;\n'+ 
@@ -121,7 +122,8 @@ WebCLGL = function(webglcontext) {
 	
 	
 	// SHADER COPYTEXTURE
-	var sourceVertex = 	'attribute vec3 aVertexPosition;\n'+
+	var sourceVertex = 	this.precision+
+		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec2 aTextureCoord;\n'+
 	
 		'varying vec2 vTextureCoord;\n'+ 

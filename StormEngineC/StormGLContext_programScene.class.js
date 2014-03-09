@@ -8,7 +8,8 @@ StormGLContext.prototype.initShader_Scene = function() {
 	_this = stormEngineC.stormGLContext;
 	_this.OCCUPIEDSAMPLES_SHADERSCENE = 5;
 	_this.MAX_TEXTURESKD = _this.gl.getParameter(_this.gl.MAX_TEXTURE_IMAGE_UNITS)-_this.OCCUPIEDSAMPLES_SHADERSCENE;
-	var sourceVertex = 	'attribute vec3 aVertexPosition;\n'+
+	var sourceVertex = _this.precision+
+		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec3 aVertexNormal;\n'+
 		'attribute vec3 aTextureCoord;\n'+
 		'attribute float aTextureUnit;\n'+

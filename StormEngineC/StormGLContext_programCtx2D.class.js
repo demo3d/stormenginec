@@ -6,7 +6,8 @@
  */
 StormGLContext.prototype.initShader_Ctx2D = function() {
 	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	'attribute vec3 aVertexPosition;\n'+
+	var sourceVertex = 	_this.precision+
+		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec2 aTextureCoord;\n'+
 		
 		'varying vec2 vTextureCoord;\n'+ 

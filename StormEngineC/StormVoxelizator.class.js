@@ -50,7 +50,7 @@ StormVoxelizator.prototype.initShader_VoxelizatorMaker = function() {
 	this.glVoxelizator = stormEngineC.utils.getWebGLContextFromCanvas(this.canvas, {antialias: false});
 	
 	var highPrecisionSupport = this.glVoxelizator.getShaderPrecisionFormat(this.glVoxelizator.FRAGMENT_SHADER, this.glVoxelizator.HIGH_FLOAT);
-	this.precision = (highPrecisionSupport != 0) ? 'precision highp float;\n\n' : 'precision mediump float;\n\n';
+	this.precision = (highPrecisionSupport.precision != 0) ? 'precision highp float;\n\nprecision highp int;\n\n' : 'precision lowp float;\n\nprecision lowp int;\n\n';
 	
 	var mesh = new StormMesh();
 	mesh.loadQuad(undefined,1.0,1.0);
@@ -65,7 +65,8 @@ StormVoxelizator.prototype.initShader_VoxelizatorMaker = function() {
 	this.glVoxelizator.bufferData(this.glVoxelizator.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.indexArray), this.glVoxelizator.STATIC_DRAW);
 	
 	
-	var sv = 'attribute vec3 aVertexPosition;\n'+  
+	var sv = this.precision+
+			'attribute vec3 aVertexPosition;\n'+  
 			'attribute vec3 aVertexNormal;\n'+
 			'attribute vec3 aTextureCoord;\n'+
 			'attribute float aTextureUnitCoord;\n'+

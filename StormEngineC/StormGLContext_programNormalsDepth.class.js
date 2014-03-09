@@ -6,7 +6,8 @@
  */
 StormGLContext.prototype.initShader_Normals = function() {
 	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	'attribute vec3 aVertexPosition;\n'+
+	var sourceVertex = 	_this.precision+
+		'attribute vec3 aVertexPosition;\n'+ 
 		'attribute vec3 aVertexNormal;\n'+
 		
 		'uniform mat4 u_nodeWMatrix;\n'+

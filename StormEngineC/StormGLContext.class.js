@@ -104,7 +104,7 @@ StormGLContext.prototype.initContext = function() {
 	this.gl.getExtension('OES_texture_float');
 	this.gl.getExtension('OES_texture_float_linear');
 	var highPrecisionSupport = this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.HIGH_FLOAT);
-	this.precision = (highPrecisionSupport != 0) ? 'precision highp float;\n\nprecision highp int;\n\n' : 'precision mediump float;\n\nprecision mediump int;\n\n';
+	this.precision = (highPrecisionSupport.precision != 0) ? 'precision highp float;\n\nprecision highp int;\n\n' : 'precision lowp float;\n\nprecision lowp int;\n\n';
 	
 	
 	// SCREEN QUAD BUFFER

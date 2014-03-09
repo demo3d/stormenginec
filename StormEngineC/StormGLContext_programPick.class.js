@@ -6,7 +6,7 @@
  */
 StormGLContext.prototype.initShader_Pick = function() {
 	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	
+	var sourceVertex = _this.precision+
 		'attribute vec3 aVertexPosition;\n'+
 		
 		'uniform mat4 u_nodeWMatrix;\n'+

@@ -6,7 +6,7 @@
  */
 StormGLContext.prototype.initShader_ParticlesAux = function() {
 	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	''+
+	var sourceVertex = _this.precision+
 		'attribute vec4 aVertexPositionX;\n'+
 		'attribute vec4 aVertexPositionY;\n'+
 		'attribute vec4 aVertexPositionZ;\n'+

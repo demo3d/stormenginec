@@ -6,7 +6,7 @@
 WebCLGLKernel = function(gl, source, header) { 
 	this.gl = gl;
 	var highPrecisionSupport = this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.HIGH_FLOAT);
-	this.precision = (highPrecisionSupport != 0) ? 'precision highp float;\n\n' : 'precision mediump float;\n\n';
+	this.precision = (highPrecisionSupport.precision != 0) ? 'precision highp float;\n\nprecision highp int;\n\n' : 'precision lowp float;\n\nprecision lowp int;\n\n';
 	
 	this.utils = new WebCLGLUtils(this.gl);
 	
@@ -138,7 +138,8 @@ WebCLGLKernel.prototype.compile = function() {
 		}
 		return str;
 	};
-	var sourceVertex = 	'attribute vec3 aVertexPosition;\n'+
+	var sourceVertex = 	this.precision+
+		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec2 aTextureCoord;\n'+
 		
 		'varying vec2 global_id;\n'+ 

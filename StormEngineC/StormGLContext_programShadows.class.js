@@ -6,7 +6,8 @@
  */
 StormGLContext.prototype.initShader_LightDepth = function() {
 	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	'attribute vec3 aVertexPosition;\n'+
+	var sourceVertex = 	 _this.precision+
+		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec3 aTextureCoord;\n'+
 		
 		
@@ -102,7 +103,7 @@ StormGLContext.prototype.pointers_LightDepth = function() {
  */
 StormGLContext.prototype.initShader_LightDepthParticles = function() {
 	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	''+
+	var sourceVertex = 	_this.precision+
 		'uniform float uPointSize;\n'+
 		
 		'attribute vec4 aVertexPositionX;\n'+
@@ -348,7 +349,8 @@ StormGLContext.prototype.renderFromLight = function(node, buffersObject, light) 
  */
 StormGLContext.prototype.initShader_Shadows = function() {
 	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	'attribute vec3 aVertexPosition;\n'+
+	var sourceVertex = 	_this.precision+
+		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec4 aVertexPositionX;\n'+
 		'attribute vec4 aVertexPositionY;\n'+
 		'attribute vec4 aVertexPositionZ;\n'+

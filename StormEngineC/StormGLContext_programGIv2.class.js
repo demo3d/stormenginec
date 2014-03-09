@@ -5,7 +5,8 @@
 StormGLContext.prototype.initShader_GIv2 = function() {
 	_this = stormEngineC.stormGLContext; 
 	
-	var sourceVertex = 	'attribute vec3 aVertexPosition;\n'+
+	var sourceVertex = 	_this.precision+
+		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec3 aVertexNormal;\n'+
 		
 		'uniform mat4 u_nodeWMatrix;\n'+
@@ -268,7 +269,8 @@ StormGLContext.prototype.render_GIv2_AUX = function() {
 /** @private  */
 StormGLContext.prototype.initShader_GIv2Exec = function() {
 	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	'attribute vec3 aVertexPosition;\n'+
+	var sourceVertex = 	_this.precision+
+		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec2 aTextureCoord;\n'+
 	
 		'varying vec2 vTextureCoord;\n'+ 
