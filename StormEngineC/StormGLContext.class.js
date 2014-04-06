@@ -101,8 +101,7 @@ StormGLContext.prototype.initContext = function() {
 		alert('Your browser does not support WebGL. Download <a href="http://www.mozilla.com/">Firefox</a> o <a href="http://www.google.es/chrome">Chrome</a>');
 		return false;
 	} 
-	this.gl.getExtension('OES_texture_float');
-	this.gl.getExtension('OES_texture_float_linear');
+	
 	var highPrecisionSupport = this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.HIGH_FLOAT);
 	this.precision = (highPrecisionSupport.precision != 0) ? 'precision highp float;\n\nprecision highp int;\n\n' : 'precision lowp float;\n\nprecision lowp int;\n\n';
 	
@@ -121,6 +120,7 @@ StormGLContext.prototype.initContext = function() {
 	this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.indexArray), this.gl.STATIC_DRAW);
 	
 	
+	this._floatSupport = (this.gl.getExtension('OES_texture_float') && this.gl.getExtension('OES_texture_float_linear')) ? this.gl.FLOAT : this.gl.UNSIGNED_BYTE;
 	
 	// WEBGL FB
 	this.rBuffer = this.gl.createRenderbuffer();
@@ -156,7 +156,7 @@ StormGLContext.prototype.initContext = function() {
 	// TEXTURE FRAMEBUFFER GIv2 SCREEN POS
 	this.textureFB_GIv2_screenPos = this.gl.createTexture();
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIv2_screenPos); 
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
@@ -164,7 +164,7 @@ StormGLContext.prototype.initContext = function() {
 	// TEXTURE FRAMEBUFFER GIv2 SCREEN POS TEMP
 	this.textureFB_GIv2_screenPosTEMP = this.gl.createTexture();
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIv2_screenPosTEMP); 
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
@@ -172,7 +172,7 @@ StormGLContext.prototype.initContext = function() {
 	// TEXTURE FRAMEBUFFER GIv2 SCREEN NORMAL
 	this.textureFB_GIv2_screenNormal = this.gl.createTexture();
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIv2_screenNormal); 
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
@@ -180,7 +180,7 @@ StormGLContext.prototype.initContext = function() {
 	// TEXTURE FRAMEBUFFER GIv2 SCREEN NORMAL TEMP
 	this.textureFB_GIv2_screenNormalTEMP = this.gl.createTexture();
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIv2_screenNormalTEMP); 
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
@@ -188,7 +188,7 @@ StormGLContext.prototype.initContext = function() {
 	// TEXTURE FRAMEBUFFER GI VOXEL
 	this.textureFB_GIVoxel = this.gl.createTexture();
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIVoxel); 
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
@@ -196,7 +196,7 @@ StormGLContext.prototype.initContext = function() {
 	// TEXTURE FRAMEBUFFER GI VOXEL TEMP
 	this.textureFB_GIVoxel_TEMP = this.gl.createTexture();
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIVoxel_TEMP); 
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
@@ -204,7 +204,7 @@ StormGLContext.prototype.initContext = function() {
 	// TEXTURE FRAMEBUFFER RGB NORMALS & ALPHA CAMERA DEPTH
 	this.textureFB_Normals = this.gl.createTexture();
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_Normals);
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
@@ -212,7 +212,7 @@ StormGLContext.prototype.initContext = function() {
 	// TEXTURE FRAMEBUFFER DOF
 	this.textureObject_DOF = this.gl.createTexture();	
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureObject_DOF);
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
@@ -220,7 +220,7 @@ StormGLContext.prototype.initContext = function() {
 	// TEXTURE FRAMEBUFFER LIGHT SUN DEPTH
 	this.textureFB_LightSun = this.gl.createTexture();
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_LightSun);
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.maxViewportWidth, this.maxViewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.maxViewportWidth, this.maxViewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
@@ -228,7 +228,7 @@ StormGLContext.prototype.initContext = function() {
 	// TEXTURE FRAMEBUFFER LIGHT SPOTS DEPTH
 	this.textureFB_LightSpot = this.gl.createTexture();
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_LightSpot);
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
@@ -236,7 +236,7 @@ StormGLContext.prototype.initContext = function() {
 	// TEXTURE FRAMEBUFFER SUM LIGHT
 	this.textureFB_Shadows = this.gl.createTexture();
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_Shadows);
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
     this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
@@ -314,42 +314,42 @@ StormGLContext.prototype.updateTexturesFB = function() {
 	/* ================================================================================================================ */
 	// TEXTURE FRAMEBUFFER GIv2 SCREEN POS
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIv2_screenPos); 
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	// TEXTURE FRAMEBUFFER GIv2 SCREEN POS TEMP
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIv2_screenPosTEMP); 
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	// TEXTURE FRAMEBUFFER GIv2 SCREEN NORMAL
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIv2_screenNormal); 
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	// TEXTURE FRAMEBUFFER GIv2 SCREEN NORMAL TEMP
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIv2_screenNormalTEMP); 
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	// TEXTURE FRAMEBUFFER GI VOXEL
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIVoxel); 
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	// TEXTURE FRAMEBUFFER GI VOXEL TEMP
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIVoxel_TEMP); 
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
 	
 	// TEXTURE FRAMEBUFFER RGB NORMALS & ALPHA CAMERA DEPTH
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_Normals);
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
     
 	// TEXTURE FRAMEBUFFER DOF
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureObject_DOF);
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
     
 	// TEXTURE FRAMEBUFFER LIGHT SUN DEPTH
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_LightSun);
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.maxViewportWidth, this.maxViewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.maxViewportWidth, this.maxViewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
     
 	// TEXTURE FRAMEBUFFER LIGHT SPOTS DEPTH
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_LightSpot);
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
     
 	// TEXTURE FRAMEBUFFER SUM LIGHT
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_Shadows);
-	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this.gl.FLOAT, null);
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth, this.viewportHeight, 0, this.gl.RGBA, this._floatSupport, null);
     
 	
 	/* ================================================================================================================ */
@@ -590,7 +590,7 @@ StormGLContext.prototype.renderGLContext = function() {
 	if(this.Shader_DOF_READY && stormEngineC.defaultCamera.DOFenable) {
 		this.render_DOF(); 
 	}
-	if(this.Shader_Overlay_READY && stormEngineC.editMode) { 
+	if(this.Shader_Overlay_READY && stormEngineC.editMode) {  
 		this.render_Overlay();
 	}   
 	this.hitRectRegion_onmouseover();

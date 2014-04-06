@@ -55,339 +55,518 @@ StormGLContext.prototype.initShader_Scene = function() {
 			'vReflect = normalize( reflect(normalize(vWPos.xyz - u_cameraPos.xyz), normalize(vWVNMatrix.xyz)) );\n'+
 		'}';
 	var sourceFragment = _this.precision+
-		
-		'uniform mat4 u_cameraWMatrix;\n'+
-		'uniform mat4 u_nodeWMatrixInverse;\n'+
-		
-		'uniform float uFar;\n'+
-		'uniform int uShadows;\n'+
-		'uniform vec3 uSpecularColor;\n'+
+		'#ifdef GL_FRAGMENT_PRECISION_HIGH\n'+
+			'uniform mat4 u_cameraWMatrix;\n'+
+			'uniform mat4 u_nodeWMatrixInverse;\n'+
 			
-		'uniform vec3 uAmbientColor;\n'+
-		
-		'uniform vec3 uLightColor00;\n'+ // 00 sun
-		'uniform vec3 uLightDirection00;\n'+
-		'uniform vec3 uLightColor01;\n'+
-		'uniform vec3 uLightDirection01;\n'+
-		'uniform vec3 uLightColor02;\n'+
-		'uniform vec3 uLightDirection02;\n'+
-		'uniform vec3 uLightColor03;\n'+
-		'uniform vec3 uLightDirection03;\n'+
-		'uniform vec3 uLightColor04;\n'+
-		'uniform vec3 uLightDirection04;\n'+
-		'uniform vec3 uLightColor05;\n'+
-		'uniform vec3 uLightDirection05;\n'+
-		'uniform vec3 uLightColor06;\n'+
-		'uniform vec3 uLightDirection06;\n'+
-		'uniform vec3 uLightColor07;\n'+
-		'uniform vec3 uLightDirection07;\n'+
-		'uniform vec3 uLightColor08;\n'+
-		'uniform vec3 uLightDirection08;\n'+
-		'uniform vec3 uLightColor09;\n'+
-		'uniform vec3 uLightDirection09;\n'+
-		
-		
-		'uniform sampler2D sampler_textureFBNormals;\n'+
-		'uniform sampler2D sampler_textureRandom;\n'+
-		'uniform sampler2D sampler_textureFBShadows;\n'+
-		'uniform sampler2D sampler_reflectionMap;\n'+ 
-		'uniform sampler2D sampler_textureFBGIVoxel;\n'+
-		//'uniform sampler2D sampler_kdTexture;\n'+
-		//'uniform sampler2D sampler_bumpTexture;\n'+
-		'uniform sampler2D objectTexturesKd['+_this.MAX_TEXTURESKD+'];\n\n\n'+
-		'uniform float uRoughness['+_this.MAX_TEXTURESKD+'];\n'+
-		'uniform float uIllumination;\n'+
-		
-		'uniform float uOcclusionLevel;\n'+
-		'uniform float uViewportWidth;\n'+
-		'uniform float uViewportHeight;\n'+
-		
-		'uniform int uUseTextureFBGIVoxel;\n'+
-		'uniform int uUseBump;\n'+
-		'uniform int uUseSSAO;\n'+
-		'uniform int uUseShadows;\n'+
-		'uniform int uSelectedNode;\n'+
-		
-		'varying vec3 vTextureCoord;\n'+
-		'varying float vTextureUnit;\n'+
-		'varying vec4 vposition;\n'+
-		'varying vec4 vpositionViewportRegion;\n'+
-		'varying vec4 vWNMatrix;\n'+
-		'varying vec4 vWVNMatrix;\n'+
-		'varying vec4 vWPos;\n'+
-		'varying vec3 vReflect;\n'+
-		
-		'float unpack (vec4 colour) {'+
-			'const vec4 bitShifts = vec4(1.0,'+
-							'1.0 / 255.0,'+
-							'1.0 / (255.0 * 255.0),'+
-							'1.0 / (255.0 * 255.0 * 255.0));'+
-			'return dot(colour, bitShifts);'+
-		'}'+
-		'float LinearDepthConstant = 1.0/uFar;'+
-		
-		'void main(void) {\n'+
-			'vec2 vecRandomA[36];\n'+
-			'vecRandomA[0] = vec2(0.009, 1.0);\n'+
-			'vecRandomA[1] = vec2(0.87, 0.492);\n'+
-			'vecRandomA[2] = vec2(0.862, -0.508);\n'+
-			'vecRandomA[3] = vec2(-0.009, -1.0);\n'+
-			'vecRandomA[4] = vec2(-0.87, -0.492);\n'+
-			'vecRandomA[5] = vec2(-0.862, 0.508);\n'+
-			
-			'vecRandomA[6] = vec2(0.508, 0.862);\n'+
-			'vecRandomA[7] = vec2(1.0, -0.009);\n'+
-			'vecRandomA[8] = vec2(0.492, -0.87);\n'+
-			'vecRandomA[9] = vec2(-0.508, -0.862);\n'+
-			'vecRandomA[10] = vec2(-1.0, 0.009);\n'+
-			'vecRandomA[11] = vec2(-0.492, 0.87);\n'+
-			
-			'vecRandomA[12] = vec2(0.182, 0.983);\n'+
-			'vecRandomA[13] = vec2(0.943, 0.334);\n'+
-			'vecRandomA[14] = vec2(0.76, -0.649);\n'+
-			'vecRandomA[15] = vec2(-0.182, -0.983);\n'+
-			'vecRandomA[16] = vec2(-0.943, -0.334);\n'+
-			'vecRandomA[17] = vec2(-0.76, 0.649);\n'+
-
-			'vecRandomA[18] = vec2(0.35, 0.937);\n'+
-			'vecRandomA[19] = vec2(0.986, 0.165);\n'+
-			'vecRandomA[20] = vec2(0.636, -0.772);\n'+
-			'vecRandomA[21] = vec2(-0.35, -0.937);\n'+
-			'vecRandomA[22] = vec2(-0.986, -0.165);\n'+
-			'vecRandomA[23] = vec2(-0.636, 0.772);\n'+
-			
-			'vecRandomA[24] = vec2(0.649, 0.76);\n'+
-			'vecRandomA[25] = vec2(0.983, -0.182);\n'+
-			'vecRandomA[26] = vec2(0.334, -0.943);\n'+
-			'vecRandomA[27] = vec2(-0.649, -0.76);\n'+
-			'vecRandomA[28] = vec2(-0.983, 0.182);\n'+
-			'vecRandomA[29] = vec2(-0.334, 0.943);\n'+
-			
-			'vecRandomA[30] = vec2(0.772, 0.636);\n'+
-			'vecRandomA[31] = vec2(0.937, -0.35);\n'+
-			'vecRandomA[32] = vec2(0.165, -0.986);\n'+
-			'vecRandomA[33] = vec2(-0.772, -0.636);\n'+
-			'vecRandomA[34] = vec2(-0.937, 0.35);\n'+
-			'vecRandomA[35] = vec2(-0.165, 0.986);\n'+
-			
-			
-			'float depthFromCam = length(vposition) * LinearDepthConstant;'+
-			
-			'vec3 pixelCoord = vpositionViewportRegion.xyz / vpositionViewportRegion.w;'+
-			
-			'vec4 textureFBGIVoxel = texture2D(sampler_textureFBGIVoxel, pixelCoord.xy);\n'+
-			//'float GIVoxelsShadow = textureFBGIVoxel.x/(textureFBGIVoxel.g);'+
-			'vec3 GIVoxelsShadow = vec3((textureFBGIVoxel.r/textureFBGIVoxel.a), (textureFBGIVoxel.g/textureFBGIVoxel.a), (textureFBGIVoxel.b/textureFBGIVoxel.a));'+
-			
-			'vec4 textureFBCameraDepth = texture2D(sampler_textureFBNormals, pixelCoord.xy);\n'+
-			'float AFragmentDepth = textureFBCameraDepth.a;\n'+
-			
-			'float depthShadows = (1.0-pixelCoord.z)*0.2;\n'+
-			'float depthSSAO = (1.0-pixelCoord.z);\n'+ 
-			
-			
-			'vec4 BFragmentDepthMap;\n'+
-			'float ABDepthDifference;\n'+
-			'vec4 AFragmentShadowLayer;\n'+
-			'vec4 BFragmentShadowLayer;\n'+
-			
-			'vec2 noiseCoord = vec2(pixelCoord.x*(uViewportWidth/32.0),pixelCoord.y*(uViewportHeight/32.0));\n'+ // 32px map noise
-			
-			'vec2 vecRandomB;\n'+
-			
-			// BLUR SHADOW MAP
-			'float light = 1.0;\n'+  
-			'if(uShadows == 1) {\n'+
-				'if(uUseShadows == 1) {\n'+   
+			'uniform float uFar;\n'+
+			'uniform int uShadows;\n'+
+			'uniform vec3 uSpecularColor;\n'+
 				
-					'vec2 vecTextureCoordLight;\n'+
-					'int hl = 0;\n'+
-					'float lightB = 0.0;\n'+
-					'const int f = 12;\n'+
+			'uniform vec3 uAmbientColor;\n'+
+			
+			'uniform vec3 uLightColor00;\n'+ // 00 sun
+			'uniform vec3 uLightDirection00;\n'+
+			'uniform vec3 uLightColor01;\n'+
+			'uniform vec3 uLightDirection01;\n'+
+			'uniform vec3 uLightColor02;\n'+
+			'uniform vec3 uLightDirection02;\n'+
+			'uniform vec3 uLightColor03;\n'+
+			'uniform vec3 uLightDirection03;\n'+
+			'uniform vec3 uLightColor04;\n'+
+			'uniform vec3 uLightDirection04;\n'+
+			'uniform vec3 uLightColor05;\n'+
+			'uniform vec3 uLightDirection05;\n'+
+			'uniform vec3 uLightColor06;\n'+
+			'uniform vec3 uLightDirection06;\n'+
+			'uniform vec3 uLightColor07;\n'+
+			'uniform vec3 uLightDirection07;\n'+
+			'uniform vec3 uLightColor08;\n'+
+			'uniform vec3 uLightDirection08;\n'+
+			'uniform vec3 uLightColor09;\n'+
+			'uniform vec3 uLightDirection09;\n'+
+			
+			
+			'uniform sampler2D sampler_textureFBNormals;\n'+
+			'uniform sampler2D sampler_textureRandom;\n'+
+			'uniform sampler2D sampler_textureFBShadows;\n'+
+			'uniform sampler2D sampler_reflectionMap;\n'+ 
+			'uniform sampler2D sampler_textureFBGIVoxel;\n'+
+			//'uniform sampler2D sampler_kdTexture;\n'+
+			//'uniform sampler2D sampler_bumpTexture;\n'+
+			'uniform sampler2D objectTexturesKd['+_this.MAX_TEXTURESKD+'];\n\n\n'+
+			'uniform float uRoughness['+_this.MAX_TEXTURESKD+'];\n'+
+			'uniform float uIllumination;\n'+
+			
+			'uniform float uOcclusionLevel;\n'+
+			'uniform float uViewportWidth;\n'+
+			'uniform float uViewportHeight;\n'+
+			
+			'uniform int uUseTextureFBGIVoxel;\n'+
+			'uniform int uUseBump;\n'+
+			'uniform int uUseSSAO;\n'+
+			'uniform int uUseShadows;\n'+
+			'uniform int uSelectedNode;\n'+
+			
+			'varying vec3 vTextureCoord;\n'+
+			'varying float vTextureUnit;\n'+
+			'varying vec4 vposition;\n'+
+			'varying vec4 vpositionViewportRegion;\n'+
+			'varying vec4 vWNMatrix;\n'+
+			'varying vec4 vWVNMatrix;\n'+
+			'varying vec4 vWPos;\n'+
+			'varying vec3 vReflect;\n'+
+			
+			'float unpack (vec4 colour) {'+
+				'const vec4 bitShifts = vec4(1.0,'+
+								'1.0 / 255.0,'+
+								'1.0 / (255.0 * 255.0),'+
+								'1.0 / (255.0 * 255.0 * 255.0));'+
+				'return dot(colour, bitShifts);'+
+			'}'+
+			'float LinearDepthConstant = 1.0/uFar;'+
+			
+			'void main(void) {\n'+
+				'vec2 vecRandomA[36];\n'+
+				'vecRandomA[0] = vec2(0.009, 1.0);\n'+
+				'vecRandomA[1] = vec2(0.87, 0.492);\n'+
+				'vecRandomA[2] = vec2(0.862, -0.508);\n'+
+				'vecRandomA[3] = vec2(-0.009, -1.0);\n'+
+				'vecRandomA[4] = vec2(-0.87, -0.492);\n'+
+				'vecRandomA[5] = vec2(-0.862, 0.508);\n'+
+				
+				'vecRandomA[6] = vec2(0.508, 0.862);\n'+
+				'vecRandomA[7] = vec2(1.0, -0.009);\n'+
+				'vecRandomA[8] = vec2(0.492, -0.87);\n'+
+				'vecRandomA[9] = vec2(-0.508, -0.862);\n'+
+				'vecRandomA[10] = vec2(-1.0, 0.009);\n'+
+				'vecRandomA[11] = vec2(-0.492, 0.87);\n'+
+				
+				'vecRandomA[12] = vec2(0.182, 0.983);\n'+
+				'vecRandomA[13] = vec2(0.943, 0.334);\n'+
+				'vecRandomA[14] = vec2(0.76, -0.649);\n'+
+				'vecRandomA[15] = vec2(-0.182, -0.983);\n'+
+				'vecRandomA[16] = vec2(-0.943, -0.334);\n'+
+				'vecRandomA[17] = vec2(-0.76, 0.649);\n'+
+
+				'vecRandomA[18] = vec2(0.35, 0.937);\n'+
+				'vecRandomA[19] = vec2(0.986, 0.165);\n'+
+				'vecRandomA[20] = vec2(0.636, -0.772);\n'+
+				'vecRandomA[21] = vec2(-0.35, -0.937);\n'+
+				'vecRandomA[22] = vec2(-0.986, -0.165);\n'+
+				'vecRandomA[23] = vec2(-0.636, 0.772);\n'+
+				
+				'vecRandomA[24] = vec2(0.649, 0.76);\n'+
+				'vecRandomA[25] = vec2(0.983, -0.182);\n'+
+				'vecRandomA[26] = vec2(0.334, -0.943);\n'+
+				'vecRandomA[27] = vec2(-0.649, -0.76);\n'+
+				'vecRandomA[28] = vec2(-0.983, 0.182);\n'+
+				'vecRandomA[29] = vec2(-0.334, 0.943);\n'+
+				
+				'vecRandomA[30] = vec2(0.772, 0.636);\n'+
+				'vecRandomA[31] = vec2(0.937, -0.35);\n'+
+				'vecRandomA[32] = vec2(0.165, -0.986);\n'+
+				'vecRandomA[33] = vec2(-0.772, -0.636);\n'+
+				'vecRandomA[34] = vec2(-0.937, 0.35);\n'+
+				'vecRandomA[35] = vec2(-0.165, 0.986);\n'+
+				
+				
+				'float depthFromCam = length(vposition) * LinearDepthConstant;'+
+				
+				'vec3 pixelCoord = vpositionViewportRegion.xyz / vpositionViewportRegion.w;'+
+				
+				'vec4 textureFBGIVoxel = texture2D(sampler_textureFBGIVoxel, pixelCoord.xy);\n'+
+				//'float GIVoxelsShadow = textureFBGIVoxel.x/(textureFBGIVoxel.g);'+
+				'vec3 GIVoxelsShadow = vec3((textureFBGIVoxel.r/textureFBGIVoxel.a), (textureFBGIVoxel.g/textureFBGIVoxel.a), (textureFBGIVoxel.b/textureFBGIVoxel.a));'+
+				
+				'vec4 textureFBCameraDepth = texture2D(sampler_textureFBNormals, pixelCoord.xy);\n'+
+				'float AFragmentDepth = textureFBCameraDepth.a;\n'+
+				
+				'float depthShadows = (1.0-pixelCoord.z)*0.2;\n'+
+				'float depthSSAO = (1.0-pixelCoord.z);\n'+ 
+				
+				
+				'vec4 BFragmentDepthMap;\n'+
+				'float ABDepthDifference;\n'+
+				'vec4 AFragmentShadowLayer;\n'+
+				'vec4 BFragmentShadowLayer;\n'+
+				
+				'vec2 noiseCoord = vec2(pixelCoord.x*(uViewportWidth/32.0),pixelCoord.y*(uViewportHeight/32.0));\n'+ // 32px map noise
+				
+				'vec2 vecRandomB;\n'+
+				
+				// BLUR SHADOW MAP
+				'float light = 1.0;\n'+  
+				'if(uShadows == 1) {\n'+
+					'if(uUseShadows == 1) {\n'+   
+					
+						'vec2 vecTextureCoordLight;\n'+
+						'int hl = 0;\n'+
+						'float lightB = 0.0;\n'+
+						'const int f = 12;\n'+
+						'for(int i =0; i < f; i++) {\n'+
+							'vecRandomB = texture2D(sampler_textureRandom, noiseCoord+(vecRandomA[i].xy)).xy;\n'+
+							'vecRandomB = vecRandomA[i].xy*vecRandomB.xy;\n'+
+							'if(i < 6) {\n'+
+								'vecTextureCoordLight = vecRandomB*(2.0*depthShadows);\n'+
+							'} else if(i >= 6 && i < 12) {\n'+
+								'vecTextureCoordLight = vecRandomB*(2.0*depthShadows);\n'+
+							'}\n'+
+					
+							'BFragmentDepthMap = texture2D(sampler_textureFBNormals, pixelCoord.xy+vecTextureCoordLight.xy);\n'+
+							'float BFragmentDepthL = BFragmentDepthMap.a+0.00005;\n'+
+							
+							'ABDepthDifference = abs(AFragmentDepth-BFragmentDepthL);\n'+
+							'if((ABDepthDifference<0.005)) {\n'+
+								'BFragmentShadowLayer = texture2D(sampler_textureFBShadows, pixelCoord.xy+vecTextureCoordLight.xy);\n'+
+								'lightB += BFragmentShadowLayer.r;\n'+
+								'hl++;'+
+							'}\n'+
+						'}\n'+
+						'light = lightB/float(hl);\n'+
+						
+						/*'BFragmentShadowLayer = texture2D(sampler_textureFBShadows, pixelCoord.xy);\n'+
+						'light = BFragmentShadowLayer.r;\n'+*/
+					'}\n'+ 
+				'} else {\n'+
+					'light = 1.0;\n'+
+				'}\n'+
+				
+				
+				// SSAO STORMENGINEC
+				'float ssao = 1.0;\n'+ 
+				'if(uUseSSAO == 1) {\n'+
+					'vec4 AFragmentNormal = texture2D(sampler_textureFBNormals, pixelCoord.xy);\n'+
+					'vec3 normalA = vec3((AFragmentNormal.x*2.0)-1.0,(AFragmentNormal.y*2.0)-1.0,(AFragmentNormal.z*2.0)-1.0);'+ 
+					
+					'vec2 vecTextureCoordB;\n'+
+					
+					'int h = 0;\n'+
+					'float acum = 0.0;\n'+
+					'const int f = 36;\n'+
 					'for(int i =0; i < f; i++) {\n'+
 						'vecRandomB = texture2D(sampler_textureRandom, noiseCoord+(vecRandomA[i].xy)).xy;\n'+
 						'vecRandomB = vecRandomA[i].xy*vecRandomB.xy;\n'+
 						'if(i < 6) {\n'+
-							'vecTextureCoordLight = vecRandomB*(2.0*depthShadows);\n'+
+							'vecTextureCoordB = vecRandomB*(0.02*depthSSAO);\n'+
 						'} else if(i >= 6 && i < 12) {\n'+
-							'vecTextureCoordLight = vecRandomB*(2.0*depthShadows);\n'+
+							'vecTextureCoordB = vecRandomB*(0.02*depthSSAO);\n'+
+						'} else if(i >= 12 && i < 18) {\n'+
+							'vecTextureCoordB = vecRandomB*(2.0*depthSSAO);\n'+
+						'} else if(i >= 18 && i < 24) {\n'+
+							'vecTextureCoordB = vecRandomB*(6.0*depthSSAO);\n'+
+						'} else if(i >= 24 && i < 30) {\n'+
+							'vecTextureCoordB = vecRandomB*(10.0*depthSSAO);\n'+
+						'} else if(i >= 30 && i < 36) {\n'+
+							'vecTextureCoordB = vecRandomB*(15.0*depthSSAO);\n'+
 						'}\n'+
-				
-						'BFragmentDepthMap = texture2D(sampler_textureFBNormals, pixelCoord.xy+vecTextureCoordLight.xy);\n'+
-						'float BFragmentDepthL = BFragmentDepthMap.a+0.00005;\n'+
 						
-						'ABDepthDifference = abs(AFragmentDepth-BFragmentDepthL);\n'+
-						'if((ABDepthDifference<0.005)) {\n'+
-							'BFragmentShadowLayer = texture2D(sampler_textureFBShadows, pixelCoord.xy+vecTextureCoordLight.xy);\n'+
-							'lightB += BFragmentShadowLayer.r;\n'+
-							'hl++;'+
+						'BFragmentDepthMap = texture2D(sampler_textureFBNormals, pixelCoord.xy+(vecTextureCoordB.xy*AFragmentDepth*20.0));\n'+
+						'float BFragmentDepth = BFragmentDepthMap.a+0.00005;\n'+
+						'vec3 normalB = vec3((BFragmentDepthMap.x*2.0)-1.0,(BFragmentDepthMap.y*2.0)-1.0,(BFragmentDepthMap.z*2.0)-1.0);'+
+						
+						'ABDepthDifference = abs(AFragmentDepth-BFragmentDepth);\n'+
+						'if(ABDepthDifference < 0.02) {\n'+
+							'float ABNormalDifference = 1.0-abs(dot(normalA, normalB));\n'+
+							'float t = (1.0-(ABDepthDifference/0.02))*ABNormalDifference;\n'+
+							'float oAB = (ABNormalDifference+t)/uOcclusionLevel;\n'+
+							'acum += oAB;\n'+
+							'h++;\n'+
 						'}\n'+
 					'}\n'+
-					'light = lightB/float(hl);\n'+
-					
-					/*'BFragmentShadowLayer = texture2D(sampler_textureFBShadows, pixelCoord.xy);\n'+
-					'light = BFragmentShadowLayer.r;\n'+*/
-				'}\n'+ 
-			'} else {\n'+
-				'light = 1.0;\n'+
-			'}\n'+
-			
-			
-			// SSAO STORMENGINEC
-			'float ssao = 1.0;\n'+ 
-			'if(uUseSSAO == 1) {\n'+
-				'vec4 AFragmentNormal = texture2D(sampler_textureFBNormals, pixelCoord.xy);\n'+
-				'vec3 normalA = vec3((AFragmentNormal.x*2.0)-1.0,(AFragmentNormal.y*2.0)-1.0,(AFragmentNormal.z*2.0)-1.0);'+ 
-				
-				'vec2 vecTextureCoordB;\n'+
-				
-				'int h = 0;\n'+
-				'float acum = 0.0;\n'+
-				'const int f = 36;\n'+
-				'for(int i =0; i < f; i++) {\n'+
-					'vecRandomB = texture2D(sampler_textureRandom, noiseCoord+(vecRandomA[i].xy)).xy;\n'+
-					'vecRandomB = vecRandomA[i].xy*vecRandomB.xy;\n'+
-					'if(i < 6) {\n'+
-						'vecTextureCoordB = vecRandomB*(0.02*depthSSAO);\n'+
-					'} else if(i >= 6 && i < 12) {\n'+
-						'vecTextureCoordB = vecRandomB*(0.02*depthSSAO);\n'+
-					'} else if(i >= 12 && i < 18) {\n'+
-						'vecTextureCoordB = vecRandomB*(2.0*depthSSAO);\n'+
-					'} else if(i >= 18 && i < 24) {\n'+
-						'vecTextureCoordB = vecRandomB*(6.0*depthSSAO);\n'+
-					'} else if(i >= 24 && i < 30) {\n'+
-						'vecTextureCoordB = vecRandomB*(10.0*depthSSAO);\n'+
-					'} else if(i >= 30 && i < 36) {\n'+
-						'vecTextureCoordB = vecRandomB*(15.0*depthSSAO);\n'+
-					'}\n'+
-					
-					'BFragmentDepthMap = texture2D(sampler_textureFBNormals, pixelCoord.xy+(vecTextureCoordB.xy*AFragmentDepth*20.0));\n'+
-					'float BFragmentDepth = BFragmentDepthMap.a+0.00005;\n'+
-					'vec3 normalB = vec3((BFragmentDepthMap.x*2.0)-1.0,(BFragmentDepthMap.y*2.0)-1.0,(BFragmentDepthMap.z*2.0)-1.0);'+
-					
-					'ABDepthDifference = abs(AFragmentDepth-BFragmentDepth);\n'+
-					'if(ABDepthDifference < 0.02) {\n'+
-						'float ABNormalDifference = 1.0-abs(dot(normalA, normalB));\n'+
-						'float t = (1.0-(ABDepthDifference/0.02))*ABNormalDifference;\n'+
-						'float oAB = (ABNormalDifference+t)/uOcclusionLevel;\n'+
-						'acum += oAB;\n'+
-						'h++;\n'+
-					'}\n'+
+					'ssao = 1.0-(acum/float(h));\n'+
 				'}\n'+
-				'ssao = 1.0-(acum/float(h));\n'+
-			'}\n'+
-			
-			'vec4 textureColor;'+
-			'float roughness;'+
-			'float texUnit = vTextureUnit;'+      
-			'if(texUnit < 0.1 ) {';
-			for(var n = 0, fn = _this.MAX_TEXTURESKD; n < fn; n++) {
-			sourceFragment += ''+
-				'textureColor = texture2D(objectTexturesKd['+n+'], vec2(vTextureCoord.s, vTextureCoord.t));\n'+
-				'roughness = uRoughness['+n+'];\n';
-			if(n < _this.MAX_TEXTURESKD-1) sourceFragment += '} else if(texUnit < '+(n+1)+'.1) {';
-			}
-			sourceFragment += ''+
-			'} else {'+
-				'textureColor = texture2D(objectTexturesKd[0], vec2(vTextureCoord.s, vTextureCoord.t));\n'+ 
-				'roughness = 0.8928571428571429;\n'+
-			'}'+	
-			
-			
-			'vec3 weightAmbient = uAmbientColor;\n'+
-			'vec3 restWeight = vec3(1.0,1.0,1.0)-weightAmbient;\n'+
-			
-			'vec3 eyeDirection = normalize(vec3(u_cameraWMatrix * vec4(vWPos.xyz,1.0)));\n'+
-			
+				
+				'vec4 textureColor;'+
+				'float roughness;'+
+				'float texUnit = vTextureUnit;'+      
+				'if(texUnit < 0.1 ) {';
+				for(var n = 0, fn = _this.MAX_TEXTURESKD; n < fn; n++) {
+				sourceFragment += ''+
+					'textureColor = texture2D(objectTexturesKd['+n+'], vec2(vTextureCoord.s, vTextureCoord.t));\n'+
+					'roughness = uRoughness['+n+'];\n';
+				if(n < _this.MAX_TEXTURESKD-1) sourceFragment += '} else if(texUnit < '+(n+1)+'.1) {';
+				}
+				sourceFragment += ''+
+				'} else {'+
+					'textureColor = texture2D(objectTexturesKd[0], vec2(vTextureCoord.s, vTextureCoord.t));\n'+ 
+					'roughness = 0.8928571428571429;\n'+
+				'}'+	
+				
+				
+				'vec3 weightAmbient = uAmbientColor;\n'+
+				'vec3 restWeight = vec3(1.0,1.0,1.0)-weightAmbient;\n'+
+				
+				'vec3 eyeDirection = normalize(vec3(u_cameraWMatrix * vec4(vWPos.xyz,1.0)));\n'+
+				
 
-			'vec3 lightColor[10];\n'+
-			'vec3 lightDirection[10];\n'+
-			'lightColor[0] = uLightColor00;\n'+
-			'lightDirection[0] = uLightDirection00;\n'+
-			'lightColor[1] = uLightColor01;\n'+
-			'lightDirection[1] = uLightDirection01;\n'+
-			'lightColor[2] = uLightColor02;\n'+
-			'lightDirection[2] = uLightDirection02;\n'+
-			'lightColor[3] = uLightColor03;\n'+
-			'lightDirection[3] = uLightDirection03;\n'+
-			'lightColor[4] = uLightColor04;\n'+
-			'lightDirection[4] = uLightDirection04;\n'+
-			'lightColor[5] = uLightColor05;\n'+
-			'lightDirection[5] = uLightDirection05;\n'+
-			'lightColor[6] = uLightColor06;\n'+
-			'lightDirection[6] = uLightDirection06;\n'+
-			'lightColor[7] = uLightColor07;\n'+
-			'lightDirection[7] = uLightDirection07;\n'+
-			'lightColor[8] = uLightColor08;\n'+
-			'lightDirection[8] = uLightDirection08;\n'+
-			'lightColor[9] = uLightColor09;\n'+
-			'lightDirection[9] = uLightDirection09;\n'+
-			
-			
-			'vec3 acum = vec3(0.0,0.0,0.0);\n'+
-			'vec3 weights = vec3(0.0,0.0,0.0);\n'+ 
-			'float acumBump = 0.0;\n'+
-			'const int f = 10;\n'+
-			'int acumLights = 0;'+
-			'for(int i =0; i<f; i++) {\n'+		
+				'vec3 lightColor[10];\n'+
+				'vec3 lightDirection[10];\n'+
+				'lightColor[0] = uLightColor00;\n'+
+				'lightDirection[0] = uLightDirection00;\n'+
+				'lightColor[1] = uLightColor01;\n'+
+				'lightDirection[1] = uLightDirection01;\n'+
+				'lightColor[2] = uLightColor02;\n'+
+				'lightDirection[2] = uLightDirection02;\n'+
+				'lightColor[3] = uLightColor03;\n'+
+				'lightDirection[3] = uLightDirection03;\n'+
+				'lightColor[4] = uLightColor04;\n'+
+				'lightDirection[4] = uLightDirection04;\n'+
+				'lightColor[5] = uLightColor05;\n'+
+				'lightDirection[5] = uLightDirection05;\n'+
+				'lightColor[6] = uLightColor06;\n'+
+				'lightDirection[6] = uLightDirection06;\n'+
+				'lightColor[7] = uLightColor07;\n'+
+				'lightDirection[7] = uLightDirection07;\n'+
+				'lightColor[8] = uLightColor08;\n'+
+				'lightDirection[8] = uLightDirection08;\n'+
+				'lightColor[9] = uLightColor09;\n'+
+				'lightDirection[9] = uLightDirection09;\n'+
 				
-				'float weightBump = 0.0;\n'+
-				'if((lightColor[i].x != 0.0) || (lightColor[i].y != 0.0) || (lightColor[i].z != 0.0)) {\n'+
-					// difusa
-					'vec3 lightDirection = normalize(lightDirection[i] * -1.0);\n'+ // direccion hacia arriba
-					'float lightWeighting = max(dot(normalize(vWNMatrix.xyz), -lightDirection)*-1.0, 0.0);\n'+
-					'vec3 weightDiffuse = min(vec3(1.0,1.0,1.0),vec3(lightWeighting,lightWeighting,lightWeighting)+uIllumination);\n'+
+				
+				'vec3 acum = vec3(0.0,0.0,0.0);\n'+
+				'vec3 weights = vec3(0.0,0.0,0.0);\n'+ 
+				'float acumBump = 0.0;\n'+
+				'const int f = 10;\n'+
+				'int acumLights = 0;'+
+				'for(int i =0; i<f; i++) {\n'+		
 					
-					// especular
-					'vec3 reflectionDirection = reflect(-lightDirection, normalize(vWVNMatrix.xyz));\n'+
-					'float specularLightWeighting = pow(max(dot(reflectionDirection, eyeDirection*-1.0), 0.0), roughness);\n'+
-					'vec3 weightSpecular = uSpecularColor * specularLightWeighting;\n'+
+					'float weightBump = 0.0;\n'+
+					'if((lightColor[i].x != 0.0) || (lightColor[i].y != 0.0) || (lightColor[i].z != 0.0)) {\n'+
+						// difusa
+						'vec3 lightDirection = normalize(lightDirection[i] * -1.0);\n'+ // direccion hacia arriba
+						'float lightWeighting = max(dot(normalize(vWNMatrix.xyz), -lightDirection)*-1.0, 0.0);\n'+
+						'vec3 weightDiffuse = min(vec3(1.0,1.0,1.0),vec3(lightWeighting,lightWeighting,lightWeighting)+uIllumination);\n'+
+						
+						// especular
+						'vec3 reflectionDirection = reflect(-lightDirection, normalize(vWVNMatrix.xyz));\n'+
+						'float specularLightWeighting = pow(max(dot(reflectionDirection, eyeDirection*-1.0), 0.0), roughness);\n'+
+						'vec3 weightSpecular = uSpecularColor * specularLightWeighting;\n'+
+						
+						//'float restDiffuse = length(vec3(1.0,1.0,1.0)-(weightDiffuse));\n'+
+						'weights = min(vec3(1.0,1.0,1.0),(weightDiffuse + weightSpecular)) * min(1.0,(light+uIllumination));\n'+
+						
+						// bump
+						/*'if(uUseBump == 1) {\n'+
+							'vec4 textureColorBump = texture2D(sampler_bumpTexture, vec2(vTextureCoord.s, vTextureCoord.t));\n'+ 
+							'weightBump = dot(vec3(-1.0+(textureColorBump.g*2.0),textureColorBump.b,-(-1.0+(textureColorBump.r*2.0))), lightDirection);'+ 
+						'}\n'+*/
+						'acumLights++;'+
+					'}\n'+
 					
-					//'float restDiffuse = length(vec3(1.0,1.0,1.0)-(weightDiffuse));\n'+
-					'weights = min(vec3(1.0,1.0,1.0),(weightDiffuse + weightSpecular)) * min(1.0,(light+uIllumination));\n'+
 					
-					// bump
-					/*'if(uUseBump == 1) {\n'+
-						'vec4 textureColorBump = texture2D(sampler_bumpTexture, vec2(vTextureCoord.s, vTextureCoord.t));\n'+ 
-						'weightBump = dot(vec3(-1.0+(textureColorBump.g*2.0),textureColorBump.b,-(-1.0+(textureColorBump.r*2.0))), lightDirection);'+ 
-					'}\n'+*/
-					'acumLights++;'+
+					//'acumBump += min(vec3(1.0,1.0,1.0),weightBump);\n'+
 				'}\n'+
+				'acum = weights/float(acumLights);\n'+
+				// bump
+				'if(uUseBump == 1) {\n'+
+					//'acum *= acumBump;\n'+
+				'}\n'+
+				'vec4 asd = (textureColor.rgba-normalize(textureColor.rgba))*uIllumination;\n'+ 
+				'textureColor += asd;\n'+
+				
+				// reflection (http://www.clicktorelease.com/code/streetViewReflectionMapping/)
+				'float PI = 3.14159265358979323846264;\n'+ 
+				'float yaw = .5 - atan( vReflect.z, - vReflect.x ) / ( 2.0 * PI );\n'+ 
+				'float pitch = .5 - asin( vReflect.y ) / PI;\n'+ 
+				'vec4 reflectionColor = texture2D(sampler_reflectionMap, vec2(yaw, pitch));\n'+
+				'float reflectionWeight = smoothstep(0.0, 0.8928571428571429, roughness);\n'+
 				
 				
-				//'acumBump += min(vec3(1.0,1.0,1.0),weightBump);\n'+
-			'}\n'+
-			'acum = weights/float(acumLights);\n'+
-			// bump
-			'if(uUseBump == 1) {\n'+
-				//'acum *= acumBump;\n'+
-			'}\n'+
-			'vec4 asd = (textureColor.rgba-normalize(textureColor.rgba))*uIllumination;\n'+ 
-			'textureColor += asd;\n'+
+				'acum = ((textureColor.rgb*reflectionWeight)+(reflectionColor.rgb*(1.0-reflectionWeight)))* min(vec3(1.0,1.0,1.0), acum + weightAmbient);\n'+  	
+				
+				'if(uUseSSAO == 1) acum *= min(1.0,ssao+uIllumination);\n'+			
+				
+				'if(uSelectedNode == 0) {\n'+
+					'if(uUseTextureFBGIVoxel == 1) {'+
+						'if(light == 1.0) gl_FragColor = vec4(acum*(0.75+(length(GIVoxelsShadow)/4.0)), textureColor.a);\n'+ 
+						'else gl_FragColor = vec4(((GIVoxelsShadow*acum)+(acum*GIVoxelsShadow)), textureColor.a);\n'+ // blend type SOURCE:DST_COLOR DEST:SRC_COLOR
+					'} else gl_FragColor = vec4(acum, textureColor.a);\n'+
+				'} else {\n'+
+					'gl_FragColor = vec4( min(1.0,acum.x+0.6), acum.y, acum.z, textureColor.a);\n'+
+				'}\n'+
+				//'if(uUseTextureFBGIVoxel == 1) gl_FragColor = vec4(GIVoxelsShadow,1.0);\n'+ 
+				//'if(uUseTextureFBGIVoxel == 1) gl_FragColor = textureFBGIVoxel;\n'+ 
+			'}'+
+		'\n#else\n'+
+			'uniform mat4 u_cameraWMatrix;\n'+
+			'uniform mat4 u_nodeWMatrixInverse;\n'+
 			
-			// reflection (http://www.clicktorelease.com/code/streetViewReflectionMapping/)
-			'float PI = 3.14159265358979323846264;\n'+ 
-			'float yaw = .5 - atan( vReflect.z, - vReflect.x ) / ( 2.0 * PI );\n'+ 
-			'float pitch = .5 - asin( vReflect.y ) / PI;\n'+ 
-			'vec4 reflectionColor = texture2D(sampler_reflectionMap, vec2(yaw, pitch));\n'+
-			'float reflectionWeight = smoothstep(0.0, 0.8928571428571429, roughness);\n'+
+			'uniform float uFar;\n'+
+			'uniform int uShadows;\n'+
+			'uniform vec3 uSpecularColor;\n'+
+				
+			'uniform vec3 uAmbientColor;\n'+
+			
+			'uniform vec3 uLightColor00;\n'+ // 00 sun
+			'uniform vec3 uLightDirection00;\n'+
+			'uniform vec3 uLightColor01;\n'+
+			'uniform vec3 uLightDirection01;\n'+
+			'uniform vec3 uLightColor02;\n'+
+			'uniform vec3 uLightDirection02;\n'+
+			'uniform vec3 uLightColor03;\n'+
+			'uniform vec3 uLightDirection03;\n'+
+			'uniform vec3 uLightColor04;\n'+
+			'uniform vec3 uLightDirection04;\n'+
+			'uniform vec3 uLightColor05;\n'+
+			'uniform vec3 uLightDirection05;\n'+
+			'uniform vec3 uLightColor06;\n'+
+			'uniform vec3 uLightDirection06;\n'+
+			'uniform vec3 uLightColor07;\n'+
+			'uniform vec3 uLightDirection07;\n'+
+			'uniform vec3 uLightColor08;\n'+
+			'uniform vec3 uLightDirection08;\n'+
+			'uniform vec3 uLightColor09;\n'+
+			'uniform vec3 uLightDirection09;\n'+
 			
 			
-			'acum = ((textureColor.rgb*reflectionWeight)+(reflectionColor.rgb*(1.0-reflectionWeight)))* min(vec3(1.0,1.0,1.0), acum + weightAmbient);\n'+  	
+			'uniform sampler2D sampler_textureFBNormals;\n'+
+			'uniform sampler2D sampler_textureRandom;\n'+
+			'uniform sampler2D sampler_textureFBShadows;\n'+
+			'uniform sampler2D sampler_reflectionMap;\n'+ 
+			'uniform sampler2D sampler_textureFBGIVoxel;\n'+
+			//'uniform sampler2D sampler_kdTexture;\n'+
+			//'uniform sampler2D sampler_bumpTexture;\n'+
+			'uniform sampler2D objectTexturesKd['+_this.MAX_TEXTURESKD+'];\n\n\n'+
+			'uniform float uRoughness['+_this.MAX_TEXTURESKD+'];\n'+
+			'uniform float uIllumination;\n'+
 			
-			'if(uUseSSAO == 1) acum *= min(1.0,ssao+uIllumination);\n'+			
+			'uniform float uOcclusionLevel;\n'+
+			'uniform float uViewportWidth;\n'+
+			'uniform float uViewportHeight;\n'+
 			
-			'if(uSelectedNode == 0) {\n'+
-				'if(uUseTextureFBGIVoxel == 1) {'+
-					'if(light == 1.0) gl_FragColor = vec4(acum*(0.75+(length(GIVoxelsShadow)/4.0)), textureColor.a);\n'+ 
-					'else gl_FragColor = vec4(((GIVoxelsShadow*acum)+(acum*GIVoxelsShadow)), textureColor.a);\n'+ // blend type SOURCE:DST_COLOR DEST:SRC_COLOR
-				'} else gl_FragColor = vec4(acum, textureColor.a);\n'+
-			'} else {\n'+
-				'gl_FragColor = vec4( min(1.0,acum.x+0.6), acum.y, acum.z, textureColor.a);\n'+
-			'}\n'+
-			//'if(uUseTextureFBGIVoxel == 1) gl_FragColor = vec4(GIVoxelsShadow,1.0);\n'+ 
-			//'if(uUseTextureFBGIVoxel == 1) gl_FragColor = textureFBGIVoxel;\n'+ 
-		'}';
+			'uniform int uUseTextureFBGIVoxel;\n'+
+			'uniform int uUseBump;\n'+
+			'uniform int uUseSSAO;\n'+
+			'uniform int uUseShadows;\n'+
+			'uniform int uSelectedNode;\n'+
+			
+			'varying vec3 vTextureCoord;\n'+
+			'varying float vTextureUnit;\n'+
+			'varying vec4 vposition;\n'+
+			'varying vec4 vpositionViewportRegion;\n'+
+			'varying vec4 vWNMatrix;\n'+
+			'varying vec4 vWVNMatrix;\n'+
+			'varying vec4 vWPos;\n'+
+			'varying vec3 vReflect;\n'+
+			
+			'float unpack (vec4 colour) {'+
+				'const vec4 bitShifts = vec4(1.0,'+
+								'1.0 / 255.0,'+
+								'1.0 / (255.0 * 255.0),'+
+								'1.0 / (255.0 * 255.0 * 255.0));'+
+				'return dot(colour, bitShifts);'+
+			'}'+
+			'float LinearDepthConstant = 1.0/uFar;'+
+			
+			'void main(void) {\n'+   
+				'float light = 1.0;\n'+  
+				
+				'vec4 textureColor;'+
+				'float roughness;'+
+				'float texUnit = vTextureUnit;'+      
+				'if(texUnit < 0.1 ) {';
+				for(var n = 0, fn = _this.MAX_TEXTURESKD; n < fn; n++) {
+				sourceFragment += ''+
+					'textureColor = texture2D(objectTexturesKd['+n+'], vec2(vTextureCoord.s, vTextureCoord.t));\n'+
+					'roughness = uRoughness['+n+'];\n';
+				if(n < _this.MAX_TEXTURESKD-1) sourceFragment += '} else if(texUnit < '+(n+1)+'.1) {';
+				}
+				sourceFragment += ''+
+				'} else {'+
+					'textureColor = texture2D(objectTexturesKd[0], vec2(vTextureCoord.s, vTextureCoord.t));\n'+ 
+					'roughness = 0.8928571428571429;\n'+
+				'}'+	
+				
+				
+				'vec3 weightAmbient = uAmbientColor;\n'+
+				'vec3 restWeight = vec3(1.0,1.0,1.0)-weightAmbient;\n'+
+				
+				'vec3 eyeDirection = normalize(vec3(u_cameraWMatrix * vec4(vWPos.xyz,1.0)));\n'+
+				
+
+				'vec3 lightColor[10];\n'+
+				'vec3 lightDirection[10];\n'+
+				'lightColor[0] = uLightColor00;\n'+
+				'lightDirection[0] = uLightDirection00;\n'+
+				'lightColor[1] = uLightColor01;\n'+
+				'lightDirection[1] = uLightDirection01;\n'+
+				'lightColor[2] = uLightColor02;\n'+
+				'lightDirection[2] = uLightDirection02;\n'+
+				'lightColor[3] = uLightColor03;\n'+
+				'lightDirection[3] = uLightDirection03;\n'+
+				'lightColor[4] = uLightColor04;\n'+
+				'lightDirection[4] = uLightDirection04;\n'+
+				'lightColor[5] = uLightColor05;\n'+
+				'lightDirection[5] = uLightDirection05;\n'+
+				'lightColor[6] = uLightColor06;\n'+
+				'lightDirection[6] = uLightDirection06;\n'+
+				'lightColor[7] = uLightColor07;\n'+
+				'lightDirection[7] = uLightDirection07;\n'+
+				'lightColor[8] = uLightColor08;\n'+
+				'lightDirection[8] = uLightDirection08;\n'+
+				'lightColor[9] = uLightColor09;\n'+
+				'lightDirection[9] = uLightDirection09;\n'+
+				
+				
+				'vec3 acum = vec3(0.0,0.0,0.0);\n'+
+				'vec3 weights = vec3(0.0,0.0,0.0);\n'+ 
+				'float acumBump = 0.0;\n'+
+				'const int f = 10;\n'+
+				'int acumLights = 0;'+
+				'for(int i =0; i<f; i++) {\n'+		
+					
+					'float weightBump = 0.0;\n'+
+					'if((lightColor[i].x != 0.0) || (lightColor[i].y != 0.0) || (lightColor[i].z != 0.0)) {\n'+
+						// difusa
+						'vec3 lightDirection = normalize(lightDirection[i] * -1.0);\n'+ // direccion hacia arriba
+						'float lightWeighting = max(dot(normalize(vWNMatrix.xyz), -lightDirection)*-1.0, 0.0);\n'+
+						'vec3 weightDiffuse = min(vec3(1.0,1.0,1.0),vec3(lightWeighting,lightWeighting,lightWeighting)+uIllumination);\n'+
+						
+						// especular
+						'vec3 reflectionDirection = reflect(-lightDirection, normalize(vWVNMatrix.xyz));\n'+
+						'float specularLightWeighting = pow(max(dot(reflectionDirection, eyeDirection*-1.0), 0.0), roughness);\n'+
+						'vec3 weightSpecular = uSpecularColor * specularLightWeighting;\n'+
+						
+						//'float restDiffuse = length(vec3(1.0,1.0,1.0)-(weightDiffuse));\n'+
+						'weights = min(vec3(1.0,1.0,1.0),(weightDiffuse + weightSpecular)) * min(1.0,(light+uIllumination));\n'+
+						
+						// bump
+						/*'if(uUseBump == 1) {\n'+
+							'vec4 textureColorBump = texture2D(sampler_bumpTexture, vec2(vTextureCoord.s, vTextureCoord.t));\n'+ 
+							'weightBump = dot(vec3(-1.0+(textureColorBump.g*2.0),textureColorBump.b,-(-1.0+(textureColorBump.r*2.0))), lightDirection);'+ 
+						'}\n'+*/
+						'acumLights++;'+
+					'}\n'+
+					
+					
+					//'acumBump += min(vec3(1.0,1.0,1.0),weightBump);\n'+
+				'}\n'+
+				'acum = weights/float(acumLights);\n'+
+				// bump
+				'if(uUseBump == 1) {\n'+
+					//'acum *= acumBump;\n'+
+				'}\n'+
+				'vec4 asd = (textureColor.rgba-normalize(textureColor.rgba))*uIllumination;\n'+ 
+				'textureColor += asd;\n'+
+				
+				// reflection (http://www.clicktorelease.com/code/streetViewReflectionMapping/)
+				'float PI = 3.14159265358979323846264;\n'+ 
+				'float yaw = .5 - atan( vReflect.z, - vReflect.x ) / ( 2.0 * PI );\n'+ 
+				'float pitch = .5 - asin( vReflect.y ) / PI;\n'+ 
+				'vec4 reflectionColor = texture2D(sampler_reflectionMap, vec2(yaw, pitch));\n'+
+				'float reflectionWeight = smoothstep(0.0, 0.8928571428571429, roughness);\n'+
+				
+				
+				'acum = ((textureColor.rgb*reflectionWeight)+(reflectionColor.rgb*(1.0-reflectionWeight)))* min(vec3(1.0,1.0,1.0), acum + weightAmbient);\n'+  	
+				
+				//'if(uUseSSAO == 1) acum *= min(1.0,ssao+uIllumination);\n'+			
+				
+				'gl_FragColor = vec4(acum, textureColor.a);\n'+
+
+				//'gl_FragColor = textureColor;\n'+
+			'}'+
+		'\n#endif\n';
 	_this.shader_Scene = _this.gl.createProgram();
 	_this.createShader(_this.gl, "SCENE", sourceVertex, sourceFragment, _this.shader_Scene, _this.pointers_Scene);
 };

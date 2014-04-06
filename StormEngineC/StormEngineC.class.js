@@ -338,7 +338,10 @@ StormEngineC.prototype.loadManager = function() {
 	this.stormGLContext.addToStackShaders('LINES', this.stormGLContext.initShader_Lines);
 	this.stormGLContext.addToStackShaders('DOF', this.stormGLContext.initShader_DOF);
 	this.stormGLContext.addToStackShaders('PICK', this.stormGLContext.initShader_Pick);
-	this.stormGLContext.addToStackShaders('OVERLAY', this.stormGLContext.initShader_Overlay);
+	if(this.stormGLContext.gl.getExtension('OES_texture_float'))
+		this.stormGLContext.addToStackShaders('OVERLAY', this.stormGLContext.initShader_Overlay);
+	
+	
 	
 	
 	this.clgl = new WebCLGL(this.stormGLContext.gl);
