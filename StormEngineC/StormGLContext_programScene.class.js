@@ -54,8 +54,10 @@ StormGLContext.prototype.initShader_Scene = function() {
 			'vWVNMatrix = u_nodeWVMatrixInverse * vec4(aVertexNormal, 1.0);\n'+
 			'vReflect = normalize( reflect(normalize(vWPos.xyz - u_cameraPos.xyz), normalize(vWVNMatrix.xyz)) );\n'+
 		'}';
-	var sourceFragment = _this.precision+
-		'#ifdef GL_FRAGMENT_PRECISION_HIGH\n'+
+		
+	var sourceFragment;
+	if(!_this._typeMobile) { 
+		sourceFragment = _this.precision+ 
 			'uniform mat4 u_cameraWMatrix;\n'+
 			'uniform mat4 u_nodeWMatrixInverse;\n'+
 			
@@ -387,8 +389,9 @@ StormGLContext.prototype.initShader_Scene = function() {
 				'}\n'+
 				//'if(uUseTextureFBGIVoxel == 1) gl_FragColor = vec4(GIVoxelsShadow,1.0);\n'+ 
 				//'if(uUseTextureFBGIVoxel == 1) gl_FragColor = textureFBGIVoxel;\n'+ 
-			'}'+
-		'\n#else\n'+
+			'}';
+	} else {
+		sourceFragment = _this.precision+
 			'uniform mat4 u_cameraWMatrix;\n'+
 			'uniform mat4 u_nodeWMatrixInverse;\n'+
 			
@@ -564,9 +567,9 @@ StormGLContext.prototype.initShader_Scene = function() {
 				
 				'gl_FragColor = vec4(acum, textureColor.a);\n'+
 
-				//'gl_FragColor = textureColor;\n'+
-			'}'+
-		'\n#endif\n';
+				'gl_FragColor = textureColor;\n'+
+			'}';
+	}
 	_this.shader_Scene = _this.gl.createProgram();
 	_this.createShader(_this.gl, "SCENE", sourceVertex, sourceFragment, _this.shader_Scene, _this.pointers_Scene);
 };

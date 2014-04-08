@@ -215,6 +215,7 @@ window.requestAnimFrame = (function(){
 				window.setTimeout(callback, 1000 / 60);
 			};
 })();
+ 
 /**
 * Engine contructor
 * @class
@@ -326,21 +327,27 @@ StormEngineC.prototype.loadManager = function() {
 	
 	
 	// INIT SHADERS
-	this.stormGLContext.addToStackShaders('CTX2D', this.stormGLContext.initShader_Ctx2D);
-	this.update2DContext();
+	if(!this.stormGLContext._typeMobile) {
+		console.log('PC');
+		this.stormGLContext.addToStackShaders('CTX2D', this.stormGLContext.initShader_Ctx2D);
+		this.update2DContext();
+		// normals
+		this.stormGLContext.addToStackShaders('LIGHT DEPTH', this.stormGLContext.initShader_LightDepth);
+		this.stormGLContext.addToStackShaders('LIGHT DEPTH PARTICLES', this.stormGLContext.initShader_LightDepthParticles);
+			this.stormGLContext.addToStackShaders('SHADOWS', this.stormGLContext.initShader_Shadows);
+		// bg
+	} else console.log('MOBILE');
+	
 	this.stormGLContext.addToStackShaders('NORMALS', this.stormGLContext.initShader_Normals);
-	this.stormGLContext.addToStackShaders('LIGHT DEPTH', this.stormGLContext.initShader_LightDepth);
-	this.stormGLContext.addToStackShaders('LIGHT DEPTH PARTICLES', this.stormGLContext.initShader_LightDepthParticles);
-		this.stormGLContext.addToStackShaders('SHADOWS', this.stormGLContext.initShader_Shadows);
 	this.stormGLContext.addToStackShaders('BG', this.stormGLContext.initShader_BG);
 	this.stormGLContext.addToStackShaders('SCENE', this.stormGLContext.initShader_Scene);
-	this.stormGLContext.addToStackShaders('PARTICLE AUX', this.stormGLContext.initShader_ParticlesAux);
-	this.stormGLContext.addToStackShaders('LINES', this.stormGLContext.initShader_Lines);
-	this.stormGLContext.addToStackShaders('DOF', this.stormGLContext.initShader_DOF);
-	this.stormGLContext.addToStackShaders('PICK', this.stormGLContext.initShader_Pick);
-	if(this.stormGLContext.gl.getExtension('OES_texture_float'))
+	if(!this.stormGLContext._typeMobile) {
+		this.stormGLContext.addToStackShaders('PARTICLE AUX', this.stormGLContext.initShader_ParticlesAux);
+		this.stormGLContext.addToStackShaders('LINES', this.stormGLContext.initShader_Lines);
+		this.stormGLContext.addToStackShaders('DOF', this.stormGLContext.initShader_DOF);
+		this.stormGLContext.addToStackShaders('PICK', this.stormGLContext.initShader_Pick);
 		this.stormGLContext.addToStackShaders('OVERLAY', this.stormGLContext.initShader_Overlay);
-	
+	}
 	
 	
 	
