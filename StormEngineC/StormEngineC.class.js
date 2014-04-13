@@ -345,8 +345,11 @@ StormEngineC.prototype.loadManager = function() {
 		this.stormGLContext.addToStackShaders('PARTICLE AUX', this.stormGLContext.initShader_ParticlesAux);
 		this.stormGLContext.addToStackShaders('LINES', this.stormGLContext.initShader_Lines);
 		this.stormGLContext.addToStackShaders('DOF', this.stormGLContext.initShader_DOF);
-		this.stormGLContext.addToStackShaders('PICK', this.stormGLContext.initShader_Pick);
-		this.stormGLContext.addToStackShaders('OVERLAY', this.stormGLContext.initShader_Overlay);
+	} 
+	this.stormGLContext.addToStackShaders('PICK', this.stormGLContext.initShader_Pick);
+	this.stormGLContext.addToStackShaders('OVERLAY', this.stormGLContext.initShader_Overlay);  
+	if(!this.stormGLContext._typeMobile) {
+		
 	}
 	
 	
@@ -848,10 +851,17 @@ StormEngineC.prototype.mousedown = function(e) {
 	stormEngineC.isMouseDown = true;
 	if(stormEngineC.draggingNodeNow === false) {
 		if(e.targetTouches != undefined) {
-			console.log(e.targetTouches)
+			//console.log(e.targetTouches)
 			e = e.targetTouches[0];
 			e.button = 0;
 			stormEngineC.identifierTouchMoveOwner = e.identifier;
+			
+			stormEngineC.oldMousePosClickX = stormEngineC.mousePosX;
+			stormEngineC.oldMousePosClickY = stormEngineC.mousePosY; 
+			stormEngineC.mousePosX = (e.clientX - stormEngineC.divPositionX);
+			stormEngineC.mousePosY = (e.clientY - stormEngineC.divPositionY);
+			stormEngineC.mouseOldPosX = stormEngineC.mousePosX;   
+			stormEngineC.mouseOldPosY = stormEngineC.mousePosY;  
 		}
 	}
 	//e.preventDefault(); // si se habilita no funciona sobre un iframe
@@ -900,7 +910,8 @@ StormEngineC.prototype.mousemove = function(e) {
 	if(e.targetTouches != undefined) {
 		for(var n = 0, fn = e.targetTouches.length; n < fn; n++) {
 			if(e.targetTouches[n].identifier == stormEngineC.identifierTouchMoveOwner) {
-				e = e.targetTouches[0];
+				//console.log(e.targetTouches)
+				e = e.targetTouches[n];
 				e.button = 0;
 				isMoveOwner = true;
 			}
@@ -911,6 +922,7 @@ StormEngineC.prototype.mousemove = function(e) {
 		stormEngineC.mouseOldPosY = stormEngineC.mousePosY;
 		stormEngineC.mousePosX = (e.clientX - stormEngineC.divPositionX);
 		stormEngineC.mousePosY = (e.clientY - stormEngineC.divPositionY);
+		//console.log(stormEngineC.mousePosX+' '+stormEngineC.mousePosY);
 		
 		if(stormEngineC.draggingNodeNow !== false) { 
 			var selOver = stormEngineC.stormGLContext.transformOverlaySelected;
