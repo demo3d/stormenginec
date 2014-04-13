@@ -2306,5 +2306,5 @@ StormEngineC.prototype.getWebGLCam = function() {
 var stormEngineC = new StormEngineC();
 var $SEC = stormEngineC;
 
-}
+} else alert('Your browser does not support WebGL. Download <a href="http://www.mozilla.com/">Firefox</a> o <a href="http://www.google.es/chrome">Chrome</a>');
 

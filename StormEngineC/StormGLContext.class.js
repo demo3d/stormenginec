@@ -97,10 +97,7 @@ StormGLContext = function(stormCanvasObject, loadScene) {
  */
 StormGLContext.prototype.initContext = function() {
 	// WEBGL CONTEXT
-	if(!(this.gl = this.utils.getWebGLContextFromCanvas(this.stormCanvasObject))) { 
-		alert('Your browser does not support WebGL. Download <a href="http://www.mozilla.com/">Firefox</a> o <a href="http://www.google.es/chrome">Chrome</a>');
-		return false;
-	} 
+	if(!(this.gl = this.utils.getWebGLContextFromCanvas(this.stormCanvasObject))) return false;
 	
 	this._typeMobile;
 	var highPrecisionSupport = this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.HIGH_FLOAT);
