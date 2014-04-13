@@ -295,7 +295,7 @@ StormEngineC = function() {
 * 	@param {HTMLCanvasElement|String} jsonIn.target Name of the atribute ID of the canvas or one element HTMLCanvasElement.
 * 	@param {Function} jsonIn.callback Function fired at every frame
 * 	@param {Bool} [jsonIn.editMode=true] Edit mode
-* 	@param {Int} [jsonIn.resizable=2] 0:No resizable, 1:resizable(maintain the aspect ratio), 2:resizable
+* 	@param {Int} [jsonIn.resizable=2] 0:No resizable, 1:resizable(maintain the aspect ratio), 2:resizable, 3:screen autoadjust(maintain the aspect ratio)
 * 	@param {Bool} [jsonIn.enableRender=true] Enable render
 */
 StormEngineC.prototype.createWebGL = function(jsonIn) {
@@ -324,8 +324,7 @@ StormEngineC.prototype.createWebGL = function(jsonIn) {
 /** @private */
 StormEngineC.prototype.loadManager = function() {
 	this.stormGLContext = new StormGLContext(this.target);
-	
-	
+		
 	// INIT SHADERS
 	if(!this.stormGLContext._typeMobile) {
 		console.log('PC');
@@ -808,6 +807,31 @@ StormEngineC.prototype.loadManager = function() {
 							resize:function(event,ui) {
 								stormEngineC.setWebGLResize(ui.size.width, ui.size.height);  
 							}});
+	}
+	
+	if(this.resizable == 3) { // screen autoadjust(maintain the aspect ratio)
+		this.resizable = 0; // Set no-resizable and we make autoadjust
+		
+		var width = this.target.getAttribute('width');
+		var height = this.target.getAttribute('height');
+		function gcd (width, height) { // greatest common divisor (GCD) 
+			return (height == 0) ? width : gcd(height, width%height);
+		}
+		
+		var widthScreen = document.documentElement.clientWidth;
+		var heightScreen = document.documentElement.clientHeight;
+		
+		var r = gcd(width, height);
+		var aspectW = (width/r); // 800/r = 4
+		var aspectH = (height/r); // 600/r = 3
+		
+		// scale style 
+		var newCanvasWidth = ((heightScreen/aspectH)*aspectW);
+		var newCanvasHeight = ((widthScreen/aspectW)*aspectH);
+		if(newCanvasHeight <= heightScreen)
+			this.setWebGLResize(widthScreen, newCanvasHeight);
+		else
+			this.setWebGLResize(newCanvasWidth, heightScreen);
 	}
 };
 /**
