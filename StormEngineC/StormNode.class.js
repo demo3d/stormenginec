@@ -41,6 +41,7 @@ StormNode = function() {
 	this.systemVisible = true; 
 	this.shadows = true;
 	this.timeImpulse = 0;
+	this.timeTorque = 0;
 	
 	this.MPOS = $M16([1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0]);
 	this.MROTX = $M16([1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0]);
@@ -1701,6 +1702,37 @@ StormNode.prototype.applyImpulseNow = function(jsonIn) {
 		
 		var _this = this;
 		this.intervalImpulse = setTimeout(function(){_this.applyImpulseNow(jsonIn);},50);
+	}
+};
+
+/**
+* Apply torque.
+* @type Void
+* @param {Object} jsonIn
+*	 @param {StormV3} jsonIn.vector Direction and force.
+*	 @param {Int} [jsonIn.milis=1000] Miliseconds
+* @requires Enable collisions with setCollision function
+*/
+StormNode.prototype.bodyApplyTorque = function(jsonIn) {
+	if(this.body != undefined) {
+		this.timeTorque = new Date().getTime();
+		clearTimeout(this.intervalTorque);
+		
+		this.body.setActive();
+		this.applyTorqueNow(jsonIn);
+	}
+};
+
+/** @private */
+StormNode.prototype.applyTorqueNow = function(jsonIn) {
+	var milis = (jsonIn.milis != undefined) ? jsonIn.milis : 1000;
+	var timeNow = new Date().getTime();
+	if((timeNow-this.timeTorque) < milis) {
+
+		this.body._torque = new Vector3D(jsonIn.vector.e[0], jsonIn.vector.e[1], jsonIn.vector.e[2], 0); 
+		
+		var _this = this;
+		this.intervalTorque = setTimeout(function(){_this.applyTorqueNow(jsonIn);},50);
 	}
 };
 
