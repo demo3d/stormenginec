@@ -249,7 +249,8 @@ WebCLGL.prototype.enqueueWriteBuffer = function(buffer, arr, flip) {
 					else if(arr instanceof Float32Array) 
 						this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._floatSupport, arr);
 					else 
-						this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._floatSupport, new Float32Array(arr));
+						if(this._floatSupport == this.gl.FLOAT) this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._floatSupport, new Float32Array(arr));
+						else this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._floatSupport, new Uint8Array(arr));
 				} else {
 					this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._floatSupport, new Uint8Array(arr));
 				}

@@ -326,30 +326,33 @@ StormEngineC.prototype.loadManager = function() {
 	this.stormGLContext = new StormGLContext(this.target);
 		
 	// INIT SHADERS
-	if(!this.stormGLContext._typeMobile) {
-		console.log('PC');
+	if(!this.stormGLContext._typeMobile && this.stormGLContext._floatSupport) console.log('PC');
+	else console.log('MOBILE');
+	
+	if(!this.stormGLContext._typeMobile && this.stormGLContext._floatSupport) {
 		this.stormGLContext.addToStackShaders('CTX2D', this.stormGLContext.initShader_Ctx2D);
 		this.update2DContext();
-		// normals
+	}
+	
+	this.stormGLContext.addToStackShaders('NORMALS', this.stormGLContext.initShader_Normals);
+	if(this.stormGLContext._floatSupport) {
 		this.stormGLContext.addToStackShaders('LIGHT DEPTH', this.stormGLContext.initShader_LightDepth);
 		this.stormGLContext.addToStackShaders('LIGHT DEPTH PARTICLES', this.stormGLContext.initShader_LightDepthParticles);
 			this.stormGLContext.addToStackShaders('SHADOWS', this.stormGLContext.initShader_Shadows);
-		// bg
-	} else console.log('MOBILE');
+	}
 	
-	this.stormGLContext.addToStackShaders('NORMALS', this.stormGLContext.initShader_Normals);
 	this.stormGLContext.addToStackShaders('BG', this.stormGLContext.initShader_BG);
 	this.stormGLContext.addToStackShaders('SCENE', this.stormGLContext.initShader_Scene);
-	if(!this.stormGLContext._typeMobile) {
+	
+	if(!this.stormGLContext._typeMobile && this.stormGLContext._floatSupport) {
 		this.stormGLContext.addToStackShaders('PARTICLE AUX', this.stormGLContext.initShader_ParticlesAux);
 		this.stormGLContext.addToStackShaders('LINES', this.stormGLContext.initShader_Lines);
 		this.stormGLContext.addToStackShaders('DOF', this.stormGLContext.initShader_DOF);
 	} 
+	
 	this.stormGLContext.addToStackShaders('PICK', this.stormGLContext.initShader_Pick);
 	this.stormGLContext.addToStackShaders('OVERLAY', this.stormGLContext.initShader_Overlay);  
-	if(!this.stormGLContext._typeMobile) {
-		
-	}
+
 	
 	
 	

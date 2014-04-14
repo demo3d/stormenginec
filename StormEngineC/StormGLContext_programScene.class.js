@@ -463,8 +463,106 @@ StormGLContext.prototype.initShader_Scene = function() {
 			'float LinearDepthConstant = 1.0/uFar;'+
 			
 			'void main(void) {\n'+   
-				'float light = 1.0;\n'+  
+				'vec2 vecRandomA[36];\n'+
+				'vecRandomA[0] = vec2(0.009, 1.0);\n'+
+				'vecRandomA[1] = vec2(0.87, 0.492);\n'+
+				'vecRandomA[2] = vec2(0.862, -0.508);\n'+
+				'vecRandomA[3] = vec2(-0.009, -1.0);\n'+
+				'vecRandomA[4] = vec2(-0.87, -0.492);\n'+
+				'vecRandomA[5] = vec2(-0.862, 0.508);\n'+
 				
+				'vecRandomA[6] = vec2(0.508, 0.862);\n'+
+				'vecRandomA[7] = vec2(1.0, -0.009);\n'+
+				'vecRandomA[8] = vec2(0.492, -0.87);\n'+
+				'vecRandomA[9] = vec2(-0.508, -0.862);\n'+
+				'vecRandomA[10] = vec2(-1.0, 0.009);\n'+
+				'vecRandomA[11] = vec2(-0.492, 0.87);\n'+
+				
+				'vecRandomA[12] = vec2(0.182, 0.983);\n'+
+				'vecRandomA[13] = vec2(0.943, 0.334);\n'+
+				'vecRandomA[14] = vec2(0.76, -0.649);\n'+
+				'vecRandomA[15] = vec2(-0.182, -0.983);\n'+
+				'vecRandomA[16] = vec2(-0.943, -0.334);\n'+
+				'vecRandomA[17] = vec2(-0.76, 0.649);\n'+
+
+				'vecRandomA[18] = vec2(0.35, 0.937);\n'+
+				'vecRandomA[19] = vec2(0.986, 0.165);\n'+
+				'vecRandomA[20] = vec2(0.636, -0.772);\n'+
+				'vecRandomA[21] = vec2(-0.35, -0.937);\n'+
+				'vecRandomA[22] = vec2(-0.986, -0.165);\n'+
+				'vecRandomA[23] = vec2(-0.636, 0.772);\n'+
+				
+				'vecRandomA[24] = vec2(0.649, 0.76);\n'+
+				'vecRandomA[25] = vec2(0.983, -0.182);\n'+
+				'vecRandomA[26] = vec2(0.334, -0.943);\n'+
+				'vecRandomA[27] = vec2(-0.649, -0.76);\n'+
+				'vecRandomA[28] = vec2(-0.983, 0.182);\n'+
+				'vecRandomA[29] = vec2(-0.334, 0.943);\n'+
+				
+				'vecRandomA[30] = vec2(0.772, 0.636);\n'+
+				'vecRandomA[31] = vec2(0.937, -0.35);\n'+
+				'vecRandomA[32] = vec2(0.165, -0.986);\n'+
+				'vecRandomA[33] = vec2(-0.772, -0.636);\n'+
+				'vecRandomA[34] = vec2(-0.937, 0.35);\n'+
+				'vecRandomA[35] = vec2(-0.165, 0.986);\n'+
+				  
+				'vec3 pixelCoord = vpositionViewportRegion.xyz / vpositionViewportRegion.w;'+
+				'float light = 1.0;\n';
+				if(_this._floatSupport) {
+					sourceFragment += ''+
+					'vec4 textureFBCameraDepth = texture2D(sampler_textureFBNormals, pixelCoord.xy);\n'+
+					'float AFragmentDepth = textureFBCameraDepth.a;\n'+
+					
+					'float depthShadows = (1.0-pixelCoord.z)*0.2;\n'+
+					'float depthSSAO = (1.0-pixelCoord.z);\n'+ 
+					
+					
+					'vec4 BFragmentDepthMap;\n'+
+					'float ABDepthDifference;\n'+
+					'vec4 AFragmentShadowLayer;\n'+
+					'vec4 BFragmentShadowLayer;\n'+
+					
+					'vec2 noiseCoord = vec2(pixelCoord.x*(uViewportWidth/32.0),pixelCoord.y*(uViewportHeight/32.0));\n'+ // 32px map noise
+					
+					'vec2 vecRandomB;\n'+
+				
+					// BLUR SHADOW MAP
+					'if(uShadows == 1) {\n'+
+						'if(uUseShadows == 1) {\n'+   
+						
+							'vec2 vecTextureCoordLight;\n'+
+							'int hl = 0;\n'+
+							'float lightB = 0.0;\n'+
+							'const int f = 12;\n'+
+							'for(int i =0; i < f; i++) {\n'+
+								'vecRandomB = texture2D(sampler_textureRandom, noiseCoord+(vecRandomA[i].xy)).xy;\n'+
+								'vecRandomB = vecRandomA[i].xy*vecRandomB.xy;\n'+
+								'if(i < 6) {\n'+
+									'vecTextureCoordLight = vecRandomB*(2.0*depthShadows);\n'+
+								'} else if(i >= 6 && i < 12) {\n'+
+									'vecTextureCoordLight = vecRandomB*(2.0*depthShadows);\n'+
+								'}\n'+
+						
+								'BFragmentDepthMap = texture2D(sampler_textureFBNormals, pixelCoord.xy+vecTextureCoordLight.xy);\n'+
+								'float BFragmentDepthL = BFragmentDepthMap.a+0.00005;\n'+
+								
+								'ABDepthDifference = abs(AFragmentDepth-BFragmentDepthL);\n'+
+								'if((ABDepthDifference<0.005)) {\n'+
+									'BFragmentShadowLayer = texture2D(sampler_textureFBShadows, pixelCoord.xy+vecTextureCoordLight.xy);\n'+
+									'lightB += BFragmentShadowLayer.r;\n'+
+									'hl++;'+
+								'}\n'+
+							'}\n'+
+							'light = lightB/float(hl);\n'+
+							
+							/*'BFragmentShadowLayer = texture2D(sampler_textureFBShadows, pixelCoord.xy);\n'+
+							'light = BFragmentShadowLayer.r;\n'+*/
+						'}\n'+ 
+					'} else {\n'+
+						'light = 1.0;\n'+
+					'}\n';
+				}
+				sourceFragment += ''+
 				'vec4 textureColor;'+
 				'float roughness;'+
 				'float texUnit = vTextureUnit;'+      
@@ -565,9 +663,11 @@ StormGLContext.prototype.initShader_Scene = function() {
 				
 				//'if(uUseSSAO == 1) acum *= min(1.0,ssao+uIllumination);\n'+			
 				
-				'gl_FragColor = vec4(acum, textureColor.a);\n'+
+				'gl_FragColor = vec4(acum, textureColor.a);\n';
 
-				'gl_FragColor = textureColor;\n'+
+				if(!_this._floatSupport) sourceFragment += 'gl_FragColor = textureColor;\n';
+				
+				sourceFragment += ''+
 			'}';
 	}
 	_this.shader_Scene = _this.gl.createProgram();

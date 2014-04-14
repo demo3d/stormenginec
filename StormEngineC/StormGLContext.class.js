@@ -99,18 +99,23 @@ StormGLContext.prototype.initContext = function() {
 	// WEBGL CONTEXT
 	if(!(this.gl = this.utils.getWebGLContextFromCanvas(this.stormCanvasObject))) return false;
 	
-	this._typeMobile;
-	var highPrecisionSupport = this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.HIGH_FLOAT);
+	this._typeMobile = this.isMobile();
+	//console.log(this._typeMobile);
+	
 	this._floatSupport = (this.gl.getExtension('OES_texture_float') && this.gl.getExtension('OES_texture_float_linear')) ? true : false;
-	if(this._floatSupport && highPrecisionSupport.precision != 0 && !this.isMobile()) {  
-		this._typeMobile = false;
-		this.precision = 'precision highp float;\n\nprecision highp int;\n\n';
+	if(this._floatSupport)
 		this._supportFormat = this.gl.FLOAT;
-	} else {
-		this._typeMobile = true; 
-		this.precision = 'precision lowp float;\n\nprecision lowp int;\n\n';
+	else
 		this._supportFormat = this.gl.UNSIGNED_BYTE;
-	}
+	//console.log(this._floatSupport);
+	
+	var highPrecisionSupport = this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.HIGH_FLOAT);
+	if(highPrecisionSupport.precision != 0) 
+		this.precision = 'precision highp float;\n\nprecision highp int;\n\n';
+	else
+		this.precision = 'precision lowp float;\n\nprecision lowp int;\n\n';
+	//console.log(highPrecisionSupport);
+	
 	
 	// SCREEN QUAD BUFFER
 	var mesh = new StormMesh();
