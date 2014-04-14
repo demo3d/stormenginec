@@ -771,6 +771,18 @@ StormEngineC.prototype.loadManager = function() {
 	window.addEventListener("resize", stormEngineC.updateDivPosition, false);
 	window.addEventListener("orientationchange", stormEngineC.updateDivPosition, false); 
 	
+	this.orientation = {alpha:0.0, beta:0.0, gamma:0.0}
+	if(navigator.accelerometer) { // DEVICEORIENTATION FOR APACHE CORDOVA XYZ
+		navigator.accelerometer.watchAcceleration(stormEngineC.handleOrientationEvent, console.log('NO ACCELEROMETER FOR CORDOVA'), {frequency: 3000});	
+	}
+	if(window.DeviceOrientationEvent) { // DEVICEORIENTATION FOR DOM gamma beta alpha
+		window.addEventListener("MozOrientation", stormEngineC.handleOrientationEvent, true);
+		window.addEventListener("deviceorientation", stormEngineC.handleOrientationEvent, true);
+	} 	
+	if(window.DeviceMotionEvent) { // DEVICEMOTION FOR DOM event.accelerationIncludingGravity.x event.accelerationIncludingGravity.y event.accelerationIncludingGravity.z
+		window.addEventListener("devicemotion", stormEngineC.handleOrientationEvent, true);
+	}
+	
 	document.body.addEventListener("keydown", function(e) { 
 		//e.preventDefault();   
 		stormEngineC.setZeroSamplesGIVoxels();
@@ -836,6 +848,40 @@ StormEngineC.prototype.loadManager = function() {
 		else
 			this.setWebGLResize(newCanvasWidth, heightScreen);
 	}
+};
+/** @private */
+StormEngineC.prototype.handleOrientationEvent = function(event) {
+	var gamma = event.x || event.gamma || event.accelerationIncludingGravity.x*-1000.0;// gamma is the left-to-right tilt in degrees, where right is positive
+	var beta = event.y || event.beta || event.accelerationIncludingGravity.y*1000.0;// beta is the front-to-back tilt in degrees, where front is positive
+	var alpha = event.z || event.alpha || event.accelerationIncludingGravity.z*1000.0;// alpha is the compass direction the device is facing in degrees
+	stormEngineC.orientation.gamma = gamma;
+	stormEngineC.orientation.beta = beta;
+	stormEngineC.orientation.alpha = alpha;
+	
+	/*console.log('tiltLR GAMMA X: '+stormEngineC.orientation.gamma+'<br />'+
+				'tiltFB BETA Y: '+stormEngineC.orientation.beta+'<br />'+
+				'dir ALPHA Z: '+stormEngineC.orientation.alpha+'<br />');*/
+};
+/**
+* Get the device orientation tiltLeftRight (GAMMA X)
+* @returns {Float} Float tiltLR.
+*/
+StormEngineC.prototype.getDeviceGamma = function() {
+	return this.orientation.gamma;
+};
+/**
+* Get the device orientation tiltFrontBack (BETA Y)
+* @returns {Float} Float tiltFB.
+*/
+StormEngineC.prototype.getDeviceBeta = function() {
+	return this.orientation.beta;
+};
+/**
+* Get the device orientation dir (ALPHA Z)
+* @returns {Float} Float dir.
+*/
+StormEngineC.prototype.getDeviceAlpha = function() {
+	return this.orientation.alpha;
 };
 /**
 * Set the tranform
