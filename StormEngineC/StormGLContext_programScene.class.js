@@ -484,27 +484,6 @@ StormGLContext.prototype.initShader_Scene = function() {
 				'vecRandomA[15] = vec2(-0.182, -0.983);\n'+
 				'vecRandomA[16] = vec2(-0.943, -0.334);\n'+
 				'vecRandomA[17] = vec2(-0.76, 0.649);\n'+
-
-				'vecRandomA[18] = vec2(0.35, 0.937);\n'+
-				'vecRandomA[19] = vec2(0.986, 0.165);\n'+
-				'vecRandomA[20] = vec2(0.636, -0.772);\n'+
-				'vecRandomA[21] = vec2(-0.35, -0.937);\n'+
-				'vecRandomA[22] = vec2(-0.986, -0.165);\n'+
-				'vecRandomA[23] = vec2(-0.636, 0.772);\n'+
-				
-				'vecRandomA[24] = vec2(0.649, 0.76);\n'+
-				'vecRandomA[25] = vec2(0.983, -0.182);\n'+
-				'vecRandomA[26] = vec2(0.334, -0.943);\n'+
-				'vecRandomA[27] = vec2(-0.649, -0.76);\n'+
-				'vecRandomA[28] = vec2(-0.983, 0.182);\n'+
-				'vecRandomA[29] = vec2(-0.334, 0.943);\n'+
-				
-				'vecRandomA[30] = vec2(0.772, 0.636);\n'+
-				'vecRandomA[31] = vec2(0.937, -0.35);\n'+
-				'vecRandomA[32] = vec2(0.165, -0.986);\n'+
-				'vecRandomA[33] = vec2(-0.772, -0.636);\n'+
-				'vecRandomA[34] = vec2(-0.937, 0.35);\n'+
-				'vecRandomA[35] = vec2(-0.165, 0.986);\n'+
 				  
 				'vec3 pixelCoord = vpositionViewportRegion.xyz / vpositionViewportRegion.w;'+
 				'float light = 1.0;\n';
@@ -560,6 +539,44 @@ StormGLContext.prototype.initShader_Scene = function() {
 						'}\n'+ 
 					'} else {\n'+
 						'light = 1.0;\n'+
+					'}\n'+
+					
+					// SSAO STORMENGINEC
+					'float ssao = 1.0;\n'+ 
+					'if(uUseSSAO == 1) {\n'+
+						'vec4 AFragmentNormal = texture2D(sampler_textureFBNormals, pixelCoord.xy);\n'+
+						'vec3 normalA = vec3((AFragmentNormal.x*2.0)-1.0,(AFragmentNormal.y*2.0)-1.0,(AFragmentNormal.z*2.0)-1.0);'+ 
+						
+						'vec2 vecTextureCoordB;\n'+
+						
+						'int h = 0;\n'+
+						'float acum = 0.0;\n'+
+						'const int f = 18;\n'+
+						'for(int i =0; i < f; i++) {\n'+
+							'vecRandomB = texture2D(sampler_textureRandom, noiseCoord+(vecRandomA[i].xy)).xy;\n'+
+							'vecRandomB = vecRandomA[i].xy*vecRandomB.xy;\n'+
+							'if(i < 6) {\n'+
+								'vecTextureCoordB = vecRandomB*(0.5*depthSSAO);\n'+
+							'} else if(i >= 6 && i < 12) {\n'+
+								'vecTextureCoordB = vecRandomB*(3.0*depthSSAO);\n'+
+							'} else if(i >= 12 && i < 18) {\n'+
+								'vecTextureCoordB = vecRandomB*(15.0*depthSSAO);\n'+
+							'}\n'+
+							
+							'BFragmentDepthMap = texture2D(sampler_textureFBNormals, pixelCoord.xy+(vecTextureCoordB.xy*AFragmentDepth*20.0));\n'+
+							'float BFragmentDepth = BFragmentDepthMap.a+0.00005;\n'+
+							'vec3 normalB = vec3((BFragmentDepthMap.x*2.0)-1.0,(BFragmentDepthMap.y*2.0)-1.0,(BFragmentDepthMap.z*2.0)-1.0);'+
+							
+							'ABDepthDifference = abs(AFragmentDepth-BFragmentDepth);\n'+
+							'if(ABDepthDifference < 0.02) {\n'+
+								'float ABNormalDifference = 1.0-abs(dot(normalA, normalB));\n'+
+								'float t = (1.0-(ABDepthDifference/0.02))*ABNormalDifference;\n'+
+								'float oAB = (ABNormalDifference+t)/uOcclusionLevel;\n'+
+								'acum += oAB;\n'+
+								'h++;\n'+
+							'}\n'+
+						'}\n'+
+						'ssao = 1.0-(acum/float(h));\n'+
 					'}\n';
 				}
 				sourceFragment += ''+
@@ -659,13 +676,11 @@ StormGLContext.prototype.initShader_Scene = function() {
 				'float reflectionWeight = smoothstep(0.0, 0.8928571428571429, roughness);\n'+
 				
 				
-				'acum = ((textureColor.rgb*reflectionWeight)+(reflectionColor.rgb*(1.0-reflectionWeight)))* min(vec3(1.0,1.0,1.0), acum + weightAmbient);\n'+  	
+				'acum = ((textureColor.rgb*reflectionWeight)+(reflectionColor.rgb*(1.0-reflectionWeight)))* min(vec3(1.0,1.0,1.0), acum + weightAmbient);\n';
 				
-				//'if(uUseSSAO == 1) acum *= min(1.0,ssao+uIllumination);\n'+			
-				
-				'gl_FragColor = vec4(acum, textureColor.a);\n';
-
-				if(!_this._floatSupport) sourceFragment += 'gl_FragColor = textureColor;\n';
+				if(_this._floatSupport) sourceFragment += 'if(uUseSSAO == 1) acum *= min(1.0,ssao+uIllumination);\n';			
+				if(_this._floatSupport) sourceFragment += 'gl_FragColor = vec4(acum, textureColor.a);\n';
+				else sourceFragment += 'gl_FragColor = textureColor;\n';
 				
 				sourceFragment += ''+
 			'}';
