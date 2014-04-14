@@ -48,8 +48,12 @@ WebCLGL = function(webglcontext) {
 		}
 	} else this.gl = webglcontext; 
 	
-	this._floatSupport = (this.gl.getExtension('OES_texture_float') && this.gl.getExtension('OES_texture_float_linear')) ? this.gl.FLOAT : this.gl.UNSIGNED_BYTE;
-	
+	this._floatSupport = (this.gl.getExtension('OES_texture_float')) ? true : false;
+	if(this._floatSupport)
+		this._supportFormat = this.gl.FLOAT;
+	else
+		this._supportFormat = this.gl.UNSIGNED_BYTE;
+		
 	var highPrecisionSupport = this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.HIGH_FLOAT);
 	this.precision = (highPrecisionSupport.precision != 0) ? 'precision highp float;\n\nprecision highp int;\n\n' : 'precision lowp float;\n\nprecision lowp int;\n\n';
 	
@@ -240,23 +244,22 @@ WebCLGL.prototype.enqueueWriteBuffer = function(buffer, arr, flip) {
 		this.gl.bindTexture(this.gl.TEXTURE_2D, buffer.textureData);
 		if(arr instanceof HTMLImageElement)  {
 			buffer.inData = this.utils.getUint8ArrayFromHTMLImageElement(arr);   
-			this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this._floatSupport, arr);
+			this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this._supportFormat, arr);
 		} else {
 			if(buffer.type == 'FLOAT4') {
-				if(this.gl.getExtension('OES_texture_float') || this.gl.getExtension('OES_texture_float_linear')) {
+				if(this._floatSupport) {
 					if(arr instanceof Uint8Array)  
-						this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._floatSupport, new Float32Array(arr));
+						this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._supportFormat, new Float32Array(arr));
 					else if(arr instanceof Float32Array) 
-						this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._floatSupport, arr);
+						this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._supportFormat, arr);
 					else 
-						if(this._floatSupport == this.gl.FLOAT) this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._floatSupport, new Float32Array(arr));
-						else this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._floatSupport, new Uint8Array(arr));
+						this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._supportFormat, new Float32Array(arr));
 				} else {
-					this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._floatSupport, new Uint8Array(arr));
+					this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._supportFormat, new Uint8Array(arr));
 				}
 			} else if(buffer.type == 'FLOAT') {
 				var arrayTemp;
-				if(this.gl.getExtension('OES_texture_float') || this.gl.getExtension('OES_texture_float_linear'))
+				if(this._floatSupport)
 					arrayTemp = new Float32Array(arr.length*4); 
 				else 
 					arrayTemp = new Uint8Array(arr.length*4);
@@ -270,7 +273,7 @@ WebCLGL.prototype.enqueueWriteBuffer = function(buffer, arr, flip) {
 				}
 				arr = arrayTemp;
 				
-				this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._floatSupport, arr); 
+				this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, this._supportFormat, arr); 
 			}
 		}
 	}
@@ -317,11 +320,11 @@ WebCLGL.prototype.enqueueNDRangeKernel = function(kernel, buffer) {
 		
 		this.gl.enableVertexAttribArray(kernel.attr_VertexPos);
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer_QUAD);
-		this.gl.vertexAttribPointer(kernel.attr_VertexPos, 3, this._floatSupport, false, 0, 0);
+		this.gl.vertexAttribPointer(kernel.attr_VertexPos, 3, this._supportFormat, false, 0, 0);
 		
 		this.gl.enableVertexAttribArray(kernel.attr_TextureCoord);
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureBuffer_QUAD);
-		this.gl.vertexAttribPointer(kernel.attr_TextureCoord, 3, this._floatSupport, false, 0, 0);
+		this.gl.vertexAttribPointer(kernel.attr_TextureCoord, 3, this._supportFormat, false, 0, 0);
 		
 		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer_QUAD);
 		this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);
@@ -348,11 +351,11 @@ WebCLGL.prototype.enqueueReadBuffer = function(buffer) {
 	
 	this.gl.enableVertexAttribArray(this.attr_VertexPos);
 	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer_QUAD);
-	this.gl.vertexAttribPointer(this.attr_VertexPos, 3, this._floatSupport, false, 0, 0);
+	this.gl.vertexAttribPointer(this.attr_VertexPos, 3, this._supportFormat, false, 0, 0);
 	
 	this.gl.enableVertexAttribArray(this.attr_TextureCoord);
 	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureBuffer_QUAD);
-	this.gl.vertexAttribPointer(this.attr_TextureCoord, 3, this._floatSupport, false, 0, 0);
+	this.gl.vertexAttribPointer(this.attr_TextureCoord, 3, this._supportFormat, false, 0, 0);
 	
 	this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer_QUAD);
 	this.gl.drawElements(this.gl.TRIANGLES, 6, this.gl.UNSIGNED_SHORT, 0);

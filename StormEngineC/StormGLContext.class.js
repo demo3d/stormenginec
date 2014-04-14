@@ -102,7 +102,7 @@ StormGLContext.prototype.initContext = function() {
 	this._typeMobile = this.isMobile();
 	//console.log(this._typeMobile);
 	
-	this._floatSupport = (this.gl.getExtension('OES_texture_float') && this.gl.getExtension('OES_texture_float_linear')) ? true : false;
+	this._floatSupport = (this.gl.getExtension('OES_texture_float')) ? true : false;
 	if(this._floatSupport)
 		this._supportFormat = this.gl.FLOAT;
 	else

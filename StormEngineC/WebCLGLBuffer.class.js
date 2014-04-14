@@ -8,8 +8,19 @@
 */
 WebCLGLBuffer = function(gl, length, linear) { 
 	this.gl = gl;
-	this._floatSupport = (this.gl.getExtension('OES_texture_float') && this.gl.getExtension('OES_texture_float_linear')) ? this.gl.FLOAT : this.gl.UNSIGNED_BYTE;
+	 
+	this._floatSupport = (this.gl.getExtension('OES_texture_float')) ? true : false;
+	if(this._floatSupport)
+		this._supportFormat = this.gl.FLOAT;
+	else
+		this._supportFormat = this.gl.UNSIGNED_BYTE;
 	
+	this._floatLinearSupport = (this.gl.getExtension('OES_texture_float_linear')) ? true : false;
+	if(this._floatLinearSupport)
+		this._supportFormat = this.gl.FLOAT;
+	else
+		this._supportFormat = this.gl.UNSIGNED_BYTE;
+		
 	if(length instanceof Object) { 
 		this.W = length[0];
 		this.H = length[1];
@@ -27,13 +38,13 @@ WebCLGLBuffer = function(gl, length, linear) {
 	
 	this.textureData = this.gl.createTexture();
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureData);  
-	if(this.linear != undefined && this.linear) {
-		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.W,this.H, 0, this.gl.RGBA, this._floatSupport, null); 
+	if(this.linear != undefined && this.linear && this._floatLinearSupport) {
+		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.W,this.H, 0, this.gl.RGBA, this._supportFormat, null); 
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_NEAREST); 
 		this.gl.generateMipmap(this.gl.TEXTURE_2D);
 	} else {
-		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.W,this.H, 0, this.gl.RGBA, this._floatSupport, null);
+		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.W,this.H, 0, this.gl.RGBA, this._supportFormat, null);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
