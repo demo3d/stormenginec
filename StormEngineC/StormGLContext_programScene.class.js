@@ -487,7 +487,7 @@ StormGLContext.prototype.initShader_Scene = function() {
 				  
 				'vec3 pixelCoord = vpositionViewportRegion.xyz / vpositionViewportRegion.w;'+
 				'float light = 1.0;\n';
-				if(_this._floatSupport) {
+				if(_this._supportFormat == _this.gl.FLOAT) {
 					sourceFragment += ''+
 					'vec4 textureFBCameraDepth = texture2D(sampler_textureFBNormals, pixelCoord.xy);\n'+
 					'float AFragmentDepth = textureFBCameraDepth.a;\n'+
@@ -678,9 +678,10 @@ StormGLContext.prototype.initShader_Scene = function() {
 				
 				'acum = ((textureColor.rgb*reflectionWeight)+(reflectionColor.rgb*(1.0-reflectionWeight)))* min(vec3(1.0,1.0,1.0), acum + weightAmbient);\n';
 				
-				if(_this._floatSupport) sourceFragment += 'if(uUseSSAO == 1) acum *= min(1.0,ssao+uIllumination);\n';			
-				if(_this._floatSupport) sourceFragment += 'gl_FragColor = vec4(acum, textureColor.a);\n';
-				else sourceFragment += 'gl_FragColor = textureColor;\n';
+				if(_this._supportFormat == _this.gl.FLOAT) 
+					sourceFragment += 	'if(uUseSSAO == 1) acum *= min(1.0,ssao+uIllumination);\n'+			
+										'gl_FragColor = vec4(acum, textureColor.a);\n';
+				else sourceFragment += 'gl_FragColor = textureColor;\n'; 
 				
 				sourceFragment += ''+
 			'}';

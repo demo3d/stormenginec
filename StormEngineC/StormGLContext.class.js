@@ -100,21 +100,28 @@ StormGLContext.prototype.initContext = function() {
 	if(!(this.gl = this.utils.getWebGLContextFromCanvas(this.stormCanvasObject))) return false;
 	
 	this._typeMobile = this.isMobile();
-	//console.log(this._typeMobile);
+	console.log('_typeMobile '+this._typeMobile);
 	
 	this._floatSupport = (this.gl.getExtension('OES_texture_float')) ? true : false;
 	if(this._floatSupport)
 		this._supportFormat = this.gl.FLOAT;
 	else
 		this._supportFormat = this.gl.UNSIGNED_BYTE;
-	//console.log(this._floatSupport);
+	console.log('_floatSupport '+this._floatSupport);
+	
+	this._floatLinearSupport = (this.gl.getExtension('OES_texture_float_linear')) ? true : false;
+	if(this._floatLinearSupport) 
+		this._supportFormat = this.gl.FLOAT;
+	else
+		this._supportFormat = this.gl.UNSIGNED_BYTE;
+	console.log('_floatLinearSupport '+this._floatLinearSupport); 
 	
 	var highPrecisionSupport = this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.HIGH_FLOAT);
 	if(highPrecisionSupport.precision != 0) 
 		this.precision = 'precision highp float;\n\nprecision highp int;\n\n';
 	else
 		this.precision = 'precision lowp float;\n\nprecision lowp int;\n\n';
-	//console.log(highPrecisionSupport);
+	console.log('highPrecisionSupport '+highPrecisionSupport.precision);
 	
 	
 	// SCREEN QUAD BUFFER

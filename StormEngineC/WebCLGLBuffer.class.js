@@ -15,11 +15,11 @@ WebCLGLBuffer = function(gl, length, linear) {
 	else
 		this._supportFormat = this.gl.UNSIGNED_BYTE;
 	
-	this._floatLinearSupport = (this.gl.getExtension('OES_texture_float_linear')) ? true : false;
+	this._floatLinearSupport = (this.gl.getExtension('OES_texture_float_linear')) ? true : false; 
 	if(this._floatLinearSupport)
 		this._supportFormat = this.gl.FLOAT;
 	else
-		this._supportFormat = this.gl.UNSIGNED_BYTE;
+		this._supportFormat = this.gl.UNSIGNED_BYTE; 
 		
 	if(length instanceof Object) { 
 		this.W = length[0];
@@ -38,7 +38,7 @@ WebCLGLBuffer = function(gl, length, linear) {
 	
 	this.textureData = this.gl.createTexture();
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureData);  
-	if(this.linear != undefined && this.linear && this._floatLinearSupport) {
+	if(this.linear != undefined && this.linear) {
 		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.W,this.H, 0, this.gl.RGBA, this._supportFormat, null); 
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
 		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR_MIPMAP_NEAREST); 
