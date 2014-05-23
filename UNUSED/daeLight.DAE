@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="utf-8"?>
+<COLLADA xmlns="http://www.collada.org/2005/11/COLLADASchema" version="1.4.1">
+  <asset>
+    <contributor>
+      <author>MEGADEV</author>
+      <authoring_tool>OpenCOLLADA for 3ds Max;  Version: 1.3.1;  Revision: 847M;  Platform: x64;  Configuration: Release_Max2012_static</authoring_tool>
+    </contributor>
+    <created>2013-01-11T13:05:13</created>
+    <modified>2013-01-11T13:05:13</modified>
+    <unit name="meter" meter="1"/>
+    <up_axis>Z_UP</up_axis>
+  </asset>
+  <library_effects>
+    <effect id="ColorEffectR176G26B26">
+      <profile_COMMON>
+        <technique sid="common">
+          <phong>
+            <ambient>
+              <color>0.6901961 0.1019608 0.1019608 1</color>
+            </ambient>
+            <diffuse>
+              <color>0.6901961 0.1019608 0.1019608 1</color>
+            </diffuse>
+            <specular>
+              <color>1 1 1 1</color>
+            </specular>
+            <shininess>
+              <float>10</float>
+            </shininess>
+            <reflective>
+              <color>0 0 0 1</color>
+            </reflective>
+            <transparent>
+              <color>1 1 1 1</color>
+            </transparent>
+            <transparency>
+              <float>1</float>
+            </transparency>
+          </phong>
+        </technique>
+      </profile_COMMON>
+    </effect>
+  </library_effects>
+  <library_materials>
+    <material id="ColorEffectR176G26B26-material" name="ColorEffectR176G26B26-material">
+      <instance_effect url="#ColorEffectR176G26B26"/>
+    </material>
+  </library_materials>
+  <library_geometries>
+    <geometry id="geom-Box001" name="Box001">
+      <mesh>
+        <source id="geom-Box001-positions">
+          <float_array id="geom-Box001-positions-array" count="24">-0.77 -0.845 0 0.77 -0.845 0 -0.77 0.845 0 0.77 0.845 0 -0.77 -0.845 0.32 0.77 -0.845 0.32 -0.77 0.845 0.32 0.77 0.845 0.32</float_array>
+          <technique_common>
+            <accessor source="#geom-Box001-positions-array" count="8" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="geom-Box001-normals">
+          <float_array id="geom-Box001-normals-array" count="72">0 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0 1 0 0 1 0 0 1 0 0 1 0 -1 0 0 -1 0 0 -1 0 0 -1 0 1 0 0 1 0 0 1 0 0 1 0 0 0 1 0 0 1 0 0 1 0 0 1 0 -1 0 0 -1 0 0 -1 0 0 -1 0 0</float_array>
+          <technique_common>
+            <accessor source="#geom-Box001-normals-array" count="24" stride="3">
+              <param name="X" type="float"/>
+              <param name="Y" type="float"/>
+              <param name="Z" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <source id="geom-Box001-map1">
+          <float_array id="geom-Box001-map1-array" count="36">0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0 0 0 0 1 0 0 0 1 0 1 1 0</float_array>
+          <technique_common>
+            <accessor source="#geom-Box001-map1-array" count="12" stride="3">
+              <param name="S" type="float"/>
+              <param name="T" type="float"/>
+              <param name="P" type="float"/>
+            </accessor>
+          </technique_common>
+        </source>
+        <vertices id="geom-Box001-vertices">
+          <input semantic="POSITION" source="#geom-Box001-positions"/>
+        </vertices>
+        <triangles material="ColorMaterial" count="12">
+          <input semantic="VERTEX" source="#geom-Box001-vertices" offset="0"/>
+          <input semantic="NORMAL" source="#geom-Box001-normals" offset="1"/>
+          <input semantic="TEXCOORD" source="#geom-Box001-map1" offset="2" set="0"/>
+          <p>0 0 9 2 1 11 3 2 10 3 2 10 1 3 8 0 0 9 4 4 8 5 5 9 7 6 11 7 6 11 6 7 10 4 4 8 0 8 4 1 9 5 5 10 7 5 10 7 4 11 6 0 8 4 1 12 0 3 13 1 7 14 3 7 14 3 5 15 2 1 12 0 3 16 4 2 17 5 6 18 7 6 18 7 7 19 6 3 16 4 2 20 0 0 21 1 4 22 3 4 22 3 6 23 2 2 20 0</p>
+        </triangles>
+      </mesh>
+      <extra>
+        <technique profile="OpenCOLLADA3dsMax">
+          <max_box>
+            <generateuvs>1</generateuvs>
+            <height>0.32</height>
+            <heightsegments>1</heightsegments>
+            <length>1.69</length>
+            <lengthsegments>1</lengthsegments>
+            <width>1.54</width>
+            <widthsegments>1</widthsegments>
+          </max_box>
+        </technique>
+      </extra>
+    </geometry>
+  </library_geometries>
+  <library_lights>
+    <light id="EnvironmentAmbientLight" name="EnvironmentAmbientLight">
+      <technique_common>
+        <ambient>
+          <color>0 0 0</color>
+        </ambient>
+      </technique_common>
+    </light>
+    <light id="Omni001-light" name="Omni001">
+      <technique_common>
+        <point>
+          <color>0.4705883 0.7294118 0.4588236</color>
+          <constant_attenuation>1</constant_attenuation>
+          <linear_attenuation>0</linear_attenuation>
+          <quadratic_attenuation>0</quadratic_attenuation>
+        </point>
+      </technique_common>
+      <extra>
+        <technique profile="OpenCOLLADA3dsMax">
+          <max_light>
+            <aspect_ratio>80</aspect_ratio>
+            <atmosphere_on>1</atmosphere_on>
+            <atmosphere_opacity>0</atmosphere_opacity>
+            <attenuation_far_end>0</attenuation_far_end>
+            <attenuation_near_end>40</attenuation_near_end>
+            <attenuation_near_start>200</attenuation_near_start>
+            <contrast>0</contrast>
+            <decay_falloff>1</decay_falloff>
+            <decay_type>0</decay_type>
+            <diffuse_soften>0</diffuse_soften>
+            <falloff>40</falloff>
+            <hotspot_beam>0</hotspot_beam>
+            <multiplier>1</multiplier>
+            <shadow_color>1</shadow_color>
+            <use_far_attenuation>0</use_far_attenuation>
+            <use_near_attenuation>0</use_near_attenuation>
+          </max_light>
+        </technique>
+      </extra>
+    </light>
+  </library_lights>
+  <library_visual_scenes>
+    <visual_scene id="MaxScene">
+      <node name="EnvironmentAmbientLight">
+        <instance_light url="#EnvironmentAmbientLight"/>
+      </node>
+      <node id="node-Box001" name="Box001">
+        <matrix>1 0 0 0 0 1 0 0 0 0 1 0 0 0 0 1</matrix>
+        <instance_geometry url="#geom-Box001">
+          <bind_material>
+            <technique_common>
+              <instance_material symbol="ColorMaterial" target="#ColorEffectR176G26B26-material"/>
+            </technique_common>
+          </bind_material>
+        </instance_geometry>
+      </node>
+      <node id="node-Omni001" name="Omni001">
+        <matrix sid="matrix">1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 1.470947 0 0 0 1</matrix>
+        <instance_light url="#Omni001-light"/>
+      </node>
+    </visual_scene>
+  </library_visual_scenes>
+  <library_animations>
+    <animation>
+      <source id="node-Omni001_matrix-input">
+        <float_array id="node-Omni001_matrix-input-array" count="101">0 0.03333334 0.06666667 0.1 0.1333333 0.1666667 0.2 0.2333333 0.2666667 0.3 0.3333333 0.3666667 0.4 0.4333333 0.4666667 0.5 0.5333334 0.5666667 0.6 0.6333333 0.6666667 0.7 0.7333333 0.7666667 0.8 0.8333333 0.8666667 0.9 0.9333333 0.9666666 1 1.033333 1.066667 1.1 1.133333 1.166667 1.2 1.233333 1.266667 1.3 1.333333 1.366667 1.4 1.433333 1.466667 1.5 1.533333 1.566667 1.6 1.633333 1.666667 1.7 1.733333 1.766667 1.8 1.833333 1.866667 1.9 1.933333 1.966667 2 2.033333 2.066667 2.1 2.133333 2.166667 2.2 2.233333 2.266667 2.3 2.333333 2.366667 2.4 2.433333 2.466667 2.5 2.533333 2.566667 2.6 2.633333 2.666667 2.7 2.733333 2.766667 2.8 2.833333 2.866667 2.9 2.933333 2.966667 3 3.033333 3.066667 3.1 3.133333 3.166667 3.2 3.233333 3.266667 3.3 3.333333</float_array>
+        <technique_common>
+          <accessor source="#node-Omni001_matrix-input-array" count="101" stride="1">
+            <param name="TIME" type="float"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="node-Omni001_matrix-output">
+        <float_array id="node-Omni001_matrix-output-array" count="1616">1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 1.470947 0 0 0 1 1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 1.457626 0 0 0 1 1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 1.420328 0 0 0 1 1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 1.363049 0 0 0 1 1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 1.289784 0 0 0 1 1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 1.204531 0 0 0 1 1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 1.111286 0 0 0 1 1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 1.014044 0 0 0 1 1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 0.9168022 0 0 0 1 1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 0.8235567 0 0 0 1 1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 0.7383037 0 0 0 1 1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 0.6650393 0 0 0 1 1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 0.6077598 0 0 0 1 1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 0.5704616 0 0 0 1 1 0 0 -0.8950195 0 1 0 -0.9003906 0 0 1 0.5571408 0 0 0 1 1 0 0 -0.8786695 0 1 0 -0.8827478 0 0 1 0.5571408 0 0 0 1 1 0 0 -0.8324627 0 1 0 -0.8328877 0 0 1 0.5571408 0 0 0 1 1 0 0 -0.7606645 0 1 0 -0.7554128 0 0 1 0.5571408 0 0 0 1 1 0 0 -0.6675401 0 1 0 -0.6549255 0 0 1 0.5571408 0 0 0 1 1 0 0 -0.5573548 0 1 0 -0.5360284 0 0 1 0.5571408 0 0 0 1 1 0 0 -0.4343736 0 1 0 -0.4033238 0 0 1 0.5571408 0 0 0 1 1 0 0 -0.3028621 0 1 0 -0.2614143 0 0 1 0.5571408 0 0 0 1 1 0 0 -0.1670852 0 1 0 -0.1149023 0 0 1 0.5571408 0 0 0 1 1 0 0 -0.03130847 0 1 0 0.03160959 0 0 1 0.5571408 0 0 0 1 1 0 0 0.100203 0 1 0 0.1735191 0 0 1 0.5571408 0 0 0 1 1 0 0 0.2231841 0 1 0 0.3062236 0 0 1 0.5571408 0 0 0 1 1 0 0 0.3333695 0 1 0 0.4251208 0 0 1 0.5571408 0 0 0 1 1 0 0 0.4264939 0 1 0 0.525608 0 0 1 0.5571408 0 0 0 1 1 0 0 0.4982921 0 1 0 0.6030829 0 0 1 0.5571408 0 0 0 1 1 0 0 0.5444989 0 1 0 0.652943 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1 1 0 0 0.560849 0 1 0 0.6705858 0 0 1 0.5571408 0 0 0 1</float_array>
+        <technique_common>
+          <accessor source="#node-Omni001_matrix-output-array" count="101" stride="16">
+            <param name="TRANSFORM" type="float4x4"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <source id="node-Omni001_matrix-interpolation">
+        <Name_array id="node-Omni001_matrix-interpolation-array" count="101">LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR LINEAR</Name_array>
+        <technique_common>
+          <accessor source="#node-Omni001_matrix-interpolation-array" count="101" stride="1">
+            <param name="INTERPOLATION" type="name"/>
+          </accessor>
+        </technique_common>
+      </source>
+      <sampler id="node-Omni001_matrix-sampler">
+        <input semantic="INPUT" source="#node-Omni001_matrix-input"/>
+        <input semantic="OUTPUT" source="#node-Omni001_matrix-output"/>
+        <input semantic="INTERPOLATION" source="#node-Omni001_matrix-interpolation"/>
+      </sampler>
+      <channel source="#node-Omni001_matrix-sampler" target="node-Omni001/matrix"/>
+    </animation>
+  </library_animations>
+  <scene>
+    <instance_visual_scene url="#MaxScene"/>
+  </scene>
+</COLLADA>

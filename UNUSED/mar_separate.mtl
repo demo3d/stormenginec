@@ -1,0 +1,294 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 15.12.2010 21:31:45
+
+newmtl 20___Default
+	Ns 9.999999
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588235 0.588235 0.588235
+	Kd 0.588235 0.588235 0.588235
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka C:\xampp\htdocs\stormEngineC\resources\obj\ASPHALT.jpg
+	map_Kd C:\xampp\htdocs\stormEngineC\resources\obj\ASPHALT.jpg
+	map_bump C:\xampp\htdocs\stormEngineC\resources\obj\ASPHALT_bump.jpg
+newmtl 22___Default
+	Ns 9.999999
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588235 0.588235 0.588235
+	Kd 0.588235 0.588235 0.588235
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka C:\xampp\htdocs\stormEngineC\resources\obj\vegetacion.jpg
+	map_Kd C:\xampp\htdocs\stormEngineC\resources\obj\vegetacion.jpg
+
+newmtl 21___Default
+	Ns 9.999999
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588235 0.588235 0.588235
+	Kd 0.588235 0.588235 0.588235
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka C:\xampp\htdocs\stormEngineC\resources\obj\acera.jpg
+	map_Kd C:\xampp\htdocs\stormEngineC\resources\obj\acera.jpg
+	map_bump C:\xampp\htdocs\stormEngineC\resources\obj\acera_bump.jpg
+newmtl pinturablanca
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 1.000000 1.000000 1.000000
+	Kd 1.000000 1.000000 1.000000
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka C:\xampp\htdocs\stormEngineC\resources\obj\pinturaBlanca.jpg
+	map_Kd C:\xampp\htdocs\stormEngineC\resources\obj\pinturaBlanca.jpg
+
+newmtl aguapisci
+	Ns 9.999999
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588235 0.709804 0.847059
+	Kd 0.588235 0.709804 0.847059
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka C:\xampp\htdocs\stormEngineC\resources\obj\aguaPiscin.jpg
+	map_Kd C:\xampp\htdocs\stormEngineC\resources\obj\aguaPiscin.jpg
+
+newmtl tejado
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.823529 0.678431 0.423529
+	Kd 0.823529 0.678431 0.423529
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\tejado.jpg
+	map_Kd R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\tejado.jpg
+	map_bump C:\xampp\htdocs\stormEngineC\resources\obj\tejado_bump.jpg
+newmtl paredroja
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.890196 0.588235 0.647059
+	Kd 0.890196 0.588235 0.647059
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\paredroja.jpg
+	map_Kd R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\paredroja.jpg
+	map_bump C:\xampp\htdocs\stormEngineC\resources\obj\paredroja_bump.jpg
+newmtl marmol
+	Ns 42.999996
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.000000 0.000000 0.000000
+	Kd 0.588235 0.588235 0.588235
+	Ks 0.252000 0.252000 0.252000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\suelomarmol.jpg
+	map_Kd R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\suelomarmol.jpg
+
+newmtl suelor
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 1.000000 1.000000 1.000000
+	Kd 1.000000 1.000000 1.000000
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\suelolargo.jpg
+	map_Kd R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\suelolargo.jpg
+
+newmtl ventanatorre
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.415686 0.415686 0.415686
+	Kd 0.415686 0.415686 0.415686
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\ventanatorre.jpg
+	map_Kd R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\ventanatorre.jpg
+
+newmtl ventanacuadrada
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588000 0.588000 0.588000
+	Kd 0.588000 0.588000 0.588000
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\ventanacuadrada.jpg
+	map_Kd R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\ventanacuadrada.jpg
+
+newmtl ventanaredonda
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588000 0.588000 0.588000
+	Kd 0.588000 0.588000 0.588000
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\ventanaredonda.jpg
+	map_Kd R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\ventanaredonda.jpg
+
+newmtl puerta
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588000 0.588000 0.588000
+	Kd 0.588000 0.588000 0.588000
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\puertacasa.jpg
+	map_Kd R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\puertacasa.jpg
+
+newmtl rejass
+	Ns 9.999999
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588235 0.588235 0.588235
+	Kd 0.588235 0.588235 0.588235
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka C:\xampp\htdocs\stormEngineC\resources\obj\barra.jpg
+	map_Kd C:\xampp\htdocs\stormEngineC\resources\obj\barra.png
+
+newmtl suelo2
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588000 0.588000 0.588000
+	Kd 0.588000 0.588000 0.588000
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\suelocuadrado.jpg
+	map_Kd R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\suelocuadrado.jpg
+	map_bump C:\xampp\htdocs\stormEngineC\resources\obj\suelocuadrado_bump.jpg
+newmtl cesped
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588000 0.588000 0.588000
+	Kd 0.588000 0.588000 0.588000
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\cesped.jpg
+	map_Kd R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\cesped.jpg
+
+newmtl paredgotele
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588000 0.588000 0.588000
+	Kd 0.588000 0.588000 0.588000
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\paredgotele.jpg
+	map_Kd R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\paredgotele.jpg
+
+newmtl puertGaraje
+	Ns 9.999999
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.090196 0.090196 0.090196
+	Kd 0.090196 0.090196 0.090196
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+
+newmtl ventanatriangular
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588000 0.588000 0.588000
+	Kd 0.588000 0.588000 0.588000
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\ventanatriangular.jpg
+	map_Kd R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\ventanatriangular.jpg
+
+newmtl piedrapiscina
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588000 0.588000 0.588000
+	Kd 0.588000 0.588000 0.588000
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\piedrapiscina.jpg
+	map_Kd R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\piedrapiscina.jpg
+
+newmtl sueloGaraje
+	Ns 10.000000
+	Ni 1.500000
+	d 1.000000
+	Tr 0.000000
+	Tf 1.000000 1.000000 1.000000 
+	illum 2
+	Ka 0.588000 0.588000 0.588000
+	Kd 0.588000 0.588000 0.588000
+	Ks 0.000000 0.000000 0.000000
+	Ke 0.000000 0.000000 0.000000
+	map_Ka R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\suelogaraje.jpg
+	map_Kd R:\ROBER\3DQUALITY\MIS_ESCENAS\el marquesado\MAX\LOWPOLI\suelogaraje.jpg
