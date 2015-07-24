@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="description" content="StormEngineC particles" />
+    <meta charset=utf-8 />
+    <title>particles example</title> 
+    
+    <script src="StormEngineC/StormEngineC.class.js"></script>
+  </head>
+  <body> 
+
+    <canvas id="stormCanvas" width="512" height="512"></canvas>
+    <script>
+      var nodePole,nodeParticles;
+        
+        stormEngineC.createWebGL({'target':	'stormCanvas', // ID canvas
+                                  'callback':	function(){},
+                                  'editMode':	true,
+                                  'enableRender':false});
+        //stormEngineC.setWebGLBackground('transparent');  
+      
+        // LIGHTS
+        stormEngineC.setAmbientColor($V3([121/255, 130/255, 138/255]));
+        
+        
+        
+        
+        // CAMERA
+        var nodeCam = stormEngineC.createCamera($V3([97.85, 28.90, -159.0]), 8.0); // create one camera
+        stormEngineC.setWebGLCam(nodeCam);
+        nodeCam.setView('TOP');
+        nodeCam.setFov(80);
+    
+        
+        nodeParticles = stormEngineC.createParticles();
+        nodeParticles.generateParticles({	amount:32*32,  
+                                          disposal:{width:128,height:128}, 
+                                          color:$V3([1.0,0.0,0.0]), //document.getElementById('imgLena')
+                                          pointSize:1.0,  
+                                          polarity:0,
+                                          direction:undefined});    
+        //nodeParticles.setPosition($V3([0.0,1.0,0.0]));
+        
+        nodePole = stormEngineC.createPolarityPoint({polarity:1,force:0.5}); 
+        nodePole.get({node:nodeParticles});
+        nodePole.setPosition($V3([20.0, 0.0, 0.0]));
+        nodePole.draggable(true);
+      
+        nodePoleA = stormEngineC.createPolarityPoint({polarity:1,force:0.5}); 
+        nodePoleA.get({node:nodeParticles});
+        nodePoleA.setPosition($V3([-20.0, 0.0, 0.0]));
+      	nodePoleA.draggable(true);
+      
+      
+        
+        stormEngineC.PanelListObjects.show();
+      
+      
+    </script>				
+        
+    <br />
+    WASD keys: Move
+    <br />
+  </body>
+</html>

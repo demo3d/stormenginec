@@ -853,13 +853,30 @@ StormEngineC.prototype.loadManager = function() {
 };
 /** @private */
 StormEngineC.prototype.handleOrientationEvent = function(event) {
-	var gamma = event.x || event.gamma || event.accelerationIncludingGravity.x*-1000.0;// gamma is the left-to-right tilt in degrees, where right is positive
-	var beta = event.y || event.beta || event.accelerationIncludingGravity.y*1000.0;// beta is the front-to-back tilt in degrees, where front is positive
-	var alpha = event.z || event.alpha || event.accelerationIncludingGravity.z*1000.0;// alpha is the compass direction the device is facing in degrees
-	stormEngineC.orientation.gamma = gamma;
-	stormEngineC.orientation.beta = beta;
-	stormEngineC.orientation.alpha = alpha;
+	var gamma = undefined;
+	var beta = undefined;
+	var alpha = undefined;
 	
+	// gamma is the left-to-right tilt in degrees, where right is positive
+	if(event.x != undefined) gamma = event.x;
+	else if(event.gamma != undefined) gamma = event.gamma;
+	else if(event.accelerationIncludingGravity != undefined && event.accelerationIncludingGravity.x != undefined) gamma = event.accelerationIncludingGravity.x;
+	
+	// beta is the front-to-back tilt in degrees, where front is positive
+	if(event.y != undefined) beta = event.y;
+	else if(event.beta != undefined) beta = event.beta;
+	else if(event.accelerationIncludingGravity != undefined && event.accelerationIncludingGravity.y != undefined) beta = event.accelerationIncludingGravity.y;
+	
+	// alpha is the compass direction the device is facing in degrees
+	if(event.z != undefined) alpha = event.z;
+	else if(event.alpha != undefined) alpha = event.alpha;
+	else if(event.accelerationIncludingGravity != undefined && event.accelerationIncludingGravity.z != undefined) alpha = event.accelerationIncludingGravity.z;
+	
+	if(gamma != undefined && beta != undefined && alpha != undefined) {
+		stormEngineC.orientation.gamma = gamma;
+		stormEngineC.orientation.beta = beta;
+		stormEngineC.orientation.alpha = alpha;
+	}
 	/*console.log('tiltLR GAMMA X: '+stormEngineC.orientation.gamma+'<br />'+
 				'tiltFB BETA Y: '+stormEngineC.orientation.beta+'<br />'+
 				'dir ALPHA Z: '+stormEngineC.orientation.alpha+'<br />');*/
