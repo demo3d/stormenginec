@@ -17,6 +17,18 @@
 		
 		<canvas id="stormCanvas" width="720" height="540"></canvas> 
 		<script>
+			var vert = [];
+			var links = [];
+			for(var n=0; n <= 16*16; n++) {
+				vert.push(n);
+			}
+			for(var n=0; n <= 16*16; n++) {
+				links.push({origin: vert[parseInt(Math.random()*16*16)],
+							end: vert[parseInt(Math.random()*16*16)]});
+			}
+			console.log(links);
+			
+			
 			var nodePole,nodeParticles;
 			 
 			stormEngineC.createWebGL({	target:	'stormCanvas', // ID canvas
@@ -174,24 +186,34 @@
 			
 			
 			/*nodeParticles = stormEngineC.createParticles();
-			nodeParticles.generateParticles({	amount:256*256,  
+			nodeParticles.generateParticles({	amount:32*32,  
 												disposal:{radius:1.0},   
 												color:$V3([1.0,1.0,1.0]), //document.getElementById('imgLena')
 												pointSize:1.0,   
 												polarity:0,
 												direction:$V3([0.0,0.0,0.0]), 
 												lifeDistance:0.0});     */
+												
+			nodeParticles = stormEngineC.createParticles();
+			nodeParticles.generateParticles({	amount:vert.length,  
+												disposal:{radius:1.0},  
+												graph:links,   
+												color:$V3([1.0,1.0,1.0]), //document.getElementById('imgLena')
+												pointSize:1.0,   
+												polarity:0,
+												direction:$V3([0.0,0.0,0.0]), 
+												lifeDistance:0.0});  
 													
 			/*nodeParticles = stormEngineC.createParticles();
 			nodeParticles.particlesPositioned({	array:[$V3([0.0,0.0,0.0]),$V3([0.1,0.1,0.0]),$V3([0.2,0.1,0.0]),$V3([0.3,0.05,0.0])],
 												pointSize:1.0});*/
 			
-			nodePole = stormEngineC.createPolarityPoint({polarity:1,force:0.5});  
+			//nodePole = stormEngineC.createPolarityPoint({polarity:1,force:0.5});  
 			//nodePole.get({node:nodeParticles});
-			nodePole.setPosition($V3([-2.0, 2.0, 0.0]));
+			//nodePole.setPosition($V3([-2.0, 2.0, 0.0]));
 			
-			nodePoleB = stormEngineC.createPolarityPoint({polarity:1,force:0.5});  
-			nodePoleB.draggable(true); 
+			//nodePoleB = stormEngineC.createPolarityPoint({polarity:1,force:0.5});  
+			//nodePoleB.draggable(true); 
 			//nodePoleB.get({node:nodeParticles});
 			//nodePoleB.setPosition($V3([2.0, 2.0, 0.0]));
 			
@@ -232,7 +254,7 @@
 			
 			
 			
-			var piscina = stormEngineC.createNode();	
+			/*var piscina = stormEngineC.createNode();	
 			piscina.loadObj({	objUrl:"UNUSED/piscina.obj", 
 								roughness: false	});
 			piscina.setPosition($V3([0.0, 0.0, 0.0])); 
@@ -263,7 +285,7 @@
 											'friction':0.2,
 											'restitution':0.2});
 				nodeB.draggable(true);
-			}
+			}*/
 		</script>
 		<button type="button" onclick="giv2();">dest</button>
 		<br />

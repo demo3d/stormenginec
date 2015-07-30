@@ -167,11 +167,13 @@ StormGLContext.prototype.render_ParticlesAux = function() {
 				this.particles[p].webCLGL.enqueueNDRangeKernel(this.particles[p].kernelPosY, this.particles[p].buffer_PosTempY); 
 				this.particles[p].webCLGL.enqueueNDRangeKernel(this.particles[p].kernelPosZ, this.particles[p].buffer_PosTempZ); 
 				
-				this.particles[p].webCLGL.enqueueNDRangeKernel(this.particles[p].kernelDirX, this.particles[p].buffer_Dir); 
+				this.particles[p].webCLGL.enqueueNDRangeKernel(this.particles[p].kernelDirXYZ, this.particles[p].buffer_DirTemp); 
 				
 				this.particles[p].webCLGL.copy(this.particles[p].buffer_PosTempX, this.particles[p].buffer_PosX);
 				this.particles[p].webCLGL.copy(this.particles[p].buffer_PosTempY, this.particles[p].buffer_PosY);
 				this.particles[p].webCLGL.copy(this.particles[p].buffer_PosTempZ, this.particles[p].buffer_PosZ);
+				
+				this.particles[p].webCLGL.copy(this.particles[p].buffer_DirTemp, this.particles[p].buffer_Dir);
 				
 				var arr4Uint8_X = this.particles[p].webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(this.particles[p].buffer_PosX);
 				var arr4Uint8_Y = this.particles[p].webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(this.particles[p].buffer_PosY); 
@@ -207,7 +209,11 @@ StormGLContext.prototype.render_ParticlesAux = function() {
 				
 				
 				this.gl.uniform1i(this.u_ParticlesAux_lightPass, 0);
-				this.gl.drawArrays(this.gl.POINTS, 0, this.particles[p].particlesLength); 
+				if(this.particles[p].isGraph == true) {
+					this.gl.drawArrays(this.gl.LINES, 0, this.particles[p].particlesLength); 
+				} else {
+					this.gl.drawArrays(this.gl.POINTS, 0, this.particles[p].particlesLength); 
+				}				
 				
 				for(var nL = 0, fL = this.lights.length; nL < fL; nL++) { 
 					if(this.lights[nL].visibleOnContext == true) {
