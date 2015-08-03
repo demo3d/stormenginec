@@ -19,12 +19,12 @@
 		<script>
 			var vert = [];
 			var links = [];
-			for(var n=0; n <= 16*16; n++) {
+			for(var n=0; n <= 32*32; n++) {
 				vert.push(n);
 			}
-			for(var n=0; n <= 16*16; n++) {
-				links.push({origin: vert[parseInt(Math.random()*16*16)],
-							end: vert[parseInt(Math.random()*16*16)]});
+			for(var n=0; n <= 32*32; n++) {
+				links.push({origin: vert[parseInt(Math.random()*32*32)],
+							end: vert[parseInt(Math.random()*32*32)]});
 			}
 			console.log(links);
 			
@@ -203,6 +203,7 @@
 												polarity:0,
 												direction:$V3([0.0,0.0,0.0]), 
 												lifeDistance:0.0});  
+			nodeParticles.setPosition($V3(0.0,0.0,15.0));
 													
 			/*nodeParticles = stormEngineC.createParticles();
 			nodeParticles.particlesPositioned({	array:[$V3([0.0,0.0,0.0]),$V3([0.1,0.1,0.0]),$V3([0.2,0.1,0.0]),$V3([0.3,0.05,0.0])],

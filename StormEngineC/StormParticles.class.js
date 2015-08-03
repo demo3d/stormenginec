@@ -297,8 +297,8 @@ StormParticles.prototype.setDestinationWidthHeight = function(jsonIn, enable) {
 		hP+=spac;
 		if(h > jsonIn.width-1) {h=0;hP=0;vP+=spac;}
 	}
-	this.kernelDirXYZ.setKernelArg(9, this.enDestination);
-	this.kernelDirXYZ.setKernelArg(10, this.destinationForce);
+	this.kernelDirXYZ.setKernelArg(10, this.enDestination);
+	this.kernelDirXYZ.setKernelArg(11, this.destinationForce);
 	this.webCLGL.enqueueWriteBuffer(this.buffer_Destination, arrayDest);
 };
 
@@ -375,8 +375,8 @@ StormParticles.prototype.setDestinationVolume = function(jsonIn, enable) {
 		arrayColorRGBA[id+3] = (arrayColorRGBAT[id+3] != undefined) ? arrayColorRGBAT[id+3] : 0.0;
 	}
 	
-	this.kernelDirXYZ.setKernelArg(9, this.enDestination);
-	this.kernelDirXYZ.setKernelArg(10, this.destinationForce);
+	this.kernelDirXYZ.setKernelArg(10, this.enDestination);
+	this.kernelDirXYZ.setKernelArg(11, this.destinationForce);
 	this.webCLGL.enqueueWriteBuffer(this.buffer_Destination, arrayDest);
 	
 	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer_ColorRGBA);
@@ -393,7 +393,7 @@ StormParticles.prototype.setDestinationVolume = function(jsonIn, enable) {
 StormParticles.prototype.setDestinationForce = function(force) { 	
 	this.destinationForce = (force != undefined) ? force : this.destinationForce;
 	
-	this.kernelDirXYZ.setKernelArg(10, this.destinationForce);
+	this.kernelDirXYZ.setKernelArg(11, this.destinationForce);
 };
 
 /**
@@ -403,7 +403,7 @@ StormParticles.prototype.setDestinationForce = function(force) {
 StormParticles.prototype.disableDestination = function() { 	
 	this.enDestination = 0;
 	
-	this.kernelDirXYZ.setKernelArg(9, this.enDestination);
+	this.kernelDirXYZ.setKernelArg(10, this.enDestination);
 };
 /**
 * Enable destination
@@ -412,7 +412,7 @@ StormParticles.prototype.disableDestination = function() {
 StormParticles.prototype.enableDestination = function() { 	
 	this.enDestination = 1;
 	
-	this.kernelDirXYZ.setKernelArg(9, this.enDestination);
+	this.kernelDirXYZ.setKernelArg(10, this.enDestination);
 };
 
 /**
@@ -426,7 +426,7 @@ StormParticles.prototype.setLifeDistance = function(lifeDistance) {
 	this.kernelPosX.setKernelArg(5, this.lifeDistance);
 	this.kernelPosY.setKernelArg(5, this.lifeDistance);
 	this.kernelPosZ.setKernelArg(5, this.lifeDistance);
-	this.kernelDirXYZ.setKernelArg(11, this.lifeDistance);
+	this.kernelDirXYZ.setKernelArg(12, this.lifeDistance);
 };
 
 /**
@@ -605,6 +605,7 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 										',float* posY'+
 										',float* posZ'+
 										',float4* dir'+
+										',float isGraph'+
 										',float* parentId'+
 										',float* particlePolarity'+
 										',float4* dest'+
@@ -615,14 +616,16 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 										lines_argumentsForces(this.idNum)+ 
 										') {\n'+
 								'vec2 x = get_global_id();\n'+	
-								'vec4 dirA = dir[x];'+
-								'vec4 dirB;'+
+								'vec4 dirA = dir[x];'+								
 								'vec3 currentDir = vec3(dirA.x,dirA.y,dirA.z);\n'+ 
 								'vec3 currentPos = vec3(posX[x],posY[x],posZ[x]);\n'+ 
 								'vec4 dest = dest[x];'+
 								'vec3 destinationPos = vec3(dest.x,dest.y,dest.z);\n'+ 
 								
 								
+								
+								
+								// particles interact with others particles
 								/*'int width = '+Math.sqrt(this.particlesLength)+';'+
 								'int height = '+Math.sqrt(this.particlesLength)+';'+
 								'float workItemWidth = 1.0/float(width);'+
@@ -632,6 +635,7 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 								'const int f = '+this.particlesLength+';\n'+
 								'vec3 dirOthers = vec3(0.0,0.0,0.0);\n'+ 
 								'int h = 0;'+ 
+								'vec4 dirB;'+
 								
 								'for(int i =0; i < 32*32; i++) {'+
 									'vec2 xb = vec2(float(currentCol)*workItemWidth, float(currentRow)*workItemHeight);'+
@@ -654,6 +658,29 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 								'dirOthers = (dirOthers/float(h))*0.1;'+
 								'currentDir = currentDir+(dirOthers);'+*/
 								
+								
+								
+								// for network graph
+								/*'int width = '+parseInt(Math.sqrt(this.particlesLength))+';'+
+								'int height = '+parseInt(Math.sqrt(this.particlesLength))+';'+
+								'float workItemWidth = 1.0/float(width);'+
+								'float workItemHeight = 1.0/float(height);'+
+								
+								'int pId = int(parentId[x]);'+								
+								'float num = float(pId/width);\n'+
+								'float col = fract(num)*float(width);\n'+ 	 
+								'float row = floor(num);\n'+
+								
+								'vec2 xb = vec2(float(col)*workItemWidth, float(row)*workItemHeight);'+
+								'vec3 posParent = vec3(posX[xb], posY[xb], posZ[xb]);'+
+								'vec3 dirParent = posParent-vec3(0.0,0.0,0.0);'+
+								'vec3 destinationPoss = posParent+dirParent;'+
+								'vec3 dirToDestination = destinationPoss-currentPos;'+*/
+								
+								
+								
+								
+								
 								lines_poles(this.idNum)+
 								
 								'if(enableDestination == 1.0) {\n'+
@@ -673,6 +700,13 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 									'vec4 initDir = vec4(initDir[x]);'+
 									'currentDir = vec3(initDir.x,initDir.y,initDir.z);'+
 								'}'+
+								
+								// for network graph
+								/*'if(isGraph == 1.0) {'+
+									'currentDir = dirToDestination*( max(min(1.0-length(posParent-currentPos),1.0),0.0) )*0.8;'+
+								'}'+*/
+								
+								
 								'vec3 newDir = currentDir;\n';
 	return kernelDir_Source;
 };
@@ -687,12 +721,13 @@ StormParticles.prototype.updatekernelDir_Arguments = function() {
 	this.kernelDirXYZ.setKernelArg(ar,this.buffer_PosY); ar++; // 3
 	this.kernelDirXYZ.setKernelArg(ar,this.buffer_PosZ); ar++; // 4
 	this.kernelDirXYZ.setKernelArg(ar,this.buffer_Dir); ar++; // 5
-	this.kernelDirXYZ.setKernelArg(ar,this.buffer_ParentId); ar++; // 6
-	this.kernelDirXYZ.setKernelArg(ar,this.buffer_ParticlesPolaritys); ar++; // 7
-	this.kernelDirXYZ.setKernelArg(ar,this.buffer_Destination); ar++; // 8
-	this.kernelDirXYZ.setKernelArg(ar,this.enDestination); ar++; // 9
-	this.kernelDirXYZ.setKernelArg(ar,this.destinationForce); ar++; // 10
-	this.kernelDirXYZ.setKernelArg(ar,this.lifeDistance); ar++; // 11
+	this.kernelDirXYZ.setKernelArg(ar,(this.isGraph)?1.0:0.0); ar++; // 6
+	this.kernelDirXYZ.setKernelArg(ar,this.buffer_ParentId); ar++; // 7
+	this.kernelDirXYZ.setKernelArg(ar,this.buffer_ParticlesPolaritys); ar++; // 8
+	this.kernelDirXYZ.setKernelArg(ar,this.buffer_Destination); ar++; // 9
+	this.kernelDirXYZ.setKernelArg(ar,this.enDestination); ar++; // 10
+	this.kernelDirXYZ.setKernelArg(ar,this.destinationForce); ar++; // 11
+	this.kernelDirXYZ.setKernelArg(ar,this.lifeDistance); ar++; // 12
 	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
 		for(var nb = 0, fb = stormEngineC.polarityPoints[n].nodesProc.length; nb < fb; nb++) {
 			if(this.idNum == stormEngineC.polarityPoints[n].nodesProc[nb].idNum) {
