@@ -117,6 +117,7 @@ StormMaterial.prototype.writeFromMTLFile = function(materialName, mtlsFile, json
 			
 			var encontradoMaterial;
 			var lines = text.split("\r\n");
+			if(lines.length == 1) lines = text.split("\n");
 			for(var n = 0, f = lines.length; n < f; n++) {
 				
 				var line = lines[n].replace(/\t+/gi,"");

@@ -90,13 +90,13 @@ StormGLContext.prototype.initShader_ParticlesAux = function() {
 					'float depthFromTexture = textureFBLightDepth.x+(0.00001*(uLightFov/2.0));\n'+
 					
 					'float light =  depthFromLight > depthFromTexture ? 0.0 : 1.0;\n'+ 
-					'if(light == 0.0) gl_FragColor = vec4(((uAmbientColor*(1.0-length(uAmbientColor)))+vec3(vColorRGBA.r*length(uAmbientColor), vColorRGBA.g*length(uAmbientColor), vColorRGBA.b*length(uAmbientColor))), 1.0);\n'+ 
+					'if(light == 0.0) gl_FragColor = vec4(vec3(vColorRGBA.r, vColorRGBA.g, vColorRGBA.b), 1.0);\n'+
 					'else gl_FragColor = vec4(vec3(vColorRGBA.r, vColorRGBA.g, vColorRGBA.b), 1.0);\n'+ 
 				'} else {'+
 					'gl_FragColor = vec4(vec3(vColorRGBA.r, vColorRGBA.g, vColorRGBA.b), 1.0);\n'+ 
 				'}'+
 			'} else {'+
-				'gl_FragColor = vec4(((uAmbientColor*(1.0-length(uAmbientColor)))+vec3(vColorRGBA.r*length(uAmbientColor), vColorRGBA.g*length(uAmbientColor), vColorRGBA.b*length(uAmbientColor))), 1.0);\n'+ 
+				'gl_FragColor = vec4(vec3(vColorRGBA.r, vColorRGBA.g, vColorRGBA.b), 1.0);\n'+ 
 			'}'+
 		'}';
 	_this.shader_ParticlesAux = _this.gl.createProgram();

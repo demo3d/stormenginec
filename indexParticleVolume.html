@@ -15,7 +15,7 @@
 		<div id="gg"></div>
 		<div id="ggc"></div>
 		
-		<canvas id="stormCanvas" width="720" height="540"></canvas> 
+		<canvas id="stormCanvas" width="320" height="240"></canvas> 
 		<script>
 			var nodePole,nodeParticles;
 			 
@@ -24,23 +24,23 @@
 										editMode: true,  
 										enableRender: true});
 			var gravityForce = stormEngineC.createGravityForce();
-			stormEngineC.setWebGLSSAO(true, 3.2);
+			stormEngineC.setWebGLSSAO(false, 3.2);
 			stormEngineC.setWebGLBackground('environmentMap');   
 			
 			// LIGHTS
 			stormEngineC.setAmbientColor($V3([0.7, 0.75, 0.8]));
 			
-			/*var lightSun = stormEngineC.createLight({	'type':'sun',
+			var lightSun = stormEngineC.createLight({	'type':'sun',
 									'direction':$V3([-0.49,-1.0,-0.20]), // type sun only direction param
 									'color':5770 // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
-									});*/
+									});
 			
-			var lightB = stormEngineC.createLight({	'type':'spot', // TYPE SPOT (MAX 10)
+			/*var lightB = stormEngineC.createLight({	'type':'spot', // TYPE SPOT (MAX 10)
 									'position':$V3([-0.9,3.4,0.0]),
 									'direction':$V3([0.1,-1.0,0.1]), //on render spot is omni
 									'color':3200 // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
-									});
-			lightB.draggable();
+									});*/
+			//lightB.draggable();
 			
 			
 			
@@ -62,7 +62,7 @@
 			
 			// SCENE
 			nodeParticles = stormEngineC.createParticles();
-			nodeParticles.generateParticles({	amount:256*256,  
+			nodeParticles.generateParticles({	amount:128*128,  
 												disposal:{radius:0.5}, 
 												color:$V3([1.0,1.0,1.0]), //document.getElementById('imgLena')
 												pointSize:1.0,  
@@ -85,7 +85,7 @@
 			var voxelA,voxelB,voxelC,voxelD;
 			loopParticles = function() {
 			
-				arrayVoxels = [voxelA,voxelB,voxelC,voxelD];
+				//arrayVoxels = [voxelA,voxelB,voxelC,voxelD];
 				var current=1;
 				setInterval(function() {
 						nodePole.setForce(0.2);
@@ -95,37 +95,48 @@
 						setTimeout(function(){
 						  nodePole.setForce(0.0);
 						  nodeParticles.setDestinationVolume({voxelizator:arrayVoxels[current]});
-						},4000);
+						},10000);
 						
 						current=(current==arrayVoxels.length-1)?0:(current+1);
-				},8000);
+				},20000);
 			};
 		  
 			voxelA = stormEngineC.createVoxelizator();
 			voxelA.generateFrom3DImageElement({size:2.1,
 											   resolution:128,
 											   image:["UNUSED/3dtextures/boxhole_2p1_128.png"],
-											   ongenerate:function() {
+											   ongenerate:function(voxelizatorObject) {
+												   voxelA = voxelizatorObject;
 													loopParticles();
 													
-											   }});
+											   },
+											   fillmode:["albedo"]});
 			
 			voxelB = stormEngineC.createVoxelizator();
 			voxelB.generateFrom3DImageElement({size:3,
 											   resolution:128,
 											   image:["UNUSED/3dtextures/bunny_3_128.png"],
+											   ongenerate:function(voxelizatorObject) {
+												   voxelB = voxelizatorObject;
+											   },
 											   fillmode:["albedo"]});
 			
 			voxelC = stormEngineC.createVoxelizator();
 			voxelC.generateFrom3DImageElement({size:2.1,
 											   resolution:128,
 											   image:["UNUSED/3dtextures/torus_2p1_128.png"],
+											   ongenerate:function(voxelizatorObject) {
+												   voxelC = voxelizatorObject;
+											   },
 											   fillmode:["albedo"]});
 			
 			voxelD = stormEngineC.createVoxelizator();
 			voxelD.generateFrom3DImageElement({size:8,
 											   resolution:128,
 											   image:["UNUSED/3dtextures/text_8_128.png"],
+											   ongenerate:function(voxelizatorObject) {
+												   voxelD = voxelizatorObject;
+											   },
 											   fillmode:["albedo"]});
 			arrayVoxels = [voxelA,voxelB,voxelC,voxelD];
 

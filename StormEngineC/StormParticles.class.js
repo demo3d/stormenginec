@@ -320,31 +320,36 @@ StormParticles.prototype.setDestinationVolume = function(jsonIn, enable) {
 	var numActCells = 0;
 	for(var n = 0, f = data.length/4; n < f; n++) { // num of active cells
 		var id = n*4;
-		if(data[id+3] > 0) numActCells++;
+		if(data[id+3] > 0) numActCells++; 
 	}
 	var particlesXCell = this.particlesLength/numActCells;
 	
 	var arrayDestT = []; 
-	var arrayColorRGBAT = []; 
+	var arrayColorRGBAT = [];
 	var stackParticles = 0;
 	var CCX=0,CCY=0,CCZ=0;
 	var CCXMAX=vo.resolution-1, CCYMAX=vo.resolution-1, CCZMAX=vo.resolution-1;
 	for(var n = 0, f = data.length/4; n < f; n++) { // num of active cells
 		var id = n*4;
+		
+		//if(data[id] > 30 && data[id+1] > 30 && data[id+2] > 30) {
 		if(data[id+3] > 0) {
 			stackParticles += particlesXCell;
 			var particlesOk = Math.floor(stackParticles);
 			if(particlesOk > 0) {
 				stackParticles -= particlesOk;
 				var p = $V3([0.0,0.0,0.0]).add($V3([-(vo.size/2.0), -(vo.size/2.0), -(vo.size/2.0)])); // init position  
-				p = p.add($V3([vo.cs*CCX, vo.cs*CCY, vo.cs*(128-CCZ)]));   
-				for(var nb = 0, fnb = particlesOk; nb < fnb; nb++) { 
+				p = p.add($V3([vo.cs*CCX, vo.cs*CCY, vo.cs*(CCZMAX-CCZ)]));  
+		
+				for(var nb = 0, fnb = particlesOk; nb < fnb; nb++) {
 					arrayDestT.push(p.e[0]+(vo.cs*Math.random()),p.e[1]+(vo.cs*Math.random()),p.e[2]+(vo.cs*Math.random()), 0.0); 
-					arrayColorRGBAT.push(data[id],data[id+1],data[id+2],1.0);
+					arrayColorRGBAT.push(data[id],data[id+1],data[id+2],1.0);			
 				}
-			}			
+			}
+		} else {
+			
 		}
-	
+		
 		if(CCX == CCXMAX && CCZ == CCZMAX && CCY == CCYMAX) {
 			break;
 		} else {
@@ -362,7 +367,7 @@ StormParticles.prototype.setDestinationVolume = function(jsonIn, enable) {
 	
 	var arrayDest = []; 
 	var arrayColorRGBA = []; 
-	for(var n = 0, f = this.particlesLength; n < f; n++) {
+	for(var n = 0, f = data.length/4; n < f; n++) {
 		var id = n*4;
 		arrayDest[id] = (arrayDestT[id] != undefined) ? arrayDestT[id] : 0.0;
 		arrayDest[id+1] = (arrayDestT[id+1] != undefined) ? arrayDestT[id+1] : 0.0;

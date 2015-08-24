@@ -577,6 +577,8 @@ StormMesh.prototype.loadObjFromSourceText = function(jsonIn) {
 	}
 	
 	var lines = _sourceText.split("\r\n");
+	if(lines.length == 1) lines = _sourceText.split("\n");
+	
 	if(lines[0].match(/OBJ/gim) == null) {alert('Not OBJ file');	return;}
 	
 	

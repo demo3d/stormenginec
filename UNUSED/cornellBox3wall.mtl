@@ -2,7 +2,7 @@
 # File Created: 30.03.2012 11:42:20
 
 newmtl FrontColor
-	Ns 10.0000
+	Ns 100.0000
 	Ni 1.5000
 	d 1.0000
 	Tr 0.0000
@@ -16,7 +16,7 @@ newmtl FrontColor
 	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\cornellBoxClose\white.jpg
 
 newmtl red
-	Ns 10.0000
+	Ns 100.0000
 	Ni 1.5000
 	d 1.0000
 	Tr 0.0000
@@ -30,7 +30,7 @@ newmtl red
 	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\cornellBoxClose\red.jpg
 
 newmtl green
-	Ns 10.0000
+	Ns 100.0000
 	Ni 1.5000
 	d 1.0000
 	Tr 0.0000
