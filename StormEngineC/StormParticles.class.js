@@ -346,8 +346,6 @@ StormParticles.prototype.setDestinationVolume = function(jsonIn, enable) {
 					arrayColorRGBAT.push(data[id],data[id+1],data[id+2],1.0);			
 				}
 			}
-		} else {
-			
 		}
 		
 		if(CCX == CCXMAX && CCZ == CCZMAX && CCY == CCYMAX) {

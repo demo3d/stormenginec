@@ -299,6 +299,15 @@ StormNode.prototype.loadSphere = function(jsonIn) {
 						segments:jIn.segments});  
 };
 /**
+* Load a voxelizator on node
+* @type Void
+* @param {StormVoxelizator} voxelizatorObject
+*/
+StormNode.prototype.loadVoxelizator = function(voxelizatorObject) {
+	var mesh = new StormMesh();
+	mesh.loadVoxelizator(this, voxelizatorObject);
+};
+/**
 * Load a text
 * @type Void
 * @param	{Object} jsonIn

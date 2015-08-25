@@ -493,6 +493,169 @@ StormMesh.prototype.loadSphere = function(jsonIn) {
 };
 
 /**
+* Generate mesh from voxelizator object
+* @type Void
+* @param {StormVoxelizator} voxelizatorObject
+*/
+StormMesh.prototype.loadVoxelizator = function(node, voxelizatorObject) { 
+	console.log(voxelizatorObject);
+	
+	var vo = voxelizatorObject;
+	if(vo instanceof StormVoxelizator == false) { alert("You must select a voxelizator object with albedo fillmode enabledd."); return false;}
+	if(vo.image3D_VoxelsColor == undefined) { alert("You must select a voxelizator object with albedo fillmode enabled."); return false;}
+	var data = vo.arr_VoxelsColor;
+	var CCX=0,CCY=0,CCZ=0;
+	var CCXMAX=vo.resolution-1, CCYMAX=vo.resolution-1, CCZMAX=vo.resolution-1;
+	var currentCell = cc = 0;
+	for(var n = 0, f = data.length/4; n < f; n++) { // num of active cells
+		var id = n*4;
+		
+		if(data[id] > 30 && data[id+1] > 30 && data[id+2] > 30) {
+			var p = $V3([0.0,0.0,0.0]).add($V3([-(vo.size/2.0), -(vo.size/2.0), -(vo.size/2.0)])); // init position  
+			p = p.add($V3([vo.cs*CCX, vo.cs*CCY, vo.cs*(CCZMAX-CCZ)]));  
+			
+			
+			var d = new Float32Array([vo.cs,vo.cs,vo.cs]);
+			this.vertexArray = [p.e[0]-(1.0*d[0]), p.e[1]-(1.0*d[1]), p.e[2]+(1.0*d[2]),// Front face
+			                    p.e[0]+(1.0*d[0]), p.e[1]-(1.0*d[1]), p.e[2]+(1.0*d[2]),
+			                    p.e[0]+(1.0*d[0]), p.e[1]+(1.0*d[1]), p.e[2]+(1.0*d[2]),
+			                    p.e[0]-(1.0*d[0]), p.e[1]+(1.0*d[1]), p.e[2]+(1.0*d[2]),
+			                    // Back face
+			                    p.e[0]-(1.0*d[0]), p.e[1]-(1.0*d[1]), p.e[2]-(1.0*d[2]),
+			                    p.e[0]-(1.0*d[0]), p.e[1]+(1.0*d[1]), p.e[2]-(1.0*d[2]),
+			                    p.e[0]+(1.0*d[0]), p.e[1]+(1.0*d[1]), p.e[2]-(1.0*d[2]),
+			                    p.e[0]+(1.0*d[0]), p.e[1]-(1.0*d[1]), p.e[2]-(1.0*d[2]),
+			                    // Top face
+			                    p.e[0]-(1.0*d[0]), p.e[1]+(1.0*d[1]), p.e[2]-(1.0*d[2]),
+			                    p.e[0]-(1.0*d[0]), p.e[1]+(1.0*d[1]), p.e[2]+(1.0*d[2]),
+			                    p.e[0]+(1.0*d[0]), p.e[1]+(1.0*d[1]), p.e[2]+(1.0*d[2]),
+			                    p.e[0]+(1.0*d[0]), p.e[1]+(1.0*d[1]), p.e[2]-(1.0*d[2]),
+			                    // Bottom face
+			                    p.e[0]-(1.0*d[0]), p.e[1]-(1.0*d[1]), p.e[2]-(1.0*d[2]),
+			                    p.e[0]+(1.0*d[0]), p.e[1]-(1.0*d[1]), p.e[2]-(1.0*d[2]),
+			                    p.e[0]+(1.0*d[0]), p.e[1]-(1.0*d[1]), p.e[2]+(1.0*d[2]),
+			                    p.e[0]-(1.0*d[0]), p.e[1]-(1.0*d[1]), p.e[2]+(1.0*d[2]),
+			                    // Right face
+			                    p.e[0]+(1.0*d[0]), p.e[1]-(1.0*d[1]), p.e[2]-(1.0*d[2]),
+			                    p.e[0]+(1.0*d[0]), p.e[1]+(1.0*d[1]), p.e[2]-(1.0*d[2]),
+			                    p.e[0]+(1.0*d[0]), p.e[1]+(1.0*d[1]), p.e[2]+(1.0*d[2]),
+			                    p.e[0]+(1.0*d[0]), p.e[1]-(1.0*d[1]), p.e[2]+(1.0*d[2]),
+			                    // Left face
+			                    p.e[0]-(1.0*d[0]), p.e[1]-(1.0*d[1]), p.e[2]-(1.0*d[2]),
+			                    p.e[0]-(1.0*d[0]), p.e[1]-(1.0*d[1]), p.e[2]+(1.0*d[2]),
+			                    p.e[0]-(1.0*d[0]), p.e[1]+(1.0*d[1]), p.e[2]+(1.0*d[2]),
+			                    p.e[0]-(1.0*d[0]), p.e[1]+(1.0*d[1]), p.e[2]-(1.0*d[2])];	
+			this.normalArray = [0.0,  0.0,  1.0,// Front face
+			                    0.0,  0.0,  1.0,
+			                    0.0,  0.0,  1.0,
+			                    0.0,  0.0,  1.0,
+			                   // Back face
+			                    0.0,  0.0, -1.0,
+			                    0.0,  0.0, -1.0,
+			                    0.0,  0.0, -1.0,
+			                    0.0,  0.0, -1.0,
+			                   // Top face
+			                    0.0,  1.0,  0.0,
+			                    0.0,  1.0,  0.0,
+			                    0.0,  1.0,  0.0,
+			                    0.0,  1.0,  0.0,
+			                   // Bottom face
+			                    0.0, -1.0,  0.0,
+			                    0.0, -1.0,  0.0,
+			                    0.0, -1.0,  0.0,
+			                    0.0, -1.0,  0.0,
+			                   // Right face
+			                    1.0,  0.0,  0.0,
+			                    1.0,  0.0,  0.0,
+			                    1.0,  0.0,  0.0,
+			                    1.0,  0.0,  0.0,
+			                   // Left face
+			                   -1.0,  0.0,  0.0,
+			                   -1.0,  0.0,  0.0,
+			                   -1.0,  0.0,  0.0,
+			                   -1.0,  0.0,  0.0];	
+			this.textureArray = [0.0, 0.0, 0.0,// Front face
+			                     1.0, 0.0, 0.0,
+			                     1.0, 1.0, 0.0,
+			                     0.0, 1.0, 0.0,
+			                     // Back face
+			                     1.0, 0.0, 0.0,
+			                     1.0, 1.0, 0.0,
+			                     0.0, 1.0, 0.0,
+			                     0.0, 0.0, 0.0,
+			                     // Top face
+			                     0.0, 1.0, 0.0,
+			                     0.0, 0.0, 0.0,
+			                     1.0, 0.0, 0.0,
+			                     1.0, 1.0, 0.0,
+			                     // Bottom face
+			                     1.0, 1.0, 0.0,
+			                     0.0, 1.0, 0.0,
+			                     0.0, 0.0, 0.0,
+			                     1.0, 0.0, 0.0,
+			                     // Right face
+			                     1.0, 0.0, 0.0,
+			                     1.0, 1.0, 0.0,
+			                     0.0, 1.0, 0.0,
+			                     0.0, 0.0, 0.0,
+			                     // Left face
+			                     0.0, 0.0, 0.0,
+			                     1.0, 0.0, 0.0,
+			                     1.0, 1.0, 0.0,
+			                     0.0, 1.0, 0.0];
+			this.textureUnitArray = [cc,cc,cc,cc,// Front face
+									 // Back face
+			                         cc,cc,cc,cc,
+									 // Top face
+			                         cc,cc,cc,cc,
+									 // Bottom face
+			                         cc,cc,cc,cc,
+									 // Right face
+			                         cc,cc,cc,cc,
+									 // Left face
+			                         cc,cc,cc,cc];
+			cci = 24*cc;
+			this.indexArray = [cci+0, cci+1, cci+2,      cci+0, cci+2, cci+3,    // Front face
+			                   cci+4, cci+5, cci+6,      cci+4, cci+6, cci+7,    // Back face
+			                   cci+8, cci+9, cci+10,     cci+8, cci+10, cci+11,  // Top face
+			                   cci+12, cci+13, cci+14,   cci+12, cci+14, cci+15, // Bottom face
+			                   cci+16, cci+17, cci+18,   cci+16, cci+18, cci+19, // Right face
+			                   cci+20, cci+21, cci+22,   cci+20, cci+22, cci+23];  // Left face
+			
+			var meshObject = {};
+			meshObject.vertexArray = this.vertexArray;
+			meshObject.normalArray = this.normalArray;
+			meshObject.textureArray = this.textureArray;
+			meshObject.textureUnitArray = this.textureUnitArray;
+			meshObject.indexArray = this.indexArray;
+			
+			if(node != undefined) { 
+				var bObject = node.attachMesh(meshObject);
+				node.materialUnits[cc] = stormEngineC.createMaterial();
+				node.materialUnits[cc].write($V3([data[id],data[id+1],data[id+2],data[id+3]]));
+			} else {
+				return this; 
+			}
+			cc++;
+		}
+		
+		if(CCX == CCXMAX && CCZ == CCZMAX && CCY == CCYMAX) {
+			break;
+		} else {
+			if(CCX == CCXMAX && CCZ == CCZMAX) {
+				CCX=0;CCZ=0;CCY++;
+			} else {
+				if(CCX == CCXMAX) {
+					CCX=0;CCZ++;
+				} else {
+					CCX++;
+				}
+			}
+		}
+	} 
+};
+
+/**
 * Load a object from url of obj file
 * @private 
 * @type Void
