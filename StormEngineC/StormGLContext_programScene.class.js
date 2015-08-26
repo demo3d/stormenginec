@@ -98,6 +98,7 @@ StormGLContext.prototype.initShader_Scene = function() {
 			//'uniform sampler2D sampler_bumpTexture;\n'+
 			'uniform sampler2D objectTexturesKd['+_this.MAX_TEXTURESKD+'];\n\n\n'+
 			'uniform float uRoughness['+_this.MAX_TEXTURESKD+'];\n'+
+			'uniform vec4 uSolidColor[25];\n'+
 			'uniform float uIllumination;\n'+
 			
 			'uniform float uOcclusionLevel;\n'+
@@ -281,6 +282,7 @@ StormGLContext.prototype.initShader_Scene = function() {
 				
 				'vec4 textureColor;'+
 				'float roughness;'+
+				'vec4 solidColor;'+
 				'float texUnit = vTextureUnit;'+      
 				'if(texUnit < 0.1 ) {';
 				for(var n = 0, fn = _this.MAX_TEXTURESKD; n < fn; n++) {
@@ -293,8 +295,20 @@ StormGLContext.prototype.initShader_Scene = function() {
 				'} else {'+
 					'textureColor = texture2D(objectTexturesKd[0], vec2(vTextureCoord.s, vTextureCoord.t));\n'+ 
 					'roughness = 0.8928571428571429;\n'+
-				'}'+	
+				'}';
 				
+				sourceFragment += ''+
+				'if(texUnit < 0.1 ) {';
+				for(var n = 0; n < 25; n++) {
+					sourceFragment += ''+
+						'solidColor = uSolidColor['+n+'];\n';
+				if(n < 24) sourceFragment += '} else if(texUnit < '+(n+1)+'.1) {';
+				}
+				sourceFragment += ''+
+				'} else {'+
+					'solidColor = vec4(1.0,0.0,0.0,1.0);\n'+
+				'}'+
+				'textureColor = solidColor;\n'+
 				
 				'vec3 weightAmbient = uAmbientColor;\n'+
 				'vec3 restWeight = vec3(1.0,1.0,1.0)-weightAmbient;\n'+
@@ -432,6 +446,7 @@ StormGLContext.prototype.initShader_Scene = function() {
 			//'uniform sampler2D sampler_bumpTexture;\n'+
 			'uniform sampler2D objectTexturesKd['+_this.MAX_TEXTURESKD+'];\n\n\n'+
 			'uniform float uRoughness['+_this.MAX_TEXTURESKD+'];\n'+
+			'uniform vec4 uSolidColor[25];\n'+
 			'uniform float uIllumination;\n'+
 			
 			'uniform float uOcclusionLevel;\n'+
@@ -582,6 +597,7 @@ StormGLContext.prototype.initShader_Scene = function() {
 				sourceFragment += ''+
 				'vec4 textureColor;'+
 				'float roughness;'+
+				'vec4 solidColor;'+
 				'float texUnit = vTextureUnit;'+      
 				'if(texUnit < 0.1 ) {';
 				for(var n = 0, fn = _this.MAX_TEXTURESKD; n < fn; n++) {
@@ -594,8 +610,20 @@ StormGLContext.prototype.initShader_Scene = function() {
 				'} else {'+
 					'textureColor = texture2D(objectTexturesKd[0], vec2(vTextureCoord.s, vTextureCoord.t));\n'+ 
 					'roughness = 0.8928571428571429;\n'+
-				'}'+	
+				'}';	
 				
+				sourceFragment += ''+
+				'if(texUnit < 0.1 ) {';
+				for(var n = 0; n < 25; n++) {
+					sourceFragment += ''+
+						'solidColor = uSolidColor['+n+'];\n';
+				if(n < 24) sourceFragment += '} else if(texUnit < '+(n+1)+'.1) {';
+				}
+				sourceFragment += ''+
+				'} else {'+
+					'solidColor = vec4(1.0,0.0,0.0,1.0);\n'+
+				'}'+
+				'textureColor = solidColor;\n'+
 				
 				'vec3 weightAmbient = uAmbientColor;\n'+
 				'vec3 restWeight = vec3(1.0,1.0,1.0)-weightAmbient;\n'+
@@ -727,9 +755,13 @@ StormGLContext.prototype.pointers_Scene = function() {
 	_this.sampler_Scene_textureFB_GIVoxel = _this.gl.getUniformLocation(_this.shader_Scene, "sampler_textureFBGIVoxel");
 	_this.samplers_Scene_objectTexturesKd = [];
 	_this.us_Scene_roughness = [];
+	_this.us_Scene_solidColor = [];
 	for(var n = 0; n < _this.MAX_TEXTURESKD; n++) {
 		_this.samplers_Scene_objectTexturesKd[n] = _this.gl.getUniformLocation(_this.shader_Scene, "objectTexturesKd["+n+"]");
 		_this.us_Scene_roughness[n] = _this.gl.getUniformLocation(_this.shader_Scene, "uRoughness["+n+"]");
+	}
+	for(var n = 0; n < 25; n++) {
+		_this.us_Scene_solidColor[n] = _this.gl.getUniformLocation(_this.shader_Scene, "uSolidColor["+n+"]");
 	}
 	
 	_this.u_Scene_ssaoLevel = _this.gl.getUniformLocation(_this.shader_Scene, "uOcclusionLevel");
@@ -967,6 +999,17 @@ StormGLContext.prototype.renderSceneNow = function(node, buffersObject) {
 		next++;
 		
 		this.gl.uniform1f(this.us_Scene_roughness[n], node.materialUnits[n].Ns);
+	}
+	
+	for(var n = 0; n < 25; n++) {
+		if(node.materialUnits[n] != undefined) {
+			this.gl.uniform4f(this.us_Scene_solidColor[n], node.materialUnits[n].textureObjectKd.inData[0],
+															node.materialUnits[n].textureObjectKd.inData[1],
+															node.materialUnits[n].textureObjectKd.inData[2],
+															node.materialUnits[n].textureObjectKd.inData[3]);
+		} else {
+			this.gl.uniform4f(this.us_Scene_solidColor[n], 1,1,0,1);
+		}		
 	}
 		
 

@@ -713,33 +713,33 @@ StormVoxelizator.prototype.setVoxels = function(jsonIn) {
 		imageElement.voxelizator = this;
 		imageElement.ongenerate = jsonIn.ongenerate;
 		imageElement.onload = function() {
-			if(this.generateCLGLBuffers == true) {
+			if(this.voxelizator.generateCLGLBuffers == true) {
 				var buffer = this.voxelizator.CLGL_Voxels.createBuffer(this.width*this.height, 'FLOAT4', this.voxelizator.size/1.9);      
 				this.voxelizator.CLGL_Voxels.enqueueWriteBuffer(buffer, this);  
 			}
 			
 			if(this.voxelizator.typeFillMode == "albedo") {
-				if(this.generateCLGLBuffers == true)
+				if(this.voxelizator.generateCLGLBuffers == true)
 					this.voxelizator.clglBuff_VoxelsColor = buffer;
 				
 				this.voxelizator.image3D_VoxelsColor = this;
 			} else if(this.voxelizator.typeFillMode == "positionX") {
-				if(this.generateCLGLBuffers == true)
+				if(this.voxelizator.generateCLGLBuffers == true)
 					this.voxelizator.clglBuff_VoxelsPositionX = buffer;
 				
 				this.voxelizator.image3D_VoxelsPositionX = this;
 			} else if(this.voxelizator.typeFillMode == "positionY") {
-				if(this.generateCLGLBuffers == true)
+				if(this.voxelizator.generateCLGLBuffers == true)
 					this.voxelizator.clglBuff_VoxelsPositionY = buffer;
 				
 				this.voxelizator.image3D_VoxelsPositionY = this;
 			} else if(this.voxelizator.typeFillMode == "positionZ") {
-				if(this.generateCLGLBuffers == true)
+				if(this.voxelizator.generateCLGLBuffers == true)
 					this.voxelizator.clglBuff_VoxelsPositionZ = buffer;
 				
 				this.voxelizator.image3D_VoxelsPositionZ = this;
 			} else if(this.voxelizator.typeFillMode == "normal"){
-				if(this.generateCLGLBuffers == true)
+				if(this.voxelizator.generateCLGLBuffers == true)
 					this.voxelizator.clglBuff_VoxelsNormal = buffer;
 				
 				this.voxelizator.image3D_VoxelsNormal = this;
