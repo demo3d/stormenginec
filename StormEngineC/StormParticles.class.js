@@ -332,7 +332,7 @@ StormParticles.prototype.setDestinationVolume = function(jsonIn, enable) {
 	for(var n = 0, f = data.length/4; n < f; n++) { // num of active cells
 		var id = n*4;
 		
-		//if(data[id] > 30 && data[id+1] > 30 && data[id+2] > 30) {
+		//if(data[id] > 30 && data[id+1] > 30 && data[id+2] > 30) { 
 		if(data[id+3] > 0) {
 			stackParticles += particlesXCell;
 			var particlesOk = Math.floor(stackParticles);
@@ -466,7 +466,7 @@ StormParticles.prototype.makeWebCLGL = function() {
 	var offset = stormEngineC.particlesOffset;   
 	this.buffer_InitPos = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT4', offset);
 	this.buffer_InitDir = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT4', offset);
-	this.buffer_ParentId = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', 1000);
+	this.buffer_ParentId = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', 100);
 	this.buffer_PosX = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', offset);this.buffer_PosTempX = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', offset);
 	this.buffer_PosY = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', offset);this.buffer_PosTempY = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', offset);
 	this.buffer_PosZ = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', offset);this.buffer_PosTempZ = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', offset); 
@@ -664,22 +664,24 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 								
 								
 								// for network graph
-								/*'int width = '+parseInt(Math.sqrt(this.particlesLength))+';'+
-								'int height = '+parseInt(Math.sqrt(this.particlesLength))+';'+
-								'float workItemWidth = 1.0/float(width);'+
-								'float workItemHeight = 1.0/float(height);'+
-								
-								'int pId = int(parentId[x]);'+								
-								'float num = float(pId/width);\n'+
-								'float col = fract(num)*float(width);\n'+ 	 
-								'float row = floor(num);\n'+
-								
-								'vec2 xb = vec2(float(col)*workItemWidth, float(row)*workItemHeight);'+
-								'vec3 posParent = vec3(posX[xb], posY[xb], posZ[xb]);'+
-								'vec3 dirParent = posParent-vec3(0.0,0.0,0.0);'+
-								'vec3 destinationPoss = posParent+dirParent;'+
-								'vec3 dirToDestination = destinationPoss-currentPos;'+*/
-								
+								'vec3 posParent, dirToDestination;\n'+
+								'if(isGraph == 1.0) {'+
+									'int width = '+parseInt(Math.sqrt(this.particlesLength))+';'+
+									'int height = '+parseInt(Math.sqrt(this.particlesLength))+';'+
+									'float workItemWidth = 1.0/float(width);'+
+									'float workItemHeight = 1.0/float(height);'+
+									
+									'int pId = int(parentId[x]);'+								
+									'float num = float(pId/width);\n'+
+									'float col = fract(num)*float(width);\n'+ 	 
+									'float row = floor(num);\n'+
+									
+									'vec2 xb = vec2(float(col)*workItemWidth, float(row)*workItemHeight);'+
+									'posParent = vec3(posX[xb], posY[xb], posZ[xb]);'+
+									'vec3 dirParent = posParent-vec3(0.0,0.0,0.0);'+
+									'vec3 destinationPoss = posParent+dirParent;'+
+									'dirToDestination = destinationPoss-currentPos;'+
+								'}'+
 								
 								
 								
@@ -705,9 +707,9 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 								'}'+
 								
 								// for network graph
-								/*'if(isGraph == 1.0) {'+
-									'currentDir = dirToDestination*( max(min(1.0-length(posParent-currentPos),1.0),0.0) )*0.8;'+
-								'}'+*/
+								'if(isGraph == 1.0) {'+
+									'currentDir = currentDir+(dirToDestination*( max(min(1.0-length(posParent-currentPos),1.0),0.0) ))*0.8;'+
+								'}'+
 								
 								
 								'vec3 newDir = currentDir;\n';
@@ -724,7 +726,7 @@ StormParticles.prototype.updatekernelDir_Arguments = function() {
 	this.kernelDirXYZ.setKernelArg(ar,this.buffer_PosY); ar++; // 3
 	this.kernelDirXYZ.setKernelArg(ar,this.buffer_PosZ); ar++; // 4
 	this.kernelDirXYZ.setKernelArg(ar,this.buffer_Dir); ar++; // 5
-	this.kernelDirXYZ.setKernelArg(ar,(this.isGraph)?1.0:0.0); ar++; // 6
+	this.kernelDirXYZ.setKernelArg(ar,(this.isGraph == true)?1.0:0.0); ar++; // 6
 	this.kernelDirXYZ.setKernelArg(ar,this.buffer_ParentId); ar++; // 7
 	this.kernelDirXYZ.setKernelArg(ar,this.buffer_ParticlesPolaritys); ar++; // 8
 	this.kernelDirXYZ.setKernelArg(ar,this.buffer_Destination); ar++; // 9

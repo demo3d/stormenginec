@@ -19,12 +19,13 @@
 		<script>
 			var vert = [];
 			var links = [];
-			for(var n=0; n <= 32*32; n++) {
+			var nodesLength = 8*8;
+			for(var n=0; n <= nodesLength; n++) {
 				vert.push(n);
 			}
-			for(var n=0; n <= 32*32; n++) {
-				links.push({origin: vert[parseInt(Math.random()*32*32)],
-							end: vert[parseInt(Math.random()*32*32)]});
+			for(var n=0; n <= nodesLength; n++) {
+				links.push({origin: vert[parseInt(Math.random()*nodesLength)],
+							end: vert[parseInt(Math.random()*nodesLength)]});
 			}
 			console.log(links);
 			
@@ -37,7 +38,7 @@
 										enableRender: true});
 			var gravityForce = stormEngineC.createGravityForce();
 			stormEngineC.setWebGLSSAO(true, 3.2);
-			stormEngineC.setWebGLBackground('environmentMap');   
+			stormEngineC.setWebGLBackground($V3([0.,0.,0.]));   
 			
 			// LIGHTS
 			stormEngineC.setAmbientColor($V3([0.7, 0.75, 0.8]));
