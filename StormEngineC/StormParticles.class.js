@@ -103,22 +103,26 @@ StormParticles.prototype.generateParticles = function(jsonIn) {
 * 	@param {Float} [disposal.radius=0.5] Radius for type spherical (Anule width/height)
 */
 StormParticles.prototype.setDisposal = function(jsonIn) { 	
-	var arra = []; 
-	var arrayX = []; 
-	var arrayY = []; 
-	var arrayZ = []; 
-	var h = 0, hP = 0, vP = 0;
-	//console.log(this.buffersObjects);  
-	this.buffersObjects = [];
-	
-	for(var n = 0, f = this.particlesLength; n < f; n++) {
-		if(jsonIn != undefined && jsonIn.constructor === Array) {			
-			var v = this.getPosition().add(jsonIn[n]);
-			arrayX.push(v.e[0]);
-			arrayY.push(v.e[1]);
-			arrayZ.push(v.e[2]);
-			arra.push(v.e[0],v.e[1],v.e[2],0.0);
-		} else if(jsonIn == undefined || jsonIn.radius != undefined) {
+	if(this.isGraph == true) {		
+		var arra = [];
+		var arraGraph = [];
+		//var arraEnd = []; 
+		
+		var arrayX = [];
+		var arrayY = [];
+		var arrayZ = [];
+		var arrayGraphX = [];
+		var arrayGraphY = [];
+		var arrayGraphZ = [];
+		/*var arrayXEnd = [];
+		var arrayYEnd = [];
+		var arrayZEnd = [];*/
+		
+		var arrayParentId = []; 
+		
+		this.buffersObjects = [];
+		
+		for(var n = 0, f = this.particlesLength; n < f; n++) {
 			var rad = (jsonIn == undefined) ? 1.0 : jsonIn.radius;
 			var currAngleH = Math.random()*360.0;
 			var currAngleV = Math.random()*180.0;
@@ -131,35 +135,14 @@ StormParticles.prototype.setDisposal = function(jsonIn) {
 			arrayY.push(v.e[1]);
 			arrayZ.push(v.e[2]);
 			arra.push(v.e[0],v.e[1],v.e[2],0.0);
-		} else if(jsonIn.width != undefined) {
-			var spac = (jsonIn.spacing != undefined) ? jsonIn.spacing : 0.01; 
-			var oper = this.MPOS.x($V3([hP,0.0,vP]));
-			arrayX.push(oper.e[3]);
-			arrayY.push(oper.e[7]);
-			arrayZ.push(oper.e[11]);
-			arra.push(oper.e[0],oper.e[1],oper.e[2],0.0);
-			h++;
-			hP+=spac;
-			if(h > jsonIn.width-1) {h=0;hP=0;vP+=spac;}
 		}
-	}
-	
-	
-	
-	if(this.isGraph == true) {		
-		var arraGraph = []; 
-		var arrayGraphX = []; 
-		var arrayGraphY = []; 
-		var arrayGraphZ = []; 
-		var arrayGraphParentId = []; 
+		
 		for(var n = 0, f = this.graph.length; n < f; n++) {
-			arrayGraphX.push(arrayX[this.graph[n].origin]);
-			arrayGraphX.push(arrayX[this.graph[n].end]);
-			
+			arrayGraphX.push(arrayX[this.graph[n].origin]);			
 			arrayGraphY.push(arrayY[this.graph[n].origin]);
-			arrayGraphY.push(arrayY[this.graph[n].end]);
-			
 			arrayGraphZ.push(arrayZ[this.graph[n].origin]);
+			arrayGraphX.push(arrayX[this.graph[n].end]);			
+			arrayGraphY.push(arrayY[this.graph[n].end]);
 			arrayGraphZ.push(arrayZ[this.graph[n].end]);
 			
 			arraGraph.push(arrayX[this.graph[n].origin], arrayY[this.graph[n].origin], arrayZ[this.graph[n].origin], 0.0);
@@ -167,18 +150,18 @@ StormParticles.prototype.setDisposal = function(jsonIn) {
 			
 			var hasParent = false;
 			for(var nb = 0; nb < this.graph.length; nb++) {
-				if(this.graph[nb].end == this.graph[n].origin) {
+				if(this.graph[n].origin == this.graph[nb].end) {
 					var parentPos = $V3([arrayX[this.graph[nb].origin], arrayY[this.graph[nb].origin], arrayZ[this.graph[nb].origin]]);
 					var parentDir = parentPos.subtract(this.getPosition());
 					
 					//arrayGraphParentId.push(parentDir.e[0], parentDir.e[1], parentDir.e[2], 0.0);
 					
-					arrayGraphParentId.push(this.graph[nb].origin, this.graph[nb].origin); 
+					arrayParentId.push(this.graph[nb].origin, this.graph[nb].origin); 
 					hasParent = true;
 					break;
 				}				
 			}
-			if(hasParent == false) arrayGraphParentId.push(0,0);
+			if(hasParent == false) arrayParentId.push(0,0);
 		}
 		
 		
@@ -196,8 +179,50 @@ StormParticles.prototype.setDisposal = function(jsonIn) {
 		this.webCLGL.enqueueWriteBuffer(this.buffer_PosY, arrayGraphY);
 		this.webCLGL.enqueueWriteBuffer(this.buffer_PosZ, arrayGraphZ);
 		
-		this.webCLGL.enqueueWriteBuffer(this.buffer_ParentId, arrayGraphParentId);
-	} else {				
+		this.webCLGL.enqueueWriteBuffer(this.buffer_ParentId, arrayParentId);
+	} else {
+		var arra = []; 
+		var arrayX = []; 
+		var arrayY = []; 
+		var arrayZ = []; 
+		var h = 0, hP = 0, vP = 0;
+		//console.log(this.buffersObjects);  
+		this.buffersObjects = [];
+		
+		for(var n = 0, f = this.particlesLength; n < f; n++) {
+			if(jsonIn != undefined && jsonIn.constructor === Array) {			
+				var v = this.getPosition().add(jsonIn[n]);
+				arrayX.push(v.e[0]);
+				arrayY.push(v.e[1]);
+				arrayZ.push(v.e[2]);
+				arra.push(v.e[0],v.e[1],v.e[2],0.0);
+			} else if(jsonIn == undefined || jsonIn.radius != undefined) {
+				var rad = (jsonIn == undefined) ? 1.0 : jsonIn.radius;
+				var currAngleH = Math.random()*360.0;
+				var currAngleV = Math.random()*180.0;
+				var v = $V3([	cos(currAngleH) * Math.abs(sin(currAngleV)) * rad,  
+								cos(currAngleV) * rad * Math.random(),
+								sin(currAngleH) * Math.abs(sin(currAngleV)) * rad]);
+								
+				v = this.getPosition().add(v);
+				arrayX.push(v.e[0]);
+				arrayY.push(v.e[1]);
+				arrayZ.push(v.e[2]);
+				arra.push(v.e[0],v.e[1],v.e[2],0.0);
+			} else if(jsonIn.width != undefined) {
+				var spac = (jsonIn.spacing != undefined) ? jsonIn.spacing : 0.01; 
+				var oper = this.MPOS.x($V3([hP,0.0,vP]));
+				arrayX.push(oper.e[3]);
+				arrayY.push(oper.e[7]);
+				arrayZ.push(oper.e[11]);
+				arra.push(oper.e[0],oper.e[1],oper.e[2],0.0);
+				h++;
+				hP+=spac;
+				if(h > jsonIn.width-1) {h=0;hP=0;vP+=spac;}
+			}
+		}
+		
+		
 		this.arrVertexPoints = new Float32Array(this.particlesLength*3);
 		
 		this.makeWebCLGL();  
@@ -211,6 +236,7 @@ StormParticles.prototype.setDisposal = function(jsonIn) {
 		this.webCLGL.enqueueWriteBuffer(this.buffer_PosY, arrayY);
 		this.webCLGL.enqueueWriteBuffer(this.buffer_PosZ, arrayZ);
 	}
+	
 };
 /**
 * Set direction 
@@ -482,7 +508,7 @@ StormParticles.prototype.makeWebCLGL = function() {
 										'float* posZ,'+
 										'float4* dir,'+
 										'float lifeDistance) {'+
-								'vec2 x = get_global_id();'+	
+								'vec2 x = get_global_id();'+
 								'vec3 currentPos = vec3(posX[x],posY[x],posZ[x]);\n'+ 
 								'vec4 dir = dir[x];'+
 								'vec3 currentDir = vec3(dir.x,dir.y,dir.z);\n'+   
@@ -618,7 +644,7 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 										lines_argumentsPoles(this.idNum)+ 
 										lines_argumentsForces(this.idNum)+ 
 										') {\n'+
-								'vec2 x = get_global_id();\n'+	
+								'vec2 x = get_global_id();\n'+	 
 								'vec4 dirA = dir[x];'+								
 								'vec3 currentDir = vec3(dirA.x,dirA.y,dirA.z);\n'+ 
 								'vec3 currentPos = vec3(posX[x],posY[x],posZ[x]);\n'+ 
@@ -708,7 +734,7 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 								
 								// for network graph
 								'if(isGraph == 1.0) {'+
-									'currentDir = currentDir+(dirToDestination*( max(min(1.0-length(posParent-currentPos),1.0),0.0) ))*0.8;'+
+									'currentDir = currentDir+(dirToDestination*( max(min(1.0-length(posParent-currentPos),1.0),0.0) ))*0.8;'+ 
 								'}'+
 								
 								
