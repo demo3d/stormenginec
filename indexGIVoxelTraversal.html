@@ -34,7 +34,7 @@
                   });
 		      
 		      // CAMERA
-		      var nodeCam = stormEngineC.createCamera($V3([0.0, 0.0, 2.0]), 1.0); // create one camera
+		      var nodeCam = stormEngineC.createCamera($V3([0.0, 0.0, 10.0]), 1.0); // create one camera
 		      stormEngineC.setWebGLCam(nodeCam);
 		    
 		      //nodeCam.setController({'mode':'freecam'});
@@ -48,24 +48,31 @@
 			// SCENE
 			var nodeGround = stormEngineC.createNode();
 			nodeGround.loadObj({'objUrl':"UNUSED/cornellBox3wall.obj"});
-			nodeGround.setPosition($V3([0.0, 0.0, 2.5])); 
+			nodeGround.setPosition($V3([0.0, 0.0, 0.0])); 
 			
-			 var nodeBunny = stormEngineC.createNode();
+			var nodeBunny = stormEngineC.createNode();
 			nodeBunny.loadObj({'objUrl':"UNUSED/bunny.obj"}); 
-			nodeBunny.setPosition($V3([-0.7, -0.1, -1.1])); 
+			nodeBunny.setPosition($V3([-0.7, -0.1, -1.1]));
+			
+			/*var nodeGround = stormEngineC.createNode();
+			nodeGround.loadObj({'objUrl':"UNUSED/boxesExterior.obj"});
+			nodeGround.setPosition($V3([0.0, 0.0, 0.0])); 
 				
+			 var nodeBunny = stormEngineC.createNode();
+			nodeBunny.loadObj({'objUrl':"UNUSED/planeSuelo.obj"}); 
+			nodeBunny.setPosition($V3([0.0, -0.1, 0.0]));*/
 				
 				
 			giv2 = function() {
 				var voxelizator = stormEngineC.createVoxelizator();
-				voxelizator.generateFromScene({size:8,
+				voxelizator.generateFromScene({size:6.1,
 												resolution:128,
 												fillmode:["albedo","position","normal"],
 												ongenerate:function() {												
 													// enable WebGL GI  
 													var gi = new StormGI();
 													gi.setVoxelizator(voxelizator);
-													
+													gi.setMaxBounds(1);
 													
 												}});     
 				

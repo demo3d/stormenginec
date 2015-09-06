@@ -8,8 +8,6 @@ StormVoxelizator = function() {
 	this.objectType = 'voxelizator'; 
 	this.CLGL_Voxels; // WebCLGL object
 	
-	this.generateCLGLBuffers = true;
-	
 	this.clglBuff_VoxelsColor;  // 
 	this.clglBuff_VoxelsPositionX;
 	this.clglBuff_VoxelsPositionY;
@@ -89,7 +87,7 @@ StormVoxelizator.prototype.initShader_VoxelizatorMaker = function() {
 				'vec3 vp = vec3(aVertexPosition.x*u_nodeVScale.x, aVertexPosition.y*u_nodeVScale.y, aVertexPosition.z*u_nodeVScale.z);\n'+
 				'vec3 vertexPositionFlipX = vp*vec3(1.0,1.0,1.0);'+
 				'vec4 vPosition = uPMatrix*u_cameraWMatrix*u_nodeWMatrix*vec4(vertexPositionFlipX,1.0);'+  
-				'vec3 verP; float doffset = 0.01*uGridsize*vPosition.z;'+       
+				'vec3 verP; float doffset = 0.1*uGridsize*vPosition.z;'+       
 				'if(uCurrentOffset == 0) verP = vec3(vertexPositionFlipX)+(vec3(	doffset,	0.0,	doffset));'+  
 				'if(uCurrentOffset == 1) verP = vec3(vertexPositionFlipX)+(vec3(	-doffset,	0.0,	-doffset));'+  
 				'if(uCurrentOffset == 2) verP = vec3(vertexPositionFlipX)+(vec3(	-doffset,	0.0,	doffset));'+  
@@ -143,9 +141,9 @@ StormVoxelizator.prototype.initShader_VoxelizatorMaker = function() {
 					
 					'vec3 p = vec3(0.0,0.0,0.0)+vec3(-(gridSize/2.0), -(gridSize/2.0), -(gridSize/2.0));\n'+ // init position
 					'float ccX = gl_FragCoord.x;'+
-					'float ccZ = gl_FragCoord.y;'+
 					'int ccY = uCurrentHeight;'+
-					'p = p+vec3(cs*(float(ccX)), cs*float(ccY), cs*(float(ccZ)));\n'+
+					'float ccZ = float(maxLevelCells)-gl_FragCoord.y;'+ 		 			
+					'p = p+vec3(cs*ccX, cs*float(ccY), cs*ccZ);\n'+
 					'p = p+vec3(cs, cs, cs);\n'+
 					
 					'if(uFillModePos == 0) {'+ // posX
@@ -192,12 +190,9 @@ StormVoxelizator.prototype.pointers_VoxelizatorMaker = function() {
 * 	@param {Float} [jsonIn.size=2.1] Grid size.
 * 	@param {Int} [jsonIn.resolution=32] Grid resolution.
 * 	@param {Array<String>} [jsonIn.fillmode=["albedo"]] Modes of data fill. "albedo"|"position"|"normal"
-* 	@param {Bool} [jsonIn.generateCLGLBuffers=true] Generate the WebCLGL buffers.
 * 	@param {Function} [jsonIn.ongenerate] On generate event.
 */
 StormVoxelizator.prototype.generateFromScene = function(jsonIn) { 
-	if(jsonIn.generateCLGLBuffers != undefined) this.generateCLGLBuffers = jsonIn.generateCLGLBuffers;
-	
 	stormEngineC.setStatus({id:'voxelizator', str:'Performing voxelization...'});
 	var _this = this;
 	setTimeout(function(){
@@ -549,12 +544,9 @@ StormVoxelizator.prototype.get3DImageElement = function(fillmode) {
 * 	@param {Int} jsonIn.resolution Grid resolution. (No 3Dtexture resolution)
 * 	@param {Array<String>} [jsonIn.fillmode=["albedo"]] Modes of data fill. "albedo"|"positionX"|"positionY"|"positionZ"|"normal"
 * 	@param {Array<String|HTMLImageElement|Array<String>>} jsonIn.image 3Dtexture urls array or HTMLImageElements array or array of url subarrays for each slice of a 3Dtexture.
-* 	@param {Bool} [jsonIn.generateCLGLBuffers=true] Generate the WebCLGL buffers.
 * 	@param {Function} [jsonIn.ongenerate] On generate event.
 */
 StormVoxelizator.prototype.generateFrom3DImageElement = function(jsonIn) {  
-	if(jsonIn.generateCLGLBuffers != undefined) this.generateCLGLBuffers = jsonIn.generateCLGLBuffers;
-	
 	this.ongeneratefunction = jsonIn.ongenerate;
 	
 	this.CLGL_Voxels = new WebCLGL(stormEngineC.stormGLContext.gl);  
@@ -595,7 +587,7 @@ StormVoxelizator.prototype.generateFrom3DImageElement = function(jsonIn) {
 							if(this.nb == jsonIn.image[this.n].length-1) {
 								this.voxelizator.setVoxels({'image':this.voxelizator.arr_VoxelsColor, 'wh':this.voxelizator.wh});
 								
-								if(this.voxelizator.ongeneratefunction != undefined && this.n == (jsonIn.fillmode.length-1)) { 
+								if(this.voxelizator.ongeneratefunction != undefined && this.n == (jsonIn.fillmode.length-1)) {
 									this.voxelizator.ongeneratefunction(this.voxelizator);
 								}
 							}
@@ -662,47 +654,35 @@ StormVoxelizator.prototype.generateFrom3DImageElement = function(jsonIn) {
 /** @private */
 StormVoxelizator.prototype.setVoxels = function(jsonIn) { 
 	if(jsonIn.image instanceof Uint8Array || jsonIn.image instanceof HTMLImageElement) {
-		if(this.generateCLGLBuffers == true) {
-			var buffer = this.CLGL_Voxels.createBuffer(jsonIn.wh*jsonIn.wh, 'FLOAT4', this.size/1.9);
-			this.CLGL_Voxels.enqueueWriteBuffer(buffer, jsonIn.image);
-		}
+		var buffer = this.CLGL_Voxels.createBuffer(jsonIn.wh*jsonIn.wh, 'FLOAT4', this.size/1.9);
+		this.CLGL_Voxels.enqueueWriteBuffer(buffer, jsonIn.image);
 		
 		if(this.typeFillMode == "albedo") {
-			if(this.generateCLGLBuffers == true)
-				this.clglBuff_VoxelsColor = buffer; 
-			
+			this.clglBuff_VoxelsColor = buffer; 
 			var canvas = (jsonIn.image instanceof Uint8Array) ?
 				stormEngineC.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
 				stormEngineC.utils.getCanvasFromUint8Array(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
 			this.image3D_VoxelsColor = stormEngineC.utils.getImageFromCanvas(canvas);
 		} else if(this.typeFillMode == "positionX") {
-			if(this.generateCLGLBuffers == true)
-				this.clglBuff_VoxelsPositionX = buffer; 
-			
+			this.clglBuff_VoxelsPositionX = buffer; 
 			var canvas = (jsonIn.image instanceof Uint8Array) ?
 				stormEngineC.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
 				stormEngineC.utils.getCanvasFromUint8Array(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
 			this.image3D_VoxelsPositionX = stormEngineC.utils.getImageFromCanvas(canvas);
 		} else if(this.typeFillMode == "positionY") {
-			if(this.generateCLGLBuffers == true)
-				this.clglBuff_VoxelsPositionY = buffer; 
-			
+			this.clglBuff_VoxelsPositionY = buffer; 
 			var canvas = (jsonIn.image instanceof Uint8Array) ?
 				stormEngineC.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
 				stormEngineC.utils.getCanvasFromUint8Array(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
 			this.image3D_VoxelsPositionY = stormEngineC.utils.getImageFromCanvas(canvas);
 		} else if(this.typeFillMode == "positionZ") {
-			if(this.generateCLGLBuffers == true)
-				this.clglBuff_VoxelsPositionZ = buffer; 
-			
+			this.clglBuff_VoxelsPositionZ = buffer; 
 			var canvas = (jsonIn.image instanceof Uint8Array) ?
 				stormEngineC.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
 				stormEngineC.utils.getCanvasFromUint8Array(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
 			this.image3D_VoxelsPositionZ = stormEngineC.utils.getImageFromCanvas(canvas);
 		} else if(this.typeFillMode == "normal") {
-			if(this.generateCLGLBuffers == true)
-				this.clglBuff_VoxelsNormal = buffer; 
-			
+			this.clglBuff_VoxelsNormal = buffer; 
 			var canvas = (jsonIn.image instanceof Uint8Array) ?
 				stormEngineC.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
 				stormEngineC.utils.getCanvasFromUint8Array(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
@@ -713,35 +693,23 @@ StormVoxelizator.prototype.setVoxels = function(jsonIn) {
 		imageElement.voxelizator = this;
 		imageElement.ongenerate = jsonIn.ongenerate;
 		imageElement.onload = function() {
-			if(this.voxelizator.generateCLGLBuffers == true) {
-				var buffer = this.voxelizator.CLGL_Voxels.createBuffer(this.width*this.height, 'FLOAT4', this.voxelizator.size/1.9);      
-				this.voxelizator.CLGL_Voxels.enqueueWriteBuffer(buffer, this);  
-			}
+			var buffer = this.voxelizator.CLGL_Voxels.createBuffer(this.width*this.height, 'FLOAT4', this.voxelizator.size/1.9);      
+			this.voxelizator.CLGL_Voxels.enqueueWriteBuffer(buffer, this);  
 			
 			if(this.voxelizator.typeFillMode == "albedo") {
-				if(this.voxelizator.generateCLGLBuffers == true)
-					this.voxelizator.clglBuff_VoxelsColor = buffer;
-				
+				this.voxelizator.clglBuff_VoxelsColor = buffer; 
 				this.voxelizator.image3D_VoxelsColor = this;
 			} else if(this.voxelizator.typeFillMode == "positionX") {
-				if(this.voxelizator.generateCLGLBuffers == true)
-					this.voxelizator.clglBuff_VoxelsPositionX = buffer;
-				
+				this.voxelizator.clglBuff_VoxelsPositionX = buffer; 
 				this.voxelizator.image3D_VoxelsPositionX = this;
 			} else if(this.voxelizator.typeFillMode == "positionY") {
-				if(this.voxelizator.generateCLGLBuffers == true)
-					this.voxelizator.clglBuff_VoxelsPositionY = buffer;
-				
+				this.voxelizator.clglBuff_VoxelsPositionY = buffer; 
 				this.voxelizator.image3D_VoxelsPositionY = this;
 			} else if(this.voxelizator.typeFillMode == "positionZ") {
-				if(this.voxelizator.generateCLGLBuffers == true)
-					this.voxelizator.clglBuff_VoxelsPositionZ = buffer;
-				
+				this.voxelizator.clglBuff_VoxelsPositionZ = buffer; 
 				this.voxelizator.image3D_VoxelsPositionZ = this;
 			} else if(this.voxelizator.typeFillMode == "normal"){
-				if(this.voxelizator.generateCLGLBuffers == true)
-					this.voxelizator.clglBuff_VoxelsNormal = buffer;
-				
+				this.voxelizator.clglBuff_VoxelsNormal = buffer;
 				this.voxelizator.image3D_VoxelsNormal = this;
 			}
 			
@@ -804,11 +772,11 @@ StormVoxelizator.prototype.rayTraversalSTR = function(getVoxelFunctionGLSLStr) {
 		'vec3 _dir = normalize(RayDir);'+   
 		'vec3 tMax;'+  
 		'if(RayDir.x < 0.0) tMax.x = (voxelToWorldX(voxel.x)-RayOrigin.x)/RayDir.x;'+ 	      
-		'else tMax.x = (voxelToWorldX((voxel.x+1.0))-RayOrigin.x)/RayDir.x;'+
+		'if(RayDir.x > 0.0) tMax.x = (voxelToWorldX(voxel.x+1.0)-RayOrigin.x)/RayDir.x;'+
 		'if(RayDir.y < 0.0) tMax.y = (voxelToWorldY(voxel.y)-RayOrigin.y)/RayDir.y;'+
-		'else tMax.y = (voxelToWorldY((voxel.y+1.0))-RayOrigin.y)/RayDir.y;'+
+		'if(RayDir.y < 0.0) tMax.y = (voxelToWorldY(voxel.y+1.0)-RayOrigin.y)/RayDir.y;'+
 		'if(RayDir.z < 0.0) tMax.z = (voxelToWorldZ(voxel.z)-RayOrigin.z)/RayDir.z;'+
-		'else tMax.z = (voxelToWorldZ((voxel.z+1.0))-RayOrigin.z)/RayDir.z;'+
+		'if(RayDir.z < 0.0) tMax.z = (voxelToWorldZ(voxel.z+1.0)-RayOrigin.z)/RayDir.z;'+
 		 
 		'float tDeltaX = _r.x/abs(RayDir.x);'+// hasta qué punto se debe avanzar en la dirección del rayo antes de que nos encontramos con un nuevo voxel en la dirección x
 		'float tDeltaY = _r.y/abs(RayDir.y);'+

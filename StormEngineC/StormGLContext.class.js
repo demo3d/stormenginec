@@ -171,6 +171,22 @@ StormGLContext.prototype.initContext = function() {
 	// WEBGL FB TEXTURES
 	// TEXTURE FRAMEBUFFER CTX2D
 	this.textureObject_Ctx2D = this.gl.createTexture();	
+	// TEXTURE FRAMEBUFFER GIv2 SCREEN COLOR
+	this.textureFB_GIv2_screenColor = this.gl.createTexture();
+	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIv2_screenColor); 
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this._supportFormat, null);
+	this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
+	// TEXTURE FRAMEBUFFER GIv2 SCREEN COLOR TEMP
+	this.textureFB_GIv2_screenColorTEMP = this.gl.createTexture();
+	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIv2_screenColorTEMP); 
+	this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.viewportWidth,this.viewportHeight, 0, this.gl.RGBA, this._supportFormat, null);
+	this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+    this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);
 	// TEXTURE FRAMEBUFFER GIv2 SCREEN POS
 	this.textureFB_GIv2_screenPos = this.gl.createTexture();
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIv2_screenPos); 
@@ -542,6 +558,8 @@ StormGLContext.prototype.renderGLContext = function() {
 		this.gl.clearColor(1.0,1.0,1.0, 1.0);
 		
 		if(this.sampleGiVoxels == 0 && this.GIstopOncameramove == true) { // clear the static 
+			this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenColor, 0);
+			this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);  
 			this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenPos, 0);
 			this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);  
 			this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenNormal, 0);
@@ -550,6 +568,8 @@ StormGLContext.prototype.renderGLContext = function() {
 			this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);  
 		} else {
 			if(this.sampleGiVoxels == 0) {// clear the static
+				this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenColor, 0);
+				this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT); 
 				this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenPos, 0);
 				this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);  
 				this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenNormal, 0);
@@ -557,22 +577,35 @@ StormGLContext.prototype.renderGLContext = function() {
 				this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIVoxel, 0);
 				this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);  
 			}
-			this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenPosTEMP, 0);
-			this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+			this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenColorTEMP, 0);
+			//this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 			this.gl.useProgram(this.shader_GIv2);
-			this.gl.uniform1i(this.u_GIv2_typePass, 0);// position
+			this.gl.uniform1i(this.u_GIv2_typePass, 0);// color
 			this.render_GIv2();
+			
+			this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenPosTEMP, 0);
+			//this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+			this.gl.useProgram(this.shader_GIv2);
+			this.gl.uniform1i(this.u_GIv2_typePass, 1);// position
+			this.render_GIv2();
+			
 			this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenNormalTEMP, 0);
-			this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+			//this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 			this.gl.useProgram(this.shader_GIv2);      
-			this.gl.uniform1i(this.u_GIv2_typePass, 1);// normal
+			this.gl.uniform1i(this.u_GIv2_typePass, 2);// normal
 			this.render_GIv2(); 
 			
+			stormEngineC.clgl.copy(this.textureFB_GIv2_screenColorTEMP, this.textureFB_GIv2_screenColor);
 			stormEngineC.clgl.copy(this.textureFB_GIv2_screenPosTEMP, this.textureFB_GIv2_screenPos);  
 			stormEngineC.clgl.copy(this.textureFB_GIv2_screenNormalTEMP, this.textureFB_GIv2_screenNormal);  
+			/*this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenPosTEMP, 0);
+			this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+			this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenNormalTEMP, 0);
+			this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);*/
 			
 			this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIVoxel_TEMP, 0);
-			this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+			//this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+			this.gl.useProgram(this.shader_GIv2Exec); 
 			this.render_GIv2Exec();  
 			
 			stormEngineC.clgl.copy(this.textureFB_GIVoxel_TEMP, this.textureFB_GIVoxel);  
