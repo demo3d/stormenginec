@@ -35,7 +35,7 @@ StormPolarityPoint.prototype.deletePolarityPoint = function() {
 		var kernelDirX_Source = kernelDir_Source+
 								'out_float4 = vec4(newDir,1.0);\n'+
 								'}';
-		this.nodesProc[n].kernelDirX.setKernelSource(kernelDirX_Source);	
+		this.nodesProc[n].kernelDirXYZ.setKernelSource(kernelDirX_Source);	
 		this.nodesProc[n].updatekernelDir_Arguments(); 
 	}
 };
@@ -60,7 +60,7 @@ StormPolarityPoint.prototype.get = function(jsonIn) {
 		var kernelDirX_Source = kernelDir_Source+
 								'out_float4 = vec4(newDir,1.0);\n'+
 								'}';
-		jsonIn.node.kernelDirX.setKernelSource(kernelDirX_Source);		
+		jsonIn.node.kernelDirXYZ.setKernelSource(kernelDirX_Source);		
 		jsonIn.node.updatekernelDir_Arguments(); 
 	} else alert('This particle already exist in this polarity point');
 };

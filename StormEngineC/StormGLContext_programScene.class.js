@@ -177,8 +177,7 @@ StormGLContext.prototype.initShader_Scene = function() {
 				
 				'vec3 pixelCoord = vpositionViewportRegion.xyz / vpositionViewportRegion.w;'+
 				
-				'vec4 textureFBGIVoxel = texture2D(sampler_textureFBGIVoxel, pixelCoord.xy);\n'+
-				//'float GIVoxelsShadow = textureFBGIVoxel.x/(textureFBGIVoxel.g);'+
+				'vec4 textureFBGIVoxel = texture2D(sampler_textureFBGIVoxel, pixelCoord.xy);\n'+				
 				'vec3 GIVoxelsShadow = vec3((textureFBGIVoxel.r/textureFBGIVoxel.a), (textureFBGIVoxel.g/textureFBGIVoxel.a), (textureFBGIVoxel.b/textureFBGIVoxel.a));'+
 				
 				'vec4 textureFBCameraDepth = texture2D(sampler_textureFBNormals, pixelCoord.xy);\n'+
@@ -387,8 +386,9 @@ StormGLContext.prototype.initShader_Scene = function() {
 				'} else {\n'+
 					'gl_FragColor = vec4( min(1.0,acum.x+0.6), acum.y, acum.z, textureColor.a);\n'+
 				'}\n'+
-				//'if(uUseTextureFBGIVoxel == 1) gl_FragColor = vec4(GIVoxelsShadow,1.0);\n'+ 
-				//'if(uUseTextureFBGIVoxel == 1) gl_FragColor = textureFBGIVoxel;\n'+ 
+				 
+				//'gl_FragColor = vec4(textureFBGIVoxel.xyz, 1.0);\n'+ 
+				//'gl_FragColor = vec4(GIVoxelsShadow, 1.0);\n'+ 
 			'}';
 	} else {
 		sourceFragment = _this.precision+

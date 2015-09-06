@@ -1,0 +1,128 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 24.04.2012 21:29:36
+
+newmtl 10___Default
+	Ns 100.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 0.5882 0.8902
+	Kd 1.0000 0.5882 0.8902
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+
+newmtl 09___Default
+	Ns 80.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.5882 0.5882 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+
+newmtl 08___Default
+	Ns 40.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 0.8196 0.5882
+	Kd 1.0000 0.8196 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+
+newmtl 07___Default
+	Ns 20.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.5882 0.5882 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+
+newmtl 05___Default
+	Ns 10.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.2314 0.2314 1.0000
+	Kd 0.2314 0.2314 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+
+newmtl 04___Default
+	Ns 5.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.5882 0.5882 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+
+newmtl 03___Default
+	Ns 2.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.6078 1.0000 0.5882
+	Kd 0.6078 1.0000 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+
+newmtl 02___Default
+	Ns 1.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.5882 0.5882 0.5882
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+
+newmtl 01___Default
+	Ns 0.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 1.0000 0.1922 0.1922
+	Kd 1.0000 0.1922 0.1922
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
+	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\boxesExterior\ColorGradients.jpg
