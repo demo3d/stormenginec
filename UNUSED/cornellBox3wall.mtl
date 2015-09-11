@@ -26,6 +26,8 @@ newmtl red
 	Kd 1.0000 0.0000 0.0000
 	Ks 0.3300 0.3300 0.3300
 	Ke 0.0000 0.0000 0.0000
+	map_Ka C:\Program Files\Autodesk\3ds Max 2012\Maps\adskMtl\red.jpg
+	map_Kd C:\Program Files\Autodesk\3ds Max 2012\Maps\adskMtl\red.jpg
 
 newmtl green
 	Ns 100.0000
@@ -38,3 +40,5 @@ newmtl green
 	Kd 0.0000 1.0000 0.0000
 	Ks 0.3300 0.3300 0.3300
 	Ke 0.0000 0.0000 0.0000
+	map_Ka C:\Program Files\Autodesk\3ds Max 2012\Maps\adskMtl\green.jpg
+	map_Kd C:\Program Files\Autodesk\3ds Max 2012\Maps\adskMtl\green.jpg

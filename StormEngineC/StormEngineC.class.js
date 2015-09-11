@@ -204,6 +204,7 @@ if(window.WebCL == undefined) {
 	document.write('<script type="text/javascript" src="'+stormEngineCDirectory+'/StormRenderCLv4.class.js"></script>'); // path tracing
 	document.write('<script type="text/javascript" src="'+stormEngineCDirectory+'/StormRenderCL_EMR.class.js"></script>'); // Electromagnetic radiation
 }
+
 /** @private */
 window.requestAnimFrame = (function(){
 	return  window.requestAnimationFrame       || 
@@ -760,11 +761,7 @@ StormEngineC.prototype.loadManager = function() {
 			stormEngineC.PanelMaterials.show();
 		});						 				
 		$("#STORMMENUBTN_C5_01").on('click', function() {
-			if(window.WebCL == undefined) {
-				alert('Your browser does not support experimental-nokia-webcl. See http://webcl.nokiaresearch.com/ for rendering.');
-			} else {
-				stormEngineC.PanelRenderSettings.show();
-			}
+			stormEngineC.PanelRenderSettings.show();
 		});
 	}// END EDIT MODE
 	
@@ -2138,39 +2135,34 @@ StormEngineC.prototype.clearScene = function() {
 StormEngineC.prototype.renderFrame = function(jsonIn) {
 	var modeRender = 0;
 	if(jsonIn.mode == 1) {modeRender = 1;}
-					
+			
+	this.renderStop = false;
+	this.pauseRender = false;
+	
 	if(window.WebCL == undefined) {
 		alert('Your browser does not support experimental-nokia-webcl. See http://webcl.nokiaresearch.com/');
 	} else {
-		this.renderStop = false;
-		
-		this.pauseRender = false;
-		switch(modeRender) {
-			case 0:
-				this.PanelAnimationTimeline.setFrame(jsonIn.frameStart);
-				this.stormRender = new StormRender({'target':jsonIn.target,
+		if(modeRender == 0) {nelAnimationTimeline.setFrame(jsonIn.frameStart);			
+			this.stormRender = new StormRender({'target':jsonIn.target,
+												'callback':jsonIn.callback,
+												'width':jsonIn.width,
+												'height':jsonIn.height,
+												'frameStart':jsonIn.frameStart,
+												'frameEnd':jsonIn.frameEnd});
+		} else if(modeRender == 1) {
+			this.PanelAnimationTimeline.setFrame(jsonIn.frameStart);
+			this.stormRender = new StormRenderEMR({	'target':jsonIn.target,
 													'callback':jsonIn.callback,
 													'width':jsonIn.width,
 													'height':jsonIn.height,
 													'frameStart':jsonIn.frameStart,
 													'frameEnd':jsonIn.frameEnd});
-				break;
-			case 1:
-				this.PanelAnimationTimeline.setFrame(jsonIn.frameStart);
-				this.stormRender = new StormRenderEMR({	'target':jsonIn.target,
-														'callback':jsonIn.callback,
-														'width':jsonIn.width,
-														'height':jsonIn.height,
-														'frameStart':jsonIn.frameStart,
-														'frameEnd':jsonIn.frameEnd});
-				break;
 		}
 		this.stormRender.setCam(this.defaultCamera);
 		this.stormRender.makeRender();
 		
 		this.pause = true;
 	}
-	
 };
 
 /**

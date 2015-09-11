@@ -42,7 +42,7 @@ StormEngineC_PanelRenderSettings.prototype.loadPanel = function() {
 	stormEngineC.makePanel(_this, 'DIVID_StormRenderSettings', 'RENDER SETTINGS', html);	
 	
 	
-	$("#DIVID_StormRenderSettings #BTNID_StormRenderBtn").bind('click', function() {
+	$("#BTNID_StormRenderBtn").bind('click', function() {
 												stormEngineC.PanelRenderSettings.pushRender();
 											});
 };
@@ -63,6 +63,7 @@ StormEngineC_PanelRenderSettings.prototype.show = function() {
 * @param {Int} height
 */
 StormEngineC_PanelRenderSettings.prototype.render = function(width, height) {
+	console.log("making render");
 	var w = (width != undefined) ? width : $('#INPUTID_StormRenderSettings_width').val();
 	var h = (height != undefined) ? height : $('#INPUTID_StormRenderSettings_height').val();
 	

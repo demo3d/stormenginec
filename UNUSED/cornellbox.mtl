@@ -1,58 +1,44 @@
 # 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
-# File Created: 13.01.2011 20:11:07
+# File Created: 07.09.2015 19:30:46
 
 newmtl white
-	Ns 100.0
-	Ni 1.500000
-	d 1.000000
-	Tr 0.000000
-	Tf 1.000000 1.000000 1.000000 
+	Ns 100.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
 	illum 2
-	Ka 0.588235 0.588235 0.588235
-	Kd 1.0 1.0 1.0
-	Ks 0.000000 0.000000 0.000000
-	Ke 0.000000 0.000000 0.000000
-	map_Ka R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\bunny\UV.jpg
-	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\bunny\white.jpg
+	Ka 0.5882 0.5882 0.5882
+	Kd 1.0000 1.0000 1.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka C:\Program Files\Autodesk\3ds Max 2012\Maps\adskMtl\white.jpg
+	map_Kd C:\Program Files\Autodesk\3ds Max 2012\Maps\adskMtl\white.jpg
 
 newmtl green
-	Ns 100.0
-	Ni 1.500000
-	d 1.000000
-	Tr 0.000000
-	Tf 1.000000 1.000000 1.000000 
+	Ns 100.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
 	illum 2
-	Ka 0.588235 0.588235 0.588235
-	Kd 0.0 1.0 0.0
-	Ks 0.000000 0.000000 0.000000
-	Ke 0.000000 0.000000 0.000000
-	map_Ka R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\bunny\UV.jpg
-	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\bunny\green.jpg
+	Ka 0.5882 0.5882 0.5882
+	Kd 0.0000 1.0000 0.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka R:\PROJECTS\PROGRAMMING\stormenginec\UNUSED\green.jpg
+	map_Kd R:\PROJECTS\PROGRAMMING\stormenginec\UNUSED\green.jpg
 
 newmtl red
-	Ns 100.0
-	Ni 1.500000
-	d 1.000000
-	Tr 0.000000
-	Tf 1.000000 1.000000 1.000000 
+	Ns 100.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
 	illum 2
-	Ka 0.588235 0.588235 0.588235
-	Kd 1.0 0.0 0.0
-	Ks 0.000000 0.000000 0.000000
-	Ke 0.000000 0.000000 0.000000
-	map_Ka R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\bunny\UV.jpg
-	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\bunny\red.jpg 
-
-newmtl lena
-	Ns 100.0
-	Ni 1.500000
-	d 1.000000
-	Tr 0.000000
-	Tf 1.000000 1.000000 1.000000 
-	illum 2
-	Ka 0.588235 0.588235 0.588235
-	Kd 1.0 1.0 1.0
-	Ks 0.000000 0.000000 0.000000
-	Ke 0.000000 0.000000 0.000000
-	map_Ka R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\bunny\UV.jpg
-	map_Kd R:\PROYECTS\PROGRAMACION\javascript\_EXTRAS\bunny\lena.jpg
+	Ka 0.5882 0.5882 0.5882
+	Kd 1.0000 0.0000 0.0000
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka R:\PROJECTS\PROGRAMMING\stormenginec\UNUSED\red.jpg
+	map_Kd R:\PROJECTS\PROGRAMMING\stormenginec\UNUSED\red.jpg

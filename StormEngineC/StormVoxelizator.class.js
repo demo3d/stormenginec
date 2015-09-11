@@ -87,7 +87,7 @@ StormVoxelizator.prototype.initShader_VoxelizatorMaker = function() {
 				'vec3 vp = vec3(aVertexPosition.x*u_nodeVScale.x, aVertexPosition.y*u_nodeVScale.y, aVertexPosition.z*u_nodeVScale.z);\n'+
 				'vec3 vertexPositionFlipX = vp*vec3(1.0,1.0,1.0);'+
 				'vec4 vPosition = uPMatrix*u_cameraWMatrix*u_nodeWMatrix*vec4(vertexPositionFlipX,1.0);'+  
-				'vec3 verP; float doffset = 0.1*uGridsize*vPosition.z;'+       
+				'vec3 verP; float doffset = 0.02*uGridsize*vPosition.z;'+       
 				'if(uCurrentOffset == 0) verP = vec3(vertexPositionFlipX)+(vec3(	doffset,	0.0,	doffset));'+  
 				'if(uCurrentOffset == 1) verP = vec3(vertexPositionFlipX)+(vec3(	-doffset,	0.0,	-doffset));'+  
 				'if(uCurrentOffset == 2) verP = vec3(vertexPositionFlipX)+(vec3(	-doffset,	0.0,	doffset));'+  

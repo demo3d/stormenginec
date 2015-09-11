@@ -78,14 +78,14 @@ StormUtils.prototype.getVector = function(vecNormal, degrees) {
 	var angleLat = Math.acos(vecNormal.e[2]/1.0);
 	var angleAzim = Math.atan2(vecNormal.e[1],vecNormal.e[0]);
 			
-	var desvX = -1.0+(Math.random()*2.0);
-	var desvY = -1.0+(Math.random()*2.0);
-	angleLat += (degrees*desvX)*1.6;
-	angleAzim += (degrees*desvY)*1.6;
+	var desvLat = (Math.random()*180.0)-90.0;
+	var desvAzim = (Math.random()*360.0)-180.0;
+	angleLat += (degrees*desvLat);
+	angleAzim += (degrees*desvAzim);
 
 	var x = Math.sin(angleLat)*Math.cos(angleAzim);
-	var y = Math.sin(angleLat)*Math.sin(angleAzim);
-	var z = Math.cos(angleLat);
+	var z = Math.sin(angleLat)*Math.sin(angleAzim);
+	var y = Math.cos(angleLat);
 	
 	return $V3([x,y,z]);
 };

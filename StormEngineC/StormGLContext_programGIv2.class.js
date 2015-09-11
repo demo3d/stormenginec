@@ -54,8 +54,8 @@ StormGLContext.prototype.initShader_GIv2 = function() {
 		'varying vec4 vposScreen;\n'+
 		
 		'vec3 getVector(vec3 vecNormal, float Ns, vec2 vecNoise) {\n'+
-			'float angleLat = acos(vecNormal.y);\n'+
-			'float angleAzim = atan(vecNormal.z,vecNormal.x);\n'+
+			'float angleLat = acos(vecNormal.z);\n'+
+			'float angleAzim = atan(vecNormal.y,vecNormal.x);\n'+
 					
 			'float desvLat = (vecNoise.x*180.0)-90.0;\n'+
 			'float desvAzim = (vecNoise.y*360.0)-180.0;\n'+
@@ -68,22 +68,7 @@ StormGLContext.prototype.initShader_GIv2 = function() {
 			
 			'return vec3(x,y,z);\n'+
 			//'return vecNormal;\n'+ 
-		'}\n'+		
-		/*'vec3 getVector(vec3 vecNormal, float Ns, vec2 vecNoise) {\n'+
-			'float angleLat = acos(vecNormal.z);\n'+
-			'float angleAzim = atan(vecNormal.y,vecNormal.x);\n'+
-					
-			'float desvX = (vecNoise.x*2.0)-1.0;\n'+
-			'float desvY = (vecNoise.y*2.0)-1.0;\n'+
-			'angleLat += (Ns*desvX)*1.6;\n'+
-			'angleAzim += (Ns*desvY)*1.6;\n'+
-	
-			'float x = sin(angleLat)*cos(angleAzim);\n'+
-			'float y = sin(angleLat)*sin(angleAzim);\n'+
-			'float z = cos(angleLat);\n'+
-			
-			'return vec3(x,y,z);\n'+ 
-		'}\n'+	*/
+		'}\n'+	
 	
 		stormEngineC.utils.unpackGLSLFunctionString()+
 		 
@@ -184,8 +169,9 @@ StormGLContext.prototype.initShader_GIv2 = function() {
 				'rd = RayDir;'+
 			'}'+
 			'if(texScreenNormal.a > 0.0) {'+
-				'vec4 rayT = rayTraversal(ro+(rd*(cs+cs)), getVector(reflect(normalize(ro),rd), maxang, vec2(randX1,randY1)));\n'+     // rX 0.0 perpend to normal; 0.5 parallel; 1.0 perpend    
-				//'vec4 rayT = rayTraversal(ro+(rd*(cs+cs)), getVector(rd, 0.8928571428571429, vec2(randX1,randY1)));\n'+     // rX 0.0 perpend to normal; 0.5 parallel; 1.0 perpend
+				'vec3 vectorRandom = getVector(reflect(normalize(ro),rd), maxang, vec2(randX1,randY1));'+
+				'vec4 rayT = rayTraversal(ro+(rd*(cs+cs)), vectorRandom);\n'+     // rX 0.0 perpend to normal; 0.5 parallel; 1.0 perpend    
+				//'vec4 rayT = rayTraversal(ro+(rd*(cs+cs)), vectorRandom);\n'+     // rX 0.0 perpend to normal; 0.5 parallel; 1.0 perpend
 				
 				//'if(texScreenColor.a < maxBound) {'+   
 					'if(rayT.a > 0.0) {'+ // hit in solid
@@ -203,27 +189,7 @@ StormGLContext.prototype.initShader_GIv2 = function() {
 						'else color = vec4(1.0,1.0,1.0, 0.0);\n'+ // save in textureFB_GIv2_screenNormalTEMP  // alpha 0.0 (make process and return to origin).
 					'}'+
 				//'}'+
-			'}'+
-			/*'if(texScreenPos.a < maxBound && rayT.a > 0.0) {'+  // hit in solid    
-				'if(texScreenNormal.a == 0.0) {'+  // starting
-					'if(uTypePass == 0) color = vec4(rayT.r,rayT.g,rayT.b, 0.0);\n'+ // save in textureFB_GIv2_screenPosTEMP
-					'else color = vec4(rayT.r,rayT.g,rayT.b, 1.0);\n'+ // save in textureFB_GIv2_screenNormalTEMP // alpha 1.0 (found solid)
-				'} else {'+
-					'if(uTypePass == 0) color = vec4(rayT.r,rayT.g,rayT.b,texScreenPos.a+1.0);\n'+ // save in textureFB_GIv2_screenPosTEMP
-					'else color = vec4(rayT.r,rayT.g,rayT.b, 1.0);\n'+ // save in textureFB_GIv2_screenNormalTEMP // alpha 1.0 (found solid)
-				'}'+
-			'} else if(rayT.a == 0.0) {'+ // hit in light
-				'if(texScreenNormal.a == 0.0) {'+  // starting       
-					'if(uTypePass == 0) color = vec4(1.0,1.0,1.0, sqrt(0.0/maxBound)*maxBound);\n'+ // save in textureFB_GIv2_screenPosTEMP
-					'else color = vec4(1.0,1.0,1.0, 0.0);\n'+ // save in textureFB_GIv2_screenNormalTEMP  // alpha 0.0 (found light).  
-				'} else {'+
-					'if(uTypePass == 0) color = vec4(1.0,1.0,1.0, sqrt((texScreenPos.a+1.0)/maxBound)*maxBound);\n'+ // save in textureFB_GIv2_screenPosTEMP
-					'else color = vec4(1.0,1.0,1.0, 0.0);\n'+ // save in textureFB_GIv2_screenNormalTEMP  // alpha 0.0 (found light).   
-				'}'+
-			'}else if(texScreenPos.a == maxBound) {'+		 
-				'if(uTypePass == 0) color = vec4(0.0,0.0,0.0, texScreenPos.a);\n'+ // save in textureFB_GIv2_screenPosTEMP
-				'else color = vec4(1.0,1.0,1.0, 0.0);\n'+ // save in textureFB_GIv2_screenNormalTEMP  // alpha 0.0 (found light).  
-			'}'+*/		
+			'}'+	
 			
 				
 			//'color = vec4(vposition.xyz, 1.0);\n'+              
