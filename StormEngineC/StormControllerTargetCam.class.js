@@ -104,31 +104,45 @@ StormControllerTargetCam.prototype.mouseUpFC = function(event) {
 * @param event event
 */
 StormControllerTargetCam.prototype.mouseWheel = function(event) {
-	var currFov =(stormEngineC.defaultCamera.proy == 1) ? stormEngineC.defaultCamera.fov : stormEngineC.defaultCamera.fovOrtho;  
-	if(stormEngineC.defaultCamera.proy == 1) {
-		if(stormEngineC.defaultCamera.autofocus == true) {
-			if(event.wheelDeltaY >= 0) stormEngineC.defaultCamera.setFov(currFov-1.0);// FRONT
-			else stormEngineC.defaultCamera.setFov(currFov+1.0);// BACK    
-		} else {
-			if(event.wheelDeltaY >= 0) stormEngineC.defaultCamera.focus({distance:stormEngineC.defaultCamera.focusExtern+1.0});// FRONT
-			else stormEngineC.defaultCamera.focus({distance:stormEngineC.defaultCamera.focusExtern-1.0});// BACK
+	var currFov =(stormEngineC.defaultCamera.proy == 1) ? stormEngineC.defaultCamera.fov : stormEngineC.defaultCamera.fovOrtho;
+	var weightX;
+	var weightY;	
+	
+	if(stormEngineC.defaultCamera.proy == 1) { // perspective
+		if(stormEngineC.defaultCamera.autofocus == false) {// then changing the focus
+			if(event.wheelDeltaY >= 0) {
+				stormEngineC.defaultCamera.focus({distance:stormEngineC.defaultCamera.focusExtern+1.0});// FRONT
+			} else {
+				stormEngineC.defaultCamera.focus({distance:stormEngineC.defaultCamera.focusExtern-1.0});// BACK
+			}			
+		} else { // perspective fov
+			if(event.wheelDeltaY >= 0) {
+				weightX = (stormEngineC.mousePosX-(stormEngineC.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*-0.0004);
+				weightY = (stormEngineC.mousePosY-(stormEngineC.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*-0.0004);				
+				stormEngineC.defaultCamera.setFov(currFov/1.1);// FRONT
+			} else {
+				weightX = (stormEngineC.mousePosX-(stormEngineC.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*0.0004);
+				weightY = (stormEngineC.mousePosY-(stormEngineC.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*0.0004);
+				stormEngineC.defaultCamera.setFov(currFov*1.1);// BACK    
+			}
 		}
-	} else {
-		var mat = this.cameraNode.nodePivot.MPOS.x(this.cameraNode.nodePivot.MROTXYZ);
-		if(event.wheelDeltaY >= 0) {
-			var X = $V3([mat.e[0],mat.e[4],mat.e[8]]).normalize().x((stormEngineC.mousePosX-(stormEngineC.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*0.0004));
-			var Y = $V3([mat.e[1],mat.e[5],mat.e[9]]).normalize().x((stormEngineC.mousePosY-(stormEngineC.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*-0.0004));
+	} else { // ortho fov
+		if(event.wheelDeltaY >= 0) { // zoom in
+			weightX = (stormEngineC.mousePosX-(stormEngineC.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*-0.0004);
+			weightY = (stormEngineC.mousePosY-(stormEngineC.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*-0.0004);
 			stormEngineC.defaultCamera.setFov(currFov/1.1);// FRONT
-		} else {
-			var X = $V3([mat.e[0],mat.e[4],mat.e[8]]).normalize().x((stormEngineC.mousePosX-(stormEngineC.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*-0.0004));
-			var Y = $V3([mat.e[1],mat.e[5],mat.e[9]]).normalize().x((stormEngineC.mousePosY-(stormEngineC.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*0.0004));
+		} else { // zoom out
+			weightX = (stormEngineC.mousePosX-(stormEngineC.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*0.0004);
+			weightY = (stormEngineC.mousePosY-(stormEngineC.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*0.0004);
 			stormEngineC.defaultCamera.setFov(currFov*1.1);// BACK   
-		}
-		this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(X)); 
-		this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(Y));
-		this.cameraNode.nodeGoal.setPosition(this.cameraNode.nodeGoal.getPosition().add(X)); 
-		this.cameraNode.nodeGoal.setPosition(this.cameraNode.nodeGoal.getPosition().add(Y));
+		} 
+		
 	}
+	
+	var X = this.cameraNode.nodePivot.getLeft().x(weightX);
+	var Y = this.cameraNode.nodePivot.getUp().x(weightY);
+	this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add($V3([X.e[0]*-1.0,0.0,Y.e[2]]))); 
+	//this.cameraNode.nodeGoal.setPosition(this.cameraNode.nodeGoal.getPosition().add($V3([X.e[0],0.0,Y.e[2]]))); 
 };
 
 /**
@@ -162,35 +176,35 @@ StormControllerTargetCam.prototype.cameraSetupFC = function(cameraNode, meshNode
 * @param {Float} elapsed
 */
 StormControllerTargetCam.prototype.updateFC = function(elapsed) {	
-	if(stormEngineC.defaultCamera.mouseControls == true) {
+	if(stormEngineC.defaultCamera.mouseControls == true) { 
 		var dir;
 		if(this.g_forwardFC == 1) {
-			dir = this.cameraNode.nodePivot.MROTXYZ.getForward().x(-1.0);
+			dir = this.cameraNode.nodePivot.getForward().x(-1.0);
 			this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(dir));
 		}
 		if(this.g_backwardFC == 1) {
-			dir = this.cameraNode.nodePivot.MROTXYZ.getForward();
+			dir = this.cameraNode.nodePivot.getForward();
 			this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(dir));
 		}
 		if(this.g_strafeLeftFC == 1) {
-			dir = this.cameraNode.nodePivot.MROTXYZ.getLeft().x(-1.0);
+			dir = this.cameraNode.nodePivot.getLeft().x(-1.0);
 			this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(dir));
 		}
 		if(this.g_strafeRightFC == 1) {
-			dir = this.cameraNode.nodePivot.MROTXYZ.getLeft();
+			dir = this.cameraNode.nodePivot.getLeft();
 			this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(dir));
 		}	
 		
 		if(this.meshNode != undefined) {
-			dir = this.cameraNode.nodePivot.MROTXYZ.getForward();
+			dir = this.cameraNode.nodePivot.getForward();
 			this.meshNode.setPosition($V3([this.cameraNode.nodePivot.getPosition().e[0],this.cameraNode.nodePivot.getPosition().e[1], this.cameraNode.nodePivot.getPosition().e[2]]));
 		}
 		
-		var newPosGoal = this.cameraNode.nodePivot.getPosition().add(this.cameraNode.nodePivot.MROTXYZ.getForward().x(this.camDistance));
+		// goal position
+		var newPosGoal = this.cameraNode.nodePivot.getPosition().add(this.cameraNode.nodePivot.getForward().x(this.camDistance));
 		var vecForGoal = newPosGoal.subtract(this.cameraNode.nodeGoal.getPosition());
-		this.cameraNode.nodeGoal.setPosition(this.cameraNode.nodeGoal.getPosition().add(vecForGoal.x(0.5)));   
-	}
-	
+		this.cameraNode.nodeGoal.setPosition(this.cameraNode.nodeGoal.getPosition().add(vecForGoal.x(1.0))); 
+	} 
 	
 	var timeNow = new Date().getTime();
 	var elap = timeNow - this.lastTime;
@@ -247,16 +261,14 @@ StormControllerTargetCam.prototype.updateCameraGoalFC = function(event) {
 		} else {
 			if(this.middleButton == 1) {
 				event.preventDefault(); 
-				var X = this.cameraNode.nodePivot.MROTXYZ.getLeft().x((this.lastX - event.screenX)*(this.cameraNode.getFov()*-0.0005));
-				var Y = this.cameraNode.nodePivot.MROTXYZ.getUp().x((this.lastY - event.screenY)*(this.cameraNode.getFov()*-0.0005)); 
+				var X = this.cameraNode.nodePivot.getLeft().x((this.lastX - event.screenX)*(this.cameraNode.getFov()*0.0005));
+				var Y = this.cameraNode.nodePivot.getUp().x((this.lastY - event.screenY)*(this.cameraNode.getFov()*-0.0005));  
 				this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(X)); 
 				this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(Y));
-				this.cameraNode.nodeGoal.setPosition(this.cameraNode.nodeGoal.getPosition().add(X)); 
-				this.cameraNode.nodeGoal.setPosition(this.cameraNode.nodeGoal.getPosition().add(Y));
 			} else {
 				var factorRot = 0.01;
 				if(this.lastX > event.screenX) {
-					this.cameraNode.nodePivot.setRotationY((this.lastX - event.screenX)*factorRot);  
+					this.cameraNode.nodePivot.setRotationY((this.lastX - event.screenX)*factorRot);
 					
 					if(this.meshNode != undefined) this.meshNode.setRotationY((this.lastX - event.screenX)*factorRot);
 				} else {
@@ -265,10 +277,11 @@ StormControllerTargetCam.prototype.updateCameraGoalFC = function(event) {
 					if(this.meshNode != undefined) this.meshNode.setRotationY(-(event.screenX - this.lastX)*factorRot);
 				}
 				
-				if(this.lastY > event.screenY) 
-					this.cameraNode.nodePivot.setRotationX((this.lastY - event.screenY)*factorRot);
-				else
-					this.cameraNode.nodePivot.setRotationX(-(event.screenY - this.lastY)*factorRot);
+				if(this.lastY > event.screenY) {
+					this.cameraNode.nodePivot.setRotationX((this.lastY - event.screenY)*-factorRot);
+				} else {
+					this.cameraNode.nodePivot.setRotationX(-(event.screenY - this.lastY)*-factorRot);
+				}
 			}
 		}
 	}

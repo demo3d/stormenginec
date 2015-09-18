@@ -252,6 +252,28 @@ StormUtils.prototype.fract = function(number) {
 };
 
 /**
+ * Angle between two vectors viewing from top
+ * @returns {Float}
+ * @param {StormV3} vectorA
+ * @param {StormV3} vectorB
+ 
+StormUtils.prototype.angle = function(vA, vB) {
+	var vAA = vA.normalize();
+	var vBB = vB.normalize();
+	
+	var escalarProduct = Math.acos((vAA.e[0]*vBB.e[0])+(vAA.e[1]*vBB.e[1])+(vAA.e[2]*vBB.e[2]));
+	
+	var vCC = vAA.cross(vBB);
+	//console.log(vCC.e[0]+" "+vCC.e[1]+" "+vCC.e[2]);
+	
+	if(vCC.e[1] == 1) {
+		escalarProduct = (Math.PI+escalarProduct);
+	}
+
+	return escalarProduct;
+};*/
+
+/**
 * Pack 1float (0.0-1.0) to 4float rgba (0.0-1.0, 0.0-1.0, 0.0-1.0, 0.0-1.0)
 * @returns {Array<Float>}
 * @param {Float} value

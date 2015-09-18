@@ -90,6 +90,7 @@ var includesF = [//'/StormMathMin.class.js',
 				'/StormParticles.class.js',
 				'/StormPolarityPoint.class.js',
 				'/StormForceField.class.js',
+				'/StormGraph.class.js',
 				'/StormTriangulate2D.class.js',
 				'/StormRayLens.class.js',
 				'/StormTriangleBox.class.js',
@@ -1193,15 +1194,9 @@ StormEngineC.prototype.render = function() {
 		}
 		
 		
-		var cameraP, center;
-		if(this.defaultCamera.controller.controllerType == 0) {
-			cameraP = this.defaultCamera.nodePivot.getPosition();
-			var vec = this.defaultCamera.nodePivot.getForward();
-			center = cameraP.add(vec);
-		} else { 
-			cameraP = this.defaultCamera.nodeGoal.getPosition();
-			center = this.defaultCamera.nodePivot.getPosition();
-		}
+		var cameraP = this.defaultCamera.nodeGoal.getPosition();
+		var center = this.defaultCamera.nodePivot.getPosition();
+		
 		this.defaultCamera.MPOS = $M16().makeLookAt(cameraP.e[0], cameraP.e[1], cameraP.e[2],
 													center.e[0], center.e[1], center.e[2],
 													0.0,1.0,0.0);
@@ -1695,13 +1690,9 @@ StormEngineC.prototype.createCamera = function(vec, distance) {
 	nodeCam.nodePivot.nodeFocus.loadBox($V3([0.12,0.12,0.12]));
 	nodeCam.nodePivot.nodeFocus.setAlbedo($V3([0.3,0.8,0.3])); 
 	
-	if(distance != undefined) {
-		var posGoal = nodeCam.nodePivot.getPosition().add($V3([0.0,0.0,distance]));  
-		nodeCam.nodeGoal.setPosition(posGoal);
-		nodeCam.setController({'mode':'targetcam', 'distance':distance});      
-	} else {
-		nodeCam.setController({'mode':'freecam'});      
-	}
+	var posGoal = nodeCam.nodePivot.getPosition().add($V3([0.0,0.0,distance]));  
+	nodeCam.nodeGoal.setPosition(posGoal);
+	nodeCam.setController({'mode':'targetcam', 'distance':distance});
 	
 	nodeCam.setProjectionType('p');
 	
@@ -1720,20 +1711,20 @@ StormEngineC.prototype.createLine = function(vecOrigin, vecEnd, vecOriginColor, 
 	var cutLine = new StormLine();
 	cutLine.idNum = this.lines.length;
 	cutLine.name = 'line '+this.idxLines++;
-	var material = stormEngineC.createMaterial();
-	cutLine.materialUnits[0] = material; 
+	//var material = stormEngineC.createMaterial();
+	//cutLine.materialUnits[0] = material; 
 	this.lines.push(cutLine);
 	
 	cutLine.origin = vecOrigin;
 	cutLine.end = vecEnd;
+	cutLine.vecOriginColor = (vecOriginColor != undefined) ? vecOriginColor : $V3([1.0,1.0,1.0]);
+	cutLine.vecEndColor = (vecEndColor != undefined) ? vecEndColor : $V3([0.0,0.0,0.0]);
 	
 	var linesVertexArray = [];
 	var linesVertexLocArray = [];
 	var linesIndexArray = [];
-	linesVertexArray.push(cutLine.origin.e[0], cutLine.origin.e[1], cutLine.origin.e[2], cutLine.end.e[0], cutLine.end.e[1], cutLine.end.e[2]);
-	var v3OriginColor = (vecOriginColor != undefined) ? vecOriginColor : $V3([1.0,1.0,1.0]);
-	var v3EndColor = (vecEndColor != undefined) ? vecEndColor : $V3([0.0,0.0,0.0]);
-	linesVertexLocArray.push(v3OriginColor.e[0],v3OriginColor.e[1],v3OriginColor.e[2], v3EndColor.e[0],v3EndColor.e[1],v3EndColor.e[2]);
+	linesVertexArray.push(cutLine.origin.e[0], cutLine.origin.e[1], cutLine.origin.e[2], cutLine.end.e[0], cutLine.end.e[1], cutLine.end.e[2]);	
+	linesVertexLocArray.push(cutLine.vecOriginColor.e[0],cutLine.vecOriginColor.e[1],cutLine.vecOriginColor.e[2], cutLine.vecEndColor.e[0],cutLine.vecEndColor.e[1],cutLine.vecEndColor.e[2]);
 	linesIndexArray.push(0, 1);
 		
 	cutLine.vertexBuffer = this.stormGLContext.gl.createBuffer();
@@ -1893,6 +1884,14 @@ StormEngineC.prototype.createVoxelizator = function() {
 	vox.name = 'voxelizator '+this.idxVoxelizators++; 
 	this.voxelizators.push(vox); 
 	return vox;
+};
+/**
+* Create graph
+* @returns {StormGraph}
+*/
+StormEngineC.prototype.createGraph = function() {   
+	var graph = new StormGraph();
+	return graph;
 };
 /**
 * Mostrar progreso de una peticion XMLHttpRequest acompañado de un texto pasado en string.

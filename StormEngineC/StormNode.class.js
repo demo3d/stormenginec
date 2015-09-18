@@ -1155,10 +1155,11 @@ StormNode.prototype.setPosition = function(vec) {
 		this.MPOS = this.MPOS.setPosition(vec);
 		for(var n = 0, f = this.nodesProc.length; n < f; n++) this.nodesProc[n].updatekernelDir_Arguments();  
 	} else if(this.objectType == 'camera') {
-		if(this.body != undefined)
+		if(this.body != undefined) {
 			this.nodePivot.body.moveTo(new Vector3D(vec.e[0],vec.e[1],vec.e[2]));
-		else
-			this.nodePivot.MPOS = this.nodePivot.MPOS.setPosition(vec);  
+		} else {
+			this.nodePivot.MPOS.setPosition(vec); 
+		}
 	} else {
 		if(this.body != undefined)
 			this.body.moveTo(new Vector3D(vec.e[0],vec.e[1],vec.e[2]));

@@ -31,7 +31,12 @@ StormLine = function() {
 */
 StormLine.prototype.setOrigin = function(vecOrigin) {
 	this.origin = vecOrigin;
-	this.refresh();
+	
+	var linesVertexArray = [];
+	linesVertexArray.push(this.origin.e[0], this.origin.e[1], this.origin.e[2], this.end.e[0], this.end.e[1], this.end.e[2]);
+	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+	//this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(linesVertexArray), this.gl.STATIC_DRAW);
+	this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, new Float32Array(linesVertexArray));
 };
 
 /**
@@ -41,7 +46,12 @@ StormLine.prototype.setOrigin = function(vecOrigin) {
 */
 StormLine.prototype.setEnd = function(vecEnd) {
 	this.end = vecEnd;
-	this.refresh();
+	
+	var linesVertexArray = [];
+	linesVertexArray.push(this.origin.e[0], this.origin.e[1], this.origin.e[2], this.end.e[0], this.end.e[1], this.end.e[2]);
+	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+	//this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(linesVertexArray), this.gl.STATIC_DRAW);
+	this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, new Float32Array(linesVertexArray));
 };
 
 /**
@@ -76,11 +86,11 @@ StormLine.prototype.refresh = function() {
 	linesIndexArray.push(0, 1);
 	
 	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
-	this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(linesVertexArray), this.gl.STATIC_DRAW);
+	this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(linesVertexArray), this.gl.DYNAMIC_DRAW);
 	
 	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexLocBuffer);
-	this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(linesVertexLocArray), this.gl.STATIC_DRAW);
+	this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(linesVertexLocArray), this.gl.DYNAMIC_DRAW);
 	
 	this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
-	this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(linesIndexArray), this.gl.STATIC_DRAW);
+	this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(linesIndexArray), this.gl.DYNAMIC_DRAW);
 };

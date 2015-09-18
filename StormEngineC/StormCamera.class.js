@@ -91,6 +91,9 @@ StormCamera.prototype.setView = function(view) {
 			this.nodePivot.setRotation(stormEngineC.utils.degToRad(180),false,$V3([0.0,1.0,0.0]));
 			break;
 	}
+	if(this.nodePivot != undefined) {
+		this.nodePivot.setRotationX(stormEngineC.utils.degToRad(-0.01),true,$V3([1.0,0.0,0.0]));
+	}
 };
 
 /**

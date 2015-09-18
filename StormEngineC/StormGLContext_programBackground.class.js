@@ -86,7 +86,7 @@ StormGLContext.prototype.render_BG = function() {
 
 	this.gl.uniformMatrix4fv(this.u_BG_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
 	this.gl.uniformMatrix4fv(this.u_BG_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
-	this.nodeEnvironment.setPosition(stormEngineC.defaultCamera.nodePivot.getPosition());  
+	//this.nodeEnvironment.setPosition(stormEngineC.defaultCamera.nodePivot.getPosition());  
 	this.gl.uniformMatrix4fv(this.u_BG_node, false, this.nodeEnvironment.MPOS.transpose().e);
 	
 	this.gl.activeTexture(this.gl.TEXTURE0);
