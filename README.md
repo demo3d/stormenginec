@@ -26,6 +26,7 @@ StormEngineC provides the following features:<br />
 <h2><a href="http://stormcolour.appspot.com/CONTENT/StormEngineC-1.2-API-Doc/StormEngineC.html">API Doc</a></h2>
 
 <h2>DEMOS</h2>
+<br />
 		<a href="https://rawgit.com/stormcolor/stormenginec/develop/demos/obj_loader/index.html">Obj loader</a>
 		<a href="https://rawgit.com/stormcolor/stormenginec/develop/demos/obj_loader/index.html"><img src="demos/obj_loader/capture.jpg" style="width:150px"/></a> <br />
 <br />
