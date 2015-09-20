@@ -1,0 +1,114 @@
+# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
+# File Created: 02.01.2013 01:20:33
+
+newmtl asfalto
+	Ns 100.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\ASPHALT.jpg
+	map_Kd C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\ASPHALT.jpg
+
+newmtl acera
+	Ns 100.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\sueloAcera.jpg
+	map_Kd C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\sueloAcera.jpg
+
+newmtl vallas
+	Ns 80.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\vallas.jpg
+	map_Kd C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\vallas.jpg
+
+newmtl hormigon
+	Ns 100.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\hormigon.jpg
+	map_Kd C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\hormigon.jpg
+
+newmtl tierraClara
+	Ns 100.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\tierraCla.jpg
+	map_Kd C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\tierraCla.jpg
+
+newmtl ladrillo
+	Ns 100.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\paredLadrillo.jpg
+	map_Kd C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\paredLadrillo.jpg
+
+newmtl cristal
+	Ns 60.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\blue.png
+	map_Kd C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\blue.png
+
+newmtl Material__31
+	Ns 100.0000
+	Ni 1.5000
+	d 1.0000
+	Tr 0.0000
+	Tf 1.0000 1.0000 1.0000 
+	illum 2
+	Ka 0.5880 0.5880 0.5880
+	Kd 0.5880 0.5880 0.5880
+	Ks 0.0000 0.0000 0.0000
+	Ke 0.0000 0.0000 0.0000
+	map_Ka C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\cesped.jpg
+	map_Kd C:\ROBER\PROYECTS\3D\MIS_ESCENAS\incubadoraEmpresas\textures_stormEngineC\cesped.jpg

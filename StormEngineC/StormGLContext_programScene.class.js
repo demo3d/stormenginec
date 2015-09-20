@@ -5,10 +5,9 @@
  * @private 
  */
 StormGLContext.prototype.initShader_Scene = function() {
-	_this = stormEngineC.stormGLContext;
-	_this.OCCUPIEDSAMPLES_SHADERSCENE = 5;
-	_this.MAX_TEXTURESKD = _this.gl.getParameter(_this.gl.MAX_TEXTURE_IMAGE_UNITS)-_this.OCCUPIEDSAMPLES_SHADERSCENE;
-	var sourceVertex = _this.precision+
+	this.OCCUPIEDSAMPLES_SHADERSCENE = 5;
+	this.MAX_TEXTURESKD = this.gl.getParameter(this.gl.MAX_TEXTURE_IMAGE_UNITS)-this.OCCUPIEDSAMPLES_SHADERSCENE;
+	var sourceVertex = this.precision+
 		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec3 aVertexNormal;\n'+
 		'attribute vec3 aTextureCoord;\n'+
@@ -56,8 +55,8 @@ StormGLContext.prototype.initShader_Scene = function() {
 		'}';
 		
 	var sourceFragment;
-	if(!_this._typeMobile) { 
-		sourceFragment = _this.precision+ 
+	if(!this._typeMobile) { 
+		sourceFragment = this.precision+ 
 			'uniform mat4 u_cameraWMatrix;\n'+
 			'uniform mat4 u_nodeWMatrixInverse;\n'+
 			
@@ -96,8 +95,8 @@ StormGLContext.prototype.initShader_Scene = function() {
 			'uniform sampler2D sampler_textureFBGIVoxel;\n'+
 			//'uniform sampler2D sampler_kdTexture;\n'+
 			//'uniform sampler2D sampler_bumpTexture;\n'+
-			'uniform sampler2D objectTexturesKd['+_this.MAX_TEXTURESKD+'];\n\n\n'+
-			'uniform float uRoughness['+_this.MAX_TEXTURESKD+'];\n'+
+			'uniform sampler2D objectTexturesKd['+this.MAX_TEXTURESKD+'];\n\n\n'+
+			'uniform float uRoughness['+this.MAX_TEXTURESKD+'];\n'+
 			'uniform float uIllumination;\n'+
 			
 			'uniform float uOcclusionLevel;\n'+
@@ -282,11 +281,11 @@ StormGLContext.prototype.initShader_Scene = function() {
 				'float roughness;'+
 				'float texUnit = vTextureUnit;'+      
 				'if(texUnit < 0.1 ) {';
-				for(var n = 0, fn = _this.MAX_TEXTURESKD; n < fn; n++) {
+				for(var n = 0, fn = this.MAX_TEXTURESKD; n < fn; n++) {
 				sourceFragment += ''+
 					'textureColor = texture2D(objectTexturesKd['+n+'], vec2(vTextureCoord.s, vTextureCoord.t));\n'+
 					'roughness = uRoughness['+n+'];\n';
-				if(n < _this.MAX_TEXTURESKD-1) sourceFragment += '} else if(texUnit < '+(n+1)+'.1) {';
+				if(n < this.MAX_TEXTURESKD-1) sourceFragment += '} else if(texUnit < '+(n+1)+'.1) {';
 				}
 				sourceFragment += ''+
 				'} else {'+
@@ -391,7 +390,7 @@ StormGLContext.prototype.initShader_Scene = function() {
 				//'gl_FragColor = vec4(GIVoxelsShadow, 1.0);\n'+ 
 			'}';
 	} else {
-		sourceFragment = _this.precision+
+		sourceFragment = this.precision+
 			'uniform mat4 u_cameraWMatrix;\n'+
 			'uniform mat4 u_nodeWMatrixInverse;\n'+
 			
@@ -430,8 +429,8 @@ StormGLContext.prototype.initShader_Scene = function() {
 			'uniform sampler2D sampler_textureFBGIVoxel;\n'+
 			//'uniform sampler2D sampler_kdTexture;\n'+
 			//'uniform sampler2D sampler_bumpTexture;\n'+
-			'uniform sampler2D objectTexturesKd['+_this.MAX_TEXTURESKD+'];\n\n\n'+
-			'uniform float uRoughness['+_this.MAX_TEXTURESKD+'];\n'+
+			'uniform sampler2D objectTexturesKd['+this.MAX_TEXTURESKD+'];\n\n\n'+
+			'uniform float uRoughness['+this.MAX_TEXTURESKD+'];\n'+
 			'uniform float uIllumination;\n'+
 			
 			'uniform float uOcclusionLevel;\n'+
@@ -487,7 +486,7 @@ StormGLContext.prototype.initShader_Scene = function() {
 				  
 				'vec3 pixelCoord = vpositionViewportRegion.xyz / vpositionViewportRegion.w;'+
 				'float light = 1.0;\n';
-				if(_this._supportFormat == _this.gl.FLOAT) {
+				if(this._supportFormat == this.gl.FLOAT) {
 					sourceFragment += ''+
 					'vec4 textureFBCameraDepth = texture2D(sampler_textureFBNormals, pixelCoord.xy);\n'+
 					'float AFragmentDepth = textureFBCameraDepth.a;\n'+
@@ -584,11 +583,11 @@ StormGLContext.prototype.initShader_Scene = function() {
 				'float roughness;'+
 				'float texUnit = vTextureUnit;'+      
 				'if(texUnit < 0.1 ) {';
-				for(var n = 0, fn = _this.MAX_TEXTURESKD; n < fn; n++) {
+				for(var n = 0, fn = this.MAX_TEXTURESKD; n < fn; n++) {
 				sourceFragment += ''+
 					'textureColor = texture2D(objectTexturesKd['+n+'], vec2(vTextureCoord.s, vTextureCoord.t));\n'+
 					'roughness = uRoughness['+n+'];\n';
-				if(n < _this.MAX_TEXTURESKD-1) sourceFragment += '} else if(texUnit < '+(n+1)+'.1) {';
+				if(n < this.MAX_TEXTURESKD-1) sourceFragment += '} else if(texUnit < '+(n+1)+'.1) {';
 				}
 				sourceFragment += ''+
 				'} else {'+
@@ -678,7 +677,7 @@ StormGLContext.prototype.initShader_Scene = function() {
 				
 				'acum = ((textureColor.rgb*reflectionWeight)+(reflectionColor.rgb*(1.0-reflectionWeight)))* min(vec3(1.0,1.0,1.0), acum + weightAmbient);\n';
 				
-				if(_this._supportFormat == _this.gl.FLOAT) 
+				if(this._supportFormat == this.gl.FLOAT) 
 					sourceFragment += 	'if(uUseSSAO == 1) acum *= min(1.0,ssao+uIllumination);\n'+			
 										'gl_FragColor = vec4(acum, textureColor.a);\n';
 				else sourceFragment += 'gl_FragColor = textureColor;\n'; 
@@ -686,81 +685,80 @@ StormGLContext.prototype.initShader_Scene = function() {
 				sourceFragment += ''+
 			'}';
 	}
-	_this.shader_Scene = _this.gl.createProgram();
-	_this.createShader(_this.gl, "SCENE", sourceVertex, sourceFragment, _this.shader_Scene, _this.pointers_Scene);
+	this.shader_Scene = this.gl.createProgram();
+	this.createShader(this.gl, "SCENE", sourceVertex, sourceFragment, this.shader_Scene, this.pointers_Scene.bind(this));
 };
 /**
  * @private 
  */
 StormGLContext.prototype.pointers_Scene = function() {
-	_this = stormEngineC.stormGLContext;
-	_this.u_Scene_far = _this.gl.getUniformLocation(_this.shader_Scene, "uFar");
-	_this.u_Scene_ambientColor = _this.gl.getUniformLocation(_this.shader_Scene, "uAmbientColor");
+	this.u_Scene_far = this.gl.getUniformLocation(this.shader_Scene, "uFar");
+	this.u_Scene_ambientColor = this.gl.getUniformLocation(this.shader_Scene, "uAmbientColor");
 
-	_this.u_Scene_lightColor00 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightColor00");
-	_this.u_Scene_lightDirection00 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightDirection00");
-	_this.u_Scene_lightColor01 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightColor01");
-	_this.u_Scene_lightDirection01 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightDirection01");
-	_this.u_Scene_lightColor02 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightColor02");
-	_this.u_Scene_lightDirection02 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightDirection02");
-	_this.u_Scene_lightColor03 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightColor03");
-	_this.u_Scene_lightDirection03 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightDirection03");
-	_this.u_Scene_lightColor04 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightColor04");
-	_this.u_Scene_lightDirection04 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightDirection04");
-	_this.u_Scene_lightColor05 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightColor05");
-	_this.u_Scene_lightDirection05 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightDirection05");
-	_this.u_Scene_lightColor06 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightColor06");
-	_this.u_Scene_lightDirection06 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightDirection06");
-	_this.u_Scene_lightColor07 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightColor07");
-	_this.u_Scene_lightDirection07 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightDirection07");
-	_this.u_Scene_lightColor08 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightColor08");
-	_this.u_Scene_lightDirection08 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightDirection08");
-	_this.u_Scene_lightColor09 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightColor09");
-	_this.u_Scene_lightDirection09 = _this.gl.getUniformLocation(_this.shader_Scene, "uLightDirection09");
+	this.u_Scene_lightColor00 = this.gl.getUniformLocation(this.shader_Scene, "uLightColor00");
+	this.u_Scene_lightDirection00 = this.gl.getUniformLocation(this.shader_Scene, "uLightDirection00");
+	this.u_Scene_lightColor01 = this.gl.getUniformLocation(this.shader_Scene, "uLightColor01");
+	this.u_Scene_lightDirection01 = this.gl.getUniformLocation(this.shader_Scene, "uLightDirection01");
+	this.u_Scene_lightColor02 = this.gl.getUniformLocation(this.shader_Scene, "uLightColor02");
+	this.u_Scene_lightDirection02 = this.gl.getUniformLocation(this.shader_Scene, "uLightDirection02");
+	this.u_Scene_lightColor03 = this.gl.getUniformLocation(this.shader_Scene, "uLightColor03");
+	this.u_Scene_lightDirection03 = this.gl.getUniformLocation(this.shader_Scene, "uLightDirection03");
+	this.u_Scene_lightColor04 = this.gl.getUniformLocation(this.shader_Scene, "uLightColor04");
+	this.u_Scene_lightDirection04 = this.gl.getUniformLocation(this.shader_Scene, "uLightDirection04");
+	this.u_Scene_lightColor05 = this.gl.getUniformLocation(this.shader_Scene, "uLightColor05");
+	this.u_Scene_lightDirection05 = this.gl.getUniformLocation(this.shader_Scene, "uLightDirection05");
+	this.u_Scene_lightColor06 = this.gl.getUniformLocation(this.shader_Scene, "uLightColor06");
+	this.u_Scene_lightDirection06 = this.gl.getUniformLocation(this.shader_Scene, "uLightDirection06");
+	this.u_Scene_lightColor07 = this.gl.getUniformLocation(this.shader_Scene, "uLightColor07");
+	this.u_Scene_lightDirection07 = this.gl.getUniformLocation(this.shader_Scene, "uLightDirection07");
+	this.u_Scene_lightColor08 = this.gl.getUniformLocation(this.shader_Scene, "uLightColor08");
+	this.u_Scene_lightDirection08 = this.gl.getUniformLocation(this.shader_Scene, "uLightDirection08");
+	this.u_Scene_lightColor09 = this.gl.getUniformLocation(this.shader_Scene, "uLightColor09");
+	this.u_Scene_lightDirection09 = this.gl.getUniformLocation(this.shader_Scene, "uLightDirection09");
 	
-	//_this.sampler_Scene_kdTexture = _this.gl.getUniformLocation(_this.shader_Scene, "sampler_kdTexture");
-	//_this.sampler_Scene_bumpTexture = _this.gl.getUniformLocation(_this.shader_Scene, "sampler_bumpTexture");
-	_this.sampler_Scene_textureFBNormals = _this.gl.getUniformLocation(_this.shader_Scene, "sampler_textureFBNormals");
-	_this.sampler_Scene_textureRandom = _this.gl.getUniformLocation(_this.shader_Scene, "sampler_textureRandom");
-	_this.sampler_Scene_textureFBShadows = _this.gl.getUniformLocation(_this.shader_Scene, "sampler_textureFBShadows");
-	_this.sampler_Scene_reflectionMap = _this.gl.getUniformLocation(_this.shader_Scene, "sampler_reflectionMap");
-	_this.sampler_Scene_textureFB_GIVoxel = _this.gl.getUniformLocation(_this.shader_Scene, "sampler_textureFBGIVoxel");
-	_this.samplers_Scene_objectTexturesKd = [];
-	_this.us_Scene_roughness = [];
-	for(var n = 0; n < _this.MAX_TEXTURESKD; n++) {
-		_this.samplers_Scene_objectTexturesKd[n] = _this.gl.getUniformLocation(_this.shader_Scene, "objectTexturesKd["+n+"]");
-		_this.us_Scene_roughness[n] = _this.gl.getUniformLocation(_this.shader_Scene, "uRoughness["+n+"]");
+	//this.sampler_Scene_kdTexture = this.gl.getUniformLocation(this.shader_Scene, "sampler_kdTexture");
+	//this.sampler_Scene_bumpTexture = this.gl.getUniformLocation(this.shader_Scene, "sampler_bumpTexture");
+	this.sampler_Scene_textureFBNormals = this.gl.getUniformLocation(this.shader_Scene, "sampler_textureFBNormals");
+	this.sampler_Scene_textureRandom = this.gl.getUniformLocation(this.shader_Scene, "sampler_textureRandom");
+	this.sampler_Scene_textureFBShadows = this.gl.getUniformLocation(this.shader_Scene, "sampler_textureFBShadows");
+	this.sampler_Scene_reflectionMap = this.gl.getUniformLocation(this.shader_Scene, "sampler_reflectionMap");
+	this.sampler_Scene_textureFB_GIVoxel = this.gl.getUniformLocation(this.shader_Scene, "sampler_textureFBGIVoxel");
+	this.samplers_Scene_objectTexturesKd = [];
+	this.us_Scene_roughness = [];
+	for(var n = 0; n < this.MAX_TEXTURESKD; n++) {
+		this.samplers_Scene_objectTexturesKd[n] = this.gl.getUniformLocation(this.shader_Scene, "objectTexturesKd["+n+"]");
+		this.us_Scene_roughness[n] = this.gl.getUniformLocation(this.shader_Scene, "uRoughness["+n+"]");
 	}
 	
-	_this.u_Scene_ssaoLevel = _this.gl.getUniformLocation(_this.shader_Scene, "uOcclusionLevel");
-	_this.u_Scene_viewportWidth = _this.gl.getUniformLocation(_this.shader_Scene, "uViewportWidth");
-	_this.u_Scene_viewportHeight = _this.gl.getUniformLocation(_this.shader_Scene, "uViewportHeight");
+	this.u_Scene_ssaoLevel = this.gl.getUniformLocation(this.shader_Scene, "uOcclusionLevel");
+	this.u_Scene_viewportWidth = this.gl.getUniformLocation(this.shader_Scene, "uViewportWidth");
+	this.u_Scene_viewportHeight = this.gl.getUniformLocation(this.shader_Scene, "uViewportHeight");
 	
-	_this.u_Scene_useTextureFBGIVoxel = _this.gl.getUniformLocation(_this.shader_Scene, "uUseTextureFBGIVoxel");
-	_this.u_Scene_useBump = _this.gl.getUniformLocation(_this.shader_Scene, "uUseBump");
-	_this.u_Scene_useSsao = _this.gl.getUniformLocation(_this.shader_Scene, "uUseSSAO");
-	_this.u_Scene_useShadows = _this.gl.getUniformLocation(_this.shader_Scene, "uUseShadows");
-	_this.u_Scene_selectedNode = _this.gl.getUniformLocation(_this.shader_Scene, "uSelectedNode");
+	this.u_Scene_useTextureFBGIVoxel = this.gl.getUniformLocation(this.shader_Scene, "uUseTextureFBGIVoxel");
+	this.u_Scene_useBump = this.gl.getUniformLocation(this.shader_Scene, "uUseBump");
+	this.u_Scene_useSsao = this.gl.getUniformLocation(this.shader_Scene, "uUseSSAO");
+	this.u_Scene_useShadows = this.gl.getUniformLocation(this.shader_Scene, "uUseShadows");
+	this.u_Scene_selectedNode = this.gl.getUniformLocation(this.shader_Scene, "uSelectedNode");
 	
 	
-	_this.u_Scene_illumination = _this.gl.getUniformLocation(_this.shader_Scene, "uIllumination");
-	_this.u_Scene_shadows = _this.gl.getUniformLocation(_this.shader_Scene, "uShadows");
-	_this.u_Scene_colorSpecular = _this.gl.getUniformLocation(_this.shader_Scene, "uSpecularColor");
+	this.u_Scene_illumination = this.gl.getUniformLocation(this.shader_Scene, "uIllumination");
+	this.u_Scene_shadows = this.gl.getUniformLocation(this.shader_Scene, "uShadows");
+	this.u_Scene_colorSpecular = this.gl.getUniformLocation(this.shader_Scene, "uSpecularColor");
 
-	_this.attr_Scene_pos = _this.gl.getAttribLocation(_this.shader_Scene, "aVertexPosition");
-	_this.attr_Scene_normal = _this.gl.getAttribLocation(_this.shader_Scene, "aVertexNormal");
-	_this.attr_Scene_UV = _this.gl.getAttribLocation(_this.shader_Scene, "aTextureCoord");
-	_this.attr_Scene_textureUnit = _this.gl.getAttribLocation(_this.shader_Scene, "aTextureUnit");
+	this.attr_Scene_pos = this.gl.getAttribLocation(this.shader_Scene, "aVertexPosition");
+	this.attr_Scene_normal = this.gl.getAttribLocation(this.shader_Scene, "aVertexNormal");
+	this.attr_Scene_UV = this.gl.getAttribLocation(this.shader_Scene, "aTextureCoord");
+	this.attr_Scene_textureUnit = this.gl.getAttribLocation(this.shader_Scene, "aTextureUnit");
 
 	
-	_this.u_Scene_PMatrix = _this.gl.getUniformLocation(_this.shader_Scene, "uPMatrix");
-	_this.u_Scene_cameraWMatrix = _this.gl.getUniformLocation(_this.shader_Scene, "u_cameraWMatrix");
-	_this.u_Scene_cameraPos = _this.gl.getUniformLocation(_this.shader_Scene, "u_cameraPos");
-	_this.u_Scene_nodeWMatrix = _this.gl.getUniformLocation(_this.shader_Scene, "u_nodeWMatrix");
-	_this.u_Scene_nodeVScale = _this.gl.getUniformLocation(_this.shader_Scene, "u_nodeVScale");
-	_this.u_Scene_nodeWMatrixInverse = _this.gl.getUniformLocation(_this.shader_Scene, "u_nodeWMatrixInverse");
-	_this.u_Scene_nodeWVMatrixInverse = _this.gl.getUniformLocation(_this.shader_Scene, "u_nodeWVMatrixInverse");
-	_this.Shader_Scene_READY = true;
+	this.u_Scene_PMatrix = this.gl.getUniformLocation(this.shader_Scene, "uPMatrix");
+	this.u_Scene_cameraWMatrix = this.gl.getUniformLocation(this.shader_Scene, "u_cameraWMatrix");
+	this.u_Scene_cameraPos = this.gl.getUniformLocation(this.shader_Scene, "u_cameraPos");
+	this.u_Scene_nodeWMatrix = this.gl.getUniformLocation(this.shader_Scene, "u_nodeWMatrix");
+	this.u_Scene_nodeVScale = this.gl.getUniformLocation(this.shader_Scene, "u_nodeVScale");
+	this.u_Scene_nodeWMatrixInverse = this.gl.getUniformLocation(this.shader_Scene, "u_nodeWMatrixInverse");
+	this.u_Scene_nodeWVMatrixInverse = this.gl.getUniformLocation(this.shader_Scene, "u_nodeWVMatrixInverse");
+	this.Shader_Scene_READY = true;
 };
 /**
  * @private 
@@ -946,7 +944,7 @@ StormGLContext.prototype.renderSceneNow = function(node, buffersObject) {
 	this.gl.uniform1i(this.sampler_Scene_textureFB_GIVoxel, 4);
 		
 	var next = this.OCCUPIEDSAMPLES_SHADERSCENE; 
-	for(var n = 0; (n < node.materialUnits.length && n < _this.MAX_TEXTURESKD); n++) {
+	for(var n = 0; (n < node.materialUnits.length && n < this.MAX_TEXTURESKD); n++) {
 		if(next == 5) this.gl.activeTexture(this.gl.TEXTURE5);
 		else if(next == 6) this.gl.activeTexture(this.gl.TEXTURE6);
 		else if(next == 7) this.gl.activeTexture(this.gl.TEXTURE7);

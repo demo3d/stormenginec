@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>StormEngineC</title>
+		<meta charset=utf-8 />
+		
+		<style>
+			body{
+				background:#66ACA4;
+				color:#FFF;
+			}
+		</style>
+		<script src="../../StormEngineC/StormEngineC.class.js"></script>
+	</head>
+	
+	<body>
+		<div style="text-align:left;">
+			<canvas id="stormCanvas" width="512" height="512" style="margin:auto;"></canvas>
+		  </div>
+		  <script>
+			  
+			  stormEngineC.createWebGL({'target':	'stormCanvas', // ID canvas
+										'editMode':	true,
+										'enableRender':false});
+				stormEngineC.setWebGLSSAO(true, 3.0);
+			  //stormEngineC.setWebGLEnvironmentMap("../_RESOURCES/camera_animation/paisajes.jpg");   
+			  stormEngineC.setWebGLBackground('environmentMap');   
+			  
+			  // LIGHTS
+			  stormEngineC.setAmbientColor($V3([115/255, 116/255, 122/255]));
+			  
+			  var lightSun = stormEngineC.createLight({	'type':'sun',
+														'direction':$V3([-0.1,-0.5,0.1]), // type sun only direction param
+														'color':5770 // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
+													 });
+			  
+			  // CAMERA
+			  var nodeCam = stormEngineC.createCamera($V3([-15.0, 10.0, -20.0]), 0.3); // create one camera
+			  stormEngineC.setWebGLCam(nodeCam);
+			  nodeCam.enableDOF();
+			  // nodeCam.focus({distance:20.0,fStop:90.0});
+			  
+		  
+			  // SCENE
+			  var nodeGround = stormEngineC.createNode();
+				nodeGround.loadObj({'objUrl': "../_RESOURCES/camera_animation/mar_separate.obj"});
+			  
+			  nodeGround.setPosition($V3([0.0, 0.0, -10.0]));
+			
+			
+				// ANIMATION
+				stormEngineC.PanelAnimationTimeline.setStart(0);
+			  stormEngineC.PanelAnimationTimeline.setEnd(1200);
+		  
+			  
+			  nodeCam.nodeGoal.setPosition($V3([-24.4,	13.21,	-56.4]));
+			  nodeCam.nodePivot.setPosition($V3([-23.7, 12.59, -54.8]));
+			  nodeCam.setAnimKey(0); // save the current node position on frame 0
+		  
+			  nodeCam.nodeGoal.setPosition($V3([-18.1, 10.75, -49.2]));
+			  nodeCam.nodePivot.setPosition($V3([-17.9, 10.53, -48.5]));
+			  nodeCam.setAnimKey(100);
+		  
+			  nodeCam.nodeGoal.setPosition($V3([-13.5, 8.4, -41.6]));
+			  nodeCam.nodePivot.setPosition($V3([-13.9, 8.1, -40.7]));
+			  nodeCam.setAnimKey(300);
+			  
+			  nodeCam.nodeGoal.setPosition($V3([-14.7, 6.6, -33.6]));
+			  nodeCam.nodePivot.setPosition($V3([-15.5, 6.4, -33.1]));
+			  nodeCam.setAnimKey(400);
+			  
+			  nodeCam.nodeGoal.setPosition($V3([-15.7, 7.5, -26.3]));
+			  nodeCam.nodePivot.setPosition($V3([-16.4, 7.2, -25.8]));
+			  nodeCam.setAnimKey(500);
+			  
+			  nodeCam.nodeGoal.setPosition($V3([-13.6, 7.68, -18.5]));
+			  nodeCam.nodePivot.setPosition($V3([-14.0, 7.32, -18.0]));
+			  nodeCam.setAnimKey(600);
+			  
+			  nodeCam.nodeGoal.setPosition($V3([-9.3, 7.8, -16.5]));
+			  nodeCam.nodePivot.setPosition($V3([-9.0, 7.35, -15.8]));
+			  nodeCam.setAnimKey(700);
+			  
+			  nodeCam.nodeGoal.setPosition($V3([-11.0, 9.1, -11.8]));
+			  nodeCam.nodePivot.setPosition($V3([-10.4, 8.6, -12.2]));
+			  nodeCam.setAnimKey(800);
+			  
+			  nodeCam.nodeGoal.setPosition($V3([-13.0, 9.8, -1.64]));
+			  nodeCam.nodePivot.setPosition($V3([-12.6, 9.44, -2.09]));
+			  nodeCam.setAnimKey(900);
+			  
+			  nodeCam.nodeGoal.setPosition($V3([-12.3, 9.75, 2.71]));
+			  nodeCam.nodePivot.setPosition($V3([-11.9, 9.31, 2.23]));
+			  nodeCam.setAnimKey(1000);
+			  
+			  nodeCam.nodeGoal.setPosition($V3([-10.00, 9.93, 7.04]));
+			  nodeCam.nodePivot.setPosition($V3([-9.63, 9.62, 6.59]));
+			  nodeCam.setAnimKey(1100);
+		  
+			  nodeCam.nodeGoal.setPosition($V3([-3.72, 10.7, 11.87]));
+			  nodeCam.nodePivot.setPosition($V3([-3.76, 10.40, 11.12]));
+			  nodeCam.setAnimKey(1200);
+			  
+			  stormEngineC.PanelAnimationTimeline.play();
+			
+			
+			
+			
+			  /*nodeGround.setCollision({	'type':'trimesh',
+										'mass':0,
+										'friction':0.99,
+										'restitution':0.1});*/
+			  // CAR
+			  /*var nodeCar = stormEngineC.createNode();
+			  nodeCar.loadObj({'objUrl':  "../_RESOURCES/camera_animation/box.obj"});
+			  
+			  nodeCar.setPosition($V3([-13.0, 2.0, -30.0]));
+			  nodeCar.setCollision({	'type':'car',
+															'dimensions':$V3([2.2, 4.2, 1.0]), //width, depth, height
+									  'mass':1000.0, // 50 - 300
+									  'maxVelocity': 20.0,
+									  'engineBreak': 0.5, // 0.1 - 1.0
+									  'steerAngle':50.0 // 10 -100
+								  });
+							
+			  var nodeWheelFL = stormEngineC.createNode();
+			  nodeWheelFL.loadObj({'objUrl':  "../_RESOURCES/camera_animation/box.obj"});
+			  nodeWheelFL.setPosition($V3([-1.0, -0.2, -2.0]));
+			  
+			  var nodeWheelFR = stormEngineC.createNode();
+			  nodeWheelFR.loadObj({'objUrl':  "../_RESOURCES/camera_animation/box.obj"});
+			  nodeWheelFR.setPosition($V3([1.0, -0.2, -2.0]));
+			  
+			  var nodeWheelBL = stormEngineC.createNode();
+			  nodeWheelBL.loadObj({'objUrl':  "../_RESOURCES/camera_animation/box.obj"});
+			  nodeWheelBL.setPosition($V3([-1.0, -0.2, 2.0]));
+			  
+			  var nodeWheelBR = stormEngineC.createNode();
+			  nodeWheelBR.loadObj({'objUrl':  "../_RESOURCES/camera_animation/box.obj"});
+			  nodeWheelBR.setPosition($V3([1.0, -0.2, 2.0]));
+			  
+			  nodeCar.setCarWheels({'nodesWheels':[nodeWheelFL, nodeWheelFR, nodeWheelBL, nodeWheelBR], // Meshes frontLeft frontRight backLeft backRight
+									'r':1.0, // radius
+									'damping':1.0}); // suspension recuperation
+			  */
+			  
+			  // NET PLAYER
+			  //stormEngineC.upWebsocket("XXX.XXX.XXX.XXX", 3400); 
+			  /*stormEngineC.newNetNodeConnectionResponse = function(node) {
+				node.loadObj({'objUrl': "../_RESOURCES/camera_animation/box.obj"});
+				
+				nodeCam.setPlayerMeshNode(node);
+				nodeCam.setCollision({'type':'sphere',
+															'dimensions':0.5, // for type player only admit type sphere and box
+									  'mass':60.0,
+									  'friction':0.99,
+									  'restitution':0.1});
+			  };
+			  stormEngineC.createNetNode(); // with websocket NODEJS server*/
+			  
+			  
+			  // The event "stormEngineC.globalResponsePrincipalNetNode" is called when a client has taken control of the scene by using the "stormEngineC.setPrincipalNetNode()"
+			  // Is received by all clients except the caller
+			  // We get the node that is associated with the customer who placed the call
+			  /*stormEngineC.globalResponsePrincipalNetNode = function(node) {
+				nodeCam.followNode(node); // Hacemos que nuestra cámara siga el nodo recibido. Podremos retomar el control de nuevo mediante "nodeCam.myView()"
+			  };
+			  */
+			  
+			  //setInterval("$('#SPANID_serverStatus').html(stormEngineC.getServerStatus());", 5000);
+
+		  </script>		
+			  <!--
+		  <br />
+		  WASD keys: Move
+		  <br />
+		  <input type="button" onclick="stormEngineC.getWebGLCam().setController({'mode':'targetcam', 'distance':8.0});" value="targetcam"/>
+		  <input type="button" onclick="stormEngineC.getWebGLCam().setController({'mode':'player', 'distance':8.0});" value="player"/>
+		  <input type="button" onclick="stormEngineC.getWebGLCam().setController({'mode':'nodeCar', 'distance':8.0, 'nodeCar':nodeCar});" value="car"/>
+		  <br />
+		  <input type="button" onclick="stormEngineC.setPrincipalNetNode();nodeCam.myView();" value="setPrincipalNetNode & myView"/><br />
+		  Server Connected: <span id="SPANID_serverStatus"></span>
+				-->
+		
+		 
+	</body>
+</html>

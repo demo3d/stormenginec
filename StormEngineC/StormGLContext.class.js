@@ -40,8 +40,10 @@ StormGLContext = function(stormCanvasObject, loadScene) {
 	this.shadowsEnable = true;
 	
 	// PICKING
-	this.queryNodePickType = 0; // 0=noquery, 1=mousedown, 2=mouseup
-	this.transformOverlaySelected = 0.0; //1=posx,2=posy,3=posz, 4=rotx,5=roty,6=rotz 
+	this.makeMouseDown = false;
+	this.makeMouseMove = false;
+	this.makeMouseUp = false;
+	this.nodeQuerySelection = 0.0; //0=nothing,1=posx,2=posy,3=posz, 4=rotx,5=roty,6=rotz,StormNode 
 	
 	// BG
 	this.useEnvironment = false;
@@ -49,9 +51,7 @@ StormGLContext = function(stormCanvasObject, loadScene) {
 	this.useBGSolid = false;
 	this.useBGAmbient = true;
 	
-	// STACK SHADER COMPILATION
-	this.stackShaders = []; 
-	this.stackShadersRunning = false;
+	// SHADER DEBUG
 	this._SHOW_ANGLE_HLSL_SOURCE = false; // start chrome with –-enable-privileged-webgl-extensions (–-use-gl=desktop if stormEngineC.enableVO())
 	
 	// VIEW FBS 
@@ -279,35 +279,41 @@ StormGLContext.prototype.initContext = function() {
 	
 	this.textureRandom = this.gl.createTexture();
 	this.imageElementNoise = new Image();
-	this.imageElementNoise.onload = function() {		
-		stormEngineC.stormGLContext.gl.bindTexture(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.textureRandom);
-		stormEngineC.stormGLContext.gl.texImage2D(stormEngineC.stormGLContext.gl.TEXTURE_2D, 0, stormEngineC.stormGLContext.gl.RGBA, stormEngineC.stormGLContext.gl.RGBA, stormEngineC.stormGLContext.gl.UNSIGNED_BYTE, stormEngineC.stormGLContext.imageElementNoise);
-		stormEngineC.stormGLContext.gl.texParameteri(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.gl.TEXTURE_MAG_FILTER, stormEngineC.stormGLContext.gl.NEAREST);
-		stormEngineC.stormGLContext.gl.texParameteri(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.gl.TEXTURE_MIN_FILTER, stormEngineC.stormGLContext.gl.NEAREST);	
-		stormEngineC.stormGLContext.gl.texParameteri(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.gl.TEXTURE_WRAP_S, stormEngineC.stormGLContext.gl.MIRRORED_REPEAT);
-		stormEngineC.stormGLContext.gl.texParameteri(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.gl.TEXTURE_WRAP_T, stormEngineC.stormGLContext.gl.MIRRORED_REPEAT);			
-		stormEngineC.stormGLContext.gl.bindTexture(stormEngineC.stormGLContext.gl.TEXTURE_2D, null);
+	this.imageElementNoise.onload = (function() {		
+		this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureRandom);
+		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.imageElementNoise);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.NEAREST);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.NEAREST);	
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.MIRRORED_REPEAT);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.MIRRORED_REPEAT);			
+		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
 		
 		var e = document.createElement('canvas');
 		e.width = 32;
 		e.height = 32;
 		var ctx2DTEX_noise = e.getContext("2d");		
-		ctx2DTEX_noise.drawImage(stormEngineC.stormGLContext.imageElementNoise, 0, 0);
-		stormEngineC.stormGLContext.arrayTEX_noise = ctx2DTEX_noise.getImageData(0, 0, 32, 32);
-	};
+		ctx2DTEX_noise.drawImage(this.imageElementNoise, 0, 0);
+		this.arrayTEX_noise = ctx2DTEX_noise.getImageData(0, 0, 32, 32);
+		
+		this.imageElementNoise.loaded = true;
+		this.initShaders();
+	}).bind(this);
 	this.imageElementNoise.src = stormEngineCDirectory+'/resources/noise32x32.jpg';
 	
 	this.environmentMap = this.gl.createTexture();
 	this.imageElementReflection = new Image();
-	this.imageElementReflection.onload = function() {		
-		stormEngineC.stormGLContext.gl.bindTexture(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.environmentMap);
-		stormEngineC.stormGLContext.gl.texImage2D(stormEngineC.stormGLContext.gl.TEXTURE_2D, 0, stormEngineC.stormGLContext.gl.RGBA, stormEngineC.stormGLContext.gl.RGBA, stormEngineC.stormGLContext.gl.UNSIGNED_BYTE, stormEngineC.stormGLContext.imageElementReflection);
-		stormEngineC.stormGLContext.gl.texParameteri(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.gl.TEXTURE_MAG_FILTER, stormEngineC.stormGLContext.gl.LINEAR);
-		stormEngineC.stormGLContext.gl.texParameteri(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.gl.TEXTURE_MIN_FILTER, stormEngineC.stormGLContext.gl.LINEAR);	
-		stormEngineC.stormGLContext.gl.texParameteri(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.gl.TEXTURE_WRAP_S, stormEngineC.stormGLContext.gl.CLAMP_TO_EDGE);
-		stormEngineC.stormGLContext.gl.texParameteri(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.gl.TEXTURE_WRAP_T, stormEngineC.stormGLContext.gl.CLAMP_TO_EDGE);			
-		stormEngineC.stormGLContext.gl.bindTexture(stormEngineC.stormGLContext.gl.TEXTURE_2D, null);
-	};
+	this.imageElementReflection.onload = (function() {		
+		this.gl.bindTexture(this.gl.TEXTURE_2D, this.environmentMap);
+		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.imageElementReflection);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);	
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);			
+		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+		
+		this.imageElementReflection.loaded = true;
+		this.initShaders();
+	}).bind(this);
 	this.imageElementReflection.src = stormEngineCDirectory+'/resources/landscape.jpg'; 
 	
 	
@@ -407,23 +413,40 @@ StormGLContext.prototype.updateTexturesFB = function() {
 /**
  * @private 
  */
-StormGLContext.prototype.nextStackShaders = function() {
-	var stormgl = stormEngineC.stormGLContext;
-	stormgl.stackShadersRunning = true;
-	if(stormgl.stackShaders.length > 0) {
-		stormEngineC.setStatus({id:'SHADER_'+stormgl.stackShaders[0].name,
-								str:'GENERATING SHADER '+stormgl.stackShaders[0].name+'...'});
-		stormgl.stackShaders[0].funct();
-		stormgl.stackShaders.shift();
-	} else stormgl.stackShadersRunning = false;
-};
-/**
- * @private 
- */
-StormGLContext.prototype.addToStackShaders = function(name, funct) {
-	var stormgl = stormEngineC.stormGLContext;
-	stormgl.stackShaders.push({'name':name,'funct':funct});
-	if(stormgl.stackShadersRunning == false) stormgl.nextStackShaders(); 
+StormGLContext.prototype.initShaders = function() {
+	if( this.imageElementNoise.loaded == true &&
+		this.imageElementReflection.loaded == true) {
+		
+			if(!this._typeMobile && this._supportFormat == this.gl.FLOAT) console.log('PC');
+			else console.log('MOBILE');
+			
+			if(!this._typeMobile && this._supportFormat == this.gl.FLOAT) {
+				this.initShader_Ctx2D();
+				stormEngineC.update2DContext();
+			}
+			
+			this.initShader_Normals();
+			if(this._supportFormat == this.gl.FLOAT) { 
+				this.initShader_LightDepth();
+				this.initShader_LightDepthParticles();
+					this.initShader_Shadows();
+			}
+			
+			if(!this._typeMobile && this._supportFormat == this.gl.FLOAT)
+				this.initShader_BG(); 
+			this.initShader_Scene();
+			
+			if(!this._typeMobile && this._supportFormat == this.gl.FLOAT) {
+				this.initShader_ParticlesAux();
+				this.initShader_Lines();
+				this.initShader_DOF();
+			} 
+			
+			this.initShader_Pick();
+			if(!this._typeMobile && this._supportFormat == this.gl.FLOAT)
+				this.initShader_Overlay();  
+			
+	}
 };
 /**
  * @private 
@@ -535,15 +558,12 @@ StormGLContext.prototype.createShader = function(gl, name, sourceVertex, sourceF
 				console.log(gl.getProgramInfoLog(shaderProgram));
 			} 
 		} else {
-			if(functionInitShaderPointers != undefined) functionInitShaderPointers();
+			if(functionInitShaderPointers != undefined) functionInitShaderPointers(); 
 			
 		}
 	}
-	setTimeout(function(){
-					stormEngineC.setStatus({id:'SHADER_'+name,   
-											str:''});
-					stormEngineC.stormGLContext.nextStackShaders();
-				},1);
+	
+	
 }
 /**
  * @private 
@@ -551,7 +571,7 @@ StormGLContext.prototype.createShader = function(gl, name, sourceVertex, sourceF
 StormGLContext.prototype.renderGLContext = function() {
 	this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
 	if(this.Shader_Pick_READY) {
-		this.queryNodePick();
+		this.render_Pick();
 	} 
 	if(this.Shader_GIv2_READY == true && this.GIv2enable == true) {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fBuffer);
@@ -729,15 +749,15 @@ StormGLContext.prototype.setGlowSize = function(glowSize) {
 /** @private  */
 StormGLContext.prototype.setWebGLEnvironmentMap = function(fileURL) {
 	this.imageElementReflection = new Image();
-	this.imageElementReflection.onload = function() {		
-		stormEngineC.stormGLContext.gl.bindTexture(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.environmentMap);
-		stormEngineC.stormGLContext.gl.texImage2D(stormEngineC.stormGLContext.gl.TEXTURE_2D, 0, stormEngineC.stormGLContext.gl.RGBA, stormEngineC.stormGLContext.gl.RGBA, stormEngineC.stormGLContext.gl.UNSIGNED_BYTE, stormEngineC.stormGLContext.imageElementReflection);
-		stormEngineC.stormGLContext.gl.texParameteri(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.gl.TEXTURE_MAG_FILTER, stormEngineC.stormGLContext.gl.LINEAR);
-		stormEngineC.stormGLContext.gl.texParameteri(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.gl.TEXTURE_MIN_FILTER, stormEngineC.stormGLContext.gl.LINEAR);	
-		stormEngineC.stormGLContext.gl.texParameteri(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.gl.TEXTURE_WRAP_S, stormEngineC.stormGLContext.gl.CLAMP_TO_EDGE);
-		stormEngineC.stormGLContext.gl.texParameteri(stormEngineC.stormGLContext.gl.TEXTURE_2D, stormEngineC.stormGLContext.gl.TEXTURE_WRAP_T, stormEngineC.stormGLContext.gl.CLAMP_TO_EDGE);			
-		stormEngineC.stormGLContext.gl.bindTexture(stormEngineC.stormGLContext.gl.TEXTURE_2D, null);
-	};
+	this.imageElementReflection.onload = (function() {		
+		this.gl.bindTexture(this.gl.TEXTURE_2D, this.environmentMap);
+		this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, this.gl.UNSIGNED_BYTE, this.imageElementReflection);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MAG_FILTER, this.gl.LINEAR);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_MIN_FILTER, this.gl.LINEAR);	
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_S, this.gl.CLAMP_TO_EDGE);
+		this.gl.texParameteri(this.gl.TEXTURE_2D, this.gl.TEXTURE_WRAP_T, this.gl.CLAMP_TO_EDGE);			
+		this.gl.bindTexture(this.gl.TEXTURE_2D, null);
+	}).bind(this);
 	this.imageElementReflection.src = fileURL;
 };
 

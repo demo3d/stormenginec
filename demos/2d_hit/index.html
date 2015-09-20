@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>StormEngineC</title>
+		<meta charset=utf-8 />
+		
+		<style>
+			body{
+				background:#66ACA4;
+				color:#FFF;
+			}
+		</style>
+		<script src="../../StormEngineC/StormEngineC.class.js"></script>
+	</head>
+	
+	<body>
+		<canvas id="stormCanvas" width="512" height="512"></canvas>
+		<script>
+		  stormEngineC.createWebGL({'target':	'stormCanvas', // ID canvas
+									'callback':	function(){},
+									'editMode':	true,
+									'enableRender':true});
+		  stormEngineC.setWebGLBackground('environmentMap'); 
+		  
+		  var idHitRegion = stormEngineC.addHitRectRegion({	'x':20,
+															'y':20,
+															'width':100,
+															'height':100,
+															'fillStyle':"#333",
+															'strokeStyle':"#3a57df",
+															'lineWidth':8,
+															'onclick':function(){
+																	$('#STATUS').text('Click Region 1');
+																  },
+															'onmouseover':function(){
+																	$('#STATUS').text('Over Region 1');
+																  },
+															'onmouseout':function(){
+																	$('#STATUS').text('Out Region 1');
+																  }
+														  });
+		  
+		</script>			
+		<div id="STATUS" style="color:#FFF"></div>
+			<input type="button" onclick="stormEngineC.removeHitRectRegion(idHitRegion);" value="removeHit"/>
+			
+		 
+	</body>
+</html>

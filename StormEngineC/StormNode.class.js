@@ -182,7 +182,17 @@ StormNode.prototype.attachMeshSeparateXYZ = function(arrayX,arrayY,arrayZ) {
 StormNode.prototype.removeMeshes = function() {
 	this.buffersObjects = [];
 };
-
+/**
+* Remove this object
+* @type Void
+*/
+StormNode.prototype.remove = function() {
+	var idToRemove = undefined;
+	for(var n = 0, f = stormEngineC.nodes.length; n < f; n++) {
+		if(stormEngineC.nodes[n].idNum == this.idNum) idToRemove = n;
+	}
+	stormEngineC.nodes.splice(idToRemove,1);
+};
 /**
 * Load a object on this node from url of obj file
 * @type Void

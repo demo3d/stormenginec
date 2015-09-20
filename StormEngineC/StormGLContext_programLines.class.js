@@ -5,8 +5,7 @@
  * @private 
  */
 StormGLContext.prototype.initShader_Lines = function() {
-	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	_this.precision+
+	var sourceVertex = 	this.precision+
 		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec3 aVertexLocPosition;\n'+
 		
@@ -20,28 +19,27 @@ StormGLContext.prototype.initShader_Lines = function() {
 			
 			'vVertexLocPosition = aVertexLocPosition;\n'+
 		'}';
-	var sourceFragment = _this.precision+
+	var sourceFragment = this.precision+
 		
 		'varying vec3 vVertexLocPosition;\n'+
 		
 		'void main(void) {\n'+
 			'gl_FragColor = vec4(vec3(vVertexLocPosition[0], vVertexLocPosition[1], vVertexLocPosition[2]), 1.0);\n'+
 		'}';
-	_this.shader_Lines = _this.gl.createProgram();
-	_this.createShader(_this.gl, "LINES", sourceVertex, sourceFragment, _this.shader_Lines, _this.pointers_Lines);
+	this.shader_Lines = this.gl.createProgram();
+	this.createShader(this.gl, "LINES", sourceVertex, sourceFragment, this.shader_Lines, this.pointers_Lines.bind(this));
 };
 /**
  * @private 
  */
 StormGLContext.prototype.pointers_Lines = function() {
-	_this = stormEngineC.stormGLContext;
-	_this.attr_Lines_pos = _this.gl.getAttribLocation(_this.shader_Lines, "aVertexPosition");
-	_this.attr_Lines_posLoc = _this.gl.getAttribLocation(_this.shader_Lines, "aVertexLocPosition");
+	this.attr_Lines_pos = this.gl.getAttribLocation(this.shader_Lines, "aVertexPosition");
+	this.attr_Lines_posLoc = this.gl.getAttribLocation(this.shader_Lines, "aVertexLocPosition");
 	
 	
-	_this.u_Lines_PMatrix = _this.gl.getUniformLocation(_this.shader_Lines, "uPMatrix");
-	_this.u_Lines_cameraWMatrix = _this.gl.getUniformLocation(_this.shader_Lines, "u_cameraWMatrix");
-	_this.Shader_Lines_READY = true;
+	this.u_Lines_PMatrix = this.gl.getUniformLocation(this.shader_Lines, "uPMatrix");
+	this.u_Lines_cameraWMatrix = this.gl.getUniformLocation(this.shader_Lines, "u_cameraWMatrix");
+	this.Shader_Lines_READY = true;
 };
 /**
  * @private 

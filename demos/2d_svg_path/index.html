@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>StormEngineC</title>
+		<meta charset=utf-8 />
+		
+		<style>
+			body{
+				background:#66ACA4;
+				color:#FFF;
+			}
+		</style>
+		<script src="../../StormEngineC/StormEngineC.class.js"></script>
+	</head>
+	
+	<body>
+		<canvas id="stormCanvas" width="512" height="512"></canvas>
+		<script>
+		  stormEngineC.createWebGL({'target':	'stormCanvas', // ID canvas
+									'callback':	function(elapsed){},
+									'editMode':	true,
+									'enableRender':true});
+		  stormEngineC.setWebGLBackground('environmentMap'); 
+		  
+		  var ctx = stormEngineC.get2DContext();
+		  ctx.beginPath();
+		  ctx.fillStyle = "#fd500f";
+		  ctx.strokeStyle = "#3a57df";
+		  ctx.lineWidth = 8;
+		  ctx.moveTo(18,154);
+		  ctx.bezierCurveTo(35,154,112,165,95,128);
+		  ctx.stroke();
+		  ctx.fill();
+		  stormEngineC.update2DContext();
+		  
+		</script>		
+			
+		 
+	</body>
+</html>

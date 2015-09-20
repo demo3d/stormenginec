@@ -10,8 +10,6 @@ StormGraph = function(jsonIn) { StormNode.call(this);
 	
 	this.nodes = {};
 	this.links = [];
-	
-	stormEngineC.shadows(false);
 };
 StormGraph.prototype = Object.create(StormNode.prototype);
 
@@ -31,6 +29,8 @@ StormGraph.prototype.addNode = function(jsonIn) {
 	
 	
 	this.nodes[node.name] = node;
+	
+	return this.nodes[node.name];
 };
 
 /** @private */
@@ -58,6 +58,7 @@ StormGraph.prototype.addLink = function(idA, idB) {
 					"origin": nodeOrigin,
 					"end": nodeEnd});
 	
+	return this.links[this.links.length-1];
 };
 
 /** @private */

@@ -6,7 +6,7 @@
 * @property {String} objectType
 * @property {StomrNode} nodePivot
 * @property {StomrNode} nodeGoal
-* @property {StormControllerFreeCam|StormControllerTargetCam|StormControllerPlayer|StormControllerPlayerCar|StormControllerFollow} controller Camera controller
+* @property {StormControllerTargetCam|StormControllerPlayer|StormControllerPlayerCar|StormControllerFollow} controller Camera controller
 */
 StormCamera = function() { StormNode.call(this); 
 	this.objectType = 'camera';
@@ -17,7 +17,8 @@ StormCamera = function() { StormNode.call(this);
 	
 	this.usedByGLContext = false;
 	this.enableAnimFrames = false;
-	this.mouseControls = true;
+	this.lockRotX = false;
+	this.lockRotY = false;
 	
 	this.posCamera;
 	this.posCameraPivot;
@@ -42,21 +43,33 @@ StormCamera.prototype = Object.create(StormNode.prototype);
 
 
 
-
 /**
-* Disable mouse controls
+* Look rotation x
 * @type Void
  */
-StormCamera.prototype.disableMouseControls = function() {
-	this.mouseControls = false;
+StormCamera.prototype.lockRotationX = function() {
+	this.lockRotX = true;
 };
-
 /**
-* Enable mouse controls
+* Look rotation y
 * @type Void
  */
-StormCamera.prototype.enableMouseControls = function() {
-	this.mouseControls = true;
+StormCamera.prototype.lockRotationY = function() {
+	this.lockRotY = true;
+};
+/**
+* UnLook rotation x
+* @type Void
+ */
+StormCamera.prototype.unlockRotationX = function() {
+	this.lockRotX = false;
+};
+/**
+* UnLook rotation y
+* @type Void
+ */
+StormCamera.prototype.unlockRotationY = function() {
+	this.lockRotY = false;
 };
 
 /**
@@ -65,7 +78,6 @@ StormCamera.prototype.enableMouseControls = function() {
 * @param {String} view 'LEFT','RIGHT','FRONT','BACK','TOP','BOTTOM'
  */
 StormCamera.prototype.setView = function(view) {
-	if(this.controllerType != 0) this.setController({'mode':'freecam'});
 	this.setProjectionType('o');
 	this.nodePivot.resetAxis();
 	this.resetAxis();
@@ -100,25 +112,15 @@ StormCamera.prototype.setView = function(view) {
 * Switch cam controller
 * @type Void
 * @param {Object} jsonIn
-* 	@param {String} jsonIn.mode 'freecam'|'targetcam'|'follow'|'player'|'nodeCar'.
-* 	@param {Float} [jsonIn.distance] Distance to camera target. (All except type 'freecam').
-* 	@param {StormNode} [jsonIn.node] For attach a node to the camera target. Only type 'freecam'|'targetcam'|'follow'|'player'.
+* 	@param {String} jsonIn.mode 'targetcam'|'follow'|'player'|'nodeCar'.
+* 	@param {Float} [jsonIn.distance] Distance to camera target.
+* 	@param {StormNode} [jsonIn.node] For attach a node to the camera target. Only type 'targetcam'|'follow'|'player'.
 * 	@param {StormNode} [jsonIn.nodeCar] If mode is 'nodeCar'.
-* 	@param {String} [jsonIn.view='node'] 'camera' | 'node'. (All except type 'freecam').
+* 	@param {String} [jsonIn.view='node'] 'camera' | 'node'.
  */
 StormCamera.prototype.setController = function(jsonIn) {
 	var view =(jsonIn.view != undefined) ? jsonIn.view : 'node';
 	
-	if(jsonIn.mode == 'freecam') { 
-		this.controller = new StormControllerFreeCam();
-		
-		if(jsonIn.node != undefined) {
-			if(view == 'node') this.nodePivot.setPosition(jsonIn.node.getPosition());
-			if(view == 'camera') jsonIn.node.setPosition(this.nodePivot.getPosition());
-		}  
-		
-		this.controller.cameraSetupFC(this, jsonIn.node); // cameraNode, meshNode
-	}
 	if(jsonIn.mode == 'targetcam') {
 		this.controller = new StormControllerTargetCam(jsonIn.distance);
 		

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>StormEngineC</title>
+		<meta charset=utf-8 />
+		
+		<style>
+			body{
+				background:#66ACA4;
+				color:#FFF;
+			}
+		</style>
+		<script src="../../StormEngineC/StormEngineC.class.js"></script>
+	</head>
+	
+	<body>
+		<canvas id="stormCanvas" width="512" height="512"></canvas>
+		<script>
+			
+			var nodePlayer;
+		
+		  stormEngineC.createWebGL({'target':	'stormCanvas', // ID canvas
+									'callback':	function(){},
+									'editMode':	true,
+									'enableRender':true});
+		  stormEngineC.setWebGLSSAO(true, 3.2);
+		  //var gravityForce = stormEngineC.createGravityForce();
+		  
+		  
+		  // LIGHTS
+		  stormEngineC.setAmbientColor($V3([0.7, 0.75, 0.8]));
+		  
+		  var lightSun = stormEngineC.createLight({	'type':'sun',
+										'direction':$V3([-0.49,-1.0,-0.20]), // type sun only direction param
+										'color':5770 // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
+										});
+				
+		/*var lightB = stormEngineC.createLight({	'type':'spot', // TYPE SPOT (MAX 10)
+								'position':$V3([0.0,20.5,0.0]),
+								'direction':$V3([0.01,-1.0,0.01]), //on render spot is omni
+								'color':3200 // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
+								});*/ 
+										
+										
+		  // CAMERA
+		  var nodeCam = stormEngineC.createCamera($V3([0.0, 1.0, -2.0]), 1.0); // create one camera
+		  stormEngineC.setWebGLCam(nodeCam);
+		
+		  /*stormEngineC.newNetNodeConnectionResponse = function(node) {
+			node.loadObj({objUrl: "../_RESOURCES/box.obj"});
+		
+			node.setCollision({	'type':'sphere',
+							   'dimensions':0.5, // node only admit type sphere and box
+								'mass':60.0,
+								'friction':0.99,
+								'restitution':0.1});
+			
+			nodePlayer = node;
+		  };
+		  stormEngineC.createNetNode();
+		  nodeCam.setController({'mode':'player',
+								 'distance':4.0,
+								 'node':nodePlayer});*/
+		  
+		  
+		  
+		
+			// SCENE
+			var URLRESOURCES = "../_RESOURCES/";
+			var node = stormEngineC.createNode();
+			
+			loadObj = function(objurl) {
+				node.removeMeshes();
+				node.loadObj({'objUrl': URLRESOURCES+objurl});
+				node.setPosition($V3([0.0, 0.0, 0.0]));
+				/*node.setCollision({	'type':'trimesh',
+										'mass':0,
+										'restitution':0.1,
+										'friction':0.99});*/
+			}
+			loadObj("sponza.obj");
+		</script>			
+			
+		<br />
+		WASD keys: Move
+		<br />
+		<select id="select_obj">			
+			<option>sponza.obj</option>
+			<option>box.obj</option>
+			<option>box0p3.obj</option>
+			<option>box0p3Green.obj</option>
+			<option>boxesExterior.obj</option>
+			<option>boxHole.obj</option>
+			<option>bunny.obj</option>
+			<option>cornellbox.obj</option>
+			<option>cornellBox3wall.obj</option>
+			<option>cornellBoxClose.obj</option>
+			<option>cornellBoxClose2.obj</option>
+			<option>cornellBoxLuzTecho.obj</option>
+			<option>cornellbuda.obj</option>
+			<option>embalse.obj</option>
+			<option>esferoide.obj</option>
+			<option>happy-buddha.obj</option>
+			<option>mar_separate.obj</option>
+			<option>marquesadoExt.obj</option>
+			<option>piscina.obj</option>
+			<option>plane.obj</option>
+			<option>planeSuelo.obj</option>
+			<option>sphereandplane.obj</option>
+			<option>sphereD_0p5.obj</option>
+			<option>sponza.obj</option>
+			<option>torus.obj</option>
+			<option>turbina.obj</option>
+		</select>
+		<script>
+			var select = document.getElementById("select_obj");
+			select.addEventListener("change", function() {
+				loadObj(select.options[select.selectedIndex].value);
+				});
+		</script>
+		<input type="button" onclick="stormEngineC.getWebGLCam().setController({'mode':'targetcam', 'distance':4.0});" value="freecam"/>
+		<!--<input type="button" onclick="stormEngineC.getWebGLCam().setController({'mode':'player', 'distance':4.0,'node':nodePlayer});" value="player"/>-->
+		
+		 
+	</body>
+</html>

@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+	<head>
+		<title>webclgl</title>
+		<meta http-equiv="content-type" content="text/html; charset=utf-8"> 
+		
+		<script src="../../StormEngineC/WebCLGLUtils.class.js"></script>
+		<script src="../../StormEngineC/WebCLGLBuffer.class.js"></script>
+		<script src="../../StormEngineC/WebCLGLKernel.class.js"></script>
+		<script src="../../StormEngineC/WebCLGL.class.js"></script>
+		
+	</head>
+	
+	<body style="background-color:#FFF"> 
+    
+  A<div id="DIVA"></div>
+  <br />
+  B<div id="DIVB"></div>
+  <br />
+  A+B GPU<div id="DIVC_GPU"></div>
+    
+	<script>
+    // FILL ARRAYS A AND B
+    var _length = 2*2;
+    var A = [];
+    var B = [];
+    for(var n = 0; n < _length; n++) {
+        var randA = Math.random()/2.0;
+        var randB = Math.random()/2.0;
+        A.push(randA);
+        B.push(randB,randA,randB/2.0,1.0);
+    }
+    document.getElementById('DIVA').innerText = A;
+    document.getElementById('DIVB').innerText = B;
+    
+    
+    
+    
+    
+    // PERFORM A + B + SIMPLE NUM WITH GPU
+    webCLGL = new WebCLGL();
+	var offset = 0; // 0 = to handle values from 0.0 to 1.0    
+    var buffer_A = webCLGL.createBuffer(_length, "FLOAT", offset);
+    var buffer_B = webCLGL.createBuffer(_length, "FLOAT4", offset);
+    var buffer_C = webCLGL.createBuffer(_length, "FLOAT", offset);
+    webCLGL.enqueueWriteBuffer(buffer_A, A);
+    webCLGL.enqueueWriteBuffer(buffer_B, B);
+    
+    var kernel_add_source = 'void main(	float* A,'+
+									  'float4* B) {'+
+                              	'vec2 x = get_global_id();'+ // or get_global_id()+vec2(0.1,0.1)
+								'float _A = A[x];'+
+								'vec4 _B = B[x];'+
+                                'out_float = _A+_B.z;'+
+                            '}';
+    var kernel_add = webCLGL.createKernel(kernel_add_source);
+    kernel_add.setKernelArg(0, buffer_A);
+    kernel_add.setKernelArg(1, buffer_B);
+    kernel_add.compile();
+    
+    webCLGL.enqueueNDRangeKernel(kernel_add, buffer_C); 
+    
+    
+    var C_GPU = webCLGL.enqueueReadBuffer_Float(buffer_C);
+    document.getElementById('DIVC_GPU').innerText = C_GPU;
+	</script>
+  </body>
+</html>

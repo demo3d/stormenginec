@@ -5,8 +5,7 @@
  * @private 
  */
 StormGLContext.prototype.initShader_Normals = function() {
-	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	_this.precision+
+	var sourceVertex = 	this.precision+
 		'attribute vec3 aVertexPosition;\n'+ 
 		'attribute vec3 aVertexNormal;\n'+
 		
@@ -25,7 +24,7 @@ StormGLContext.prototype.initShader_Normals = function() {
 			
 			'vNormal = vec4(aVertexNormal, 1.0);\n'+
 		'}';
-	var sourceFragment = _this.precision+
+	var sourceFragment = this.precision+
 		'uniform float uFar;\n'+
 		
 		'varying vec4 vposition;\n'+
@@ -37,24 +36,23 @@ StormGLContext.prototype.initShader_Normals = function() {
 			'float linearDepth = length(vposition) * LinearDepthConstant;'+
 			'gl_FragColor = vec4((vNormal.r+1.0)/2.0,(vNormal.g+1.0)/2.0,(vNormal.b+1.0)/2.0, linearDepth);\n'+
 		'}';
-	_this.shader_Normals = _this.gl.createProgram();
-	_this.createShader(_this.gl, "NORMALS", sourceVertex, sourceFragment, _this.shader_Normals, stormEngineC.stormGLContext.pointers_Normals);
+	this.shader_Normals = this.gl.createProgram();
+	this.createShader(this.gl, "NORMALS", sourceVertex, sourceFragment, this.shader_Normals, stormEngineC.stormGLContext.pointers_Normals.bind(this));
 };
 /**
  * @private 
  */
 StormGLContext.prototype.pointers_Normals = function() {
-	_this = stormEngineC.stormGLContext;
-	_this.attr_Normals_pos = _this.gl.getAttribLocation(_this.shader_Normals, "aVertexPosition");
-	_this.attr_Normals_normal = _this.gl.getAttribLocation(_this.shader_Normals, "aVertexNormal");
+	this.attr_Normals_pos = this.gl.getAttribLocation(this.shader_Normals, "aVertexPosition");
+	this.attr_Normals_normal = this.gl.getAttribLocation(this.shader_Normals, "aVertexNormal");
 	
-	_this.u_Normals_far = _this.gl.getUniformLocation(_this.shader_Normals, "uFar");
+	this.u_Normals_far = this.gl.getUniformLocation(this.shader_Normals, "uFar");
 	
-	_this.u_Normals_PMatrix = _this.gl.getUniformLocation(_this.shader_Normals, "uPMatrix");
-	_this.u_Normals_cameraWMatrix = _this.gl.getUniformLocation(_this.shader_Normals, "u_cameraWMatrix");
-	_this.u_Normals_nodeWMatrix = _this.gl.getUniformLocation(_this.shader_Normals, "u_nodeWMatrix");
-	_this.u_Normals_nodeVScale = _this.gl.getUniformLocation(_this.shader_Normals, "u_nodeVScale");
-	_this.Shader_Normals_READY = true;
+	this.u_Normals_PMatrix = this.gl.getUniformLocation(this.shader_Normals, "uPMatrix");
+	this.u_Normals_cameraWMatrix = this.gl.getUniformLocation(this.shader_Normals, "u_cameraWMatrix");
+	this.u_Normals_nodeWMatrix = this.gl.getUniformLocation(this.shader_Normals, "u_nodeWMatrix");
+	this.u_Normals_nodeVScale = this.gl.getUniformLocation(this.shader_Normals, "u_nodeVScale");
+	this.Shader_Normals_READY = true;
 };
 /**
  * @private 

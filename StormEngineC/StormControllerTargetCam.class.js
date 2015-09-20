@@ -5,7 +5,7 @@
 * @param {Float} camDistance Distance to target
 */
 StormControllerTargetCam = function(camDistance) {
-	this.controllerType = 1; // 1 StormControllerTargetCam
+	this.controllerType = stormEngineC.ControllerTypes["TARGETCAM"];
 	this.g_forwardFC = 0;
 	this.g_backwardFC = 0;
 	this.g_strafeLeftFC = 0;
@@ -176,35 +176,33 @@ StormControllerTargetCam.prototype.cameraSetupFC = function(cameraNode, meshNode
 * @param {Float} elapsed
 */
 StormControllerTargetCam.prototype.updateFC = function(elapsed) {	
-	if(stormEngineC.defaultCamera.mouseControls == true) { 
-		var dir;
-		if(this.g_forwardFC == 1) {
-			dir = this.cameraNode.nodePivot.getForward().x(-1.0);
-			this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(dir));
-		}
-		if(this.g_backwardFC == 1) {
-			dir = this.cameraNode.nodePivot.getForward();
-			this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(dir));
-		}
-		if(this.g_strafeLeftFC == 1) {
-			dir = this.cameraNode.nodePivot.getLeft().x(-1.0);
-			this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(dir));
-		}
-		if(this.g_strafeRightFC == 1) {
-			dir = this.cameraNode.nodePivot.getLeft();
-			this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(dir));
-		}	
-		
-		if(this.meshNode != undefined) {
-			dir = this.cameraNode.nodePivot.getForward();
-			this.meshNode.setPosition($V3([this.cameraNode.nodePivot.getPosition().e[0],this.cameraNode.nodePivot.getPosition().e[1], this.cameraNode.nodePivot.getPosition().e[2]]));
-		}
-		
-		// goal position
-		var newPosGoal = this.cameraNode.nodePivot.getPosition().add(this.cameraNode.nodePivot.getForward().x(this.camDistance));
-		var vecForGoal = newPosGoal.subtract(this.cameraNode.nodeGoal.getPosition());
-		this.cameraNode.nodeGoal.setPosition(this.cameraNode.nodeGoal.getPosition().add(vecForGoal.x(1.0))); 
-	} 
+	var dir;
+	if(this.g_forwardFC == 1) {
+		dir = this.cameraNode.nodePivot.getForward().x(-1.0);
+		this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(dir));
+	}
+	if(this.g_backwardFC == 1) {
+		dir = this.cameraNode.nodePivot.getForward();
+		this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(dir));
+	}
+	if(this.g_strafeLeftFC == 1) {
+		dir = this.cameraNode.nodePivot.getLeft().x(-1.0);
+		this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(dir));
+	}
+	if(this.g_strafeRightFC == 1) {
+		dir = this.cameraNode.nodePivot.getLeft();
+		this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(dir));
+	}	
+	
+	if(this.meshNode != undefined) {
+		dir = this.cameraNode.nodePivot.getForward();
+		this.meshNode.setPosition($V3([this.cameraNode.nodePivot.getPosition().e[0],this.cameraNode.nodePivot.getPosition().e[1], this.cameraNode.nodePivot.getPosition().e[2]]));
+	}
+	
+	// goal position
+	var newPosGoal = this.cameraNode.nodePivot.getPosition().add(this.cameraNode.nodePivot.getForward().x(this.camDistance));
+	var vecForGoal = newPosGoal.subtract(this.cameraNode.nodeGoal.getPosition());
+	this.cameraNode.nodeGoal.setPosition(this.cameraNode.nodeGoal.getPosition().add(vecForGoal.x(1.0))); 
 	
 	var timeNow = new Date().getTime();
 	var elap = timeNow - this.lastTime;
@@ -255,18 +253,18 @@ StormControllerTargetCam.prototype.updateFC = function(elapsed) {
 * @private 
 */
 StormControllerTargetCam.prototype.updateCameraGoalFC = function(event) {
-	if(stormEngineC.defaultCamera.mouseControls == true) {
-		if(stormEngineC.draggingNodeNow != false) {
+	if(stormEngineC.draggingNodeNow != false) {
+		event.preventDefault(); 
+	} else {
+		if(this.middleButton == 1) {
 			event.preventDefault(); 
+			var X = this.cameraNode.nodePivot.getLeft().x((this.lastX - event.screenX)*(this.cameraNode.getFov()*0.0005));
+			var Y = this.cameraNode.nodePivot.getUp().x((this.lastY - event.screenY)*(this.cameraNode.getFov()*-0.0005));  
+			this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(X)); 
+			this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(Y));
 		} else {
-			if(this.middleButton == 1) {
-				event.preventDefault(); 
-				var X = this.cameraNode.nodePivot.getLeft().x((this.lastX - event.screenX)*(this.cameraNode.getFov()*0.0005));
-				var Y = this.cameraNode.nodePivot.getUp().x((this.lastY - event.screenY)*(this.cameraNode.getFov()*-0.0005));  
-				this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(X)); 
-				this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(Y));
-			} else {
-				var factorRot = 0.01;
+			var factorRot = 0.01;
+			if(stormEngineC.defaultCamera.lockRotY == false) {
 				if(this.lastX > event.screenX) {
 					this.cameraNode.nodePivot.setRotationY((this.lastX - event.screenX)*factorRot);
 					
@@ -276,11 +274,12 @@ StormControllerTargetCam.prototype.updateCameraGoalFC = function(event) {
 					
 					if(this.meshNode != undefined) this.meshNode.setRotationY(-(event.screenX - this.lastX)*factorRot);
 				}
-				
+			}
+			if(stormEngineC.defaultCamera.lockRotX == false) {
 				if(this.lastY > event.screenY) {
-					this.cameraNode.nodePivot.setRotationX((this.lastY - event.screenY)*-factorRot);
+					this.cameraNode.nodePivot.setRotationX((this.lastY - event.screenY)*factorRot);
 				} else {
-					this.cameraNode.nodePivot.setRotationX(-(event.screenY - this.lastY)*-factorRot);
+					this.cameraNode.nodePivot.setRotationX(-(event.screenY - this.lastY)*factorRot);
 				}
 			}
 		}

@@ -5,8 +5,7 @@
  * @private 
  */
 StormGLContext.prototype.initShader_DOF = function() {
-	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	_this.precision+
+	var sourceVertex = 	this.precision+
 		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec2 aTextureCoord;\n'+
 		
@@ -16,7 +15,7 @@ StormGLContext.prototype.initShader_DOF = function() {
 			'gl_Position = vec4(aVertexPosition, 1.0);\n'+
 			'vTextureCoord = aTextureCoord;\n'+
 		'}';
-	var sourceFragment = _this.precision+
+	var sourceFragment = this.precision+
 		
 		'uniform float uFar;\n'+
 		'uniform int uAutofocus;\n'+
@@ -134,29 +133,28 @@ StormGLContext.prototype.initShader_DOF = function() {
 			'gl_FragColor = vec4(tot.r, tot.g, tot.b, texture.a);\n'+
 			//'gl_FragColor = vec4(texture.r, texture.g, texture.b, texture.a);\n'+
 		'}';
-	_this.shader_DOF = _this.gl.createProgram();
-	_this.createShader(_this.gl, "DOF", sourceVertex, sourceFragment, _this.shader_DOF, _this.pointers_DOF);
+	this.shader_DOF = this.gl.createProgram();
+	this.createShader(this.gl, "DOF", sourceVertex, sourceFragment, this.shader_DOF, this.pointers_DOF.bind(this));
 };
 /**
  * @private 
  */
-StormGLContext.prototype.pointers_DOF = function() {	
-	_this = stormEngineC.stormGLContext;
-	_this.u_DOF_far = _this.gl.getUniformLocation(_this.shader_DOF, "uFar");
+StormGLContext.prototype.pointers_DOF = function() {
+	this.u_DOF_far = this.gl.getUniformLocation(this.shader_DOF, "uFar");
 	
-	_this.u_DOF_viewportWidth = _this.gl.getUniformLocation(_this.shader_DOF, "uViewportWidth");
-	_this.u_DOF_viewportHeight = _this.gl.getUniformLocation(_this.shader_DOF, "uViewportHeight");
-	_this.u_DOF_focus = _this.gl.getUniformLocation(_this.shader_DOF, "uFocus");
-	_this.u_DOF_autofocus = _this.gl.getUniformLocation(_this.shader_DOF, "uAutofocus");
-	_this.u_DOF_fNumber = _this.gl.getUniformLocation(_this.shader_DOF, "uFNumber");
+	this.u_DOF_viewportWidth = this.gl.getUniformLocation(this.shader_DOF, "uViewportWidth");
+	this.u_DOF_viewportHeight = this.gl.getUniformLocation(this.shader_DOF, "uViewportHeight");
+	this.u_DOF_focus = this.gl.getUniformLocation(this.shader_DOF, "uFocus");
+	this.u_DOF_autofocus = this.gl.getUniformLocation(this.shader_DOF, "uAutofocus");
+	this.u_DOF_fNumber = this.gl.getUniformLocation(this.shader_DOF, "uFNumber");
 	
 	
-	_this.attr_DOF_pos = _this.gl.getAttribLocation(_this.shader_DOF, "aVertexPosition");
-	_this.attr_DOF_tex = _this.gl.getAttribLocation(_this.shader_DOF, "aTextureCoord");
+	this.attr_DOF_pos = this.gl.getAttribLocation(this.shader_DOF, "aVertexPosition");
+	this.attr_DOF_tex = this.gl.getAttribLocation(this.shader_DOF, "aTextureCoord");
 	
-	_this.sampler_DOF_2D = _this.gl.getUniformLocation(_this.shader_DOF, "sampler_2D");
-	_this.sampler_DOF_textureFBNormals = _this.gl.getUniformLocation(_this.shader_DOF, "sampler_textureFBNormals");
-	_this.Shader_DOF_READY = true;
+	this.sampler_DOF_2D = this.gl.getUniformLocation(this.shader_DOF, "sampler_2D");
+	this.sampler_DOF_textureFBNormals = this.gl.getUniformLocation(this.shader_DOF, "sampler_textureFBNormals");
+	this.Shader_DOF_READY = true;
 };
 /**
  * @private 

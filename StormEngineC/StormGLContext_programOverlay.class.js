@@ -5,8 +5,7 @@
  * @private 
  */
 StormGLContext.prototype.initShader_Overlay = function() {
-	_this = stormEngineC.stormGLContext;
-	var sourceVertex = _this.precision+
+	var sourceVertex = this.precision+
 		'attribute vec3 aVertexPosition;\n'+
 		
 		'uniform mat4 u_nodeWMatrix;\n'+
@@ -34,7 +33,7 @@ StormGLContext.prototype.initShader_Overlay = function() {
 				'gl_Position = uPMatrix * u_cameraWMatrix * u_nodeWMatrix * u_matrixNodeTranform * vec4(vec3(pos.x*scale,pos.y*scale,pos.z*scale), 1.0);\n'+
 			'}'+
 		'}';
-	var sourceFragment = _this.precision+
+	var sourceFragment = this.precision+
 		'uniform int uOverlaySelected;\n'+
 		'uniform float uNodeId;\n'+
 		'void main(void) {\n'+
@@ -68,25 +67,24 @@ StormGLContext.prototype.initShader_Overlay = function() {
 				'else gl_FragColor = vec4(0.0, 0.0, 1.0, 1.0);\n'+
 			'} else gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n'+
 		'}';
-	_this.shader_Overlay = _this.gl.createProgram();
-	_this.createShader(_this.gl, "OVERLAY", sourceVertex, sourceFragment, _this.shader_Overlay, _this.pointers_Overlay);
+	this.shader_Overlay = this.gl.createProgram();
+	this.createShader(this.gl, "OVERLAY", sourceVertex, sourceFragment, this.shader_Overlay, this.pointers_Overlay.bind(this));
 };
 /**
  * @private 
  */
-StormGLContext.prototype.pointers_Overlay = function() {	
-	_this = stormEngineC.stormGLContext;
-	_this.attr_Overlay_pos = _this.gl.getAttribLocation(_this.shader_Overlay, "aVertexPosition");
+StormGLContext.prototype.pointers_Overlay = function() {
+	this.attr_Overlay_pos = this.gl.getAttribLocation(this.shader_Overlay, "aVertexPosition");
 	
-	_this.u_Overlay_far = _this.gl.getUniformLocation(_this.shader_Overlay, "uFar");
-	_this.u_Overlay_overlaySelected = _this.gl.getUniformLocation(_this.shader_Overlay, "uOverlaySelected");
-	_this.u_Overlay_nodeId = _this.gl.getUniformLocation(_this.shader_Overlay, "uNodeId");
+	this.u_Overlay_far = this.gl.getUniformLocation(this.shader_Overlay, "uFar");
+	this.u_Overlay_overlaySelected = this.gl.getUniformLocation(this.shader_Overlay, "uOverlaySelected");
+	this.u_Overlay_nodeId = this.gl.getUniformLocation(this.shader_Overlay, "uNodeId");
 	
-	_this.u_Overlay_PMatrix = _this.gl.getUniformLocation(_this.shader_Overlay, "uPMatrix");
-	_this.u_Overlay_cameraWMatrix = _this.gl.getUniformLocation(_this.shader_Overlay, "u_cameraWMatrix");
-	_this.u_Overlay_nodeWMatrix = _this.gl.getUniformLocation(_this.shader_Overlay, "u_nodeWMatrix");
-	_this.u_Overlay_matrixNodeTranform = _this.gl.getUniformLocation(_this.shader_Overlay, "u_matrixNodeTranform");
-	_this.Shader_Overlay_READY = true;
+	this.u_Overlay_PMatrix = this.gl.getUniformLocation(this.shader_Overlay, "uPMatrix");
+	this.u_Overlay_cameraWMatrix = this.gl.getUniformLocation(this.shader_Overlay, "u_cameraWMatrix");
+	this.u_Overlay_nodeWMatrix = this.gl.getUniformLocation(this.shader_Overlay, "u_nodeWMatrix");
+	this.u_Overlay_matrixNodeTranform = this.gl.getUniformLocation(this.shader_Overlay, "u_matrixNodeTranform");
+	this.Shader_Overlay_READY = true;
 };
 
 
