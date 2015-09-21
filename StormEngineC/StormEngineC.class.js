@@ -502,12 +502,32 @@ StormEngineC.prototype.loadManager = function() {
 		if(stormEngineC.preloads == 0) stormEngineC.defaultCamera.controller.keyDownFC(e);
 	},false);
 	
-	document.body.addEventListener("keyup", function(e) {
+	document.body.addEventListener("keyup", (function(e) {
 		//e.preventDefault();
-		stormEngineC.setZeroSamplesGIVoxels();
+		this.setZeroSamplesGIVoxels();
 		
-    	if(stormEngineC.preloads == 0) stormEngineC.defaultCamera.controller.keyUpFC(e);
-    },false);
+		if(this.editMode == true) {
+			if(String.fromCharCode(e.keyCode) == "P") {
+				this.setView("MAIN_CAMERA");
+		    } else if(String.fromCharCode(e.keyCode) == "L") {
+		    	this.setView("LEFT");
+		    } else if(String.fromCharCode(e.keyCode) == "R") {
+		    	this.setView("RIGHT");
+		    } else if(String.fromCharCode(e.keyCode) == "F") {
+		    	this.setView("FRONT");
+		    } else if(String.fromCharCode(e.keyCode) == "B") {
+		    	this.setView("BACK");
+		    } else if(String.fromCharCode(e.keyCode) == "T") {
+		    	this.setView("TOP");
+		    } else if(String.fromCharCode(e.keyCode) == "1") {
+		    	stormEngineC.stormGLContext.drawElementsMode(4);
+		    } else if(String.fromCharCode(e.keyCode) == "2") {
+		    	stormEngineC.stormGLContext.drawElementsMode(1);
+		    }
+		}
+		
+    	if(this.preloads == 0) this.defaultCamera.controller.keyUpFC(e);
+    }).bind(this),false);
 	
 	document.body.addEventListener("mouseup", stormEngineC.mouseup, false);
 	document.body.addEventListener("touchend", stormEngineC.mouseup, false);
