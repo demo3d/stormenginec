@@ -42,7 +42,7 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 		}
 	}
 	for(var n=0, f = stormEngineC.nodesCam.length; n < f; n++) {
-		if(stormEngineC.nodesCam[n].systemVisible == true && stormEngineC.nodesCam[n].idNum != 0) {
+		if(stormEngineC.nodesCam[n].systemVisible == true) {
 			var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'camera' && stormEngineC.nearNode == stormEngineC.nodesCam[n]) ? '#444' : '#000';
 			var colorText = (stormEngineC.nodesCam[n].visibleOnContext == true) ? '#FFF': '#999';
 			str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.nodesCam["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.nodesCam[n].name+"</div>";
