@@ -5,8 +5,7 @@
  * @private 
  */
 StormGLContext.prototype.initShader_Ctx2D = function() {
-	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	_this.precision+
+	var sourceVertex = 	this.precision+
 		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec2 aTextureCoord;\n'+
 		
@@ -16,7 +15,7 @@ StormGLContext.prototype.initShader_Ctx2D = function() {
 			'gl_Position = vec4(aVertexPosition, 1.0);\n'+
 			'vTextureCoord = aTextureCoord;\n'+
 		'}';
-	var sourceFragment = _this.precision+
+	var sourceFragment = this.precision+
 		
 		'varying vec2 vTextureCoord;\n'+
 		
@@ -27,18 +26,17 @@ StormGLContext.prototype.initShader_Ctx2D = function() {
 			
 			'gl_FragColor = vec4(texture.r, texture.g, texture.b, texture.a);\n'+
 		'}';
-	_this.shader_Ctx2D = _this.gl.createProgram();
-	_this.createShader(_this.gl, "CTX2D", sourceVertex, sourceFragment, _this.shader_Ctx2D, _this.pointers_Ctx2D);
+	this.shader_Ctx2D = this.gl.createProgram();
+	this.createShader(this.gl, "CTX2D", sourceVertex, sourceFragment, this.shader_Ctx2D, this.pointers_Ctx2D.bind(this));
 };
 /**
  * @private 
  */
-StormGLContext.prototype.pointers_Ctx2D = function() {	
-	_this = stormEngineC.stormGLContext;
-	_this.attr_Ctx2D_pos = _this.gl.getAttribLocation(_this.shader_Ctx2D, "aVertexPosition");
-	_this.attr_Ctx2D_tex = _this.gl.getAttribLocation(_this.shader_Ctx2D, "aTextureCoord");
-	_this.sampler_Ctx2D_2D = _this.gl.getUniformLocation(_this.shader_Ctx2D, "sampler_2D");
-	_this.Shader_Ctx2D_READY = true;
+StormGLContext.prototype.pointers_Ctx2D = function() {
+	this.attr_Ctx2D_pos = this.gl.getAttribLocation(this.shader_Ctx2D, "aVertexPosition");
+	this.attr_Ctx2D_tex = this.gl.getAttribLocation(this.shader_Ctx2D, "aTextureCoord");
+	this.sampler_Ctx2D_2D = this.gl.getUniformLocation(this.shader_Ctx2D, "sampler_2D");
+	this.Shader_Ctx2D_READY = true;
 };
 /**
  * @private 

@@ -5,7 +5,7 @@
 * @param {Float} camDistance Distance to target
 */
 StormControllerPlayer = function(camDistance) {
-	this.controllerType = 2; // 2 StormControllerPlayer
+	this.controllerType = stormEngineC.ControllerTypes["PLAYER"];
 	this.g_forwardFC = 0;
 	this.g_backwardFC = 0;
 	this.g_strafeLeftFC = 0;
@@ -222,23 +222,21 @@ StormControllerPlayer.prototype.updateFC = function(elapsed) {
 * @private 
 */
 StormControllerPlayer.prototype.updateCameraGoalFC = function(event) {
-	if(stormEngineC.defaultCamera.mouseControls == true) {
-		var factorRot = 0.01;
-		if(this.lastX > event.screenX) {
-			this.cameraNode.nodePivot.setRotationY((this.lastX - event.screenX)*factorRot);  
-			 
-			if(this.meshNode != undefined) this.meshNode.setRotationY((this.lastX - event.screenX)*factorRot);
-		} else {
-			this.cameraNode.nodePivot.setRotationY(-(event.screenX - this.lastX)*factorRot);
-			
-			if(this.meshNode != undefined) this.meshNode.setRotationY(-(event.screenX - this.lastX)*factorRot);
-		}
+	var factorRot = 0.01;
+	if(this.lastX > event.screenX) {
+		this.cameraNode.nodePivot.setRotationY((this.lastX - event.screenX)*factorRot);  
+		 
+		if(this.meshNode != undefined) this.meshNode.setRotationY((this.lastX - event.screenX)*factorRot);
+	} else {
+		this.cameraNode.nodePivot.setRotationY(-(event.screenX - this.lastX)*factorRot);
 		
-		if(this.lastY > event.screenY) 
-			this.cameraNode.nodePivot.setRotationX((this.lastY - event.screenY)*factorRot);
-		else
-			this.cameraNode.nodePivot.setRotationX(-(event.screenY - this.lastY)*factorRot);
+		if(this.meshNode != undefined) this.meshNode.setRotationY(-(event.screenX - this.lastX)*factorRot);
 	}
+	
+	if(this.lastY > event.screenY) 
+		this.cameraNode.nodePivot.setRotationX((this.lastY - event.screenY)*factorRot);
+	else
+		this.cameraNode.nodePivot.setRotationX(-(event.screenY - this.lastY)*factorRot);
 	
 	this.lastX = event.screenX;
 	this.lastY = event.screenY;

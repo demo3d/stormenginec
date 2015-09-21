@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>StormEngineC</title>
+		<meta charset=utf-8 />
+		
+		<style>
+			body{
+				background:#66ACA4;
+				color:#FFF;
+			}
+		</style>
+		<script src="../../StormEngineC/StormEngineC.class.js"></script>
+	</head>
+	
+	<body>
+		<canvas id="stormCanvas" width="512" height="512"></canvas>
+		<script>
+		  stormEngineC.createWebGL({'target':	'stormCanvas', // ID canvas
+									'callback':	function(){},
+									'editMode':	true,
+									'enableRender':true});
+		  //stormEngineC.setWebGLBackground('environmentMap');  
+		  
+		  var lightSun = stormEngineC.createLight({	'type':'sun',
+													  'direction':$V3([0.71,-1.0,-0.43]), // type sun only direction param
+													  'color':5770 // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
+												   });
+		  
+		  var nodeCam = stormEngineC.createCamera($V3([0.0, 0.0, 2.0]), 1.0); // create one camera
+		  stormEngineC.setWebGLCam(nodeCam);
+		  
+		  
+			nodeFont = stormEngineC.createNode();
+		  nodeFont.loadText({	svgFontUrl:"../../StormEngineC/fonts/DroidSans.svg",
+							  text:"StormEngineC",
+							  size:0.0005,
+							  color:$V3([0.15,1.0,1.0]),
+							  onload:function() {
+									//nodeFont.extrude({dim:2.0});
+									nodeFont.setRoughness(70.0);
+								  },
+							  extrudeDimension:0.5,
+							  bevel:0.2,
+							  bevelAngle:0.2
+							});
+		  nodeFont.setPosition($V3([0.0, 0.0, -10.0]));
+		  nodeFont.setRotationX(stormEngineC.utils.degToRad(90));
+		  
+		</script>			
+		<input type="button" onclick="nodeFont.loadText({svgFontUrl:'../../StormEngineC/fonts/DroidSans.svg',text:'GAME',size:0.0005,color:$V3([0.5,0.3,0.2])});nodeFont.extrude();" value="changeText"/>
+		<br /><br />
+		
+		 
+	</body>
+</html>

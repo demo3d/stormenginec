@@ -145,6 +145,20 @@ StormEngineC_PanelEnvironment.prototype.update = function() {
 	$("#INPUTID_StormPanelEnvironment_enableShadows").on('click', function() {
 		stormEngineC.stormGLContext.shadowsEnable = stormEngineC.stormGLContext.shadowsEnable == false ? true : false;
 	});
+	
+	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►	
+	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►► GRID LINES  ►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►
+	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►	
+	var gridStatus = stormEngineC.grid.gridEnabled == false ? '' : 'checked';
+	var str = 	'<fieldset><legend>Grid</legend>'+
+					'<br />Grid: <input id="INPUTID_StormPanelEnvironment_enableGrid" type="checkbox" '+gridStatus+'/>'+
+				'</fieldset>';
+	$('#DIVID_StormPanelEnvironment_CONTENT').append(str);
+	
+	// shadows functions
+	$("#INPUTID_StormPanelEnvironment_enableGrid").on('click', function() {
+		stormEngineC.grid.gridEnabled = stormEngineC.grid.gridEnabled == false ? true : false;
+	});
 };
 
 

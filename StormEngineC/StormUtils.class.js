@@ -139,14 +139,12 @@ StormUtils.prototype.invsqrt = function(value) {
 * @returns {StormV3}
 */
 StormUtils.prototype.getDraggingScreenVector = function() {
-	var factordist = stormEngineC.getWebGLCam().getPosition().distance(stormEngineC.getSelectedNode().getPosition());
+	var factordist = stormEngineC.getWebGLCam().fovOrtho*0.0039;
 	var factorxdim = (stormEngineC.mouseOldPosX - stormEngineC.mousePosX) * factordist;
 	var factorydim = (stormEngineC.mouseOldPosY - stormEngineC.mousePosY) * factordist;
-	var factorx = factorxdim * (this.invsqrt(stormEngineC.stormGLContext.viewportWidth/13000)*1000.0) *0.0000000613; 
-	var factory = factorydim * (this.invsqrt(stormEngineC.stormGLContext.viewportHeight/13000)*1000.0) *0.0000000613; 
-	var sig = (stormEngineC.getWebGLCam().controller.controllerType == 1) ? -1.0 : 1.0;
-	var X = stormEngineC.getWebGLCam().nodePivot.MPOS.x(stormEngineC.getWebGLCam().nodePivot.MROTXYZ).getLeft().x(factorx*sig); 
-	var Y = stormEngineC.getWebGLCam().nodePivot.MPOS.x(stormEngineC.getWebGLCam().nodePivot.MROTXYZ).getUp().x(factory); 
+	
+	var X = stormEngineC.getWebGLCam().nodePivot.MPOS.x(stormEngineC.getWebGLCam().nodePivot.MROTXYZ).getLeft().x(factorxdim*-1.0); 
+	var Y = stormEngineC.getWebGLCam().nodePivot.MPOS.x(stormEngineC.getWebGLCam().nodePivot.MROTXYZ).getUp().x(factorydim); 
 	return X.add(Y);
 };
 /**
@@ -157,18 +155,17 @@ StormUtils.prototype.getDraggingScreenVector = function() {
 */
 StormUtils.prototype.getDraggingPosXVector = function(local) {
 	var loc = (local == undefined || local == true) ? true : false;
-	var factordist = stormEngineC.getWebGLCam().getPosition().distance(stormEngineC.getSelectedNode().getPosition());
+	var factordist = stormEngineC.getWebGLCam().fovOrtho*0.0039;
 	var factorxdim = (stormEngineC.mouseOldPosX - stormEngineC.mousePosX) * factordist;
 	var factorydim = (stormEngineC.mouseOldPosY - stormEngineC.mousePosY) * factordist;
-	var factorx = factorxdim * (this.invsqrt(stormEngineC.stormGLContext.viewportWidth/13000)*1000.0) *0.0000000613; 
-	var factory = factorydim * (this.invsqrt(stormEngineC.stormGLContext.viewportHeight/13000)*1000.0) *0.0000000613; 
+
 	var X,Y;
 	if(loc) {
-		X = $V3([1.0,0.0,0.0]).x(-factorx); 
-		Y = $V3([1.0,0.0,0.0]).x(-factory); 
+		X = $V3([1.0,0.0,0.0]).x(-factorxdim); 
+		Y = $V3([1.0,0.0,0.0]).x(-factorydim); 
 	} else {
-		X = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getLeft().x(-factorx); 
-		Y = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getLeft().x(-factory); 
+		X = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getLeft().x(-factorxdim); 
+		Y = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getLeft().x(-factorydim); 
 	}
 	return X.add(Y);
 };
@@ -180,18 +177,17 @@ StormUtils.prototype.getDraggingPosXVector = function(local) {
 */
 StormUtils.prototype.getDraggingPosYVector = function(local) {
 	var loc = (local == undefined || local == true) ? true : false;
-	var factordist = stormEngineC.getWebGLCam().getPosition().distance(stormEngineC.getSelectedNode().getPosition());
+	var factordist = stormEngineC.getWebGLCam().fovOrtho*0.0039;
 	var factorxdim = (stormEngineC.mouseOldPosX - stormEngineC.mousePosX) * factordist;
 	var factorydim = (stormEngineC.mouseOldPosY - stormEngineC.mousePosY) * factordist;
-	var factorx = factorxdim * (this.invsqrt(stormEngineC.stormGLContext.viewportWidth/13000)*1000.0) *0.0000000613; 
-	var factory = factorydim * (this.invsqrt(stormEngineC.stormGLContext.viewportHeight/13000)*1000.0) *0.0000000613; 
+
 	var X,Y;
 	if(loc) {
-		X = $V3([0.0,1.0,0.0]).x(-factorx); 
-		Y = $V3([0.0,1.0,0.0]).x(factory); 
+		X = $V3([0.0,1.0,0.0]).x(-factorxdim); 
+		Y = $V3([0.0,1.0,0.0]).x(factorydim); 
 	} else {
-		X = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getUp().x(-factorx); 
-		Y = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getUp().x(-factory); 
+		X = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getUp().x(-factorxdim); 
+		Y = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getUp().x(-factorydim); 
 	}
 	return X.add(Y);
 };
@@ -203,18 +199,17 @@ StormUtils.prototype.getDraggingPosYVector = function(local) {
 */
 StormUtils.prototype.getDraggingPosZVector = function(local) {
 	var loc = (local == undefined || local == true) ? true : false;
-	var factordist = stormEngineC.getWebGLCam().getPosition().distance(stormEngineC.getSelectedNode().getPosition());
+	var factordist = stormEngineC.getWebGLCam().fovOrtho*0.0039;
 	var factorxdim = (stormEngineC.mouseOldPosX - stormEngineC.mousePosX) * factordist;
 	var factorydim = (stormEngineC.mouseOldPosY - stormEngineC.mousePosY) * factordist;
-	var factorx = factorxdim * (this.invsqrt(stormEngineC.stormGLContext.viewportWidth/13000)*1000.0) *0.0000000613; 
-	var factory = factorydim * (this.invsqrt(stormEngineC.stormGLContext.viewportHeight/13000)*1000.0) *0.0000000613; 
+
 	var X,Y;
 	if(loc) {
-		X = $V3([0.0,0.0,1.0]).x(-factorx); 
-		Y = $V3([0.0,0.0,1.0]).x(-factory); 
+		X = $V3([0.0,0.0,1.0]).x(-factorxdim); 
+		Y = $V3([0.0,0.0,1.0]).x(-factorydim); 
 	} else {
-		X = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getForward().x(-factorx); 
-		Y = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getForward().x(-factory); 
+		X = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getForward().x(-factorxdim); 
+		Y = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getForward().x(-factorydim); 
 	}
 	return X.add(Y);
 };
@@ -250,6 +245,28 @@ StormUtils.prototype.dot4 = function(vector4A,vector4B) {
 StormUtils.prototype.fract = function(number) {
 	return number - Math.floor(number);
 };
+
+/**
+ * Angle between two vectors viewing from top
+ * @returns {Float}
+ * @param {StormV3} vectorA
+ * @param {StormV3} vectorB
+ 
+StormUtils.prototype.angle = function(vA, vB) {
+	var vAA = vA.normalize();
+	var vBB = vB.normalize();
+	
+	var escalarProduct = Math.acos((vAA.e[0]*vBB.e[0])+(vAA.e[1]*vBB.e[1])+(vAA.e[2]*vBB.e[2]));
+	
+	var vCC = vAA.cross(vBB);
+	//console.log(vCC.e[0]+" "+vCC.e[1]+" "+vCC.e[2]);
+	
+	if(vCC.e[1] == 1) {
+		escalarProduct = (Math.PI+escalarProduct);
+	}
+
+	return escalarProduct;
+};*/
 
 /**
 * Pack 1float (0.0-1.0) to 4float rgba (0.0-1.0, 0.0-1.0, 0.0-1.0, 0.0-1.0)

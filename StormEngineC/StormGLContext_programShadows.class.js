@@ -5,8 +5,7 @@
  * @private 
  */
 StormGLContext.prototype.initShader_LightDepth = function() {
-	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	 _this.precision+
+	var sourceVertex = 	 this.precision+
 		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec3 aTextureCoord;\n'+
 		
@@ -29,7 +28,7 @@ StormGLContext.prototype.initShader_LightDepth = function() {
 			
 			'vTextureCoord = aTextureCoord;\n'+
 		'}';
-	var sourceFragment = _this.precision+
+	var sourceFragment = this.precision+
 		
 		'uniform float uFar;\n'+
 		
@@ -73,37 +72,35 @@ StormGLContext.prototype.initShader_LightDepth = function() {
 			'if(viewLightDepth==0) gl_FragColor = vec4(depth,depth,depth,1.0); else gl_FragColor = vec4(kdTexture);\n'+  
 			
 		'}';
-	_this.shader_LightDepth = _this.gl.createProgram();
-	_this.createShader(_this.gl, "LIGHT DEPTH", sourceVertex, sourceFragment, _this.shader_LightDepth, _this.pointers_LightDepth);
+	this.shader_LightDepth = this.gl.createProgram();
+	this.createShader(this.gl, "LIGHT DEPTH", sourceVertex, sourceFragment, this.shader_LightDepth, this.pointers_LightDepth.bind(this));
 };
 /**
  * @private 
  */
 StormGLContext.prototype.pointers_LightDepth = function() {
-	_this = stormEngineC.stormGLContext;
-	_this.u_LightDepth_far = _this.gl.getUniformLocation(_this.shader_LightDepth, "uFar");
+	this.u_LightDepth_far = this.gl.getUniformLocation(this.shader_LightDepth, "uFar");
 	
-	_this.sampler_LightDepth_kdTexture = _this.gl.getUniformLocation(_this.shader_LightDepth, "sampler_kdTexture");
+	this.sampler_LightDepth_kdTexture = this.gl.getUniformLocation(this.shader_LightDepth, "sampler_kdTexture");
 		
-	_this.attr_LightDepth_pos = _this.gl.getAttribLocation(_this.shader_LightDepth, "aVertexPosition");
-	_this.attr_LightDepth_UV = _this.gl.getAttribLocation(_this.shader_LightDepth, "aTextureCoord");
+	this.attr_LightDepth_pos = this.gl.getAttribLocation(this.shader_LightDepth, "aVertexPosition");
+	this.attr_LightDepth_UV = this.gl.getAttribLocation(this.shader_LightDepth, "aTextureCoord");
 	
 	
-	_this.u_LightDepth_lightType = _this.gl.getUniformLocation(_this.shader_LightDepth, "uLightType");
-	_this.u_LightDepth_viewLightDepth = _this.gl.getUniformLocation(_this.shader_LightDepth, "viewLightDepth");
+	this.u_LightDepth_lightType = this.gl.getUniformLocation(this.shader_LightDepth, "uLightType");
+	this.u_LightDepth_viewLightDepth = this.gl.getUniformLocation(this.shader_LightDepth, "viewLightDepth");
 	
-	_this.u_LightDepth_PMatrix = _this.gl.getUniformLocation(_this.shader_LightDepth, "uPMatrix");
-	_this.u_LightDepth_lightWMatrix = _this.gl.getUniformLocation(_this.shader_LightDepth, "u_lightWMatrix");
-	_this.u_LightDepth_nodeWMatrix = _this.gl.getUniformLocation(_this.shader_LightDepth, "u_nodeWMatrix");
-	_this.u_LightDepth_nodeVScale = _this.gl.getUniformLocation(_this.shader_LightDepth, "u_nodeVScale");
-	_this.Shader_LightDepth_READY = true;
+	this.u_LightDepth_PMatrix = this.gl.getUniformLocation(this.shader_LightDepth, "uPMatrix");
+	this.u_LightDepth_lightWMatrix = this.gl.getUniformLocation(this.shader_LightDepth, "u_lightWMatrix");
+	this.u_LightDepth_nodeWMatrix = this.gl.getUniformLocation(this.shader_LightDepth, "u_nodeWMatrix");
+	this.u_LightDepth_nodeVScale = this.gl.getUniformLocation(this.shader_LightDepth, "u_nodeVScale");
+	this.Shader_LightDepth_READY = true;
 };
 /**
  * @private 
  */
 StormGLContext.prototype.initShader_LightDepthParticles = function() {
-	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	_this.precision+
+	var sourceVertex = 	this.precision+
 		'uniform float uPointSize;\n'+
 		
 		'attribute vec4 aVertexPositionX;\n'+
@@ -143,7 +140,7 @@ StormGLContext.prototype.initShader_LightDepthParticles = function() {
 			'gl_PointSize = uPointSize;\n'+ 
 			//'vColorRGBA = aColorRGBA;\n'+
 		'}';
-	var sourceFragment = _this.precision+
+	var sourceFragment = this.precision+
 		'uniform float uFar;\n'+
 		'uniform sampler2D sampler_kdTexture;\n'+
 		'varying vec4 vposition;\n'+
@@ -171,26 +168,25 @@ StormGLContext.prototype.initShader_LightDepthParticles = function() {
 			//'gl_FragColor = pack(depth);\n'+   
 			'gl_FragColor = vec4(depth,depth,depth,1.0);\n'+   
 		'}';
-	_this.shader_LightDepthParticles = _this.gl.createProgram();
-	_this.createShader(_this.gl, "LIGHT DEPTH PARTICLES", sourceVertex, sourceFragment, _this.shader_LightDepthParticles, _this.pointers_LightDepthParticles);
+	this.shader_LightDepthParticles = this.gl.createProgram();
+	this.createShader(this.gl, "LIGHT DEPTH PARTICLES", sourceVertex, sourceFragment, this.shader_LightDepthParticles, this.pointers_LightDepthParticles.bind(this));
 };
 /**
  * @private 
  */
 StormGLContext.prototype.pointers_LightDepthParticles = function() {
-	_this = stormEngineC.stormGLContext;
-	_this.u_LightDepthParticles_far = _this.gl.getUniformLocation(_this.shader_LightDepthParticles, "uFar");
+	this.u_LightDepthParticles_far = this.gl.getUniformLocation(this.shader_LightDepthParticles, "uFar");
 	
-	_this.u_LightDepthParticles_pointSize = _this.gl.getUniformLocation(_this.shader_LightDepthParticles, "uPointSize");
+	this.u_LightDepthParticles_pointSize = this.gl.getUniformLocation(this.shader_LightDepthParticles, "uPointSize");
 	
-	_this.attr_LightDepthParticles_posX = _this.gl.getAttribLocation(_this.shader_LightDepthParticles, "aVertexPositionX");
-	_this.attr_LightDepthParticles_posY = _this.gl.getAttribLocation(_this.shader_LightDepthParticles, "aVertexPositionY");
-	_this.attr_LightDepthParticles_posZ = _this.gl.getAttribLocation(_this.shader_LightDepthParticles, "aVertexPositionZ");
+	this.attr_LightDepthParticles_posX = this.gl.getAttribLocation(this.shader_LightDepthParticles, "aVertexPositionX");
+	this.attr_LightDepthParticles_posY = this.gl.getAttribLocation(this.shader_LightDepthParticles, "aVertexPositionY");
+	this.attr_LightDepthParticles_posZ = this.gl.getAttribLocation(this.shader_LightDepthParticles, "aVertexPositionZ");
 	
-	_this.u_LightDepthParticles_PMatrix = _this.gl.getUniformLocation(_this.shader_LightDepthParticles, "uPMatrix");
-	_this.u_LightDepthParticles_lightWMatrix = _this.gl.getUniformLocation(_this.shader_LightDepthParticles, "u_lightWMatrix");
-	_this.u_LightDepthParticles_nodeWMatrix = _this.gl.getUniformLocation(_this.shader_LightDepthParticles, "u_nodeWMatrix");
-	_this.Shader_LightDepthParticles_READY = true;
+	this.u_LightDepthParticles_PMatrix = this.gl.getUniformLocation(this.shader_LightDepthParticles, "uPMatrix");
+	this.u_LightDepthParticles_lightWMatrix = this.gl.getUniformLocation(this.shader_LightDepthParticles, "u_lightWMatrix");
+	this.u_LightDepthParticles_nodeWMatrix = this.gl.getUniformLocation(this.shader_LightDepthParticles, "u_nodeWMatrix");
+	this.Shader_LightDepthParticles_READY = true;
 };
 /**
  * @private 
@@ -262,13 +258,13 @@ StormGLContext.prototype.render_LightDepth = function() {
 					this.gl.blendFunc(this.gl.ONE, this.gl.ONE);
 				}
 				this.gl.useProgram(this.shader_Shadows);
-				// una vez obtenemos (para la luz actual) el mapa de profundidad de la escena vista desde la luz y está guardado
-				// en this.textureRTLightXX, renderizaremos una mascara desde la vista actual de la cámara (vposition en vertex program)
+				// una vez obtenemos (para la luz actual) el mapa de profundidad de la escena vista desde la luz y estï¿½ guardado
+				// en this.textureRTLightXX, renderizaremos una mascara desde la vista actual de la cï¿½mara (vposition en vertex program)
 				// y que guardaremos en this.textureFB_Shadows para aplicar despues en RENDER ESCENE dando las zonas con luz o sombra.
-				// Para obtener la máscara (en vista de cámara) para esta luz, desde el fragment program determinaremos si el pixel actual
-				// debería ser blanco o negro. Para ello comprobamos la distancia de ese pixel visto desde la posición de la luz
-				// comparándola con la que tenemos en el mapa de profundidad de this.textureRTLightXX.
-				// Recorreremos todas las luces sumándolos a this.textureFB_Shadows.
+				// Para obtener la mï¿½scara (en vista de cï¿½mara) para esta luz, desde el fragment program determinaremos si el pixel actual
+				// deberï¿½a ser blanco o negro. Para ello comprobamos la distancia de ese pixel visto desde la posiciï¿½n de la luz
+				// comparï¿½ndola con la que tenemos en el mapa de profundidad de this.textureRTLightXX.
+				// Recorreremos todas las luces sumï¿½ndolos a this.textureFB_Shadows.
 				this.render_Shadows(light);
 				if(nL > 0) {
 					this.gl.disable(this.gl.BLEND);
@@ -348,8 +344,7 @@ StormGLContext.prototype.renderFromLight = function(node, buffersObject, light) 
  * @private 
  */
 StormGLContext.prototype.initShader_Shadows = function() {
-	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	_this.precision+
+	var sourceVertex = 	this.precision+
 		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec4 aVertexPositionX;\n'+
 		'attribute vec4 aVertexPositionY;\n'+
@@ -404,7 +399,7 @@ StormGLContext.prototype.initShader_Shadows = function() {
 				'gl_Position = uPMatrix * u_cameraWMatrix * vNodeWMatrix;\n'+
 			'}'+
 		'}';
-	var sourceFragment = _this.precision+
+	var sourceFragment = this.precision+
 		
 		'uniform float uFar;\n'+
 		'uniform float uLightFov;\n'+
@@ -459,39 +454,38 @@ StormGLContext.prototype.initShader_Shadows = function() {
 				'gl_FragColor = vec4(0.0,0.0,0.0,1.0);\n'+
 			'}\n'+
 		'}';
-	_this.shader_Shadows = _this.gl.createProgram();
-	_this.createShader(_this.gl, "SHADOWS", sourceVertex, sourceFragment, _this.shader_Shadows, _this.pointers_Shadows);
+	this.shader_Shadows = this.gl.createProgram();
+	this.createShader(this.gl, "SHADOWS", sourceVertex, sourceFragment, this.shader_Shadows, this.pointers_Shadows.bind(this));
 };
 /**
  * @private 
  */
 StormGLContext.prototype.pointers_Shadows = function() {
-	_this = stormEngineC.stormGLContext;
-	_this.u_Shadows_far = _this.gl.getUniformLocation(_this.shader_Shadows, "uFar");
+	this.u_Shadows_far = this.gl.getUniformLocation(this.shader_Shadows, "uFar");
 	
-	_this.u_Shadows_textureFBLightDepth = _this.gl.getUniformLocation(_this.shader_Shadows, "sampler_textureFBLightDepth");// RT1 rgba zdepth light[0]
-	_this.u_Shadows_typeParticles = _this.gl.getUniformLocation(_this.shader_Shadows, "uTypeParticles");
+	this.u_Shadows_textureFBLightDepth = this.gl.getUniformLocation(this.shader_Shadows, "sampler_textureFBLightDepth");// RT1 rgba zdepth light[0]
+	this.u_Shadows_typeParticles = this.gl.getUniformLocation(this.shader_Shadows, "uTypeParticles");
 	
-	_this.u_Shadows_useLight = _this.gl.getUniformLocation(_this.shader_Shadows, "uUseLight");
-	_this.u_Shadows_lightType = _this.gl.getUniformLocation(_this.shader_Shadows, "uLightType");
-	_this.u_Shadows_lightColor = _this.gl.getUniformLocation(_this.shader_Shadows, "uLightColor");
-	_this.u_Shadows_lightFov = _this.gl.getUniformLocation(_this.shader_Shadows, "uLightFov");
+	this.u_Shadows_useLight = this.gl.getUniformLocation(this.shader_Shadows, "uUseLight");
+	this.u_Shadows_lightType = this.gl.getUniformLocation(this.shader_Shadows, "uLightType");
+	this.u_Shadows_lightColor = this.gl.getUniformLocation(this.shader_Shadows, "uLightColor");
+	this.u_Shadows_lightFov = this.gl.getUniformLocation(this.shader_Shadows, "uLightFov");
 	
 
-	_this.attr_Shadows_pos = _this.gl.getAttribLocation(_this.shader_Shadows, "aVertexPosition");
-	_this.attr_Shadows_posX = _this.gl.getAttribLocation(_this.shader_Shadows, "aVertexPositionX");
-	_this.attr_Shadows_posY = _this.gl.getAttribLocation(_this.shader_Shadows, "aVertexPositionY");
-	_this.attr_Shadows_posZ = _this.gl.getAttribLocation(_this.shader_Shadows, "aVertexPositionZ");
+	this.attr_Shadows_pos = this.gl.getAttribLocation(this.shader_Shadows, "aVertexPosition");
+	this.attr_Shadows_posX = this.gl.getAttribLocation(this.shader_Shadows, "aVertexPositionX");
+	this.attr_Shadows_posY = this.gl.getAttribLocation(this.shader_Shadows, "aVertexPositionY");
+	this.attr_Shadows_posZ = this.gl.getAttribLocation(this.shader_Shadows, "aVertexPositionZ");
 
-	_this.u_Shadows_PMatrix = _this.gl.getUniformLocation(_this.shader_Shadows, "uPMatrix");
-	_this.u_Shadows_PMatrixLight = _this.gl.getUniformLocation(_this.shader_Shadows, "uPMatrixLight");
-	_this.u_Shadows_cameraWMatrix = _this.gl.getUniformLocation(_this.shader_Shadows, "u_cameraWMatrix");
-	_this.u_Shadows_nodeWMatrix = _this.gl.getUniformLocation(_this.shader_Shadows, "u_nodeWMatrix");
-	_this.u_Shadows_nodeVScale = _this.gl.getUniformLocation(_this.shader_Shadows, "u_nodeVScale");
-	_this.u_Shadows_lightWMatrix = _this.gl.getUniformLocation(_this.shader_Shadows, "u_lightWMatrix");
+	this.u_Shadows_PMatrix = this.gl.getUniformLocation(this.shader_Shadows, "uPMatrix");
+	this.u_Shadows_PMatrixLight = this.gl.getUniformLocation(this.shader_Shadows, "uPMatrixLight");
+	this.u_Shadows_cameraWMatrix = this.gl.getUniformLocation(this.shader_Shadows, "u_cameraWMatrix");
+	this.u_Shadows_nodeWMatrix = this.gl.getUniformLocation(this.shader_Shadows, "u_nodeWMatrix");
+	this.u_Shadows_nodeVScale = this.gl.getUniformLocation(this.shader_Shadows, "u_nodeVScale");
+	this.u_Shadows_lightWMatrix = this.gl.getUniformLocation(this.shader_Shadows, "u_lightWMatrix");
 	
-	_this.u_Shadows_positionLight = _this.gl.getUniformLocation(_this.shader_Shadows, "u_positionLight");
-	_this.Shader_Shadows_READY = true;
+	this.u_Shadows_positionLight = this.gl.getUniformLocation(this.shader_Shadows, "u_positionLight");
+	this.Shader_Shadows_READY = true;
 };
 /**
  * @private 

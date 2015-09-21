@@ -1,0 +1,117 @@
+<html>
+	<head>
+		<title>StormEngineC</title>
+		<meta charset=utf-8 />
+		
+		<script src="../../StormEngineC/StormEngineC.class.js"></script>
+		<style>
+			body{
+				background:#66ACA4;
+				color:#FFF;
+			}
+		</style>
+	</head>
+	
+	<body> 
+
+    <canvas id="stormCanvas" width="512" height="512"></canvas>
+    <div id="ggg"></div>
+    <div id="gggB"></div>
+    <div id="gggC"></div>
+    <script>
+		var URL_RESOURCES = "../_RESOURCES/circuit/";
+    	var nodeCar;
+        
+        stormEngineC.createWebGL({'target':	'stormCanvas', // ID canvas
+                                  'editMode':	true});
+        var gravityForce = stormEngineC.createGravityForce();
+        
+        // LIGHTS
+        stormEngineC.setAmbientColor($V3([115/255, 116/255, 122/255]));
+        
+        /*var lightSun = stormEngineC.createLight({	'type':'sun',
+                                                  'direction':$V3([-0.49,-1.0,-0.20]), // type sun only direction param
+                                                  'color':5770 // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
+                                               });*/
+        
+        
+        
+        
+        
+    
+        // SCENE
+        var nodeGround = stormEngineC.createNode();
+		var meshGround = new StormMesh();
+        meshGround.loadObj(nodeGround, URL_RESOURCES+"circuit.obj");
+        //nodeGround.loadBox($V3([50.0,0.5,50.0]));
+        
+        nodeGround.setPosition($V3([0.0, -5.0, 0.0]));
+        nodeGround.setCollision({	'type':'trimesh',
+                                  'mass':0,
+                                  'friction':0.99,
+                                  'restitution':0.1});
+        
+        // CAR
+        nodeCar = stormEngineC.createNode();
+        var meshChasis = new StormMesh();
+        meshChasis.loadObj(nodeCar, URL_RESOURCES+"box.obj", URL_RESOURCES+"ASPHALT.jpg");
+        
+        nodeCar.setPosition($V3([0.0, 0.0, 0.0]));
+        nodeCar.setCollision({	'type':'car',
+                                'dimensions':$V3([2.5, 4.0, 1.0]), //width, depth, height
+                                'mass':10.0,
+                                'maxVelocity': 300.0,
+                                'engineBreak': 0.1, // 0.1 - 1.0
+                                'steerAngle':50.0 // 10 -100
+                                });
+                      
+        var nodeWheelFL = stormEngineC.createNode();
+        var meshWheelFL = new StormMesh();
+        meshWheelFL.loadObj(nodeWheelFL, URL_RESOURCES+"box.obj", URL_RESOURCES+"ASPHALT.jpg");
+        nodeWheelFL.setPosition($V3([-1.0, -0.1, -1.5]));
+        
+        var nodeWheelFR = stormEngineC.createNode();
+        var meshWheelFR = new StormMesh();
+        meshWheelFR.loadObj(nodeWheelFR, URL_RESOURCES+"box.obj", URL_RESOURCES+"ASPHALT.jpg");
+        nodeWheelFR.setPosition($V3([1.0, -0.1, -1.5]));
+        
+        var nodeWheelBL = stormEngineC.createNode();
+        var meshWheelBL = new StormMesh();
+        meshWheelBL.loadObj(nodeWheelBL, URL_RESOURCES+"box.obj", URL_RESOURCES+"ASPHALT.jpg");
+        nodeWheelBL.setPosition($V3([-1.0, -0.1, 1.5]));
+        
+        var nodeWheelBR = stormEngineC.createNode();
+        var meshWheelBR = new StormMesh();
+        meshWheelBR.loadObj(nodeWheelBR, URL_RESOURCES+"box.obj", URL_RESOURCES+"ASPHALT.jpg");
+        nodeWheelBR.setPosition($V3([1.0, -0.1, 1.5]));
+        
+        nodeCar.setCarWheels({'nodesWheels':[nodeWheelFL, nodeWheelFR, nodeWheelBL, nodeWheelBR], // Meshes frontLeft frontRight backLeft backRight
+                              'r':1.0, // radius
+                              'damping':0.2}); // suspension 0.0-1.0
+        
+        
+     
+        // CAMERA
+        var nodeCam = stormEngineC.createCamera($V3([0.0, 0.0, 0.0]),5); // create one camera
+        stormEngineC.setWebGLCam(nodeCam); 
+        
+        
+        // ACTION
+        
+        //stormEngineC.setWebGLSSAO(true, 3.2); // 0.1 max ssao; 5.0 min ssao
+        stormEngineC.go();
+        
+    
+    </script>		
+    
+    <br />
+    WASD keys: Move
+    <br />
+    <input type="button" onclick="nodeCar.setPosition($V3([nodeCar.getPosition().e[0], 10.0, nodeCar.getPosition().e[2]]));" value="reset car"/>
+    <input type="button" onclick="stormEngineC.getWebGLCam().setController({'mode':'targetcam', 'distance':1.0});" value="freecam"/>
+    <input type="button" onclick="stormEngineC.getWebGLCam().setController({'mode':'nodeCar', 'distance':8.0, 'nodeCar':nodeCar});" value="car"/>
+    <input type="button" onclick="nodeCar.carFlip();" value="flip car"/>
+    <br />
+    
+  </body>
+</html>

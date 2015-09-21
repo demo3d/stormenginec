@@ -5,8 +5,7 @@
  * @private 
  */
 StormGLContext.prototype.initShader_Pick = function() {
-	_this = stormEngineC.stormGLContext;
-	var sourceVertex = _this.precision+
+	var sourceVertex = this.precision+
 		'attribute vec3 aVertexPosition;\n'+
 		
 		'uniform mat4 u_nodeWMatrix;\n'+
@@ -36,7 +35,7 @@ StormGLContext.prototype.initShader_Pick = function() {
 				'gl_Position = uPMatrix * u_cameraWMatrix * u_nodeWMatrix * u_matrixNodeTranform * vec4(vec3(pos.x*scale,pos.y*scale,pos.z*scale), 1.0);\n'+
 			'}'+
 		'}';
-	var sourceFragment = _this.precision+
+	var sourceFragment = this.precision+
 		'uniform float uNodeId;\n'+
 		'uniform float uCurrentMousePosX;\n'+
 		'uniform float uCurrentMousePosY;\n'+
@@ -52,35 +51,34 @@ StormGLContext.prototype.initShader_Pick = function() {
 				'}'+
 			//'}\n'+
 		'}';
-	_this.shader_Pick = _this.gl.createProgram();
-	_this.createShader(_this.gl, "PICK", sourceVertex, sourceFragment, _this.shader_Pick, _this.pointers_Pick);
+	this.shader_Pick = this.gl.createProgram();
+	this.createShader(this.gl, "PICK", sourceVertex, sourceFragment, this.shader_Pick, this.pointers_Pick.bind(this));
 };
 /**
  * @private 
  */
 StormGLContext.prototype.pointers_Pick = function() {
-	_this = stormEngineC.stormGLContext;
-	_this.attr_Pick_pos = _this.gl.getAttribLocation(_this.shader_Pick, "aVertexPosition");
+	this.attr_Pick_pos = this.gl.getAttribLocation(this.shader_Pick, "aVertexPosition");
 	
-	_this.u_Pick_nodeId = _this.gl.getUniformLocation(_this.shader_Pick, "uNodeId");
-	_this.u_Pick_isTransform = _this.gl.getUniformLocation(_this.shader_Pick, "uIsTransform");
-	_this.u_Pick_currentMousePosX = _this.gl.getUniformLocation(_this.shader_Pick, "uCurrentMousePosX");
-	_this.u_Pick_currentMousePosY = _this.gl.getUniformLocation(_this.shader_Pick, "uCurrentMousePosY");
+	this.u_Pick_nodeId = this.gl.getUniformLocation(this.shader_Pick, "uNodeId");
+	this.u_Pick_isTransform = this.gl.getUniformLocation(this.shader_Pick, "uIsTransform");
+	this.u_Pick_currentMousePosX = this.gl.getUniformLocation(this.shader_Pick, "uCurrentMousePosX");
+	this.u_Pick_currentMousePosY = this.gl.getUniformLocation(this.shader_Pick, "uCurrentMousePosY");
 	
-	_this.u_Pick_far = _this.gl.getUniformLocation(_this.shader_Pick, "uFar");
+	this.u_Pick_far = this.gl.getUniformLocation(this.shader_Pick, "uFar");
 	
-	_this.u_Pick_PMatrix = _this.gl.getUniformLocation(_this.shader_Pick, "uPMatrix");
-	_this.u_Pick_cameraWMatrix = _this.gl.getUniformLocation(_this.shader_Pick, "u_cameraWMatrix");
-	_this.u_Pick_nodeWMatrix = _this.gl.getUniformLocation(_this.shader_Pick, "u_nodeWMatrix");
-	_this.u_Pick_nodeVScale = _this.gl.getUniformLocation(_this.shader_Pick, "u_nodeVScale");
-	_this.u_Pick_matrixNodeTranform = _this.gl.getUniformLocation(_this.shader_Pick, "u_matrixNodeTranform");
-	_this.Shader_Pick_READY = true;
+	this.u_Pick_PMatrix = this.gl.getUniformLocation(this.shader_Pick, "uPMatrix");
+	this.u_Pick_cameraWMatrix = this.gl.getUniformLocation(this.shader_Pick, "u_cameraWMatrix");
+	this.u_Pick_nodeWMatrix = this.gl.getUniformLocation(this.shader_Pick, "u_nodeWMatrix");
+	this.u_Pick_nodeVScale = this.gl.getUniformLocation(this.shader_Pick, "u_nodeVScale");
+	this.u_Pick_matrixNodeTranform = this.gl.getUniformLocation(this.shader_Pick, "u_matrixNodeTranform");
+	this.Shader_Pick_READY = true;
 };
 
 
 
 /** @private */
-StormGLContext.prototype.queryNodePick = function() {
+StormGLContext.prototype.render_Pick = function() {
 	this.gl.enable(this.gl.BLEND);
 	this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA); 
 	this.gl.useProgram(this.shader_Pick);
@@ -96,69 +94,121 @@ StormGLContext.prototype.queryNodePick = function() {
 	this.gl.uniformMatrix4fv(this.u_Pick_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
 	
 	
-	if(stormEngineC.draggingNodeNow === false && this.queryNodePickType == 1)
-		this.queryNodeMouseDown();
-	else if(this.queryNodePickType == 2)
-		this.queryNodeMouseUp();  
-	this.queryNodePickType = 0; 	
-	if(stormEngineC.editMode) 
-		this.queryNodeMouseMove();  
+	if(this.makeMouseDown == true) {
+		this.makeMouseDown = false;
+		
+		this.pick(this.nodes);
+		if(this.nodeQuerySelection == 0) this.pick(this.polarityPoints);
+	}
+	if(this.makeMouseMove == true) {
+		this.makeMouseMove = false;
+		
+		this.drag();  
+	}
+	if(this.makeMouseUp == true) {
+		this.makeMouseUp = false;
+		
+		this.unpick();  
+	}	
 		
 	this.gl.disable(this.gl.BLEND);
 };
 /** @private */
-StormGLContext.prototype.queryNodeMouseDown = function() {
-	this.makeQuerySelect = false;
-	this.queryDraw(this.nodes);
-	if(this.makeQuerySelect == true) {
-		if(stormEngineC.stormGLContext.transformOverlaySelected == 0) {
-			var selectedNode = this.querySelect(this.nodes);
-			if(selectedNode !== false && selectedNode instanceof StormNode) {
-				if(selectedNode.isDraggable) {
-					stormEngineC.selectNode(selectedNode);
-					selectedNode.bodyActive(false);
-					selectedNode.setPosition(selectedNode.getPosition());  
-					stormEngineC.draggingNodeNow = selectedNode;
-				}
-				if(selectedNode.onmousedownFunction != undefined) selectedNode.onmousedownFunction();
-			}
-		}
-	} 
+StormGLContext.prototype.pick = function(nodes) {	
+	this.nodeQuerySelection = this.querySelect(nodes);
 	
-	this.makeQuerySelect = false;
-	this.queryDraw(this.polarityPoints);
-	if(this.makeQuerySelect == true) {
-		if(stormEngineC.stormGLContext.transformOverlaySelected == 0) {
-			var selectedNode = this.querySelect(this.polarityPoints);
-			if(selectedNode !== false && selectedNode instanceof StormPolarityPoint) {
-				if(selectedNode.isDraggable) {
-					stormEngineC.selectNode(selectedNode);
-					selectedNode.bodyActive(false);
-					selectedNode.setPosition(selectedNode.getPosition());  
-					stormEngineC.draggingNodeNow = selectedNode;
+	if(this.nodeQuerySelection instanceof StormNode ||
+		this.nodeQuerySelection instanceof StormPolarityPoint) { // selection is a node
+			if(this.nodeQuerySelection.isDraggable) {
+				stormEngineC.selectNode(this.nodeQuerySelection);
+				
+				this.nodeQuerySelection.bodyActive(false);
+				this.nodeQuerySelection.setPosition(this.nodeQuerySelection.getPosition());  
+				
+				stormEngineC.draggingNodeNow = true;
+			}
+			if(this.nodeQuerySelection.onmousedownFunction != undefined) this.nodeQuerySelection.onmousedownFunction();
+	} else if(this.nodeQuerySelection > 0) { // selection is transform axis of a selected node
+		if(stormEngineC.getSelectedNode() != undefined) stormEngineC.getSelectedNode().bodyActive(false);
+		
+		stormEngineC.draggingNodeNow = true;
+	}
+};
+
+/** @private */
+StormGLContext.prototype.drag = function() {	
+	if(stormEngineC.draggingNodeNow == true) {		
+		if(this.nodeQuerySelection instanceof StormNode ||
+			this.nodeQuerySelection instanceof StormPolarityPoint) {
+				var dir = stormEngineC.utils.getDraggingScreenVector(); 
+				stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));
+		} else if(this.nodeQuerySelection > 0) {
+			var selOver = this.nodeQuerySelection;
+			if(selOver == 1 || selOver == 2 || selOver == 3) {
+				var dir;
+				if(selOver == 1) {
+					if(stormEngineC.defaultTransformMode == 0)
+						dir = stormEngineC.utils.getDraggingPosXVector(); 
+					else 
+						dir = stormEngineC.utils.getDraggingPosXVector(false); 
+				} else if(selOver == 2) {
+					if(stormEngineC.defaultTransformMode == 0)
+						dir = stormEngineC.utils.getDraggingPosYVector(); 
+					else 
+						dir = stormEngineC.utils.getDraggingPosYVector(false); 
+				} else if(selOver == 3) {
+					if(stormEngineC.defaultTransformMode == 0)
+						dir = stormEngineC.utils.getDraggingPosZVector(); 
+					else 
+						dir = stormEngineC.utils.getDraggingPosZVector(false); 
 				}
-				if(selectedNode.onmousedownFunction != undefined) selectedNode.onmousedownFunction();
+				stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));
+			} else if(selOver == 4 || selOver == 5 || selOver == 6) {
+				if(selOver == 4) {
+					if(stormEngineC.defaultTransformMode == 0) {
+						var val = stormEngineC.utils.getDraggingScreenVector(); 
+						stormEngineC.getSelectedNode().setRotationX(val.e[0]+val.e[1]+val.e[2]);
+					} else {
+						var val = stormEngineC.utils.getDraggingScreenVector(); 
+						stormEngineC.getSelectedNode().MROTXYZ = stormEngineC.getSelectedNode().MROTXYZ.setRotationX(val.e[0]+val.e[1]+val.e[2]);
+					}
+				} else if(selOver == 5) {
+					if(stormEngineC.defaultTransformMode == 0) {
+						var val = stormEngineC.utils.getDraggingScreenVector(); 
+						stormEngineC.getSelectedNode().setRotationY(val.e[0]+val.e[1]+val.e[2]);
+					} else {
+						var val = stormEngineC.utils.getDraggingScreenVector(); 
+						stormEngineC.getSelectedNode().MROTXYZ = stormEngineC.getSelectedNode().MROTXYZ.setRotationY(val.e[0]+val.e[1]+val.e[2]);
+					}
+				} else if(selOver == 6) {
+					if(stormEngineC.defaultTransformMode == 0) {
+						var val = stormEngineC.utils.getDraggingScreenVector(); 
+						stormEngineC.getSelectedNode().setRotationZ(val.e[0]+val.e[1]+val.e[2]);
+					} else {
+						var val = stormEngineC.utils.getDraggingScreenVector(); 
+						stormEngineC.getSelectedNode().MROTXYZ = stormEngineC.getSelectedNode().MROTXYZ.setRotationZ(val.e[0]+val.e[1]+val.e[2]);
+					}
+				}
+			} else if(stormEngineC.defaultTransformMode == 1 && (selOver == 7 || selOver == 8 || selOver == 9)) {
+				var val;
+				if(selOver == 7) {
+					val = stormEngineC.utils.getDraggingScreenVector();  
+					stormEngineC.getSelectedNode().setScaleX(val.e[0]+val.e[1]+val.e[2]);
+				} else if(selOver == 8) {
+					val = stormEngineC.utils.getDraggingScreenVector(); 
+					stormEngineC.getSelectedNode().setScaleY(val.e[0]+val.e[1]+val.e[2]);
+				} else if(selOver == 9) {
+					val = stormEngineC.utils.getDraggingScreenVector(); 
+					stormEngineC.getSelectedNode().setScaleZ(val.e[0]+val.e[1]+val.e[2]);
+				}
 			}
 		}
-	} 
+	}
 };
 
 /** @private */
-StormGLContext.prototype.queryNodeMouseMove = function() {
-	this.makeQuerySelect = false;
-	this.queryDraw(this.nodes);
-	if(this.makeQuerySelect == true)
-		var selectedNode = this.querySelect(this.nodes);
-		
-	this.makeQuerySelect = false;
-	this.queryDraw(this.polarityPoints);
-	if(this.makeQuerySelect == true)
-		var selectedNode = this.querySelect(this.polarityPoints);
-};
-
-/** @private */
-StormGLContext.prototype.queryNodeMouseUp = function() {
-	if(stormEngineC.draggingNodeNow !== false) {
+StormGLContext.prototype.unpick = function() {
+	if(stormEngineC.draggingNodeNow == true) {
 		stormEngineC.getSelectedNode().bodyActive(true);
 		var dir = stormEngineC.utils.getDraggingScreenVector();
 		stormEngineC.getSelectedNode().bodyApplyImpulse({vector: dir.x(100), milis: 10});
@@ -166,41 +216,33 @@ StormGLContext.prototype.queryNodeMouseUp = function() {
 	}
 	
 	
-	this.makeQuerySelect = false;
-	this.queryDraw(this.nodes); 
-	if(this.makeQuerySelect == true) {
-		var selectedNode = this.querySelect(this.nodes);
-		if(selectedNode !== false) {
-			if(	stormEngineC.mousePosX == stormEngineC.oldMousePosClickX &&
-				stormEngineC.mousePosY == stormEngineC.oldMousePosClickY) {
-					stormEngineC.selectNode(selectedNode);
-			}
-			if(selectedNode.onmouseupFunction != undefined) selectedNode.onmouseupFunction();
+	/*this.nodeQuerySelection = this.querySelect(this.nodes);
+	if(this.nodeQuerySelection instanceof StormNode) {
+		if(	stormEngineC.mousePosX == stormEngineC.oldMousePosClickX &&
+			stormEngineC.mousePosY == stormEngineC.oldMousePosClickY) {
+				stormEngineC.selectNode(this.nodeQuerySelection);
 		}
+		if(this.nodeQuerySelection.onmouseupFunction != undefined) this.nodeQuerySelection.onmouseupFunction();
 	}
-	
-	this.makeQuerySelect = false;
-	this.queryDraw(this.polarityPoints); 
-	if(this.makeQuerySelect == true) {
-		var selectedNode = this.querySelect(this.polarityPoints);
-		if(selectedNode !== false) {
-			if(	stormEngineC.mousePosX == stormEngineC.oldMousePosClickX &&
-				stormEngineC.mousePosY == stormEngineC.oldMousePosClickY) {
-					stormEngineC.selectNode(selectedNode);
-			}
-			if(selectedNode.onmouseupFunction != undefined) selectedNode.onmouseupFunction();
+
+	this.nodeQuerySelection = this.querySelect(this.polarityPoints);
+	if(this.nodeQuerySelection instanceof StormPolarityPoint) {
+		if(	stormEngineC.mousePosX == stormEngineC.oldMousePosClickX &&
+			stormEngineC.mousePosY == stormEngineC.oldMousePosClickY) {
+				stormEngineC.selectNode(this.nodeQuerySelection);
 		}
-	}
+		if(this.nodeQuerySelection.onmouseupFunction != undefined) this.nodeQuerySelection.onmouseupFunction();
+	}*/
 };
+
+
 /** @private */
-StormGLContext.prototype.queryDraw = function(nodes) { 
+StormGLContext.prototype.querySelect = function(nodes) {	
 	for(var n = 0, f = nodes.length; n < f; n++) { 
 		if(	nodes[n].visibleOnContext && nodes[n].objectType != 'light') {
 			var node = nodes[n];
 			this.gl.uniform1f(this.u_Pick_nodeId, ((node.idNum+1)/nodes.length));
-			for(var nb = 0, fb = node.buffersObjects.length; nb < fb; nb++) {	
-				this.makeQuerySelect = true;
-				
+			for(var nb = 0, fb = node.buffersObjects.length; nb < fb; nb++) {
 				this.gl.uniform1i(this.u_Pick_isTransform, 0); // nodes
 				
 				this.gl.uniformMatrix4fv(this.u_Pick_nodeWMatrix, false, node.MPOSFrame.transpose().e); 
@@ -222,7 +264,7 @@ StormGLContext.prototype.queryDraw = function(nodes) {
 		if(	nodes[n].visibleOnContext && nodes[n].objectType != 'light') {
 			var node = nodes[n];
 			this.gl.uniform1f(this.u_Pick_nodeId, ((node.idNum+1)/nodes.length));
-			if(stormEngineC.editMode && stormEngineC.getSelectedNode() != undefined && stormEngineC.getSelectedNode().idNum == this.nodes[n].idNum) {
+			if(stormEngineC.editMode && stormEngineC.getSelectedNode() != undefined && stormEngineC.getSelectedNode().idNum == nodes[n].idNum) {
 				for(var nb = 0, fb = node.buffersObjects.length; nb < fb; nb++) {	
 					this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
 					this.gl.uniform1i(this.u_Pick_isTransform, 1); // overlay transforms 
@@ -346,10 +388,12 @@ StormGLContext.prototype.queryDraw = function(nodes) {
 			}
 		}
 	}
+	
+	return this.querySelectNow(nodes);
 };
 /** @private */
-StormGLContext.prototype.querySelect = function(nodes) {
-	if(stormEngineC.draggingNodeNow === false) {
+StormGLContext.prototype.querySelectNow = function(nodes) {
+	if(stormEngineC.draggingNodeNow == false) {
 		var arrayPick = new Uint8Array(4);  
 		this.gl.readPixels(stormEngineC.mousePosX, (stormEngineC.$.height()-(stormEngineC.mousePosY)), 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, arrayPick);
 		if(arrayPick[0] != 0 || arrayPick[1] != 0) {
@@ -357,43 +401,31 @@ StormGLContext.prototype.querySelect = function(nodes) {
 			var selectedNode = nodes[nodeIdNum];  
 			var transformNum = parseFloat(arrayPick[1]/255).toFixed(1);
 			
-			if(transformNum == 0.1) {  
-				stormEngineC.stormGLContext.transformOverlaySelected = 1; // mouse over transform pos x 
-				return false;
-			} else if(transformNum == 0.2) {
-				stormEngineC.stormGLContext.transformOverlaySelected = 2; // mouse over transform pos y
-				return false;
-			} else if(transformNum == 0.3) {
-				stormEngineC.stormGLContext.transformOverlaySelected = 3; // mouse over transform pos z
-				return false;
-			} else if(transformNum == 0.4) {
-				stormEngineC.stormGLContext.transformOverlaySelected = 4; // mouse over transform rot x
-				return false;
-			} else if(transformNum == 0.5) {
-				stormEngineC.stormGLContext.transformOverlaySelected = 5; // mouse over transform rot y
-				return false;
-			} else if(transformNum == 0.6) {
-				stormEngineC.stormGLContext.transformOverlaySelected = 6; // mouse over transform rot z
-				return false;
-			} else if(transformNum == 0.7) {
-				stormEngineC.stormGLContext.transformOverlaySelected = 7; // mouse over transform sca x
-				return false;
-			} else if(transformNum == 0.8) {
-				stormEngineC.stormGLContext.transformOverlaySelected = 8; // mouse over transform sca y
-				return false;
-			} else if(transformNum == 0.9) {
-				stormEngineC.stormGLContext.transformOverlaySelected = 9; // mouse over transform sca z
-				return false;
-			} else if(selectedNode != undefined) {
-				stormEngineC.stormGLContext.transformOverlaySelected = 0;
+			if(transformNum == 0.1) {  // mouse over transform pos x 
+				return 1;
+			} else if(transformNum == 0.2) {// mouse over transform pos y
+				return 2;
+			} else if(transformNum == 0.3) {// mouse over transform pos z
+				return 3;
+			} else if(transformNum == 0.4) {// mouse over transform rot x
+				return 4;
+			} else if(transformNum == 0.5) {// mouse over transform rot y
+				return 5;
+			} else if(transformNum == 0.6) {// mouse over transform rot z
+				return 6;
+			} else if(transformNum == 0.7) {// mouse over transform sca x
+				return 7;
+			} else if(transformNum == 0.8) {// mouse over transform sca y
+				return 8;
+			} else if(transformNum == 0.9) {// mouse over transform sca z
+				return 9;
+			} else if(selectedNode != undefined) {// mouse over node
 				return selectedNode;
-			} else {
-				stormEngineC.stormGLContext.transformOverlaySelected = 0;
-				return false; 
+			} else {// mouse over nothing
+				return 0; 
 			}
 		} else {
-			stormEngineC.stormGLContext.transformOverlaySelected = 0;  
-			return false;
+			return 0;
 		}
 	}
 };

@@ -51,10 +51,10 @@ WebCLGLKernel.prototype.setKernelSource = function(source, header) {
 	}
 	//console.log(this.in_values);
 	
-	//console.log('normal'+source);
+	//console.log('original source: '+source);
 	this.source = source.replace(/\r\n/gi, '').replace(/\r/gi, '').replace(/\n/gi, '');
-	this.source = this.source.replace(/^\w* \w*\([\w\s\*,]*\) {/gi, '').replace(/}\W*$/gi, '');
-	//console.log('llaves'+this.source);
+	this.source = this.source.replace(/^\w* \w*\([\w\s\*,]*\) {/gi, '').replace(/}(\s|\t)*$/gi, '');
+	//console.log('minified source: '+this.source);
 	this.source = this.parse(this.source);
 };
 /**
@@ -68,17 +68,22 @@ WebCLGLKernel.prototype.parse = function(source) {
 		//console.log(varMatches);
 		if(varMatches != null) {
 			for(var nB = 0, fB = varMatches.length; nB < fB; nB++) { // for each varMatches ("A[x]", "A[x]")
-				var name = varMatches[nB].split('[')[0];
-				var vari = varMatches[nB].split('[')[1].split(']')[0];
-				var regexp = new RegExp(name+'\\['+vari.trim()+'\\]',"gm");
-				if(this.in_values[n].type == 'buffer') 
-					source = source.replace(regexp, 'in_data('+name+','+vari+')');
-				else if(this.in_values[n].type == 'buffer4') 
-					source = source.replace(regexp, 'in_data4('+name+','+vari+')');
+				var regexpNativeGL = new RegExp('```(\s|\t)*gl.*'+varMatches[nB]+'.*```[^```(\s|\t)*gl]',"gm");
+				var regexpNativeGLMatches = source.match(regexpNativeGL);
+				if(regexpNativeGLMatches == null) {
+					var name = varMatches[nB].split('[')[0];
+					var vari = varMatches[nB].split('[')[1].split(']')[0];
+					var regexp = new RegExp(name+'\\['+vari.trim()+'\\]',"gm");
+					if(this.in_values[n].type == 'buffer') 
+						source = source.replace(regexp, 'in_data('+name+','+vari+')');
+					else if(this.in_values[n].type == 'buffer4') 
+						source = source.replace(regexp, 'in_data4('+name+','+vari+')');
+				}
 			}
 		}
 	}
-	//console.log(this.source);
+	source = source.replace(/```(\s|\t)*gl/gi, "").replace(/```/gi, "");
+	//console.log('%c translated source:'+source, "background-color:#000;color:#FFF");
 	return source;
 };
 /**

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>StormEngineC</title>
+		<meta charset=utf-8 />
+		
+		<style>
+			body{
+				background:#66ACA4;
+				color:#FFF;
+			}
+		</style>
+		<script src="../../StormEngineC/StormEngineC.class.js"></script>
+	</head>
+	
+	<body>
+		<canvas id="stormCanvas" width="512" height="512"></canvas>
+	  <script>
+		var nodeSphere,nodeSphereChild;
+		  
+		  stormEngineC.createWebGL({	'target':	'stormCanvas', // ID canvas
+									  'callback':	function(){},
+									  'editMode':	false,
+									  'enableRender':true});
+		  var gravityForce = stormEngineC.createGravityForce();
+		  stormEngineC.setWebGLBackground('environmentMap');   
+		  
+		  // LIGHTS
+		  stormEngineC.setAmbientColor($V3([83.0/255.0, 86.0/255.0, 89.0/255.0]));
+		  
+		  var lightB = stormEngineC.createLight({	'type':'spot', // TYPE SPOT (MAX 10)
+												  'position':$V3([2.3,17.0,-20.0]),
+												  'direction':$V3([0.01,-1.0,0.01]), //on render spot is omni
+												  'color':5770 // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
+												});
+		  
+		  
+		  // CAMERA
+			var nodeCam = stormEngineC.createCamera($V3([0.0, 3.0, 0.0]), 1.0); // create one camera
+			stormEngineC.setWebGLCam(nodeCam);
+		  
+		  
+		  
+		  
+			// PARENT
+		  nodeSphere = stormEngineC.createNode();
+		  nodeSphere.loadObj({'objUrl':"../_RESOURCES/boxHole.obj",
+							  'textureUniqueUrl':'../_RESOURCES/UV.jpg'});
+		  nodeSphere.setPosition($V3([0.0, 4.0, -18.2]));
+		  nodeSphere.setCollision({	'type':'sphere',
+									'dimensions':0.93,
+									'mass':0,
+									'friction':0.0,
+									'restitution':0.0});
+		  nodeSphere.draggable(true);
+		  
+		// CHILD
+		  nodeSphereChild = stormEngineC.createNode();
+		  nodeSphereChild.loadObj({	'objUrl':"../_RESOURCES/boxHole.obj",
+									'textureUniqueUrl':'../_RESOURCES/UV.jpg'});
+		  //nodeSphereChild.setPosition($V3([0.0, 0.0, -18.2]));
+		  nodeSphereChild.setCollision({'type':'box',
+										'dimensions':$V3([1.0, 1.0, 1.0]),
+										'mass':0.38,
+										'friction':0.5,
+										'restitution':0.5}); 
+		  nodeSphereChild.addConstraint({	'parentOffset':$V3([0.0, -4.0, 0.0]),
+										  'parentNode':nodeSphere});
+		  nodeSphereChild.draggable(true);
+		  
+		// GROUND
+		  nodePlane = stormEngineC.createNode();
+		  nodePlane.loadBox($V3([8.0, 1.0,8.0]));
+		  nodePlane.setRotation(stormEngineC.utils.degToRad(90),$V3([1.0,0.0,0.0])); 
+		  nodePlane.setPosition($V3([0.0, -4.0, -18.0]));
+		  nodePlane.setCollision({'type':'box',
+								  'dimensions':$V3([8.0, 1.0, 8.0]),
+								  'mass':0.0,
+								  'friction':0.0,
+								  'restitution':0.0}); 
+		
+		
+		
+	  </script>				
+	  <input type="button" onclick="nodeSphereChild.applyImpulse({'vector':$V3([20.0, 0.0, 40.0]), 'milis':10});" value="applyImpulse"/>
+	  <input type="button" onclick="nodeSphereChild.removeConstraint();" value="removeConstraint"/>
+	  <input type="button" onclick="nodeSphereChild.addConstraint({	'parentOffset':$V3([0.0, -2.5, 0.0]), 'parentNode':nodeSphere});" value="addConstraint"/>
+	  <br />
+	  WASD keys: Move
+	  <br />
+			
+		 
+	</body>
+</html>

@@ -90,6 +90,7 @@ var includesF = [//'/StormMathMin.class.js',
 				'/StormParticles.class.js',
 				'/StormPolarityPoint.class.js',
 				'/StormForceField.class.js',
+				'/StormGraph.class.js',
 				'/StormTriangulate2D.class.js',
 				'/StormRayLens.class.js',
 				'/StormTriangleBox.class.js',
@@ -97,6 +98,7 @@ var includesF = [//'/StormMathMin.class.js',
 				'/StormGI.class.js',
 				'/StormRayTriangle.class.js',
 				'/StormLineSceneCollision.class.js',
+				'/StormGrid.class.js',
 				'/stormPanel/stormPanel.js',
 				'/stormMenu/stormMenu.js',
 				'/StormPanelEnvironment.class.js',
@@ -106,6 +108,7 @@ var includesF = [//'/StormMathMin.class.js',
 				'/StormPanelRenderSettings.class.js',
 				'/StormPanelCanvas.class.js',
 				'/StormPanelAnimationTimeline.class.js',
+				'/StormPanelBottomMenu.class.js',
 				'/StormRenderCLv4_Timeline.class.js',
 				'/StormRenderCL_EMR_MaterialEditor.class.js',
 				'/StormPanelEMRMaterialsDatabase.class.js',
@@ -183,7 +186,6 @@ var includesF = [//'/StormMathMin.class.js',
 				'/JigLibJS/vehicles/JCar.js',
 				'/StormJigLibJS.class.js',
 				'/StormUtils.class.js',
-				'/StormControllerFreeCam.class.js',
 				'/StormControllerTargetCam.class.js',
 				'/StormControllerPlayerCar.class.js',
 				'/StormControllerPlayer.class.js',
@@ -261,6 +263,12 @@ StormEngineC = function() {
 	this.arrFonts = [];
 	
 	this.defaultCamera;
+	this.ControllerTypes = {
+		"TARGETCAM": 0,
+		"PLAYER": 1,
+		"NODECAR": 2,
+		"FOLLOW": 3,
+	};
 	
 	this.nearNode; // selectedNode
 	this.nearDistance = 1000000000.0;
@@ -269,6 +277,8 @@ StormEngineC = function() {
 	this.pickingCall;
 	
 	this.selectedMaterial;
+	
+	this.showGrid = true;
 	
 	this.pause = false;
 	this.pauseRender = true;
@@ -323,46 +333,17 @@ StormEngineC.prototype.createWebGL = function(jsonIn) {
 };
 
 /** @private */
-StormEngineC.prototype.loadManager = function() {
+StormEngineC.prototype.loadManager = function() {	
 	this.stormGLContext = new StormGLContext(this.target);
-		
-	// INIT SHADERS
-	if(!this.stormGLContext._typeMobile && this.stormGLContext._supportFormat == this.stormGLContext.gl.FLOAT) console.log('PC');
-	else console.log('MOBILE');
 	
-	if(!this.stormGLContext._typeMobile && this.stormGLContext._supportFormat == this.stormGLContext.gl.FLOAT) {
-		this.stormGLContext.addToStackShaders('CTX2D', this.stormGLContext.initShader_Ctx2D);
-		this.update2DContext();
-	}
-	
-	this.stormGLContext.addToStackShaders('NORMALS', this.stormGLContext.initShader_Normals);
-	if(this.stormGLContext._supportFormat == this.stormGLContext.gl.FLOAT) { 
-		this.stormGLContext.addToStackShaders('LIGHT DEPTH', this.stormGLContext.initShader_LightDepth);
-		this.stormGLContext.addToStackShaders('LIGHT DEPTH PARTICLES', this.stormGLContext.initShader_LightDepthParticles);
-			this.stormGLContext.addToStackShaders('SHADOWS', this.stormGLContext.initShader_Shadows);
-	}
-	
-	if(!this.stormGLContext._typeMobile && this.stormGLContext._supportFormat == this.stormGLContext.gl.FLOAT)
-		this.stormGLContext.addToStackShaders('BG', this.stormGLContext.initShader_BG); 
-	this.stormGLContext.addToStackShaders('SCENE', this.stormGLContext.initShader_Scene);
-	
-	if(!this.stormGLContext._typeMobile && this.stormGLContext._supportFormat == this.stormGLContext.gl.FLOAT) {
-		this.stormGLContext.addToStackShaders('PARTICLE AUX', this.stormGLContext.initShader_ParticlesAux);
-		this.stormGLContext.addToStackShaders('LINES', this.stormGLContext.initShader_Lines);
-		this.stormGLContext.addToStackShaders('DOF', this.stormGLContext.initShader_DOF);
-	} 
-	
-	this.stormGLContext.addToStackShaders('PICK', this.stormGLContext.initShader_Pick);
-	if(!this.stormGLContext._typeMobile && this.stormGLContext._supportFormat == this.stormGLContext.gl.FLOAT)
-		this.stormGLContext.addToStackShaders('OVERLAY', this.stormGLContext.initShader_Overlay);  
-
-	
-	
-	
-	this.clgl = new WebCLGL(this.stormGLContext.gl);
 	this.utils = new StormUtils();
+	this.clgl = new WebCLGL(this.stormGLContext.gl);
+	
 	this.stormMesh = new StormMesh();
 	this.giv2 = new StormGI();
+	
+	this.grid = new StormGrid();
+	this.grid.show(100.0, 1.0);
 	
 	// OVERLAY TRANSFORMS  
 	this.defaultTransform = 0; // 0=position, 1=rotation, 2=scale
@@ -431,11 +412,26 @@ StormEngineC.prototype.loadManager = function() {
 	this.stormGLContext.nodeOverlayScaZ.loadBox($V3([0.1,0.1,0.1]));
 	this.stormGLContext.nodeOverlayScaZ.setRotationX(stormEngineC.utils.degToRad(-90));
 	
-	// DEFAULT CAMERA AND SUN LIGHT
-	var nodeCam = this.createCamera($V3([0.0, 0.0, 0.0]));
-	this.setWebGLCam(nodeCam); 
+	// DEFAULT VIEWS
+	this.mainCamera = this.createCamera($V3([0.0, 0.0, 0.0]), 1.0);
+	this.mainCamera.name = "MAIN CAMERA";
+	this.leftView = this.createCamera($V3([0.0, 0.0, 0.0]), 1.0);
+	this.leftView.name = "LEFT VIEW";
+	this.rightView = this.createCamera($V3([0.0, 0.0, 0.0]), 1.0);
+	this.rightView.name = "RIGHT VIEW";
+	this.frontView = this.createCamera($V3([0.0, 0.0, 0.0]), 1.0);
+	this.frontView.name = "FRONT VIEW";
+	this.backView = this.createCamera($V3([0.0, 0.0, 0.0]), 1.0);
+	this.backView.name = "BACK VIEW";
+	this.topView = this.createCamera($V3([0.0, 0.0, 0.0]), 1.0);
+	this.topView.name = "TOP VIEW";
+	this.bottomView = this.createCamera($V3([0.0, 0.0, 0.0]), 1.0);
+	this.bottomView.name = "BOTTOM VIEW";
+	
+	this.setWebGLCam(this.mainCamera); 
 	this.cameraGoalCurrentPos = this.defaultCamera.nodeGoal.getPosition();
 	
+	// DEFAULT SUN LIGHT
 	var light = this.createLight({	'type':'sun', // first light must be sun light
 							'direction':$V3([-0.12,-0.5,0.20]),
 							'color':5770
@@ -449,7 +445,7 @@ StormEngineC.prototype.loadManager = function() {
 	this.stormJigLibJS.createJigLibWorld();
 	
 	
-	// PANELS
+	// MENU & PANELS
 	this.PanelEnvironment = new StormEngineC_PanelEnvironment();
 	this.PanelEnvironment.loadPanel();
 	this.PanelListObjects = new StormEngineC_PanelListObjects();
@@ -477,295 +473,12 @@ StormEngineC.prototype.loadManager = function() {
 	//}
 	
 	if(this.editMode) {
-		var strBtns = ''+
-		"<div id='TABLEID_STORMMENU' style='display:table;background-color:#262626;font-size:11px;color:#FFF;'>"+
-			"<div style='display:table-cell'>"+ 
-				"<div style='padding:2px'>LOCAL<input type='checkbox' id='CHECKID_STOMTOOLBAR_LOCAL' /></div>"+
-			"</div>"+
-			"<div style='display:table-cell'>"+
-				"<div id='STORMMENU0' data-menucontent>"+  
-					"<div><a id='STORMMENUBTN_C0_01'>Import Wavefront (.obj)..</a> <input id='INPUTID_StormFileImport' type='file' style='display:none;'/></div>"+
-					"<div><a id='STORMMENUBTN_C0_02'>Import Collada (.DAE)..</a> <input id='INPUTID_StormFileImportCollada' type='file' style='display:none;'/></div>"+
-				"</div>"+
-				"<div>File</div>"+
-			"</div>"+
-			"<div style='display:table-cell'>"+
-				"<div id='STORMMENU1' data-menucontent>"+
-					"<div><a id='STORMMENUBTN_C1_01'>List Objects..</a></div>"+
-					"<div><a id='STORMMENUBTN_C1_02'>Edit object..</a></div>"+
-					"<div><a id='STORMMENUBTN_C1_03'>Environment..</a></div>"+
-				"</div>"+
-				"<div>Edit</div>"+
-			"</div>"+
-			"<div style='display:table-cell'>"+
-				"<div id='STORMMENU2' data-menucontent>"+
-					"<div data-menucontent>"+
-						"<div><a id='STORMMENUBTN_C2_01_PE'>PERSPECTIVE</a></div>"+
-						"<div><a id='STORMMENUBTN_C2_01_OR'>ORTHOGRAPHIC</a></div>"+
-						"<div><div style='height:2px;background-color:#FFF;'></div></div>"+
-						"<div><a id='STORMMENUBTN_C2_01_LEFT'>LEFT</a></div>"+
-						"<div><a id='STORMMENUBTN_C2_01_RIGHT'>RIGHT</a></div>"+ 
-						"<div><a id='STORMMENUBTN_C2_01_FRONT'>FRONT</a></div>"+
-						"<div><a id='STORMMENUBTN_C2_01_BACK'>BACK</a></div>"+ 
-						"<div><a id='STORMMENUBTN_C2_01_TOP'>TOP</a></div>"+
-						"<div><a id='STORMMENUBTN_C2_01_BOTTOM'>BOTTOM</a></div>"+  
-						"<div><div style='height:2px;background-color:#FFF;'></div></div>"+
-						"<div><a id='STORMMENUBTN_C2_01_01'>TRIANGLES</a></div>"+
-						"<div><a id='STORMMENUBTN_C2_01_02'>TRIANGLE_FAN</a></div>"+
-						"<div><a id='STORMMENUBTN_C2_01_03'>TRIANGLE_STRIP</a></div>"+
-						"<div><a id='STORMMENUBTN_C2_01_04'>LINES</a></div>"+
-						"<div><a id='STORMMENUBTN_C2_01_05'>LINE_LOOP</a></div>"+
-						"<div><a id='STORMMENUBTN_C2_01_06'>LINE_STRIP</a></div>"+
-						"<div><a id='STORMMENUBTN_C2_01_07'>POINTS</a></div>"+
-					"</div>"+
-					"<div><a id='STORMMENU_C2_01'>View</a></div>"+
-					"<div><a id='STORMMENUBTN_C2_02'>Pause viewport</a></div>"+
-					"<div><a id='STORMMENUBTN_C2_03'>Timeline</a></div>"+
-				"</div>"+
-				"<div>View</div>"+
-			"</div>"+
-			"<div style='display:table-cell'>"+
-				"<div id='STORMMENU3' data-menucontent>"+
-					"<div><a id='STORMMENUBTN_C3_01'>Spot light</a></div>"+
-					"<div><a id='STORMMENUBTN_C3_02'>Sun light</a></div>"+
-					"<div><a id='STORMMENUBTN_C3_03'>Camera</a></div>"+
-					"<div><a id='STORMMENUBTN_C3_04'>Line</a></div>"+
-					"<div><a id='STORMMENUBTN_C3_05'>Particles</a></div>"+
-					"<div><a id='STORMMENUBTN_C3_06'>Polarity point</a></div>"+
-					"<div><a id='STORMMENUBTN_C3_07'>Force field</a></div>"+
-					"<div><a id='STORMMENUBTN_C3_08'>Gravity force</a></div>"+
-					"<div><a id='STORMMENUBTN_C3_09'>Voxelizator</a></div>"+
-				"</div>"+
-				"<div>Create</div>"+
-			"</div>"+
-			"<div style='display:table-cell'>"+
-				"<div id='STORMMENU4' data-menucontent>"+
-					"<div><a id='STORMMENUBTN_C4_01'>EMR Spectrum Editor..</a></div>"+
-					"<div><a id='STORMMENUBTN_C4_02'>Material Editor..</a></div>"+
-				"</div>"+
-				"<div>Materials</div>"+
-			"</div>"+
-			"<div style='display:table-cell'>"+
-				"<div id='STORMMENU5' data-menucontent>"+
-					"<div><a id='STORMMENUBTN_C5_01'>Render settings..</a></div>"+
-				"</div>"+
-				"<div>Render</div>"+
-			"</div>"+
-		"</div>"+
-		"<div id='STORMMENU_MOUSE'>"+
-			"<div><a id='BTNID_STOMTOOLBAR_MOVE'>MOVE</a></div>"+
-			"<div><a id='BTNID_STOMTOOLBAR_ROTATE'>ROTATE</a></div>"+
-			"<div><a id='BTNID_STOMTOOLBAR_SCALE'>SCALE</a></div>"+
-		"</div>";
-		var e = DCE('div');
-		e.innerHTML = strBtns;
-		this.target.parentNode.appendChild(e);
-		
-		if(this.enableRender == false) {
-			$('#STORMMENU5').hide();
-			$('#STORMMENUBTN_C4_01').hide();
-		} 
-		
-		
-		// MOUSE MENU
-		DGE('STORMMENU_MOUSE').addEventListener("contextmenu", function(e){
-			e.preventDefault();
-		}, false);
-		DGE('STORMMENU_MOUSE').classList.add("SECmenuMouse");
-		DGE('STORMMENU_MOUSE').addEventListener('mouseout', function(e) {
-			var obj = e.relatedTarget;//prevent if over childs
-			while(obj != undefined) {
-				if(obj == this) return;
-				obj=obj.parentNode;
-			}
-		
-			this.style.display = "none";
-		}, true);	
-		
-		DGE("BTNID_STOMTOOLBAR_MOVE").addEventListener("click", function(e) {
-			stormEngineC.defaultTransform = 0; // 0=position, 1=rotation, 2=scale
-			var event = new CustomEvent("mouseout");
-			DGE('STORMMENU_MOUSE').dispatchEvent(event);
-		}, false);
-		
-		DGE("BTNID_STOMTOOLBAR_ROTATE").addEventListener("click", function(e) {
-			stormEngineC.defaultTransform = 1; // 0=position, 1=rotation, 2=scale
-			var event = new CustomEvent("mouseout");
-			DGE('STORMMENU_MOUSE').dispatchEvent(event);
-		}, false);
-		
-		DGE("BTNID_STOMTOOLBAR_SCALE").addEventListener("click", function(e) {
-			stormEngineC.defaultTransform = 2; // 0=position, 1=rotation, 2=scale
-			var event = new CustomEvent("mouseout");
-			DGE('STORMMENU_MOUSE').dispatchEvent(event);
-		}, false); 
-		
-		
-		// BOTTOM MENU
-		// local checkbox
-		DGE("CHECKID_STOMTOOLBAR_LOCAL").addEventListener("click", function(e) {
-			stormEngineC.defaultTransformMode = (stormEngineC.defaultTransformMode == 0) ? 1 : 0; // 0=world, 1=local
-		}, false);
-		
-		// menus
-		var menuObjs = [];
-		var menu = new StormMenu({	content: DGE('STORMMENU0'),
-									mouseover: function() {
-													for(var nb = 0;nb < menuObjs.length;nb++)
-														if(this != menuObjs[nb]) menuObjs[nb].close();
-												}});  
-		menuObjs.push(menu);
-		var menu = new StormMenu({	content: DGE('STORMMENU1'),
-									mouseover: function() {
-													for(var nb = 0;nb < menuObjs.length;nb++)
-														if(this != menuObjs[nb]) menuObjs[nb].close();
-												}});
-		menuObjs.push(menu);
-		var menu = new StormMenu({	content: DGE('STORMMENU2'),
-									mouseover: function() {
-													for(var nb = 0;nb < menuObjs.length;nb++)
-														if(this != menuObjs[nb]) menuObjs[nb].close();
-												}}); 
-		menuObjs.push(menu);
-		var menu = new StormMenu({	content: DGE('STORMMENU3'),
-									mouseover: function() {
-													for(var nb = 0;nb < menuObjs.length;nb++)
-														if(this != menuObjs[nb]) menuObjs[nb].close();
-												}});
-		menuObjs.push(menu);
-		var menu = new StormMenu({	content: DGE('STORMMENU4'),
-									mouseover: function() {
-													for(var nb = 0;nb < menuObjs.length;nb++)
-														if(this != menuObjs[nb]) menuObjs[nb].close();
-												}});
-		menuObjs.push(menu);		
-		var menu = new StormMenu({	content: DGE('STORMMENU5'),
-									mouseover: function() {
-													for(var nb = 0;nb < menuObjs.length;nb++)
-														if(this != menuObjs[nb]) menuObjs[nb].close();
-												}});
-		menuObjs.push(menu);
-		
-		
-		
+		this.PanelBottomMenu = new StormEngineC_PanelBottomMenu(this);
+		this.PanelBottomMenu.loadPanel();
+	}
 	
 	
-		// SUBBTN ACTIONS
-		$("#STORMMENUBTN_C0_01").on('click', function() {
-			$('#INPUTID_StormFileImport').click();
-			$('#INPUTID_StormFileImport').on('change', function() {
-				var filereader = new FileReader();
-				filereader.onload = function(event) {
-					var nodeF = stormEngineC.createNode();
-					stormEngineC.stormMesh.loadObjFromSourceText(nodeF, event.target.result);
-				};
-				filereader.readAsText(this.files[0]);
-			});
-		});
-		$("#STORMMENUBTN_C0_02").on('click', function() {
-			$('#INPUTID_StormFileImportCollada').click();
-			$('#INPUTID_StormFileImportCollada').on('change', function() {
-				var filereader = new FileReader();
-				filereader.onload = function(event) {
-					var nodeF = stormEngineC.createNode();
-					stormEngineC.stormMesh.loadColladaFromSourceText(nodeF, event.target.result);
-				};
-				filereader.readAsText(this.files[0]);
-			});
-		});
-		$("#STORMMENUBTN_C1_01").on('click', function() {
-			stormEngineC.PanelListObjects.show();
-		});
-		$("#STORMMENUBTN_C1_02").on('click', function() {
-			stormEngineC.PanelEditNode.show();
-		});
-		$("#STORMMENUBTN_C1_03").on('click', function() {
-			stormEngineC.PanelEnvironment.show();
-		});
-		$("#STORMMENUBTN_C2_01_PE").on('click', function() {stormEngineC.defaultCamera.setProjectionType("p");}); 
-		$("#STORMMENUBTN_C2_01_OR").on('click', function() {stormEngineC.defaultCamera.setProjectionType("o");});
-		$("#STORMMENUBTN_C2_01_LEFT").on('click', function() {stormEngineC.defaultCamera.setView("LEFT");});
-		$("#STORMMENUBTN_C2_01_RIGHT").on('click', function() {stormEngineC.defaultCamera.setView("RIGHT");}); 
-		$("#STORMMENUBTN_C2_01_FRONT").on('click', function() {stormEngineC.defaultCamera.setView("FRONT");});
-		$("#STORMMENUBTN_C2_01_BACK").on('click', function() {stormEngineC.defaultCamera.setView("BACK");}); 
-		$("#STORMMENUBTN_C2_01_TOP").on('click', function() {stormEngineC.defaultCamera.setView("TOP");});
-		$("#STORMMENUBTN_C2_01_BOTTOM").on('click', function() {stormEngineC.defaultCamera.setView("BOTTOM");});  
-		$("#STORMMENUBTN_C2_01_01").on('click', function() {stormEngineC.stormGLContext.drawElementsMode(4);}); // TRIANGLES
-		$("#STORMMENUBTN_C2_01_02").on('click', function() {stormEngineC.stormGLContext.drawElementsMode(6);}); // TRIANGLE_FAN
-		$("#STORMMENUBTN_C2_01_03").on('click', function() {stormEngineC.stormGLContext.drawElementsMode(5);}); // TRIANGLE_STRIP
-		$("#STORMMENUBTN_C2_01_04").on('click', function() {stormEngineC.stormGLContext.drawElementsMode(1);}); // LINES
-		$("#STORMMENUBTN_C2_01_05").on('click', function() {stormEngineC.stormGLContext.drawElementsMode(2);}); // LINE_LOOP
-		$("#STORMMENUBTN_C2_01_06").on('click', function() {stormEngineC.stormGLContext.drawElementsMode(3);}); // LINE_STRIP
-		$("#STORMMENUBTN_C2_01_07").on('click', function() {stormEngineC.stormGLContext.drawElementsMode(0);}); // POINTS
-		$("#STORMMENUBTN_C2_02").on('click', function() {
-			stormEngineC.setWebGLpause();
-		});	
-		$("#STORMMENUBTN_C2_03").on('click', function() {
-			stormEngineC.PanelAnimationTimeline.show();
-		});	
-		$("#STORMMENUBTN_C3_01").on('click', function() {
-			var node = stormEngineC.createLight({	'type':'spot', // TYPE SPOT (MAX 10)
-													'position':$V3([0.0,2.5,0.0]),
-													'direction':$V3([0.01,-1.0,0.01]), //on render spot is omni
-													'color':3200 // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
-			});
-			stormEngineC.selectNode(node);
-		});
-		$("#STORMMENUBTN_C3_02").on('click', function() {
-			var node = stormEngineC.createLight({	'type':'sun', // TYPE SUN (MAX 1) Enabled by default. New sun overrides the current
-													'direction':$V3([-0.12,-0.5,0.20]),
-													'color':5770
-									});
-			stormEngineC.selectNode(node);
-		});	
-		$("#STORMMENUBTN_C3_03").on('click', function() {
-			var node = stormEngineC.createCamera($V3([0.0, 0.0, 0.0]), 1.0);
-			stormEngineC.selectNode(node);
-		});	
-		$("#STORMMENUBTN_C3_04").on('click', function() {
-			var node = stormEngineC.createLine($V3([0.0,0.0,0.0]), $V3([1.0,0.0,0.0]), $V3([1.0,1.0,1.0]), $V3([0.0,0.0,0.0])); // vecOrigin, vecEnd, vecOriginColor, vecEndColor
-			stormEngineC.selectNode(node);
-		});			
-		$("#STORMMENUBTN_C3_05").on('click', function() {
-			var tamW = prompt('width?','128'); if(tamW == '') tamW = 128;
-			var tamH = prompt('height?','128'); if(tamH == '') tamH = 128;
-			var node = stormEngineC.createParticles();
-			node.generateParticles({amount:parseInt(tamW)*parseInt(tamH),   
-									disposal:{radius:0.5}, 
-									color:$V3([1.0,1.0,1.0]),
-									pointSize:1.0,  
-									polarity:0,
-									direction:undefined}); 
-			stormEngineC.selectNode(node);
-		});		
-		$("#STORMMENUBTN_C3_06").on('click', function() {
-			var node = stormEngineC.createPolarityPoint({polarity:1,force:0.5});
-			stormEngineC.selectNode(node);
-		});	
-		$("#STORMMENUBTN_C3_07").on('click', function() {
-			var node = stormEngineC.createForceField();  
-			stormEngineC.selectNode(node);
-		});		
-		$("#STORMMENUBTN_C3_08").on('click', function() {
-			var node = stormEngineC.createGravityForce();  
-			stormEngineC.selectNode(node); 
-		});				
-		$("#STORMMENUBTN_C3_09").on('click', function() {
-			var node = stormEngineC.createVoxelizator();   
-			stormEngineC.selectNode(node); 
-		});	
-		$("#STORMMENUBTN_C4_01").on('click', function() {
-			stormEngineC.MaterialEditor.show();
-		});
-		$("#STORMMENUBTN_C4_02").on('click', function() {
-			stormEngineC.PanelMaterials.show();
-		});						 				
-		$("#STORMMENUBTN_C5_01").on('click', function() {
-			stormEngineC.PanelRenderSettings.show();
-		});
-	}// END EDIT MODE
-	
-	
+	// WINDOW & DOCUMENT EVENTS
 	$(document).ready(stormEngineC.updateDivPosition);
 	window.addEventListener("resize", stormEngineC.updateDivPosition, false);
 	window.addEventListener("orientationchange", stormEngineC.updateDivPosition, false); 
@@ -815,6 +528,8 @@ StormEngineC.prototype.loadManager = function() {
 		if(stormEngineC.defaultCamera.controller.mouseWheel != undefined) stormEngineC.defaultCamera.controller.mouseWheel(e); 
 	}, false);
 	
+	
+	// CONFIG RESIZE
 	if(this.resizable == 1 || this.resizable == 2) {
 		var ar = (this.resizable == 1) ? true : false;
 		this.$.resizable({	aspectRatio: ar,
@@ -922,7 +637,7 @@ StormEngineC.prototype.makePanel = function(panelobj, strAttrID, paneltitle, htm
 StormEngineC.prototype.mouseup = function(e) {
 	stormEngineC.isMouseDown = false;
 	//e.preventDefault();
-	stormEngineC.stormGLContext.queryNodePickType = 2; // 0=noquery, 1=mousedown, 2=mouseup
+	stormEngineC.stormGLContext.makeMouseUp = true;
 	
 	stormEngineC.setZeroSamplesGIVoxels();
 	
@@ -938,20 +653,20 @@ StormEngineC.prototype.mouseup = function(e) {
 /**  @private */
 StormEngineC.prototype.mousedown = function(e) {
 	stormEngineC.isMouseDown = true;
-	if(stormEngineC.draggingNodeNow === false) {
-		if(e.targetTouches != undefined) {
-			//console.log(e.targetTouches)
-			e = e.targetTouches[0];
-			e.button = 0;
-			stormEngineC.identifierTouchMoveOwner = e.identifier;
-			
-			stormEngineC.oldMousePosClickX = stormEngineC.mousePosX;
-			stormEngineC.oldMousePosClickY = stormEngineC.mousePosY; 
-			stormEngineC.mousePosX = (e.clientX - stormEngineC.divPositionX);
-			stormEngineC.mousePosY = (e.clientY - stormEngineC.divPositionY);
-			stormEngineC.mouseOldPosX = stormEngineC.mousePosX;   
-			stormEngineC.mouseOldPosY = stormEngineC.mousePosY;  
-		}
+	
+	if(e.targetTouches != undefined) {
+		//console.log(e.targetTouches)
+		e = e.targetTouches[0];
+		e.button = 0;
+		stormEngineC.identifierTouchMoveOwner = e.identifier;
+		
+		stormEngineC.oldMousePosClickX = stormEngineC.mousePosX;
+		stormEngineC.oldMousePosClickY = stormEngineC.mousePosY; 
+		
+		stormEngineC.mousePosX = (e.clientX - stormEngineC.divPositionX);
+		stormEngineC.mousePosY = (e.clientY - stormEngineC.divPositionY);
+		stormEngineC.mouseOldPosX = stormEngineC.mousePosX;   
+		stormEngineC.mouseOldPosY = stormEngineC.mousePosY;  
 	}
 	//e.preventDefault(); // si se habilita no funciona sobre un iframe
 	
@@ -966,14 +681,8 @@ StormEngineC.prototype.mousedown = function(e) {
 		stormEngineC.oldMousePosClickX = stormEngineC.mousePosX;
 		stormEngineC.oldMousePosClickY = stormEngineC.mousePosY; 
 		
-		stormEngineC.stormGLContext.queryNodePickType = 1; // 0=noquery, 1=mousedown, 2=mouseup 
-		if(	stormEngineC.isMouseDown == true &&
-			stormEngineC.getSelectedNode() != undefined &&
-			stormEngineC.stormGLContext.transformOverlaySelected != 0) {
-				stormEngineC.getSelectedNode().bodyActive(false);
-				stormEngineC.draggingNodeNow = true;
-		}
-			
+		stormEngineC.stormGLContext.makeMouseDown = true;
+		
 		stormEngineC.setZeroSamplesGIVoxels();
 		
 		stormEngineC.PanelAnimationTimeline.stop();
@@ -1013,72 +722,7 @@ StormEngineC.prototype.mousemove = function(e) {
 		stormEngineC.mousePosY = (e.clientY - stormEngineC.divPositionY);
 		//console.log(stormEngineC.mousePosX+' '+stormEngineC.mousePosY);
 		
-		if(stormEngineC.draggingNodeNow !== false) { 
-			var selOver = stormEngineC.stormGLContext.transformOverlaySelected;
-			if(selOver != 0) {
-				if(selOver == 1 || selOver == 2 || selOver == 3) {
-					var dir;
-					if(selOver == 1) {
-						if(stormEngineC.defaultTransformMode == 0)
-							dir = stormEngineC.utils.getDraggingPosXVector(); 
-						else 
-							dir = stormEngineC.utils.getDraggingPosXVector(false); 
-					} else if(selOver == 2) {
-						if(stormEngineC.defaultTransformMode == 0)
-							dir = stormEngineC.utils.getDraggingPosYVector(); 
-						else 
-							dir = stormEngineC.utils.getDraggingPosYVector(false); 
-					} else if(selOver == 3) {
-						if(stormEngineC.defaultTransformMode == 0)
-							dir = stormEngineC.utils.getDraggingPosZVector(); 
-						else 
-							dir = stormEngineC.utils.getDraggingPosZVector(false); 
-					}
-					stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));
-				} else if(selOver == 4 || selOver == 5 || selOver == 6) {
-					if(selOver == 4) {
-						if(stormEngineC.defaultTransformMode == 0) {
-							var val = stormEngineC.utils.getDraggingScreenVector(); 
-							stormEngineC.getSelectedNode().setRotationX(val.e[0]+val.e[1]+val.e[2]);
-						} else {
-							var val = stormEngineC.utils.getDraggingScreenVector(); 
-							stormEngineC.getSelectedNode().MROTXYZ = stormEngineC.getSelectedNode().MROTXYZ.setRotationX(val.e[0]+val.e[1]+val.e[2]);
-						}
-					} else if(selOver == 5) {
-						if(stormEngineC.defaultTransformMode == 0) {
-							var val = stormEngineC.utils.getDraggingScreenVector(); 
-							stormEngineC.getSelectedNode().setRotationY(val.e[0]+val.e[1]+val.e[2]);
-						} else {
-							var val = stormEngineC.utils.getDraggingScreenVector(); 
-							stormEngineC.getSelectedNode().MROTXYZ = stormEngineC.getSelectedNode().MROTXYZ.setRotationY(val.e[0]+val.e[1]+val.e[2]);
-						}
-					} else if(selOver == 6) {
-						if(stormEngineC.defaultTransformMode == 0) {
-							var val = stormEngineC.utils.getDraggingScreenVector(); 
-							stormEngineC.getSelectedNode().setRotationZ(val.e[0]+val.e[1]+val.e[2]);
-						} else {
-							var val = stormEngineC.utils.getDraggingScreenVector(); 
-							stormEngineC.getSelectedNode().MROTXYZ = stormEngineC.getSelectedNode().MROTXYZ.setRotationZ(val.e[0]+val.e[1]+val.e[2]);
-						}
-					}
-				} else if(stormEngineC.defaultTransformMode == 1 && (selOver == 7 || selOver == 8 || selOver == 9)) {
-					var val;
-					if(selOver == 7) {
-						val = stormEngineC.utils.getDraggingScreenVector();  
-						stormEngineC.getSelectedNode().setScaleX(val.e[0]+val.e[1]+val.e[2]);
-					} else if(selOver == 8) {
-						val = stormEngineC.utils.getDraggingScreenVector(); 
-						stormEngineC.getSelectedNode().setScaleY(val.e[0]+val.e[1]+val.e[2]);
-					} else if(selOver == 9) {
-						val = stormEngineC.utils.getDraggingScreenVector(); 
-						stormEngineC.getSelectedNode().setScaleZ(val.e[0]+val.e[1]+val.e[2]);
-					}
-				}
-			} else {
-				var dir = stormEngineC.utils.getDraggingScreenVector(); 
-				stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));  
-			}
-		}
+		stormEngineC.stormGLContext.makeMouseMove = true;
 		
 		if(stormEngineC.defaultCamera.controller.leftButton == 1 || stormEngineC.defaultCamera.controller.middleButton == 1) {
 			stormEngineC.setZeroSamplesGIVoxels();
@@ -1193,15 +837,9 @@ StormEngineC.prototype.render = function() {
 		}
 		
 		
-		var cameraP, center;
-		if(this.defaultCamera.controller.controllerType == 0) {
-			cameraP = this.defaultCamera.nodePivot.getPosition();
-			var vec = this.defaultCamera.nodePivot.getForward();
-			center = cameraP.add(vec);
-		} else { 
-			cameraP = this.defaultCamera.nodeGoal.getPosition();
-			center = this.defaultCamera.nodePivot.getPosition();
-		}
+		var cameraP = this.defaultCamera.nodeGoal.getPosition();
+		var center = this.defaultCamera.nodePivot.getPosition();
+		
 		this.defaultCamera.MPOS = $M16().makeLookAt(cameraP.e[0], cameraP.e[1], cameraP.e[2],
 													center.e[0], center.e[1], center.e[2],
 													0.0,1.0,0.0);
@@ -1291,92 +929,6 @@ StormEngineC.prototype.nextFrameLocalTimeline = function() {
 		}
 	}
 };
-
-/**
-* Up Google App Engine Channel
-* @type Void
-* @param {String} userId Google userId
-* @param {String} userNickname Google userNickname
-* @param {String} scene Name for the scene
-* @param {String} token Token generated by Java object StormNetScene 
-*/
-StormEngineC.prototype.upGAEChannel = function(userId, userNickname, scene, token) {
-	this.netID = userId;
-	this.userNickname = userNickname;
-	this.GAESceneChannel = scene;
-	
-	channel = new goog.appengine.Channel(token);
-	socket = channel.open();
-	socket.onopen = function(evt) {
-		stormEngineC.emitGAEMsg('newNetNode=true');
-		stormEngineC.emitGAEMsg('getNetNodes=true');
-	};
-	
-	
-	socket.onmessage = function(evt) {
-		var obj = JSON.parse(evt.data);
-		obj = obj[0];
-		//console.log(obj); 
-		
-		if(obj.newconnection != undefined) {
-			if(obj.newconnection != stormEngineC.netID ) {
-				stormEngineC.arrNetUsers.push({	'netID':obj.newconnection});
-				stormEngineC.onGAENicknameConnect(obj.netNickname);    
-			}
-		}
-		if(obj.getNetNodesResponse != undefined) { // clientes que se encuentran conectados
-			if(obj.getNetNodesResponse != stormEngineC.netID ) {
-				stormEngineC.arrNetUsers.push({	'netID':obj.getNetNodesResponse});
-				stormEngineC.onGAENicknameAlreadyConnect(obj.netNickname);     
-			}
-		}
-		if(obj.serverNodeData != undefined) {
-			if(obj.netID != stormEngineC.netID ) {
-				//console.log(obj.netID);  
-				stormEngineC.onGAEReceiveMsg(obj.netNickname+'-'+obj.param1);       
-			}
-		}
-		if(obj.disconnectNetNode != undefined) {
-			if(obj.netID != stormEngineC.netID ) {
-				//console.log(obj.netID);  
-				stormEngineC.onGAENicknameDisconnect(obj.netNickname);        
-			}
-		}
-	};
-	socket.onerror = function(evt) {
-		console.log(evt);
-	};
-    socket.onclose = function(evt) {
-		stormEngineC.emitGAEMsg('disconnect=true'); 
-	};
-	window.onunload=function(){
-		stormEngineC.emitGAEMsg('disconnect=true');  
-	};
-};
-
-/** @private */
-StormEngineC.prototype.emitGAEMsg = function(extraParams) {
-	var extra =(extraParams!=undefined)?extraParams:"";
-	var params = 'scene='+this.GAESceneChannel+'&netID='+this.netID+'&netNickname='+this.userNickname+'&'+extra; 
-	var req = new XHR();
-	req.open('POST', stormEngineCDirectory+'/xhr_emitGAEMsg.jsp', true);
-	req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	req.send(params);
-};
-/**
-* Emit GAE Channel Msg to everybody
-* @type Void
-* @param {String} params
-*/
-StormEngineC.prototype.dataGAEMsg = function(extraParams) {
-	var extra =(extraParams!=undefined)?extraParams:"";
-	var params = 'scene='+this.GAESceneChannel+'&netID='+this.netID+'&netNickname='+this.userNickname+'&dataclient=true&param1='+extra; 
-	var req = new XHR();
-	req.open('POST', stormEngineCDirectory+'/xhr_emitGAEMsg.jsp', true);
-	req.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-	req.send(params); 
-};
-
 
 var ws = undefined;
 /**
@@ -1764,6 +1316,8 @@ StormEngineC.prototype.createGroup = function() {
 * @param {Float} [distance=undefined] Distance to camera target
 */
 StormEngineC.prototype.createCamera = function(vec, distance) {
+	var dist = (distance != undefined) ? distance : 1.0;
+	
 	var nodeCam = new StormCamera();
 	nodeCam.idNum = this.nodesCam.length;
 	nodeCam.name = 'camera '+this.idxNodesCam++;
@@ -1781,13 +1335,10 @@ StormEngineC.prototype.createCamera = function(vec, distance) {
 	nodeCam.nodePivot.nodeFocus.loadBox($V3([0.12,0.12,0.12]));
 	nodeCam.nodePivot.nodeFocus.setAlbedo($V3([0.3,0.8,0.3])); 
 	
-	if(distance != undefined) {
-		var posGoal = nodeCam.nodePivot.getPosition().add($V3([0.0,0.0,distance]));  
-		nodeCam.nodeGoal.setPosition(posGoal);
-		nodeCam.setController({'mode':'targetcam', 'distance':distance});      
-	} else {
-		nodeCam.setController({'mode':'freecam'});      
-	}
+	var posGoal = nodeCam.nodePivot.getPosition().add($V3([0.0,0.0,dist]));  
+	nodeCam.nodeGoal.setPosition(posGoal);
+	nodeCam.setController({'mode': 'targetcam',
+							'distance': dist});
 	
 	nodeCam.setProjectionType('p');
 	
@@ -1806,20 +1357,20 @@ StormEngineC.prototype.createLine = function(vecOrigin, vecEnd, vecOriginColor, 
 	var cutLine = new StormLine();
 	cutLine.idNum = this.lines.length;
 	cutLine.name = 'line '+this.idxLines++;
-	var material = stormEngineC.createMaterial();
-	cutLine.materialUnits[0] = material; 
+	//var material = stormEngineC.createMaterial();
+	//cutLine.materialUnits[0] = material; 
 	this.lines.push(cutLine);
 	
 	cutLine.origin = vecOrigin;
 	cutLine.end = vecEnd;
+	cutLine.vecOriginColor = (vecOriginColor != undefined) ? vecOriginColor : $V3([1.0,1.0,1.0]);
+	cutLine.vecEndColor = (vecEndColor != undefined) ? vecEndColor : $V3([0.0,0.0,0.0]);
 	
 	var linesVertexArray = [];
 	var linesVertexLocArray = [];
 	var linesIndexArray = [];
-	linesVertexArray.push(cutLine.origin.e[0], cutLine.origin.e[1], cutLine.origin.e[2], cutLine.end.e[0], cutLine.end.e[1], cutLine.end.e[2]);
-	var v3OriginColor = (vecOriginColor != undefined) ? vecOriginColor : $V3([1.0,1.0,1.0]);
-	var v3EndColor = (vecEndColor != undefined) ? vecEndColor : $V3([0.0,0.0,0.0]);
-	linesVertexLocArray.push(v3OriginColor.e[0],v3OriginColor.e[1],v3OriginColor.e[2], v3EndColor.e[0],v3EndColor.e[1],v3EndColor.e[2]);
+	linesVertexArray.push(cutLine.origin.e[0], cutLine.origin.e[1], cutLine.origin.e[2], cutLine.end.e[0], cutLine.end.e[1], cutLine.end.e[2]);	
+	linesVertexLocArray.push(cutLine.vecOriginColor.e[0],cutLine.vecOriginColor.e[1],cutLine.vecOriginColor.e[2], cutLine.vecEndColor.e[0],cutLine.vecEndColor.e[1],cutLine.vecEndColor.e[2]);
 	linesIndexArray.push(0, 1);
 		
 	cutLine.vertexBuffer = this.stormGLContext.gl.createBuffer();
@@ -1981,6 +1532,50 @@ StormEngineC.prototype.createVoxelizator = function() {
 	return vox;
 };
 /**
+* Create graph
+* @returns {StormGraph}
+*/
+StormEngineC.prototype.createGraph = function() {   
+	var graph = new StormGraph();
+	return graph;
+};
+/**
+* Set side view. This change the projection to orthographic.
+* @type Void
+* @param {String} view 'MAIN_CAMERA','LEFT','RIGHT','FRONT','BACK','TOP','BOTTOM'
+ */
+StormEngineC.prototype.setView = function(view) {	
+	switch(view) {
+		case 'MAIN_CAMERA':
+			stormEngineC.setWebGLCam(this.mainCamera); 
+			break;
+		case 'LEFT':
+			stormEngineC.setWebGLCam(this.leftView); 
+			this.defaultCamera.setView(view);
+			break;
+		case 'RIGHT':
+			stormEngineC.setWebGLCam(this.rightView);  
+			this.defaultCamera.setView(view);
+			break;
+		case 'FRONT':
+			stormEngineC.setWebGLCam(this.frontView); 
+			this.defaultCamera.setView(view);
+			break;
+		case 'BACK':
+			stormEngineC.setWebGLCam(this.backView);
+			this.defaultCamera.setView(view);
+			break;
+		case 'TOP':
+			stormEngineC.setWebGLCam(this.topView);
+			this.defaultCamera.setView(view);
+			break;
+		case 'BOTTOM':
+			stormEngineC.setWebGLCam(this.bottomView);
+			this.defaultCamera.setView(view);
+			break;
+	}	
+};
+/**
 * Mostrar progreso de una peticion XMLHttpRequest acompañado de un texto pasado en string.
 * Una vez que req se encuentre en readyState == 4 hay que volver a llamar a esta funcion pasando solo string vacio para borrar lo que haya
 * @private 
@@ -2110,7 +1705,6 @@ StormEngineC.prototype.clearScene = function() {
 	this.lines = [];
 	this.lights = [];
 	
-	//TODO Borrar buffers contexto WebGL
 	this.stormGLContext = new StormGLContext(this.target);
 	this.loadManager();
 	

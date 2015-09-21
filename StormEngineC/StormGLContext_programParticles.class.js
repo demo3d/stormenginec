@@ -5,8 +5,7 @@
  * @private 
  */
 StormGLContext.prototype.initShader_ParticlesAux = function() {
-	_this = stormEngineC.stormGLContext;
-	var sourceVertex = _this.precision+
+	var sourceVertex = this.precision+
 		'attribute vec4 aVertexPositionX;\n'+
 		'attribute vec4 aVertexPositionY;\n'+
 		'attribute vec4 aVertexPositionZ;\n'+
@@ -56,7 +55,7 @@ StormGLContext.prototype.initShader_ParticlesAux = function() {
 			'gl_PointSize = uPointSize;\n'+ 
 			'vColorRGBA = aColorRGBA;\n'+
 		'}';
-	var sourceFragment = _this.precision+
+	var sourceFragment = this.precision+
 		'uniform sampler2D sampler_textureFBLightDepth;\n'+
 		
 		'varying vec4 vColorRGBA;\n'+
@@ -99,35 +98,34 @@ StormGLContext.prototype.initShader_ParticlesAux = function() {
 				'gl_FragColor = vec4(((uAmbientColor*(1.0-length(uAmbientColor)))+vec3(vColorRGBA.r*length(uAmbientColor), vColorRGBA.g*length(uAmbientColor), vColorRGBA.b*length(uAmbientColor))), 1.0);\n'+ 
 			'}'+
 		'}';
-	_this.shader_ParticlesAux = _this.gl.createProgram();
-	_this.createShader(_this.gl, "PARTICLE AUX", sourceVertex, sourceFragment, _this.shader_ParticlesAux, _this.pointers_ParticlesAux);
+	this.shader_ParticlesAux = this.gl.createProgram();
+	this.createShader(this.gl, "PARTICLE AUX", sourceVertex, sourceFragment, this.shader_ParticlesAux, this.pointers_ParticlesAux.bind(this));
 };
 /**
  * @private 
  */
 StormGLContext.prototype.pointers_ParticlesAux = function() {
-	_this = stormEngineC.stormGLContext;
-	_this.attr_ParticlesAux_posX = _this.gl.getAttribLocation(_this.shader_ParticlesAux, "aVertexPositionX");
-	_this.attr_ParticlesAux_posY = _this.gl.getAttribLocation(_this.shader_ParticlesAux, "aVertexPositionY");
-	_this.attr_ParticlesAux_posZ = _this.gl.getAttribLocation(_this.shader_ParticlesAux, "aVertexPositionZ");
-	_this.attr_ParticlesAux_ColorRGBA = _this.gl.getAttribLocation(_this.shader_ParticlesAux, "aColorRGBA");
+	this.attr_ParticlesAux_posX = this.gl.getAttribLocation(this.shader_ParticlesAux, "aVertexPositionX");
+	this.attr_ParticlesAux_posY = this.gl.getAttribLocation(this.shader_ParticlesAux, "aVertexPositionY");
+	this.attr_ParticlesAux_posZ = this.gl.getAttribLocation(this.shader_ParticlesAux, "aVertexPositionZ");
+	this.attr_ParticlesAux_ColorRGBA = this.gl.getAttribLocation(this.shader_ParticlesAux, "aColorRGBA");
 	
-	_this.u_ParticlesAux_PMatrix = _this.gl.getUniformLocation(_this.shader_ParticlesAux, "uPMatrix");
-	_this.u_ParticlesAux_cameraWMatrix = _this.gl.getUniformLocation(_this.shader_ParticlesAux, "u_cameraWMatrix");
-	_this.u_ParticlesAux_nodeWMatrix = _this.gl.getUniformLocation(_this.shader_ParticlesAux, "u_nodeWMatrix");
+	this.u_ParticlesAux_PMatrix = this.gl.getUniformLocation(this.shader_ParticlesAux, "uPMatrix");
+	this.u_ParticlesAux_cameraWMatrix = this.gl.getUniformLocation(this.shader_ParticlesAux, "u_cameraWMatrix");
+	this.u_ParticlesAux_nodeWMatrix = this.gl.getUniformLocation(this.shader_ParticlesAux, "u_nodeWMatrix");
 	
-	_this.u_ParticlesAux_uPointSize = _this.gl.getUniformLocation(_this.shader_ParticlesAux, "uPointSize");
+	this.u_ParticlesAux_uPointSize = this.gl.getUniformLocation(this.shader_ParticlesAux, "uPointSize");
 	
-	_this.u_ParticlesAux_textureFBLightDepth = _this.gl.getUniformLocation(_this.shader_ParticlesAux, "sampler_textureFBLightDepth");// RT1 rgba zdepth light[0]
-	_this.u_ParticlesAux_far = _this.gl.getUniformLocation(_this.shader_ParticlesAux, "uFar");
-	_this.u_ParticlesAux_LightFov = _this.gl.getUniformLocation(_this.shader_ParticlesAux, "uLightFov");
-	_this.u_ParticlesAux_ambientColor = _this.gl.getUniformLocation(_this.shader_ParticlesAux, "uAmbientColor");
-	_this.u_ParticlesAux_PMatrixLight = _this.gl.getUniformLocation(_this.shader_ParticlesAux, "uPMatrixLight");
-	_this.u_ParticlesAux_lightWMatrix = _this.gl.getUniformLocation(_this.shader_ParticlesAux, "u_lightWMatrix");
+	this.u_ParticlesAux_textureFBLightDepth = this.gl.getUniformLocation(this.shader_ParticlesAux, "sampler_textureFBLightDepth");// RT1 rgba zdepth light[0]
+	this.u_ParticlesAux_far = this.gl.getUniformLocation(this.shader_ParticlesAux, "uFar");
+	this.u_ParticlesAux_LightFov = this.gl.getUniformLocation(this.shader_ParticlesAux, "uLightFov");
+	this.u_ParticlesAux_ambientColor = this.gl.getUniformLocation(this.shader_ParticlesAux, "uAmbientColor");
+	this.u_ParticlesAux_PMatrixLight = this.gl.getUniformLocation(this.shader_ParticlesAux, "uPMatrixLight");
+	this.u_ParticlesAux_lightWMatrix = this.gl.getUniformLocation(this.shader_ParticlesAux, "u_lightWMatrix");
 	
-	_this.u_ParticlesAux_lightPass = _this.gl.getUniformLocation(_this.shader_ParticlesAux, "uLightPass");
-	_this.u_ParticlesAux_selfshadows = _this.gl.getUniformLocation(_this.shader_ParticlesAux, "uSelfshadows");
-	_this.Shader_ParticlesAux_READY = true;
+	this.u_ParticlesAux_lightPass = this.gl.getUniformLocation(this.shader_ParticlesAux, "uLightPass");
+	this.u_ParticlesAux_selfshadows = this.gl.getUniformLocation(this.shader_ParticlesAux, "uSelfshadows");
+	this.Shader_ParticlesAux_READY = true;
 };
 /**
  * @private 
@@ -175,9 +173,11 @@ StormGLContext.prototype.render_ParticlesAux = function() {
 				
 				this.particles[p].webCLGL.copy(this.particles[p].buffer_DirTemp, this.particles[p].buffer_Dir);
 				
+				
 				var arr4Uint8_X = this.particles[p].webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(this.particles[p].buffer_PosX);
 				var arr4Uint8_Y = this.particles[p].webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(this.particles[p].buffer_PosY); 
 				var arr4Uint8_Z = this.particles[p].webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(this.particles[p].buffer_PosZ);
+				
 				
 				this.gl.useProgram(this.shader_ParticlesAux); 
 				

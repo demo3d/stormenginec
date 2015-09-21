@@ -3,9 +3,7 @@
 ----------------------------------------------------------------------------------------*/ 
 /** @private  */
 StormGLContext.prototype.initShader_GIv2 = function() {
-	_this = stormEngineC.stormGLContext; 
-	
-	var sourceVertex = 	_this.precision+
+	var sourceVertex = 	this.precision+
 		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec3 aVertexNormal;\n'+
 		
@@ -28,7 +26,7 @@ StormGLContext.prototype.initShader_GIv2 = function() {
 			'vposScreen = ScaleMatrix * pos;\n'+
 			'gl_Position = pos;\n'+
 		'}';
-	var sourceFragment = _this.precision+
+	var sourceFragment = this.precision+
 		'uniform float randX1;\n'+
 		'uniform float randY1;\n'+
 		'uniform float uTotalSamples;\n'+
@@ -198,38 +196,36 @@ StormGLContext.prototype.initShader_GIv2 = function() {
 			'gl_FragColor = color;\n'+
 			
 		'}';
-	_this.shader_GIv2 = _this.gl.createProgram();
-	_this.createShader(_this.gl, "GIv2", sourceVertex, sourceFragment, _this.shader_GIv2, _this.pointers_GIv2);
+	this.shader_GIv2 = this.gl.createProgram();
+	this.createShader(this.gl, "GIv2", sourceVertex, sourceFragment, this.shader_GIv2, this.pointers_GIv2.bind(this));
 };
 /** @private  */
-StormGLContext.prototype.pointers_GIv2 = function() { 
-	_this = stormEngineC.stormGLContext;
+StormGLContext.prototype.pointers_GIv2 = function() {
+	this.attr_GIv2_pos = this.gl.getAttribLocation(this.shader_GIv2, "aVertexPosition");
+	this.attr_GIv2_normal = this.gl.getAttribLocation(this.shader_GIv2, "aVertexNormal");
 	
-	_this.attr_GIv2_pos = _this.gl.getAttribLocation(_this.shader_GIv2, "aVertexPosition");
-	_this.attr_GIv2_normal = _this.gl.getAttribLocation(_this.shader_GIv2, "aVertexNormal");
+	this.sampler_GIv2_voxelColor = this.gl.getUniformLocation(this.shader_GIv2, "sampler_voxelColor");
+	this.sampler_GIv2_voxelPosX = this.gl.getUniformLocation(this.shader_GIv2, "sampler_voxelPosX");
+	this.sampler_GIv2_voxelPosY = this.gl.getUniformLocation(this.shader_GIv2, "sampler_voxelPosY");
+	this.sampler_GIv2_voxelPosZ = this.gl.getUniformLocation(this.shader_GIv2, "sampler_voxelPosZ");
+	this.sampler_GIv2_voxelNormal = this.gl.getUniformLocation(this.shader_GIv2, "sampler_voxelNormal");
 	
-	_this.sampler_GIv2_voxelColor = _this.gl.getUniformLocation(_this.shader_GIv2, "sampler_voxelColor");
-	_this.sampler_GIv2_voxelPosX = _this.gl.getUniformLocation(_this.shader_GIv2, "sampler_voxelPosX");
-	_this.sampler_GIv2_voxelPosY = _this.gl.getUniformLocation(_this.shader_GIv2, "sampler_voxelPosY");
-	_this.sampler_GIv2_voxelPosZ = _this.gl.getUniformLocation(_this.shader_GIv2, "sampler_voxelPosZ");
-	_this.sampler_GIv2_voxelNormal = _this.gl.getUniformLocation(_this.shader_GIv2, "sampler_voxelNormal");
+	this.sampler_GIv2_screenColor = this.gl.getUniformLocation(this.shader_GIv2, "sampler_screenColor");
+	this.sampler_GIv2_screenPos = this.gl.getUniformLocation(this.shader_GIv2, "sampler_screenPos");
+	this.sampler_GIv2_screenNormal = this.gl.getUniformLocation(this.shader_GIv2, "sampler_screenNormal");
+	this.sampler_GIv2_finalShadow = this.gl.getUniformLocation(this.shader_GIv2, "sampler_finalShadow");
 	
-	_this.sampler_GIv2_screenColor = _this.gl.getUniformLocation(_this.shader_GIv2, "sampler_screenColor");
-	_this.sampler_GIv2_screenPos = _this.gl.getUniformLocation(_this.shader_GIv2, "sampler_screenPos");
-	_this.sampler_GIv2_screenNormal = _this.gl.getUniformLocation(_this.shader_GIv2, "sampler_screenNormal");
-	_this.sampler_GIv2_finalShadow = _this.gl.getUniformLocation(_this.shader_GIv2, "sampler_finalShadow");
+	this.u_GIv2_randX1 = this.gl.getUniformLocation(this.shader_GIv2, "randX1");
+	this.u_GIv2_randY1 = this.gl.getUniformLocation(this.shader_GIv2, "randY1");
+	this.u_GIv2_totalSamples = this.gl.getUniformLocation(this.shader_GIv2, "uTotalSamples");
+	this.u_GIv2_typePass = this.gl.getUniformLocation(this.shader_GIv2, "uTypePass");
+	this.u_GIv2_maxBounds = this.gl.getUniformLocation(this.shader_GIv2, "uMaxBounds");
 	
-	_this.u_GIv2_randX1 = _this.gl.getUniformLocation(_this.shader_GIv2, "randX1");
-	_this.u_GIv2_randY1 = _this.gl.getUniformLocation(_this.shader_GIv2, "randY1");
-	_this.u_GIv2_totalSamples = _this.gl.getUniformLocation(_this.shader_GIv2, "uTotalSamples");
-	_this.u_GIv2_typePass = _this.gl.getUniformLocation(_this.shader_GIv2, "uTypePass");
-	_this.u_GIv2_maxBounds = _this.gl.getUniformLocation(_this.shader_GIv2, "uMaxBounds");
-	
-	_this.u_GIv2_PMatrix = _this.gl.getUniformLocation(_this.shader_GIv2, "uPMatrix");
-	_this.u_GIv2_cameraWMatrix = _this.gl.getUniformLocation(_this.shader_GIv2, "u_cameraWMatrix");
-	_this.u_GIv2_nodeWMatrix = _this.gl.getUniformLocation(_this.shader_GIv2, "u_nodeWMatrix");
-	_this.u_GIv2_nodeVScale = _this.gl.getUniformLocation(_this.shader_GIv2, "u_nodeVScale");
-	_this.Shader_GIv2_READY = true;
+	this.u_GIv2_PMatrix = this.gl.getUniformLocation(this.shader_GIv2, "uPMatrix");
+	this.u_GIv2_cameraWMatrix = this.gl.getUniformLocation(this.shader_GIv2, "u_cameraWMatrix");
+	this.u_GIv2_nodeWMatrix = this.gl.getUniformLocation(this.shader_GIv2, "u_nodeWMatrix");
+	this.u_GIv2_nodeVScale = this.gl.getUniformLocation(this.shader_GIv2, "u_nodeVScale");
+	this.Shader_GIv2_READY = true;
 	stormEngineC.setZeroSamplesGIVoxels();
 };
 /** @private  */
@@ -315,8 +311,7 @@ StormGLContext.prototype.render_GIv2_AUX = function() {
 ----------------------------------------------------------------------------------------*/
 /** @private  */
 StormGLContext.prototype.initShader_GIv2Exec = function() {
-	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	_this.precision+
+	var sourceVertex = 	this.precision+
 		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec2 aTextureCoord;\n'+
 	
@@ -326,7 +321,7 @@ StormGLContext.prototype.initShader_GIv2Exec = function() {
 			'gl_Position = vec4(aVertexPosition, 1.0);\n'+
 			'vTextureCoord = aTextureCoord;\n'+
 		'}';
-	var sourceFragment = _this.precision+
+	var sourceFragment = this.precision+
 		
 		'uniform int uMaxBounds;\n'+
 		
@@ -358,24 +353,22 @@ StormGLContext.prototype.initShader_GIv2Exec = function() {
 			
 			'gl_FragColor = color;'+
 		'}';
-	_this.shader_GIv2Exec = _this.gl.createProgram();
-	_this.createShader(_this.gl, "GIv2 EXEC", sourceVertex, sourceFragment, _this.shader_GIv2Exec, _this.pointers_GIv2Exec);
+	this.shader_GIv2Exec = this.gl.createProgram();
+	this.createShader(this.gl, "GIv2 EXEC", sourceVertex, sourceFragment, this.shader_GIv2Exec, this.pointers_GIv2Exec.bind(this));
 };
 /** @private  */
-StormGLContext.prototype.pointers_GIv2Exec = function() { 
-	_this = stormEngineC.stormGLContext;
+StormGLContext.prototype.pointers_GIv2Exec = function() {
+	this.u_GIv2EXEC_maxBounds = this.gl.getUniformLocation(this.shader_GIv2Exec, "uMaxBounds");
 	
-	_this.u_GIv2EXEC_maxBounds = _this.gl.getUniformLocation(_this.shader_GIv2Exec, "uMaxBounds");
+	this.attr_GIv2EXEC_pos = this.gl.getAttribLocation(this.shader_GIv2Exec, "aVertexPosition");
+	this.attr_GIv2EXEC_tex = this.gl.getAttribLocation(this.shader_GIv2Exec, "aTextureCoord");
 	
-	_this.attr_GIv2EXEC_pos = _this.gl.getAttribLocation(_this.shader_GIv2Exec, "aVertexPosition");
-	_this.attr_GIv2EXEC_tex = _this.gl.getAttribLocation(_this.shader_GIv2Exec, "aTextureCoord");
+	this.sampler_GIv2EXEC_GIVoxel = this.gl.getUniformLocation(this.shader_GIv2Exec, "sampler_GIVoxel");
+	this.sampler_GIv2EXEC_screenColor = this.gl.getUniformLocation(this.shader_GIv2Exec, "sampler_screenColor");
+	this.sampler_GIv2EXEC_screenPos = this.gl.getUniformLocation(this.shader_GIv2Exec, "sampler_screenPos");
+	this.sampler_GIv2EXEC_screenNormal = this.gl.getUniformLocation(this.shader_GIv2Exec, "sampler_screenNormal");
 	
-	_this.sampler_GIv2EXEC_GIVoxel = _this.gl.getUniformLocation(_this.shader_GIv2Exec, "sampler_GIVoxel");
-	_this.sampler_GIv2EXEC_screenColor = _this.gl.getUniformLocation(_this.shader_GIv2Exec, "sampler_screenColor");
-	_this.sampler_GIv2EXEC_screenPos = _this.gl.getUniformLocation(_this.shader_GIv2Exec, "sampler_screenPos");
-	_this.sampler_GIv2EXEC_screenNormal = _this.gl.getUniformLocation(_this.shader_GIv2Exec, "sampler_screenNormal");
-	
-	_this.Shader_GIv2Exec_READY = true;
+	this.Shader_GIv2Exec_READY = true;
 };
 /** @private  */
 StormGLContext.prototype.render_GIv2Exec = function() { 	

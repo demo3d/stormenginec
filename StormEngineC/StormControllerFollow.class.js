@@ -5,7 +5,7 @@
 * @param {Float} camDistance Distance to pivot
 */
 StormControllerFollow = function(camDistance) {
-	this.controllerType = 4; // 4 StormControllerFollow
+	this.controllerType = stormEngineC.ControllerTypes["FOLLOW"];
 	this.g_forwardFC = 0;
 	this.g_backwardFC = 0;
 	this.g_strafeLeftFC = 0;
@@ -152,18 +152,16 @@ StormControllerFollow.prototype.updateFC = function(elapsed) {
 * @private 
 */
 StormControllerFollow.prototype.updateCameraGoalFC = function(event) {
-	if(stormEngineC.defaultCamera.mouseControls == true) {
-		if(this.lastX > event.screenX)
-			this.cameraNode.nodePivot.setRotationY(0.01*(this.lastX - event.screenX));
-		else
-			this.cameraNode.nodePivot.setRotationY(-0.01*(event.screenX - this.lastX)); 
-		
+	if(this.lastX > event.screenX)
+		this.cameraNode.nodePivot.setRotationY(0.01*(this.lastX - event.screenX));
+	else
+		this.cameraNode.nodePivot.setRotationY(-0.01*(event.screenX - this.lastX)); 
+	
 
-		if(this.lastY > event.screenY)
-			this.cameraNode.nodePivot.setRotationX(0.01*(this.lastY - event.screenY));
-		else
-			this.cameraNode.nodePivot.setRotationX(-0.01*(event.screenY - this.lastY));
-	}
+	if(this.lastY > event.screenY)
+		this.cameraNode.nodePivot.setRotationX(0.01*(this.lastY - event.screenY));
+	else
+		this.cameraNode.nodePivot.setRotationX(-0.01*(event.screenY - this.lastY));
 	
 	this.lastX = event.screenX;
 	this.lastY = event.screenY;

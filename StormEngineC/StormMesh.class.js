@@ -257,12 +257,13 @@ StormMesh.prototype.testIfInIndices = function(vA1, norm, tA1) {
 * @private 
 * @type Void
 */
-StormMesh.prototype.loadTube = function(jsonIn) {  
-	var hei = (jsonIn.height != undefined) ? jsonIn.height : 1.0;  
-	var segments = (jsonIn.segments != undefined) ? jsonIn.segments : 6;  
-	var outerRadius = (jsonIn.outerRadius != undefined) ? jsonIn.outerRadius : 1.0;  
-	var innerRadius = (jsonIn.innerRadius != undefined) ? jsonIn.innerRadius : 0.7;  
-
+StormMesh.prototype.loadTube = function(jsonIn) {
+	var hei = (jsonIn != undefined && jsonIn.height != undefined) ? jsonIn.height : 1.0;  
+	var segments = (jsonIn != undefined && jsonIn.segments != undefined) ? jsonIn.segments : 6;  
+	var outerRadius = (jsonIn != undefined && jsonIn.outerRadius != undefined) ? jsonIn.outerRadius : 1.0;  
+	var innerRadius = (jsonIn != undefined && jsonIn.innerRadius != undefined) ? jsonIn.innerRadius : 0.7;  
+	var color = (jsonIn != undefined && jsonIn.color != undefined) ? jsonIn.color : $V3([Math.random(), Math.random(), Math.random()]);
+	
 	this.vertexArray = [];
 	this.normalArray = [];
 	this.textureArray = [];
@@ -379,11 +380,7 @@ StormMesh.prototype.loadTube = function(jsonIn) {
 	if(jsonIn.node != undefined) { 
 		var bObject = jsonIn.node.attachMesh(meshObject);
 		jsonIn.node.materialUnits[0] = stormEngineC.createMaterial();
-		if(jsonIn.color != undefined) {
-			jsonIn.node.materialUnits[0].write($V3([jsonIn.color.e[0], jsonIn.color.e[1], jsonIn.color.e[2]]));
-		} else {
-			jsonIn.node.materialUnits[0].write($V3([Math.random(), Math.random(), Math.random()]));
-		}
+		jsonIn.node.materialUnits[0].write(color);		
 	} else {
 		return this; 
 	}
@@ -394,8 +391,9 @@ StormMesh.prototype.loadTube = function(jsonIn) {
 * @type Void
 */
 StormMesh.prototype.loadSphere = function(jsonIn) { 
-	var segments = (jsonIn.segments != undefined) ? jsonIn.segments : 6;  
-	var rad = (jsonIn.radius != undefined) ? jsonIn.radius : 1.0;  
+	var segments = (jsonIn != undefined && jsonIn.segments != undefined) ? jsonIn.segments : 6;  
+	var rad = (jsonIn != undefined && jsonIn.radius != undefined) ? jsonIn.radius : 1.0;
+	var color = (jsonIn != undefined && jsonIn.color != undefined) ? jsonIn.color : $V3([Math.random(), Math.random(), Math.random()]);  
 
 	this.vertexArray = [];
 	this.normalArray = [];
@@ -481,12 +479,8 @@ StormMesh.prototype.loadSphere = function(jsonIn) {
 	
 	if(jsonIn.node != undefined) { 
 		var bObject = jsonIn.node.attachMesh(meshObject);
-		jsonIn.node.materialUnits[0] = stormEngineC.createMaterial();
-		if(jsonIn.color != undefined) {
-			jsonIn.node.materialUnits[0].write($V3([jsonIn.color.e[0], jsonIn.color.e[1], jsonIn.color.e[2]]));
-		} else {
-			jsonIn.node.materialUnits[0].write($V3([Math.random(), Math.random(), Math.random()]));
-		}
+		jsonIn.node.materialUnits[0] = stormEngineC.createMaterial();		
+		jsonIn.node.materialUnits[0].write(color);
 	} else {
 		return this; 
 	}

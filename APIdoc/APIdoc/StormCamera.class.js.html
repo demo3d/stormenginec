@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>StormEngineC 1.2 API DOC Source: StormCamera.class.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	
+	<link type="text/css" rel="stylesheet" href="styles/site.stormenginec.css">
+	
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">StormEngineC 1.2 API DOC</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="StormBufferObject.html">StormBufferObject</a>
+						</li>
+						
+						<li>
+							<a href="StormCamera.html">StormCamera</a>
+						</li>
+						
+						<li>
+							<a href="StormEngineC.html">StormEngineC</a>
+						</li>
+						
+						<li>
+							<a href="StormEngineC_PanelAnimationTimeline.html">StormEngineC_PanelAnimationTimeline</a>
+						</li>
+						
+						<li>
+							<a href="StormForceField.html">StormForceField</a>
+						</li>
+						
+						<li>
+							<a href="StormGI.html">StormGI</a>
+						</li>
+						
+						<li>
+							<a href="StormGLContext.html">StormGLContext</a>
+						</li>
+						
+						<li>
+							<a href="StormGroupNodes.html">StormGroupNodes</a>
+						</li>
+						
+						<li>
+							<a href="StormLight.html">StormLight</a>
+						</li>
+						
+						<li>
+							<a href="StormLine.html">StormLine</a>
+						</li>
+						
+						<li>
+							<a href="StormLineSceneCollision.html">StormLineSceneCollision</a>
+						</li>
+						
+						<li>
+							<a href="StormM16.html">StormM16</a>
+						</li>
+						
+						<li>
+							<a href="StormMaterial.html">StormMaterial</a>
+						</li>
+						
+						<li>
+							<a href="StormNode.html">StormNode</a>
+						</li>
+						
+						<li>
+							<a href="StormParticles.html">StormParticles</a>
+						</li>
+						
+						<li>
+							<a href="StormPolarityPoint.html">StormPolarityPoint</a>
+						</li>
+						
+						<li>
+							<a href="StormTriangleBox.html">StormTriangleBox</a>
+						</li>
+						
+						<li>
+							<a href="StormUtils.html">StormUtils</a>
+						</li>
+						
+						<li>
+							<a href="StormV3.html">StormV3</a>
+						</li>
+						
+						<li>
+							<a href="StormVoxelizator.html">StormVoxelizator</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGL.html">WebCLGL</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLBuffer.html">WebCLGLBuffer</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLKernel.html">WebCLGLKernel</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLUtils.html">WebCLGLUtils</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#$M16">$M16</a>
+						</li>
+						
+						<li>
+							<a href="global.html#$V3">$V3</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: StormCamera.class.js</h1>
+    
+    <section>
+        <article>
+            <pre class="sunlight-highlight-javascript linenums">/**
+* @class
+* @constructor
+* @augments StormNode
+
+* @property {String} objectType
+* @property {StomrNode} nodePivot
+* @property {StomrNode} nodeGoal
+* @property {StormControllerTargetCam|StormControllerPlayer|StormControllerPlayerCar|StormControllerFollow} controller Camera controller
+*/
+StormCamera = function() { StormNode.call(this); 
+	this.objectType = 'camera';
+	
+	this.controller; // camera controller
+	this.nodeGoal;
+	this.nodePivot;
+	
+	this.usedByGLContext = false;
+	this.enableAnimFrames = false;
+	this.lockRotX = false;
+	this.lockRotY = false;
+	
+	this.posCamera;
+	this.posCameraPivot;
+	this.vecView; 
+	this.vecXPlanoProyeccion;//◄
+	this.vecYPlanoProyeccion;//▲
+	this.distanciaAlPlano = 1.0;
+	this.centroPlanoProyeccion;
+	
+	// lens 
+	this.autofocus = true;
+	this.focusExtern = 20.0;
+	this.fNumber = 90.0/128.0; // solo profCampo
+	this.DOFenable = false; 
+	
+	this.widthLens = 0.5;
+	this.refIndex = 1.46;
+	this.focusIntern = 2.135105374746873;// EMR RENDER
+};
+StormCamera.prototype = Object.create(StormNode.prototype);
+
+
+
+
+/**
+* Look rotation x
+* @type Void
+ */
+StormCamera.prototype.lockRotationX = function() {
+	this.lockRotX = true;
+};
+/**
+* Look rotation y
+* @type Void
+ */
+StormCamera.prototype.lockRotationY = function() {
+	this.lockRotY = true;
+};
+/**
+* UnLook rotation x
+* @type Void
+ */
+StormCamera.prototype.unlockRotationX = function() {
+	this.lockRotX = false;
+};
+/**
+* UnLook rotation y
+* @type Void
+ */
+StormCamera.prototype.unlockRotationY = function() {
+	this.lockRotY = false;
+};
+
+/**
+* Set side view. This change the projection to orthographic.
+* @type Void
+* @param {String} view 'LEFT','RIGHT','FRONT','BACK','TOP','BOTTOM'
+ */
+StormCamera.prototype.setView = function(view) {
+	this.setProjectionType('o');
+	this.nodePivot.resetAxis();
+	this.resetAxis();
+	switch(view) {
+		case 'LEFT':
+			this.nodePivot.setRotation(stormEngineC.utils.degToRad(-90-180),false,$V3([0.0,1.0,0.0]));
+			break;
+		case 'RIGHT':
+			this.nodePivot.setRotation(stormEngineC.utils.degToRad(-90),false,$V3([0.0,1.0,0.0]));
+			break;
+		case 'FRONT':
+			this.nodePivot.setRotation(stormEngineC.utils.degToRad(180),false,$V3([0.0,1.0,0.0]));
+			break;
+		case 'BACK':
+			this.nodePivot.setRotation(stormEngineC.utils.degToRad(0),false,$V3([0.0,1.0,0.0]));
+			break;
+		case 'TOP':
+			this.nodePivot.setRotation(stormEngineC.utils.degToRad(90),false,$V3([1.0,0.0,0.0]));
+			this.nodePivot.setRotation(stormEngineC.utils.degToRad(180),false,$V3([0.0,1.0,0.0]));
+			break;
+		case 'BOTTOM':
+			this.nodePivot.setRotation(stormEngineC.utils.degToRad(-90),false,$V3([1.0,0.0,0.0]));
+			this.nodePivot.setRotation(stormEngineC.utils.degToRad(180),false,$V3([0.0,1.0,0.0]));
+			break;
+	}
+	if(this.nodePivot != undefined) {
+		this.nodePivot.setRotationX(stormEngineC.utils.degToRad(-0.01),true,$V3([1.0,0.0,0.0]));
+	}
+};
+
+/**
+* Switch cam controller
+* @type Void
+* @param {Object} jsonIn
+* 	@param {String} jsonIn.mode 'targetcam'|'follow'|'player'|'nodeCar'.
+* 	@param {Float} [jsonIn.distance] Distance to camera target.
+* 	@param {StormNode} [jsonIn.node] For attach a node to the camera target. Only type 'targetcam'|'follow'|'player'.
+* 	@param {StormNode} [jsonIn.nodeCar] If mode is 'nodeCar'.
+* 	@param {String} [jsonIn.view='node'] 'camera' | 'node'.
+ */
+StormCamera.prototype.setController = function(jsonIn) {
+	var view =(jsonIn.view != undefined) ? jsonIn.view : 'node';
+	
+	if(jsonIn.mode == 'targetcam') {
+		this.controller = new StormControllerTargetCam(jsonIn.distance);
+		
+		if(jsonIn.node != undefined) {
+			if(view == 'node') this.nodePivot.setPosition(jsonIn.node.getPosition());
+			if(view == 'camera') jsonIn.node.setPosition(this.nodePivot.getPosition());
+		}
+
+		this.controller.cameraSetupFC(this, jsonIn.node); // cameraNode, meshNode
+	}
+	if(jsonIn.mode == 'player') {
+		this.controller = new StormControllerPlayer(jsonIn.distance);
+		
+		if(jsonIn.node != undefined) {
+			if(view == 'node') this.nodePivot.setPosition(jsonIn.node.getPosition());
+			if(view == 'camera') jsonIn.node.setPosition(this.nodePivot.getPosition());
+		}
+
+		this.controller.cameraSetupFC(this, jsonIn.node); // cameraNode, meshNode
+	}
+	if(jsonIn.mode == 'nodeCar') {
+		this.controller = new StormControllerPlayerCar(jsonIn.distance);
+		
+		if(jsonIn.node != undefined) {
+			if(view == 'node') this.nodePivot.setPosition(jsonIn.node.getPosition());
+			if(view == 'camera') jsonIn.node.setPosition(this.nodePivot.getPosition());
+		}
+		
+		this.controller.cameraSetupFC(this, jsonIn.node, jsonIn.nodeCar); // cameraNode, meshNode, nodeCar
+	}
+	if(jsonIn.mode == 'follow') {
+		this.controller = new StormControllerFollow(jsonIn.distance); 
+		
+		if(jsonIn.node != undefined) {
+			if(view == 'node') this.nodePivot.setPosition(jsonIn.node.getPosition());
+			if(view == 'camera') jsonIn.node.setPosition(this.nodePivot.getPosition());
+		}
+
+		this.controller.cameraSetupFC(this, jsonIn.node); // cameraNode, meshNode
+		this.enableAnimFrames = false;
+	}
+};
+
+/**
+ * @private 
+ */
+StormCamera.prototype.setFocusIntern = function() {
+	var etaAir = 1.00029;
+			
+	var lineOrigin = this.posCameraPivot.add(this.vecView.x(this.focusExtern));
+	var lineEnd = this.posCameraPivot.add(this.vecYPlanoProyeccion.x(this.widthLens));
+	
+	var rayLens = new StormRayLens(); 
+	var rl = rayLens.setRayLens(lineOrigin, lineEnd, etaAir, this.refIndex); 
+	if(rl[0] != -1.0) {
+		var outRay = $V3([rl[4], rl[5], rl[6]]);
+		
+		var angle = 1.0-(outRay.dot(this.vecYPlanoProyeccion.x(-1.0)));  
+		angle *= 90.0;
+		var distFocus = Math.tan(stormEngineC.utils.degToRad(angle));
+		this.focusIntern = distFocus*0.786;
+		
+		
+	}
+};
+/**
+* Enable depth of field.
+* @type Void
+* @param {Object} jsonIn
+* 	@param {Bool} [jsonIn.autofocus=true] Use auto focus.
+ */
+StormCamera.prototype.enableDOF = function(jsonIn) {
+	this.DOFenable = true;
+	if(jsonIn != undefined &amp;&amp; jsonIn.autofocus != undefined) this.autofocus = jsonIn.autofocus;
+};
+/**
+* Disable depth of field.
+* @type Void
+ */
+StormCamera.prototype.disableDOF = function() {
+	this.DOFenable = false;
+};
+
+/**
+* Enable auto focus if DOF is enabled.
+* @type Void
+ */
+StormCamera.prototype.enableAutofocus = function() {
+	this.autofocus = true;
+};
+/**
+* Disable auto focus if DOF is enabled.
+* @type Void
+ */
+StormCamera.prototype.disableAutofocus = function() {
+	this.autofocus = false;
+};
+
+/**
+* Set the focus distance and F-Stop.
+* @type Void
+* @param	{Object} jsonIn
+* 	@param {Float} [jsonIn.distance=20.0] Focus distance.
+* 	@param {Float} [jsonIn.fStop=90.0] Aperture (0.3 - 128.0).
+ */
+StormCamera.prototype.focus = function(jsonIn) {
+	this.focusExtern = jsonIn.distance;
+	if(this.focusExtern &lt;= 0.0) this.focusExtern = 0.1;
+	
+	if(jsonIn.fStop != undefined) {
+		if(jsonIn.fStop > 128.0) jsonIn.fStop = 128.0; if(jsonIn.fStop &lt;= 0.0) jsonIn.fStop = 0.3;
+		this.fNumber = (128.0-jsonIn.fStop)/128.0;
+	}
+	if($('#DIVID_StormPanelEditNode').css('display') == 'block') $('#INPUTID_StormEditNode_focusExtern').val(this.focusExtern);
+};
+
+</pre>
+        </article>
+    </section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					StormEngineC 1.2 API DOC
+					<br />
+					
+					
+		<span class="copyright">
+		2010 Roberto Gonzalez. http://stormcolour.appspot.com
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha2</a>
+		on Sun Sep 20 2015 23:11:10 GMT+0200 (CEST) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<script src="scripts/sunlight.js"></script>
+	<script src="scripts/sunlight.javascript.js"></script>
+	<script src="scripts/sunlight-plugin.doclinks.js"></script>
+	<script src="scripts/sunlight-plugin.linenumbers.js"></script>
+	<script src="scripts/sunlight-plugin.menu.js"></script>
+	<script src="scripts/jquery.min.js"></script>
+	<script src="scripts/jquery.scrollTo.js"></script>
+	<script src="scripts/jquery.localScroll.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+
+	<script>  Sunlight.highlightAll({lineNumbers:true,  showMenu: true, enableDoclinks :true}); </script>
+
+	<script>
+		$( function () {
+			$( "#toc" ).toc( {
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : 60
+			} );
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+
+		} );
+	</script>
+
+	
+	<script>
+		$( function () {
+			$('#main').localScroll({
+				offset: { top: 56 } //offset by the height of your header (give or take a few px, see what works for you)
+			});
+			$( "dt h4.name" ).each( function () {
+				var $this = $( this );
+				var icon = $( "<i/>" ).addClass( "icon-plus-sign" ).addClass( "pull-right" ).addClass( "icon-white" );
+				var dt = $this.parents( "dt" );
+				var children = dt.next( "dd" );
+
+				$this.append( icon ).css( {cursor : "pointer"} );
+				$this.addClass( "member-collapsed" ).addClass( "member" );
+
+				children.hide();
+				$this.toggle( function () {
+					icon.addClass( "icon-minus-sign" ).removeClass( "icon-plus-sign" ).removeClass( "icon-white" );
+					$this.addClass( "member-open" ).removeClass( "member-collapsed" );
+					children.slideDown();
+				}, function () {
+					icon.addClass( "icon-plus-sign" ).removeClass( "icon-minus-sign" ).addClass( "icon-white" );
+					$this.addClass( "member-collapsed" ).removeClass( "member-open" );
+					children.slideUp();
+				} );
+			} );
+		} );
+	</script>
+	
+
+</body>
+</html>
