@@ -20,7 +20,7 @@ StormEngineC provides the following features:<br />
 <br />
 <br />
 <h2><a href="http://code.google.com/p/stormenginec/wiki/StormEngineC_1_2">Quick reference</a></h2>
-<h2><a href="http://stormcolour.appspot.com/CONTENT/StormEngineC-1.2-API-Doc/StormEngineC.html">API Doc</a></h2>
+<h2><a href="https://rawgit.com/stormcolor/stormenginec/master/APIdoc/APIdoc/StormEngineC.html">API Doc</a></h2>
 <br />
 
 <h2>DEMOS</h2>
