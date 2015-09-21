@@ -98,6 +98,7 @@ var includesF = [//'/StormMathMin.class.js',
 				'/StormGI.class.js',
 				'/StormRayTriangle.class.js',
 				'/StormLineSceneCollision.class.js',
+				'/StormGrid.class.js',
 				'/stormPanel/stormPanel.js',
 				'/stormMenu/stormMenu.js',
 				'/StormPanelEnvironment.class.js',
@@ -277,6 +278,8 @@ StormEngineC = function() {
 	
 	this.selectedMaterial;
 	
+	this.showGrid = true;
+	
 	this.pause = false;
 	this.pauseRender = true;
 	
@@ -338,6 +341,9 @@ StormEngineC.prototype.loadManager = function() {
 	
 	this.stormMesh = new StormMesh();
 	this.giv2 = new StormGI();
+	
+	this.grid = new StormGrid();
+	this.grid.show(100.0, 1.0);
 	
 	// OVERLAY TRANSFORMS  
 	this.defaultTransform = 0; // 0=position, 1=rotation, 2=scale

@@ -61,15 +61,28 @@ StormEngineC_PanelBottomMenu.prototype.loadPanel = function() {
 		"</div>"+
 		"<div style='display:table-cell'>"+
 			"<div id='STORMMENU3' data-menucontent>"+
-				"<div><a id='STORMMENUBTN_C3_01'>Spot light</a></div>"+
-				"<div><a id='STORMMENUBTN_C3_02'>Sun light</a></div>"+
-				"<div><a id='STORMMENUBTN_C3_03'>Camera</a></div>"+
-				"<div><a id='STORMMENUBTN_C3_04'>Line</a></div>"+
-				"<div><a id='STORMMENUBTN_C3_05'>Particles</a></div>"+
-				"<div><a id='STORMMENUBTN_C3_06'>Polarity point</a></div>"+
-				"<div><a id='STORMMENUBTN_C3_07'>Force field</a></div>"+
-				"<div><a id='STORMMENUBTN_C3_08'>Gravity force</a></div>"+
-				"<div><a id='STORMMENUBTN_C3_09'>Voxelizator</a></div>"+
+				"<div><span style='color:#CCC'>PRIMITIVES</span></div>"+
+				"<div><a id='STORMMENUBTN_C3_Triangle'>Triangle</a></div>"+
+				"<div><a id='STORMMENUBTN_C3_Box'>Box</a></div>"+
+				"<div><a id='STORMMENUBTN_C3_Quad'>Quad</a></div>"+
+				"<div><a id='STORMMENUBTN_C3_Tube'>Tube</a></div>"+
+				"<div><a id='STORMMENUBTN_C3_Sphere'>Sphere</a></div>"+
+				
+				"<div><div style='height:2px;background-color:#FFF;'></div></div>"+
+				"<div><span style='color:#CCC'>LIGHTS</span></div>"+
+				"<div><a id='STORMMENUBTN_C3_SpotLight'>Spot light</a></div>"+
+				"<div><a id='STORMMENUBTN_C3_SunLight'>Sun light</a></div>"+
+				
+				"<div><div style='height:2px;background-color:#FFF;'></div></div>"+
+				"<div><span style='color:#CCC'>OTHERS</span></div>"+
+				"<div><a id='STORMMENUBTN_C3_Camera'>Camera</a></div>"+
+				"<div><a id='STORMMENUBTN_C3_Line'>Line</a></div>"+
+				"<div><a id='STORMMENUBTN_C3_Particles'>Particles</a></div>"+
+				"<div><a id='STORMMENUBTN_C3_PolarityPoint'>Polarity point</a></div>"+
+				"<div><a id='STORMMENUBTN_C3_ForceField'>Force field</a></div>"+
+				"<div><a id='STORMMENUBTN_C3_GravityForce'>Gravity force</a></div>"+
+				"<div><a id='STORMMENUBTN_C3_Voxelizator'>Voxelizator</a></div>"+
+				"<div><a id='STORMMENUBTN_C3_3Dtext'>3D text</a></div>"+
 			"</div>"+
 			"<div>Create</div>"+
 		"</div>"+
@@ -239,7 +252,56 @@ StormEngineC_PanelBottomMenu.prototype.loadPanel = function() {
 	$("#STORMMENUBTN_C2_03").on('click', function() {
 		stormEngineC.PanelAnimationTimeline.show();
 	});	
-	$("#STORMMENUBTN_C3_01").on('click', function() {
+	$("#STORMMENUBTN_C3_Triangle").on('click', (function() {
+		var node = this._sec.createNode();
+		node.loadTriangle();
+		node.name = 'triangle '+this._sec.idxNodes++;
+		this._sec.selectNode(node);
+	}).bind(this));
+	$("#STORMMENUBTN_C3_Box").on('click', (function() {
+		var length = prompt('length?','1.0'); if(length == '') length = 1.0;
+		var width = prompt('width?','1.0'); if(width == '') width = 1.0;
+		var height = prompt('height?','1.0'); if(height == '') height = 1.0;
+		
+		var node = this._sec.createNode();
+		node.loadBox($V3([width, height, length]));
+		node.name = 'box '+this._sec.idxNodes++;
+		this._sec.selectNode(node);
+	}).bind(this));
+	$("#STORMMENUBTN_C3_Quad").on('click', (function() {
+		var length = prompt('length?','0.5'); if(length == '') length = 0.5;
+		var width = prompt('width?','0.5'); if(width == '') width = 0.5;
+		
+		var node = this._sec.createNode();
+		node.loadQuad(length/2, width/2);
+		node.name = 'quad '+this._sec.idxNodes++;
+		this._sec.selectNode(node);
+	}).bind(this));
+	$("#STORMMENUBTN_C3_Tube").on('click', (function() {
+		var height = prompt('height?','1.0'); if(height == '') height = 1.0;
+		var segments = prompt('segments?','6'); if(segments == '') segments = 6;
+		var outerRadius = prompt('outerRadius?','1.0'); if(outerRadius == '') outerRadius = 1.0;
+		var innerRadius = prompt('innerRadius?','0.7'); if(innerRadius == '') innerRadius = 0.7; 
+		
+		var node = this._sec.createNode();
+		node.loadTube({"height": height,
+						"segments": segments,
+						"outerRadius": outerRadius,
+						"innerRadius": innerRadius});
+		node.name = 'tube '+this._sec.idxNodes++;
+		this._sec.selectNode(node);
+	}).bind(this));
+	$("#STORMMENUBTN_C3_Sphere").on('click', (function() {
+		var radius = prompt('radius?','1.0'); if(radius == '') radius = 1.0;
+		var segments = prompt('segments?','6'); if(segments == '') segments = 6;		
+		
+		var node = this._sec.createNode();
+		node.loadSphere({"radius": radius,
+						"segments": segments});
+		node.name = 'sphere '+this._sec.idxNodes++;
+		this._sec.selectNode(node);
+	}).bind(this));
+	$("#STORMMENUBTN_C3_SpotLight").on('click', function() {
 		var node = stormEngineC.createLight({	'type':'spot', // TYPE SPOT (MAX 10)
 												'position':$V3([0.0,2.5,0.0]),
 												'direction':$V3([0.01,-1.0,0.01]), //on render spot is omni
@@ -247,22 +309,22 @@ StormEngineC_PanelBottomMenu.prototype.loadPanel = function() {
 		});
 		stormEngineC.selectNode(node);
 	});
-	$("#STORMMENUBTN_C3_02").on('click', function() {
+	$("#STORMMENUBTN_C3_SunLight").on('click', function() {
 		var node = stormEngineC.createLight({	'type':'sun', // TYPE SUN (MAX 1) Enabled by default. New sun overrides the current
 												'direction':$V3([-0.12,-0.5,0.20]),
 												'color':5770
 								});
 		stormEngineC.selectNode(node);
 	});	
-	$("#STORMMENUBTN_C3_03").on('click', function() {
+	$("#STORMMENUBTN_C3_Camera").on('click', function() {
 		var node = stormEngineC.createCamera($V3([0.0, 0.0, 0.0]), 1.0);
 		stormEngineC.selectNode(node);
 	});	
-	$("#STORMMENUBTN_C3_04").on('click', function() {
+	$("#STORMMENUBTN_C3_Line").on('click', function() {
 		var node = stormEngineC.createLine($V3([0.0,0.0,0.0]), $V3([1.0,0.0,0.0]), $V3([1.0,1.0,1.0]), $V3([0.0,0.0,0.0])); // vecOrigin, vecEnd, vecOriginColor, vecEndColor
 		stormEngineC.selectNode(node);
 	});			
-	$("#STORMMENUBTN_C3_05").on('click', function() {
+	$("#STORMMENUBTN_C3_Particles").on('click', function() {
 		var tamW = prompt('width?','128'); if(tamW == '') tamW = 128;
 		var tamH = prompt('height?','128'); if(tamH == '') tamH = 128;
 		var node = stormEngineC.createParticles();
@@ -274,22 +336,46 @@ StormEngineC_PanelBottomMenu.prototype.loadPanel = function() {
 								direction:undefined}); 
 		stormEngineC.selectNode(node);
 	});		
-	$("#STORMMENUBTN_C3_06").on('click', function() {
+	$("#STORMMENUBTN_C3_PolarityPoint").on('click', function() {
 		var node = stormEngineC.createPolarityPoint({polarity:1,force:0.5});
 		stormEngineC.selectNode(node);
 	});	
-	$("#STORMMENUBTN_C3_07").on('click', function() {
+	$("#STORMMENUBTN_C3_ForceField").on('click', function() {
 		var node = stormEngineC.createForceField();  
 		stormEngineC.selectNode(node);
 	});		
-	$("#STORMMENUBTN_C3_08").on('click', function() {
+	$("#STORMMENUBTN_C3_GravityForce").on('click', function() {
 		var node = stormEngineC.createGravityForce();  
 		stormEngineC.selectNode(node); 
 	});				
-	$("#STORMMENUBTN_C3_09").on('click', function() {
+	$("#STORMMENUBTN_C3_Voxelizator").on('click', function() {
 		var node = stormEngineC.createVoxelizator();   
 		stormEngineC.selectNode(node); 
 	});	
+	$("#STORMMENUBTN_C3_3Dtext").on('click', (function() {
+		var font = prompt('font?','DroidSans.svg'); if(font == '') font = 'DroidSans.svg';
+		var text = prompt('text?','text'); if(text == '') text = 'text';
+		var size = prompt('size?','0.0005'); if(size == '') size = 0.0005;
+		var kerning = prompt('kerning?','1.0'); if(kerning == '') kerning = 1.0;
+		var extrude = prompt('extrude?','0.5'); if(extrude == '') extrude = 0.5;	
+		var bevel = prompt('bevel?','0.2'); if(bevel == '') bevel = 0.2;
+		var bevel_angle = prompt('bevel angle?','0.2'); if(bevel_angle == '') bevel_angle = 0.2;
+		
+		var node = this._sec.createNode();
+		node.loadText({	"svgFontUrl": stormEngineCDirectory+"/fonts/"+font,
+						"text": text,
+						"size": parseFloat(size),
+						"kerning": parseFloat(kerning),
+						"color": $V3([Math.random(), Math.random(), Math.random()]),
+						"onload": function() {
+							//nodeFont.extrude({dim:2.0});
+							//nodeFont.setRoughness(70.0);
+						},
+						"extrudeDimension": parseFloat(extrude),
+						"bevel": parseFloat(bevel),
+						"bevelAngle": parseFloat(bevel_angle)
+					});
+	}).bind(this));
 	$("#STORMMENUBTN_C4_01").on('click', function() {
 		stormEngineC.MaterialEditor.show();
 	});

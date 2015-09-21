@@ -570,6 +570,7 @@ StormGLContext.prototype.createShader = function(gl, name, sourceVertex, sourceF
  */
 StormGLContext.prototype.renderGLContext = function() {
 	this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
+	
 	if(this.Shader_Pick_READY) {
 		this.render_Pick();
 	} 
@@ -651,8 +652,14 @@ StormGLContext.prototype.renderGLContext = function() {
 		this.render_Scene();
 		if(this.view_SceneNoDOF) return;
 	}
-	if(this.Shader_Lines_READY && this.lines.length > 0) {
-		this.render_Lines();
+	if(this.Shader_Lines_READY) {
+		if(this.lines.length > 0) {
+			this.render_Lines();
+		}
+		
+		if(stormEngineC.editMode == true && stormEngineC.grid.gridEnabled == true) { 
+			stormEngineC.grid.render();
+		}
 	}
 	if(this.Shader_ParticlesAux_READY && this.particles.length > 0) {
 		this.render_ParticlesAux();

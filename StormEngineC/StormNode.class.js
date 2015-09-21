@@ -273,12 +273,19 @@ StormNode.prototype.loadBox = function(vecDim) {
 */
 StormNode.prototype.loadTube = function(jsonIn) {
 	var mesh = new StormMesh();
+	
+	var hei = (jsonIn != undefined && jsonIn.height != undefined) ? jsonIn.height : 1.0;  
+	var segments = (jsonIn != undefined && jsonIn.segments != undefined) ? jsonIn.segments : 6;  
+	var outerRadius = (jsonIn != undefined && jsonIn.outerRadius != undefined) ? jsonIn.outerRadius : 1.0;  
+	var innerRadius = (jsonIn != undefined && jsonIn.innerRadius != undefined) ? jsonIn.innerRadius : 0.7;  
+	var color = (jsonIn != undefined && jsonIn.color != undefined) ? jsonIn.color : $V3([Math.random(), Math.random(), Math.random()]);
+	
 	mesh.loadTube({ node: this,
-					height: jsonIn.height,
-					outerRadius: jsonIn.outerRadius,
-					innerRadius: jsonIn.innerRadius,
-					segments: jsonIn.segments,
-					color: jsonIn.color});
+					height: hei,
+					outerRadius: outerRadius,
+					innerRadius: innerRadius,
+					segments: segments,
+					color: color});
 };
 /**
 * Load a quad on node
@@ -287,8 +294,11 @@ StormNode.prototype.loadTube = function(jsonIn) {
 * @param {Float} height
 */
 StormNode.prototype.loadQuad = function(length, height) {
+	var l=(length==undefined)?0.5:length;
+	var h=(height==undefined)?0.5:height;
+	
 	var mesh = new StormMesh();
-	mesh.loadQuad(this, length, height);
+	mesh.loadQuad(this, l, h);
 };
 /**
 * Load a sphere on node
@@ -299,14 +309,15 @@ StormNode.prototype.loadQuad = function(length, height) {
 * 	@param {Int} [jsonIn.segments=6] Segments
 */
 StormNode.prototype.loadSphere = function(jsonIn) {
-	var jIn = {	radius:(jsonIn!=undefined)?jsonIn.radius:undefined,
-				color:(jsonIn!=undefined)?jsonIn.color:undefined,
-				segments:(jsonIn!=undefined)?jsonIn.segments:undefined};
+	var segments = (jsonIn != undefined && jsonIn.segments != undefined) ? jsonIn.segments : 6;
+	var radius = (jsonIn != undefined && jsonIn.radius != undefined) ? jsonIn.radius : 1.0;	
+	var color = (jsonIn != undefined && jsonIn.color != undefined) ? jsonIn.color : $V3([Math.random(), Math.random(), Math.random()]);
+		
 	var mesh = new StormMesh();
-	mesh.loadSphere({	node:this,
-						radius:jIn.radius,
-						color:jIn.color,
-						segments:jIn.segments});  
+	mesh.loadSphere({	node: this,
+						radius: radius,
+						color: color,
+						segments: segments});  
 };
 /**
 * Load a text
@@ -327,7 +338,11 @@ StormNode.prototype.loadSphere = function(jsonIn) {
 */ 
 StormNode.prototype.loadText = function(jsonIn) {
 	var font;
-	for(var n = 0, f = stormEngineC.arrFonts.length; n < f; n++) if(stormEngineC.arrFonts[n].fontId = jsonIn.svgFontUrl) font = stormEngineC.arrFonts[n];
+	for(var n = 0, f = stormEngineC.arrFonts.length; n < f; n++) {
+		if(stormEngineC.arrFonts[n].fontId == jsonIn.svgFontUrl) {
+			font = stormEngineC.arrFonts[n];
+		}
+	}
 
 	if(font == undefined) {
 		newFont = {fontId:jsonIn.svgFontUrl, glyphs:{}};
@@ -395,7 +410,8 @@ StormNode.prototype.loadText = function(jsonIn) {
 * @private 
 */
 StormNode.prototype.loadTextNow = function(jsonIn) {
-	var align = (jsonIn.align != undefined) ? jsonIn.align : "center";
+	var align = (jsonIn != undefined && jsonIn.align != undefined) ? jsonIn.align : "center";
+	var kerning = (jsonIn != undefined && jsonIn.kerning != undefined) ? jsonIn.kerning : 1.0;
 	
 	this.removeMeshes();
 	
@@ -441,9 +457,9 @@ StormNode.prototype.loadTextNow = function(jsonIn) {
 		if(jsonIn.fontObject.glyphs[jsonIn.text[n]]) {
 			horiz = jsonIn.fontObject.glyphs[jsonIn.text[n]].horiz;
 		}
-		var kerning = (jsonIn.kerning != undefined) ? jsonIn.kerning : 1.0;
-		kerning = kerning*jsonIn.size;
-		var currentOffset = acumHoriz+kerning;
+		
+		//kerning += kerning+jsonIn.size;
+		var currentOffset = acumHoriz;
 		
 		for(var nB = 0, fb = this.buffersObjects[n].nodeMeshVertexArray.length/3; nB < fb; nB++) {
 			var id = nB*3;
@@ -480,7 +496,7 @@ StormNode.prototype.loadTextNow = function(jsonIn) {
 		this.buffersObjects[n] = bObject;
 		//this.buffersObjects[n].materialUnits = materialUnits; 
 			
-		acumHoriz += horiz*jsonIn.size; 
+		acumHoriz += (horiz*jsonIn.size)+kerning; 
 	}
 	
 	if(jsonIn.onload != undefined) jsonIn.onload();
