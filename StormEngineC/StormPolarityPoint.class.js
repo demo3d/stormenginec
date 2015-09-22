@@ -23,7 +23,7 @@ StormPolarityPoint.prototype = Object.create(StormNode.prototype);
 * Delete this polarity point
 * @type Void
 */
-StormPolarityPoint.prototype.deletePolarityPoint = function() {
+StormPolarityPoint.prototype.remove = function() {
 	var idToRemove = undefined;
 	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
 		if(stormEngineC.polarityPoints[n].idNum == this.idNum) idToRemove = n;
@@ -38,6 +38,8 @@ StormPolarityPoint.prototype.deletePolarityPoint = function() {
 		this.nodesProc[n].kernelDirXYZ.setKernelSource(kernelDirX_Source);	
 		this.nodesProc[n].updatekernelDir_Arguments(); 
 	}
+	
+	this.nodesProc = [];
 };
 
 /**

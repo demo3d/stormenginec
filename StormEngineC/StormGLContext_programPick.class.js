@@ -20,18 +20,24 @@ StormGLContext.prototype.initShader_Pick = function() {
 		'uniform float uFar;\n'+
 		'float LinearDepthConstant = 1.0/uFar;'+
 		
+		'varying float vNodeId;\n'+
+		
 		'void main(void) {\n'+
 			'vec3 vp = vec3(aVertexPosition.x*u_nodeVScale.x, aVertexPosition.y*u_nodeVScale.y, aVertexPosition.z*u_nodeVScale.z);\n'+
+			'vNodeId = uNodeId;'+
+			
 			'if(uIsTransform == 0) {'+ // nodes
 				'gl_Position = uPMatrix * u_cameraWMatrix * u_nodeWMatrix * vec4(vp, 1.0);\n'+
 			'} else {'+ // overlay transforms
 				'vec4 scaleVec = u_cameraWMatrix * u_nodeWMatrix * u_matrixNodeTranform * vec4(vp, 1.0);\n'+
 				'float scale = (length(scaleVec) * LinearDepthConstant)*50.0;'+
-				'vec4 pos;'+
-				'if(uNodeId == 0.1 || uNodeId == 0.2 || uNodeId == 0.3 || uNodeId == 0.7 || uNodeId == 0.8 || uNodeId == 0.9)'+
+				
+				'vec4 pos = vec4(vp, 1.0);'+
+				'if(uNodeId == 0.1 || uNodeId == 0.2 || uNodeId == 0.3 || uNodeId == 0.7 || uNodeId == 0.8 || uNodeId == 0.9) {'+
+					// position & scale
 					'pos = vec4(0.0,-0.5,0.0,1.0)+vec4(vp, 1.0);'+
-				'else '+
-					'pos = vec4(vp, 1.0);'+
+				'}'+
+				
 				'gl_Position = uPMatrix * u_cameraWMatrix * u_nodeWMatrix * u_matrixNodeTranform * vec4(vec3(pos.x*scale,pos.y*scale,pos.z*scale), 1.0);\n'+
 			'}'+
 		'}';
@@ -41,13 +47,19 @@ StormGLContext.prototype.initShader_Pick = function() {
 		'uniform float uCurrentMousePosY;\n'+
 		'uniform int uIsTransform;\n'+
 		
+		'varying float vNodeId;\n'+
+		
+		stormEngineC.utils.packGLSLFunctionString()+
+		
 		'void main(void) {\n'+// gl_FragCoord.x muestra de 0.0 a width (Ej: 0 a 512.0)
 			//'if( (uCurrentMousePosX < (gl_FragCoord.x+1.0) && uCurrentMousePosX > (gl_FragCoord.x-1.0)) &&'+
 			//	'(uCurrentMousePosY < (gl_FragCoord.y+1.0) && uCurrentMousePosY > (gl_FragCoord.y-1.0)) ) {\n'+
-				'if(uIsTransform == 0) {'+
-					'gl_FragColor = vec4(uNodeId+0.001, 0.0, 0.0, 1.0);\n'+
-				'} else {'+
-					'gl_FragColor = vec4(0.0, uNodeId, 0.0, 1.0);\n'+
+				'if(uIsTransform == 0) {'+ // nodes
+					// 255*255*255*255 = 4228250625
+					// uNodeId/4228250625 = value from 0.0 to 1.0
+					'gl_FragColor = pack(uNodeId/1000000.0);\n'+ 
+				'} else {'+ // overlay transforms
+					'gl_FragColor = vec4(0.0, vNodeId, 0.0, 1.0);\n'+ 
 				'}'+
 			//'}\n'+
 		'}';
@@ -240,8 +252,10 @@ StormGLContext.prototype.unpick = function() {
 StormGLContext.prototype.querySelect = function(nodes) {	
 	for(var n = 0, f = nodes.length; n < f; n++) { 
 		if(	nodes[n].visibleOnContext && nodes[n].objectType != 'light') {
+			
 			var node = nodes[n];
-			this.gl.uniform1f(this.u_Pick_nodeId, ((node.idNum+1)/nodes.length));
+			this.gl.uniform1f(this.u_Pick_nodeId, parseFloat(node.idNum));
+			
 			for(var nb = 0, fb = node.buffersObjects.length; nb < fb; nb++) {
 				this.gl.uniform1i(this.u_Pick_isTransform, 0); // nodes
 				
@@ -396,10 +410,10 @@ StormGLContext.prototype.querySelectNow = function(nodes) {
 	if(stormEngineC.draggingNodeNow == false) {
 		var arrayPick = new Uint8Array(4);  
 		this.gl.readPixels(stormEngineC.mousePosX, (stormEngineC.$.height()-(stormEngineC.mousePosY)), 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, arrayPick);
-		if(arrayPick[0] != 0 || arrayPick[1] != 0) {
-			var nodeIdNum = Math.floor(parseFloat(arrayPick[0]/255)*(nodes.length-1));
-			var selectedNode = nodes[nodeIdNum];  
-			var transformNum = parseFloat(arrayPick[1]/255).toFixed(1);
+		//console.log(arrayPick[0]+"	"+arrayPick[1]+"	"+arrayPick[2]+"	"+arrayPick[3]);
+		
+		if(arrayPick[0] == 0 && arrayPick[1] != 0 && arrayPick[2] == 0 && arrayPick[3] == 255) { // selection is overlay transforms
+			var transformNum = parseFloat(arrayPick[1]/255).toFixed(1); // overlay transforms 
 			
 			if(transformNum == 0.1) {  // mouse over transform pos x 
 				return 1;
@@ -419,13 +433,20 @@ StormGLContext.prototype.querySelectNow = function(nodes) {
 				return 8;
 			} else if(transformNum == 0.9) {// mouse over transform sca z
 				return 9;
-			} else if(selectedNode != undefined) {// mouse over node
+			}
+		} else if(arrayPick[0] == 0 && arrayPick[1] == 0 && arrayPick[2] == 0 && arrayPick[3] == 0) {
+			return 0; 		
+		} else { // selection is a node
+			var unpackValue = stormEngineC.utils.unpack([arrayPick[0]/255, arrayPick[1]/255, arrayPick[2]/255, arrayPick[3]/255]); // value from 0.0 to 1.0
+			var nodeIdNum = Math.floor(unpackValue*1000000.0)-1; 
+			var selectedNode = nodes[nodeIdNum];
+			//console.log(selectedNode.name);
+			
+			if(selectedNode != undefined) {// mouse over node
 				return selectedNode;
-			} else {// mouse over nothing
+			} else {
 				return 0; 
 			}
-		} else {
-			return 0;
 		}
 	}
 };
