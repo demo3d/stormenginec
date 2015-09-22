@@ -42,7 +42,17 @@ StormCamera.prototype = Object.create(StormNode.prototype);
 
 
 
-
+/**
+* Remove this object
+* @type Void
+*/
+StormCamera.prototype.remove = function() {
+	var idToRemove = undefined;
+	for(var n = 0, f = stormEngineC.nodesCam.length; n < f; n++) {
+		if(stormEngineC.nodesCam[n].idNum == this.idNum) idToRemove = n;
+	}
+	stormEngineC.nodesCam.splice(idToRemove,1);
+};
 /**
 * Look rotation x
 * @type Void
