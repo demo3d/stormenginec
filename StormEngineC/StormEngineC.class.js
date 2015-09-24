@@ -84,6 +84,7 @@ var includesF = [//'/StormMathMin.class.js',
 				'/StormGroupNodes.class.js',
 				'/StormMesh.class.js',
 				'/StormBufferObject.class.js',
+				'/StormBufferNodes.class.js',
 				'/StormLine.class.js',
 				'/StormCamera.class.js',
 				'/StormLight.class.js',
@@ -259,6 +260,7 @@ StormEngineC = function() {
 	this.forceFields = [];this.idxForceField = 0;
 	this.materials = [];this.idxMaterials = 0;
 	this.voxelizators = [];this.idxVoxelizators = 0;
+	this.bufferNodes = [];this.idxBufferNodes = 0;
 	this.arrHitsRectRegions = [];this.idxHitsRectRegions = 0;
 	this.arrFonts = [];
 	
@@ -1550,6 +1552,17 @@ StormEngineC.prototype.createVoxelizator = function() {
 	vox.name = 'voxelizator '+this.idxVoxelizators++; 
 	this.voxelizators.push(vox); 
 	return vox;
+};
+/**
+* Create bufferNodes
+* @returns {StormBufferNodes}
+*/
+StormEngineC.prototype.createBufferNodes = function() { 	
+	var bn = new StormBufferNodes();
+	bn.idNum = this.bufferNodes.length;
+	bn.name = 'buffernodes '+this.idxBufferNodes++; 
+	this.bufferNodes.push(bn); 
+	return bn;
 };
 /**
 * Create graph

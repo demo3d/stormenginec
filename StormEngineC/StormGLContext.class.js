@@ -652,6 +652,11 @@ StormGLContext.prototype.renderGLContext = function() {
 		this.render_Scene();
 		if(this.view_SceneNoDOF) return;
 	}
+    for(var n=0; n < stormEngineC.bufferNodes.length; n++) {
+	    if(stormEngineC.bufferNodes[n].shader_BN_READY) {
+	    	stormEngineC.bufferNodes[n].render_BufferNodes();	    	
+		}
+    }
 	if(this.Shader_Lines_READY) {
 		if(this.lines.length > 0) {
 			this.render_Lines();
