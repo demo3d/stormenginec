@@ -438,6 +438,7 @@ StormGLContext.prototype.initShaders = function() {
 			
 			if(!this._typeMobile && this._supportFormat == this.gl.FLOAT) {
 				this.initShader_ParticlesAux();
+				this.initshader_BN();
 				this.initShader_Lines();
 				this.initShader_DOF();
 			} 
@@ -651,12 +652,7 @@ StormGLContext.prototype.renderGLContext = function() {
     if(this.Shader_Scene_READY) {
 		this.render_Scene();
 		if(this.view_SceneNoDOF) return;
-	}
-    for(var n=0; n < stormEngineC.bufferNodes.length; n++) {
-	    if(stormEngineC.bufferNodes[n].shader_BN_READY) {
-	    	stormEngineC.bufferNodes[n].render_BufferNodes();	    	
-		}
-    }
+	}    
 	if(this.Shader_Lines_READY) {
 		if(this.lines.length > 0) {
 			this.render_Lines();
@@ -669,7 +665,9 @@ StormGLContext.prototype.renderGLContext = function() {
 	if(this.Shader_ParticlesAux_READY && this.particles.length > 0) {
 		this.render_ParticlesAux();
 	}
-	
+	if(this.Shader_BN_READY) {
+	    this.render_BufferNodes();	    	
+	}
 	
 	this.hitRectRegion_onclick(); 
 	if(this.Shader_DOF_READY && stormEngineC.defaultCamera.DOFenable) {

@@ -71,6 +71,7 @@ var includesF = [//'/StormMathMin.class.js',
 				'/StormGLContext_programLines.class.js',
 				'/StormGLContext_programNormalsDepth.class.js',
 				'/StormGLContext_programParticles.class.js',
+				'/StormGLContext_programBufferNodes.class.js',
 				'/StormGLContext_programPick.class.js',
 				'/StormGLContext_programOverlay.class.js',
 				'/StormGLContext_programScene.class.js',
@@ -256,11 +257,11 @@ StormEngineC = function() {
 	this.lights = [];this.idxLights = 0;
 	this.particles = [];this.idxParticles = 0;
 	this.particlesOffset = 300.0;
+	this.bufferNodes = [];this.idxBufferNodes = 0;
 	this.polarityPoints = [];this.idxPolarityPoint = 0;
 	this.forceFields = [];this.idxForceField = 0;
 	this.materials = [];this.idxMaterials = 0;
-	this.voxelizators = [];this.idxVoxelizators = 0;
-	this.bufferNodes = [];this.idxBufferNodes = 0;
+	this.voxelizators = [];this.idxVoxelizators = 0;	
 	this.arrHitsRectRegions = [];this.idxHitsRectRegions = 0;
 	this.arrFonts = [];
 	

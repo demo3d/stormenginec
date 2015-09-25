@@ -358,7 +358,8 @@ WebCLGL.prototype.enqueueReadBuffer = function(buffer) {
 	//console.log(buffer.outArray4Uint8Array); 
 	this.gl.readPixels(0, 0, buffer.W, buffer.H, this.gl.RGBA, this.gl.UNSIGNED_BYTE, buffer.outArray4Uint8Array);
 	//console.log(buffer.outArray4Uint8Array);  
-	return buffer.outArray4Uint8Array;  
+	//return buffer.outArray4Uint8Array.splice(buffer.length, buffer.outArray4Uint8Array.length);
+	return buffer.outArray4Uint8Array.subarray(0, buffer.length);
 	
 	//this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
 	//this.gl.clear(this.gl.COLOR_BUFFER_BIT);

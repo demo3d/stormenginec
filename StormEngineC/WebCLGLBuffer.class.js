@@ -22,9 +22,11 @@ WebCLGLBuffer = function(gl, length, linear) {
 		this._supportFormat = this.gl.UNSIGNED_BYTE; 
 		
 	if(length instanceof Object) { 
+		this.length = length[0]*length[1];
 		this.W = length[0];
 		this.H = length[1];
 	} else {
+		this.length = length;
 		this.W = Math.sqrt(length);
 		this.H = this.W;
 	}
