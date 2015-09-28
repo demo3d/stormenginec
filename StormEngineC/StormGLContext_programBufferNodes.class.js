@@ -109,7 +109,7 @@ StormGLContext.prototype.render_BufferNodes = function() {
 	this.gl.uniformMatrix4fv(this.u_BN_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
 		
 			
-	//for(var n=0; n < stormEngineC.bufferNodes.length; n++) {
+	for(var n=0; n < stormEngineC.bufferNodes.length; n++) {
 		var bn = stormEngineC.bufferNodes[0];
 		
 		this.gl.uniform1f(this.u_BN_uWorkAreaSize, bn.workAreaSize.toFixed(7));	
@@ -190,7 +190,7 @@ StormGLContext.prototype.render_BufferNodes = function() {
 		this.gl.drawElements(4, bn.arrayNodeIndices.length, this.gl.UNSIGNED_SHORT, 0);
 		
 		//this.gl.drawArrays(4, 0, bn.arrayNodeIndices.length); // 4 triangles, 
-	//}	
+	}	
 		
 	if(this.view_SceneNoDOF || stormEngineC.defaultCamera.DOFenable == false) {
 	} else {

@@ -229,7 +229,7 @@ WebCLGL.prototype.createKernel = function(source, header) {
 WebCLGL.prototype.enqueueWriteBuffer = function(buffer, arr, flip) {	
 	buffer.inData = arr;
 	if(arr instanceof WebGLTexture) buffer.textureData = arr;
-	else {
+	else {		
 		if(flip == false || flip == undefined) 
 			this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, false);
 		else 
@@ -238,16 +238,19 @@ WebCLGL.prototype.enqueueWriteBuffer = function(buffer, arr, flip) {
 		this.gl.bindTexture(this.gl.TEXTURE_2D, buffer.textureData);
 		if(arr instanceof HTMLImageElement)  {
 			buffer.inData = this.utils.getUint8ArrayFromHTMLImageElement(arr);   
-			this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, this.gl.RGBA, buffer._supportFormat, arr); 
+			//texImage2D(			target, 			level, 	internalformat, 	format, 		type, 					TexImageSource);
+			this.gl.texImage2D(		this.gl.TEXTURE_2D, 0, 		this.gl.RGBA, 		this.gl.RGBA, 	buffer._supportFormat, 	arr);
 		} else {
 			if(buffer.type == 'FLOAT4') {
 				if(buffer._supportFormat == this.gl.FLOAT) {
-					if(arr instanceof Uint8Array)  
-						this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, buffer._supportFormat, new Float32Array(arr));
-					else if(arr instanceof Float32Array) 
+					if(arr instanceof Uint8Array) {
+						//texImage2D(			target, 			level, 	internalformat, 	width, height, border, 	format, 		type, 					pixels);
+						this.gl.texImage2D(		this.gl.TEXTURE_2D, 0, 		this.gl.RGBA, 		buffer.W, buffer.H, 0, 	this.gl.RGBA, 	buffer._supportFormat, 	new Float32Array(arr));
+					} else if(arr instanceof Float32Array) {
 						this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, buffer._supportFormat, arr);
-					else 
+					} else {
 						this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, buffer._supportFormat, new Float32Array(arr));
+					}
 				} else {
 					this.gl.texImage2D(this.gl.TEXTURE_2D, 0, this.gl.RGBA, buffer.W, buffer.H, 0, this.gl.RGBA, buffer._supportFormat, new Uint8Array(arr));
 				}
@@ -275,6 +278,73 @@ WebCLGL.prototype.enqueueWriteBuffer = function(buffer, arr, flip) {
 };
 
 /**
+* Update buffer
+* @type Void
+* @param {WebCLGLBuffer} buffer
+* @param {Array|Float32Array|Uint8Array|WebGLTexture|HTMLImageElement} array 
+* @param {Int} [updatingFromId=0]
+* @param {Bool} [flip=false]
+*/
+WebCLGL.prototype.enqueueUpdateBuffer = function(buffer, arr, updatingFromId, flip) {	
+	buffer.inData = arr;
+	if(arr instanceof WebGLTexture) buffer.textureData = arr;
+	else {
+		if(updatingFromId == undefined) updatingFromId = 0;
+		this.utils = new WebCLGLUtils(this.gl);
+		
+		var wh = Math.ceil(buffer.W);
+		var num = updatingFromId/wh;
+		var col = this.utils.fract(num)*wh; 
+		var row = Math.floor(num);
+		
+		if(flip == false || flip == undefined) 
+			this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, false);
+		else 
+			this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, true);  
+		this.gl.pixelStorei(this.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false); 
+		this.gl.bindTexture(this.gl.TEXTURE_2D, buffer.textureData);
+		if(arr instanceof HTMLImageElement)  {
+			buffer.inData = this.utils.getUint8ArrayFromHTMLImageElement(arr); 
+			//texSubImage2D(		target, 			level, 	xoffset, yoffset, 	format, 		type, 					TexImageSource);
+			this.gl.texSubImage2D(	this.gl.TEXTURE_2D, 0, 		col, row,			this.gl.RGBA, 	buffer._supportFormat, 	arr);
+		} else {
+			if(buffer.type == 'FLOAT4') {
+				if(buffer._supportFormat == this.gl.FLOAT) {
+					if(arr instanceof Uint8Array) {
+						//texSubImage2D(		target, 			level, 	xoffset, yoffset, 	width, height, 			format, 		type, 					pixels);
+						this.gl.texSubImage2D(	this.gl.TEXTURE_2D, 0, 		col, row,	 		buffer.W, buffer.H, 	this.gl.RGBA, 	buffer._supportFormat, 	new Float32Array(arr));
+					} else if(arr instanceof Float32Array) {
+						this.gl.texSubImage2D(	this.gl.TEXTURE_2D, 0, 		col, row,	 		buffer.W, buffer.H, 	this.gl.RGBA, 	buffer._supportFormat, 	arr);
+					} else {
+						this.gl.texSubImage2D(	this.gl.TEXTURE_2D, 0, 		col, row,	 		buffer.W, buffer.H, 	this.gl.RGBA, 	buffer._supportFormat, 	new Float32Array(arr));
+					}
+				} else {
+					this.gl.texSubImage2D(	this.gl.TEXTURE_2D, 0, 		col, row,	 		buffer.W, buffer.H, 	this.gl.RGBA, 	buffer._supportFormat, 	new Uint8Array(arr));
+				}
+			} else if(buffer.type == 'FLOAT') {
+				var arrayTemp;
+				if(buffer._supportFormat == this.gl.FLOAT) 
+					arrayTemp = new Float32Array(arr.length*4); 
+				else 
+					arrayTemp = new Uint8Array(arr.length*4);
+				
+				for(var n = 0, f = arr.length; n < f; n++) {
+					var idd = n*4;
+					arrayTemp[idd] = arr[n];   
+					arrayTemp[idd+1] = 0.0;
+					arrayTemp[idd+2] = 0.0;
+					arrayTemp[idd+3] = 0.0; 
+				}
+				arr = arrayTemp;
+				
+				this.gl.texSubImage2D(	this.gl.TEXTURE_2D, 0, 		col, row,	 		buffer.W, buffer.H, 	this.gl.RGBA, 	buffer._supportFormat, 	arr);
+			}
+		}
+	}
+	if(buffer.linear) this.gl.generateMipmap(this.gl.TEXTURE_2D);
+};
+
+/**
 * Perform calculation and save the result on a WebCLGLBuffer
 * @type Void
 * @param {WebCLGLKernel} kernel 
@@ -287,24 +357,13 @@ WebCLGL.prototype.enqueueNDRangeKernel = function(kernel, buffer) {
 		this.gl.viewport(0, 0, buffer.W, buffer.H);  
 		this.gl.useProgram(kernel.kernel);  
 		
+		var currentTextureUnit = 0;
 		for(var n = 0, f = kernel.samplers.length; n < f; n++) {
-			if(n == 0) this.gl.activeTexture(this.gl.TEXTURE0);
-			else if(n == 1) this.gl.activeTexture(this.gl.TEXTURE1);
-			else if(n == 2) this.gl.activeTexture(this.gl.TEXTURE2);
-			else if(n == 3) this.gl.activeTexture(this.gl.TEXTURE3);
-			else if(n == 4) this.gl.activeTexture(this.gl.TEXTURE4);
-			else if(n == 5) this.gl.activeTexture(this.gl.TEXTURE5);
-			else if(n == 6) this.gl.activeTexture(this.gl.TEXTURE6);
-			else if(n == 7) this.gl.activeTexture(this.gl.TEXTURE7);
-			else if(n == 8) this.gl.activeTexture(this.gl.TEXTURE8);
-			else if(n == 9) this.gl.activeTexture(this.gl.TEXTURE9);
-			else if(n == 10) this.gl.activeTexture(this.gl.TEXTURE10);
-			else if(n == 11) this.gl.activeTexture(this.gl.TEXTURE11);
-			else if(n == 12) this.gl.activeTexture(this.gl.TEXTURE12);
-			else if(n == 13) this.gl.activeTexture(this.gl.TEXTURE13);
-			else if(n == 14) this.gl.activeTexture(this.gl.TEXTURE14);
-			else if(n == 15) this.gl.activeTexture(this.gl.TEXTURE15);
-			else this.gl.activeTexture(this.gl.TEXTURE16);
+			if(currentTextureUnit < 16)
+				this.gl.activeTexture(this.gl["TEXTURE"+currentTextureUnit++]);
+			else
+				this.gl.activeTexture(this.gl["TEXTURE16"]);
+			
 			this.gl.bindTexture(this.gl.TEXTURE_2D, kernel.samplers[n].value.textureData);
 			this.gl.uniform1i(kernel.samplers[n].location, n);
 		}
