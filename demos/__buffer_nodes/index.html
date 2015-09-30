@@ -22,12 +22,13 @@
 											},
 											'editMode':	true,
 											'enableRender':true});
-				stormEngineC.setWebGLBackground('environmentMap');   
+				stormEngineC.setWebGLBackground('ambientColor');   
+				
 				stormEngineC.setWebGLSSAO(false, 3.2);
 				stormEngineC.shadows(false);
 				
 				// LIGHTS
-				stormEngineC.setAmbientColor($V3([0.7, 0.75, 0.8]));
+				stormEngineC.setAmbientColor($V3([0.0,0.0,0.0]));
 				
 				var lightSun = stormEngineC.createLight({	'type':'sun',
 										'position':$V3([2.3,17.0,-20.0]),
@@ -53,28 +54,74 @@
 				//nodeCam.enableDOF();
 				
 				
-				var bufferNodes = stormEngineC.createBufferNodes();
-				for(var n=0; n < 1000; n++) {
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				////////////////////////////////////////////////
+				//	Graph
+				////////////////////////////////////////////////
+				var graph = stormEngineC.createGraph({"workAreaSize": 100.0});
+				
+				var numNodes = 1000;
+				var numLinks = 300;
+				
+				// mesh to use
+				var meshNode = new StormNode();
+				meshNode.loadBox();
+				
+				var idx = 4001;
+				var nodePosX = -(graph.workAreaSize/2);
+				var nodePosZ = -(graph.workAreaSize/2);				
+				ntt = function() {					
+					var node = graph.addNodeBN({
+										"id": idx.toString(),
+										"position": $V3([nodePosX, 0.0, nodePosZ]),
+										"node": meshNode,
+										"color": $V3([Math.random(), Math.random(), Math.random()])
+										});
 					
-					bufferNodes.addNode(parseFloat(n), parseFloat(n));
-				}
-				var bufferNodes = stormEngineC.createBufferNodes();
-				for(var n=0; n < 1000; n++) {
+					nodePosX++;
 					
-					bufferNodes.addNode(parseFloat(n), parseFloat(n));
-				}
-				var bufferNodes = stormEngineC.createBufferNodes();
-				for(var n=0; n < 1000; n++) {
+					if(nodePosX > (graph.workAreaSize/2)) {
+						nodePosX = -(graph.workAreaSize/2);
+						nodePosZ++;
+					}
 					
-					bufferNodes.addNode(parseFloat(n), parseFloat(n));
-				}
-				var bufferNodes = stormEngineC.createBufferNodes();
+					idx++;
+				};
+				
+				
 				for(var n=0; n < 1000; n++) {
+					var x = -(graph.workAreaSize/2)+(Math.random()*graph.workAreaSize);
+					var y = -(graph.workAreaSize/2)+(Math.random()*graph.workAreaSize);
+					var z = -(graph.workAreaSize/2)+(Math.random()*graph.workAreaSize);
 					
-					bufferNodes.addNode(parseFloat(n), parseFloat(n));
+					var node = graph.addNodeBN({
+										"id": n.toString(),
+										"position": $V3([x, y, z]),
+										"node": meshNode,
+										"color": $V3([Math.random(), Math.random(), Math.random()])
+										});
 				}
 				
+				
+				/*for(var n=0; n < numLinks; n++) {
+					graph.addLink(parseInt(Math.random()*numNodes).toString(), parseInt(Math.random()*numNodes).toString());
+				}*/
 		</script>
+		<button onclick="ntt();">add Node</button>
 		<br />
 		WASD keys: Move
 		<br /><br />

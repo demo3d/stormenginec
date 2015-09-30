@@ -71,3 +71,13 @@ WebCLGLBuffer = function(gl, length, linear) {
 	this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fBuffer);
 	this.gl.framebufferRenderbuffer(this.gl.FRAMEBUFFER, this.gl.DEPTH_ATTACHMENT, this.gl.RENDERBUFFER, this.rBuffer);
 }; 
+
+/**
+ * Remove this buffer
+* @type Void
+ */
+WebCLGLBuffer.prototype.remove = function() {
+	this.gl.deleteTexture(this.textureData);
+	this.gl.deleteRenderbuffer(this.rBuffer);
+	this.gl.deleteFramebuffer(this.fBuffer);
+};

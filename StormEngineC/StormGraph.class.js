@@ -8,6 +8,9 @@
 StormGraph = function(jsonIn) { StormNode.call(this); 
 	this.objectType = 'graph';
 	
+	this.workAreaSize = (jsonIn != undefined && jsonIn.workAreaSize != undefined) ? jsonIn.workAreaSize : 100.0;
+	this.bufferNodes = stormEngineC.createBufferNodes({"workAreaSize": 100.0});
+	
 	this.nodes = {};
 	this.links = [];
 };
@@ -86,5 +89,49 @@ StormGraph.prototype.update = function(idA, idB) {
 		arrow.setRotation((Math.PI/2), false, $V3([1.0,0.0,0.0]));
 		arrow.setRotation((Math.PI/2)+(Math.PI/4), false, $V3([0.0,1.0,0.0]));
 	}
+};
+
+
+
+
+
+
+
+
+
+
+/**
+* Create new node for the graph
+* @param	{Object} jsonIn
+* 	@param {String} jsonIn.id Id of node
+* 	@param {StormV3} jsonIn.position Position of node
+* 	@param {StormNode} jsonIn.node Node with the mesh for the node
+* 	@param {StormV3} jsonIn.color Color of the node (values from 0.0 to 1.0)
+ * @returns {Int}
+ */
+StormGraph.prototype.addNodeBN = function(jsonIn) {
+	var bnId = this.bufferNodes.addNode({
+						"position": jsonIn.position,
+						"node": jsonIn.node,
+						"color": jsonIn.color
+						});
+	
+	
+	this.nodes[jsonIn.id] = bnId; // string id
+	
+	return this.nodes[jsonIn.id];
+};
+
+StormGraph.prototype.addLinkBN = function(jsonIn) {
+	var bnId = this.bufferNodes.addNode({
+						"id": jsonIn.id,
+						"position": jsonIn.position,
+						"node": jsonIn.node
+						});
+	
+	
+	this.nodes[jsonIn.id] = bnId; // string id
+	
+	return this.nodes[jsonIn.id];
 };
 

@@ -30,7 +30,7 @@ StormGrid.prototype = Object.create(StormNode.prototype);
 * @type Void
 * @param {Float} [separation=1.0] separation of the grid
 */
-StormGrid.prototype.show = function(gridsize, separation) {  
+StormGrid.prototype.generate = function(gridsize, separation) {  
 	this.gridEnabled = true;
 	
 	this.size = (gridsize != undefined) ? gridsize : this.size;
@@ -120,6 +120,22 @@ StormGrid.prototype.show = function(gridsize, separation) {
 */
 StormGrid.prototype.hide = function() {  
 	this.gridEnabled = false;
+};
+
+/**
+* Show the grid
+* @type Void
+*/
+StormGrid.prototype.show = function() {  
+	this.gridEnabled = true;
+};
+
+/**
+* Check if grid is enabled
+* @returns {Bool}
+*/
+StormGrid.prototype.isEnabled = function() {  
+	return this.gridEnabled;
 };
 
 /**

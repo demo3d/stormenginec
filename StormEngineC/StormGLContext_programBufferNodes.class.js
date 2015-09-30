@@ -8,6 +8,10 @@ StormGLContext.prototype.initshader_BN = function() {
 		'attribute vec4 aNodeVertexPosY;\n'+
 		'attribute vec4 aNodeVertexPosZ;\n'+
 		
+		'attribute vec4 aNodeVertexColor;\n'+
+		'varying vec4 vNodeVertexColor;\n'+
+		
+		
 		
 		'uniform mat4 u_nodeWMatrix;\n'+
 		'uniform mat4 u_cameraWMatrix;\n'+
@@ -42,6 +46,13 @@ StormGLContext.prototype.initshader_BN = function() {
 			'float tex_nodeVertexPosZ = (unpack(aNodeVertexPosZ)*(u_workAreaSize*2.0))-u_workAreaSize;\n'+  
 			'vec4 nodeVertexPos = vec4(tex_nodeVertexPosX, tex_nodeVertexPosY, tex_nodeVertexPosZ, 1.0);'+
 			
+			///////////////////////////////////////
+			// NodeVertexColor
+			///////////////////////////////////////
+			// normalized and no needed divide by 255 (unpack(aNodeVertexPosX/255.0)) 	
+			'vNodeVertexColor = aNodeVertexColor;\n'+
+			
+			
 			
 			'mat4 nodepos = u_nodeWMatrix;'+
 			'nodepos[3][0] = nodePos.x;'+
@@ -54,8 +65,10 @@ StormGLContext.prototype.initshader_BN = function() {
 		'}';
 	var sourceFragment = this.precision+
 	
+		'varying vec4 vNodeVertexColor;\n'+
+		
 		'void main(void) {\n'+
-			'gl_FragColor = vec4(1.0,1.0,1.0, 1.0);\n'+
+			'gl_FragColor = vec4(vNodeVertexColor.r, vNodeVertexColor.g, vNodeVertexColor.b, vNodeVertexColor.a);\n'+
 		'}';
 	this.shader_BN = this.gl.createProgram();
 	this.createShader(this.gl, "BUFFER NODES", sourceVertex, sourceFragment, this.shader_BN, this.pointers_BufferNodes.bind(this));
@@ -84,6 +97,10 @@ StormGLContext.prototype.pointers_BufferNodes = function() {
 	this.attr_BN_NodeVertexPosY = this.gl.getAttribLocation(this.shader_BN, "aNodeVertexPosY");
 	this.attr_BN_NodeVertexPosZ = this.gl.getAttribLocation(this.shader_BN, "aNodeVertexPosZ");
 	
+	///////////////////////////////////////
+	// NodeVertexColor
+	///////////////////////////////////////
+	this.attr_BN_NodeVertexColor = this.gl.getAttribLocation(this.shader_BN, "aNodeVertexColor");
 	
 	this.Shader_BN_READY = true;
 };
@@ -112,84 +129,97 @@ StormGLContext.prototype.render_BufferNodes = function() {
 	for(var n=0; n < stormEngineC.bufferNodes.length; n++) {
 		var bn = stormEngineC.bufferNodes[0];
 		
-		this.gl.uniform1f(this.u_BN_uWorkAreaSize, bn.workAreaSize.toFixed(7));	
-		
-		this.gl.uniformMatrix4fv(this.u_BN_nodeWMatrix, false, bn.MPOS.transpose().e); 
-		
-		// WEBCLGL    
-		bn.webCLGL.enqueueNDRangeKernel(bn.kernelPosX, bn.CLGL_bufferNodePosX_TEMP); 
-		bn.webCLGL.enqueueNDRangeKernel(bn.kernelPosY, bn.CLGL_bufferNodePosY_TEMP); 
-		bn.webCLGL.enqueueNDRangeKernel(bn.kernelPosZ, bn.CLGL_bufferNodePosZ_TEMP); 
-		
-		//this.webCLGL.enqueueNDRangeKernel(this.kernelDirXYZ, this.buffer_DirTemp); 
-		
-		bn.webCLGL.copy(bn.CLGL_bufferNodePosX_TEMP, bn.CLGL_bufferNodePosX);
-		bn.webCLGL.copy(bn.CLGL_bufferNodePosY_TEMP, bn.CLGL_bufferNodePosY);
-		bn.webCLGL.copy(bn.CLGL_bufferNodePosZ_TEMP, bn.CLGL_bufferNodePosZ);
-		
-		//this.webCLGL.copy(this.buffer_DirTemp, this.buffer_Dir);
-		
-		
-		var arr4Uint8_X = bn.webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(bn.CLGL_bufferNodePosX);
-		var arr4Uint8_Y = bn.webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(bn.CLGL_bufferNodePosY); 
-		var arr4Uint8_Z = bn.webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(bn.CLGL_bufferNodePosZ);
-		
-		
-		
-		
-		this.gl.useProgram(this.shader_BN); 
-		
-		
-		///////////////////////////////////////
-		// NodePos
-		///////////////////////////////////////
-		this.gl.enableVertexAttribArray(this.attr_BN_NodePosX);
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodePosX);
-		//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_X, this.gl.DYNAMIC_DRAW);
-		this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_X);   
-		this.gl.vertexAttribPointer(this.attr_BN_NodePosX, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!! 
-		
-		this.gl.enableVertexAttribArray(this.attr_BN_NodePosY);
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodePosY);
-		//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_Y, this.gl.DYNAMIC_DRAW);
-		this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_Y); 
-		this.gl.vertexAttribPointer(this.attr_BN_NodePosY, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
-		
-		this.gl.enableVertexAttribArray(this.attr_BN_NodePosZ);
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodePosZ);
-		//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_Z, this.gl.DYNAMIC_DRAW);
-		this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_Z);  
-		this.gl.vertexAttribPointer(this.attr_BN_NodePosZ, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
-		
-		
-		///////////////////////////////////////
-		// NodeVertexPos
-		///////////////////////////////////////
-		this.gl.enableVertexAttribArray(this.attr_BN_NodeVertexPosX);
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodeVertexPosX);
-		//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_X, this.gl.DYNAMIC_DRAW);
+		if(bn.arrayNodeId.length) {
+			this.gl.uniform1f(this.u_BN_uWorkAreaSize, (bn.workAreaSize).toFixed(7));	
+			
+			this.gl.uniformMatrix4fv(this.u_BN_nodeWMatrix, false, bn.MPOS.transpose().e); 
+			
+			// WEBCLGL    
+			bn.webCLGL.enqueueNDRangeKernel(bn.kernelPosX, bn.CLGL_bufferNodePosX_TEMP); 
+			bn.webCLGL.enqueueNDRangeKernel(bn.kernelPosY, bn.CLGL_bufferNodePosY_TEMP); 
+			bn.webCLGL.enqueueNDRangeKernel(bn.kernelPosZ, bn.CLGL_bufferNodePosZ_TEMP); 
+			
+			//this.webCLGL.enqueueNDRangeKernel(this.kernelDirXYZ, this.buffer_DirTemp); 
+			
+			bn.webCLGL.copy(bn.CLGL_bufferNodePosX_TEMP, bn.CLGL_bufferNodePosX);
+			bn.webCLGL.copy(bn.CLGL_bufferNodePosY_TEMP, bn.CLGL_bufferNodePosY);
+			bn.webCLGL.copy(bn.CLGL_bufferNodePosZ_TEMP, bn.CLGL_bufferNodePosZ);
+			
+			//this.webCLGL.copy(this.buffer_DirTemp, this.buffer_Dir);
+			
+			
+			var arr4Uint8_X = bn.webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(bn.CLGL_bufferNodePosX);
+			var arr4Uint8_Y = bn.webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(bn.CLGL_bufferNodePosY); 
+			var arr4Uint8_Z = bn.webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(bn.CLGL_bufferNodePosZ);
+			
+			
+			
+			
+			this.gl.useProgram(this.shader_BN); 
+			
+			
+			///////////////////////////////////////
+			// NodePos
+			///////////////////////////////////////
+			this.gl.enableVertexAttribArray(this.attr_BN_NodePosX);
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodePosX);
+			//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_X, this.gl.DYNAMIC_DRAW);
+			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_X);    
+			this.gl.vertexAttribPointer(this.attr_BN_NodePosX, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!! 
+			
+			this.gl.enableVertexAttribArray(this.attr_BN_NodePosY);
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodePosY);
+			//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_Y, this.gl.DYNAMIC_DRAW);
+			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_Y); 
+			this.gl.vertexAttribPointer(this.attr_BN_NodePosY, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
+			
+			this.gl.enableVertexAttribArray(this.attr_BN_NodePosZ);
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodePosZ);
+			//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_Z, this.gl.DYNAMIC_DRAW);
+			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_Z);   
+			this.gl.vertexAttribPointer(this.attr_BN_NodePosZ, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
+			
+			
+			///////////////////////////////////////
+			// NodeVertexPos
+			///////////////////////////////////////
+			this.gl.enableVertexAttribArray(this.attr_BN_NodeVertexPosX);
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodeVertexPosX);
+			//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_X, this.gl.DYNAMIC_DRAW);
+				//this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_X);   
+			this.gl.vertexAttribPointer(this.attr_BN_NodeVertexPosX, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!! 
+			
+			this.gl.enableVertexAttribArray(this.attr_BN_NodeVertexPosY);
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodeVertexPosY);
+			//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_Y, this.gl.DYNAMIC_DRAW);
+				//this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_Y); 
+			this.gl.vertexAttribPointer(this.attr_BN_NodeVertexPosY, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
+			
+			this.gl.enableVertexAttribArray(this.attr_BN_NodeVertexPosZ);
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodeVertexPosZ);
+			//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_Z, this.gl.DYNAMIC_DRAW);
+				//this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_Z);  
+			this.gl.vertexAttribPointer(this.attr_BN_NodeVertexPosZ, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
+			
+			
+			///////////////////////////////////////
+			// NodeVertexColor
+			///////////////////////////////////////
+			this.gl.enableVertexAttribArray(this.attr_BN_NodeVertexColor);
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodeVertexColor);
+			//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_X, this.gl.DYNAMIC_DRAW);
 			//this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_X);   
-		this.gl.vertexAttribPointer(this.attr_BN_NodeVertexPosX, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!! 
-		
-		this.gl.enableVertexAttribArray(this.attr_BN_NodeVertexPosY);
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodeVertexPosY);
-		//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_Y, this.gl.DYNAMIC_DRAW);
-			//this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_Y); 
-		this.gl.vertexAttribPointer(this.attr_BN_NodeVertexPosY, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
-		
-		this.gl.enableVertexAttribArray(this.attr_BN_NodeVertexPosZ);
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodeVertexPosZ);
-		//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_Z, this.gl.DYNAMIC_DRAW);
-			//this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_Z);  
-		this.gl.vertexAttribPointer(this.attr_BN_NodeVertexPosZ, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
-		
-		///////////////////////////////////////
-		// NodeIndices
-		///////////////////////////////////////
-		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, bn.GL_bufferNodeIndices);
-		this.gl.drawElements(4, bn.arrayNodeIndices.length, this.gl.UNSIGNED_SHORT, 0);
-		
-		//this.gl.drawArrays(4, 0, bn.arrayNodeIndices.length); // 4 triangles, 
+			this.gl.vertexAttribPointer(this.attr_BN_NodeVertexColor, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!! 
+			
+			
+			///////////////////////////////////////
+			// NodeIndices
+			///////////////////////////////////////
+			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, bn.GL_bufferNodeIndices);
+			this.gl.drawElements(4, bn.arrayNodeIndices.length, this.gl.UNSIGNED_SHORT, 0);
+			
+			//this.gl.drawArrays(4, 0, bn.arrayNodeIndices.length); // 4 triangles,
+		}
 	}	
 		
 	if(this.view_SceneNoDOF || stormEngineC.defaultCamera.DOFenable == false) {

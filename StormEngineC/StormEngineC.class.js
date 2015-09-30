@@ -341,12 +341,13 @@ StormEngineC.prototype.loadManager = function() {
 	
 	this.utils = new StormUtils();
 	this.clgl = new WebCLGL(this.stormGLContext.gl);
+	this.clglBufferNodes = new WebCLGL();
 	
 	this.stormMesh = new StormMesh();
 	this.giv2 = new StormGI();
 	
 	this.grid = new StormGrid();
-	this.grid.show(100.0, 1.0);
+	this.grid.generate(100.0, 1.0);
 	
 	// OVERLAY TRANSFORMS  
 	this.defaultTransform = 0; // 0=position, 1=rotation, 2=scale
@@ -522,6 +523,12 @@ StormEngineC.prototype.loadManager = function() {
 		    	this.setView("BACK");
 		    } else if(String.fromCharCode(e.keyCode) == "T") {
 		    	this.setView("TOP");
+		    } else if(String.fromCharCode(e.keyCode) == "G") {
+		    	if(this.grid.isEnabled()) {
+		    		this.grid.hide();
+		    	} else {
+		    		this.grid.show();
+		    	}
 		    } else if(String.fromCharCode(e.keyCode) == "1") {
 		    	stormEngineC.stormGLContext.drawElementsMode(4);
 		    } else if(String.fromCharCode(e.keyCode) == "2") {
@@ -1558,8 +1565,8 @@ StormEngineC.prototype.createVoxelizator = function() {
 * Create bufferNodes
 * @returns {StormBufferNodes}
 */
-StormEngineC.prototype.createBufferNodes = function() { 	
-	var bn = new StormBufferNodes();
+StormEngineC.prototype.createBufferNodes = function(jsonIn) { 	
+	var bn = new StormBufferNodes(jsonIn);
 	bn.idNum = this.bufferNodes.length;
 	bn.name = 'buffernodes '+this.idxBufferNodes++; 
 	this.bufferNodes.push(bn); 
