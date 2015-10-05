@@ -10,8 +10,6 @@ WebCLGLKernel = function(gl, source, header) {
 	
 	this.utils = new WebCLGLUtils(this.gl);
 	
-	this.ready = false;
-	
 	this.in_values = []; //{value,type,name,idPointer} 
 	// type: 'buffer', 'buffer4' or 'float' (sampler R, sampler RGBA or uniform1f) 
 	// idPointer to: this.samplers or this.uniformsFloat (according to type)
@@ -56,6 +54,7 @@ WebCLGLKernel.prototype.setKernelSource = function(source, header) {
 	this.source = this.source.replace(/^\w* \w*\([\w\s\*,]*\) {/gi, '').replace(/}(\s|\t)*$/gi, '');
 	//console.log('minified source: '+this.source);
 	this.source = this.parse(this.source);
+	this.compile();
 };
 /**
 * @private 
@@ -87,50 +86,8 @@ WebCLGLKernel.prototype.parse = function(source) {
 	return source;
 };
 /**
-* Bind float or a WebCLGLBuffer to a kernel argument
-* @type Void
-* @param {Int} numArgument
-* @param {Float|WebCLGLBuffer} data
-*/
-WebCLGLKernel.prototype.setKernelArg = function(numArgument, data) {
-	var isNewArg = (this.in_values[numArgument] == undefined || this.in_values[numArgument].value == undefined) ? true : false;
-	this.in_values[numArgument].value = data;
-	if(isNewArg) {
-		//this.updatePointers();
-	} else { 
-		if(this.in_values[numArgument].type == 'buffer' || this.in_values[numArgument].type == 'buffer4') {
-			this.samplers[this.in_values[numArgument].idPointer].value = this.in_values[numArgument].value;
-		} else if(this.in_values[numArgument].type == 'float') {
-			this.uniformsFloat[this.in_values[numArgument].idPointer].value = this.in_values[numArgument].value;
-		}
-	}
-};
-
-/**
-* Check if kernel is compilable
-* @returns {Bool}
 * @private 
 */
-WebCLGLKernel.prototype.isCompilable = function() {
-	for(var n = 0, f = this.in_values.length; n < f; n++)
-		if(this.in_values[n].value == undefined)
-			return false;
-	return true;
-};
-/**
-* Check if kernel is ready
-* @returns {Bool}
-* @private 
-*/
-WebCLGLKernel.prototype.isReady = function() {
-	if(this.ready == true) return true;
-	else if(this.isCompilable()) this.compile();
-};
-
-/**
-* Use this function if you update the source kernel "setKernelSource()" after of the call to enqueueNDRangeKernel
-* @type Void
- */
 WebCLGLKernel.prototype.compile = function() {
 	lines_uniforms = function(in_values) {
 		str = '';
@@ -188,7 +145,6 @@ WebCLGLKernel.prototype.compile = function() {
 	this.attr_VertexPos = this.gl.getAttribLocation(this.kernel, "aVertexPosition");
 	this.attr_TextureCoord = this.gl.getAttribLocation(this.kernel, "aTextureCoord");
 	
-	this.ready = true;
 	return true;
 };
 /**
@@ -209,3 +165,37 @@ WebCLGLKernel.prototype.updatePointers = function() {
 		}
 	}
 };
+/**
+* Bind float or a WebCLGLBuffer to a kernel argument
+* @type Void
+* @param {Int|String} argument Id of argument or name of this
+* @param {Float|WebCLGLBuffer} data
+*/
+WebCLGLKernel.prototype.setKernelArg = function(argument, data) {
+	var numArg;
+	if(typeof argument != "string") {
+		numArg = argument;
+	} else {
+		for(var n=0, fn = this.in_values.length; n < fn; n++) {
+			if(this.in_values[n].name == argument) {
+				numArg = n;
+				break;
+			}
+		}
+	}
+	
+	if(this.in_values[numArg] == undefined) {
+		console.log("argument "+argument+" not exist in this kernel");
+		return;
+	}
+	this.in_values[numArg].value = data;
+	
+	if(this.in_values[numArg].type == 'buffer' || this.in_values[numArg].type == 'buffer4') {
+		this.samplers[this.in_values[numArg].idPointer].value = this.in_values[numArg].value;
+	} else if(this.in_values[numArg].type == 'float') {
+		this.uniformsFloat[this.in_values[numArg].idPointer].value = this.in_values[numArg].value;
+	}
+};
+
+
+

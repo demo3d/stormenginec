@@ -253,7 +253,7 @@ StormControllerTargetCam.prototype.updateFC = function(elapsed) {
 * @private 
 */
 StormControllerTargetCam.prototype.updateCameraGoalFC = function(event) {
-	if(stormEngineC.draggingNodeNow != false) {
+	if(stormEngineC.dragging != false) {
 		event.preventDefault(); 
 	} else {
 		if(this.middleButton == 1) {

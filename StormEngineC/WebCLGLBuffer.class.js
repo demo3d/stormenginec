@@ -6,7 +6,7 @@
 * @property {Array<Float>} inData Original array
 * @property {Int} [offset=0] offset of buffer
 */
-WebCLGLBuffer = function(gl, length, linear) { 
+WebCLGLBuffer = function(gl, length, type, linear) { 
 	this.gl = gl;
 	 
 	this._floatSupport = (this.gl.getExtension('OES_texture_float')) ? true : false;
@@ -21,19 +21,21 @@ WebCLGLBuffer = function(gl, length, linear) {
 	else
 		this._supportFormat = this.gl.UNSIGNED_BYTE; 
 		
+	this.type = (type != undefined) ? type : 'FLOAT'; // FLOAT OR FLOAT4
 	if(length instanceof Object) { 
 		this.length = length[0]*length[1];
 		this.W = length[0];
 		this.H = length[1];
 	} else {
 		this.length = length;
-		this.W = Math.sqrt(length);
+		this.W = Math.ceil(Math.sqrt(this.length)); 
 		this.H = this.W;
 	}
-	this.type = 'FLOAT'; // FLOAT OR FLOAT4
+	this.utils = new WebCLGLUtils(this.gl);
+	
 	this.offset = 0;
 	this.linear = linear;
-	this.utils = new WebCLGLUtils(this.gl);
+	
 	
 	this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, false);
 	this.gl.pixelStorei(this.gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);

@@ -65,7 +65,8 @@
 				
 				
 				
-				
+				//var Node = stormEngineC.createNode();
+				//Node.loadBox();
 				
 				
 				
@@ -74,12 +75,17 @@
 				////////////////////////////////////////////////
 				var graph = stormEngineC.createGraph({"workAreaSize": 100.0});
 				
-				var numNodes = 1000;
-				var numLinks = 300;
+				//stormEngineC.editSelectedNode();
+				//stormEngineC.selectNode(graph.bufferNodes);
+				
 				
 				// mesh to use
 				var meshNode = new StormNode();
 				meshNode.loadBox();
+				
+				
+				var numNodes = 2000;
+				var numLinks = 500;
 				
 				var idx = 4001;
 				var nodePosX = -(graph.workAreaSize/2);
@@ -91,6 +97,7 @@
 										"node": meshNode,
 										"color": $V3([Math.random(), Math.random(), Math.random()])
 										});
+					graph.updateNodes();
 					
 					nodePosX++;
 					
@@ -103,7 +110,7 @@
 				};
 				
 				
-				for(var n=0; n < 1000; n++) {
+				for(var n=0; n < numNodes; n++) {
 					var x = -(graph.workAreaSize/2)+(Math.random()*graph.workAreaSize);
 					var y = -(graph.workAreaSize/2)+(Math.random()*graph.workAreaSize);
 					var z = -(graph.workAreaSize/2)+(Math.random()*graph.workAreaSize);
@@ -115,11 +122,51 @@
 										"color": $V3([Math.random(), Math.random(), Math.random()])
 										});
 				}
+				graph.updateNodes();
+				
+				for(var n=0; n < numLinks; n++) {
+					var A = parseInt(Math.random()*numNodes).toString();
+					var B = parseInt(Math.random()*numNodes).toString();
+					
+					graph.addLinkBN({"origin": A,
+									"target": B});
+				}
+				graph.updateLinks();
 				
 				
-				/*for(var n=0; n < numLinks; n++) {
-					graph.addLink(parseInt(Math.random()*numNodes).toString(), parseInt(Math.random()*numNodes).toString());
-				}*/
+				/*
+				var node = graph.addNodeBN({
+					"id": "0",
+					"position": $V3([-1.0, 1.0, 0.0]),
+					"node": meshNode,
+					"color": $V3([1.0,0.0,0.0])
+					});
+				var node = graph.addNodeBN({
+					"id": "1",
+					"position": $V3([1.0, 1.0, 0.0]),
+					"node": meshNode,
+					"color": $V3([0.0,1.0,0.0])
+					});
+				graph.addLinkBN({"origin": "0",
+					"target": "1"}); 
+				*/
+				
+				/*
+				var node = graph.addNodeBN({
+					"id": "2",
+					"position": $V3([0.0, 1.0, -1.0]),
+					"node": meshNode,
+					"color": $V3([0.0,0.0,1.0])
+					});
+				var node = graph.addNodeBN({
+					"id": "3",
+					"position": $V3([0.0, 1.0, 1.0]),
+					"node": meshNode,
+					"color": $V3([0.0,0.0,1.0])
+					});
+				graph.addLinkBN({"origin": "2",
+								"target": "3"});
+				*/ 
 		</script>
 		<button onclick="ntt();">add Node</button>
 		<br />

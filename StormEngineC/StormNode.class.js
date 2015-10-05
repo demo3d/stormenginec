@@ -18,6 +18,8 @@ StormNode = function() {
 	this.childNodes = [];
 	this.buffersObjects = [];
 	this.onloadFunction = undefined; 
+	
+	this.selectedNodeInEditionMode = false;
 	this.isDraggable = false;
 	this.onmousedownFunction = undefined;
 	this.onmouseupFunction = undefined;
@@ -98,6 +100,29 @@ StormNode = function() {
 	// StormRenderEMR
 	this.materialEMR = undefined; // object:type absorption - light:type emission
 	//
+};
+/**
+* Edit the selected node
+* @type Void
+*/
+StormNode.prototype.editSelectedNode = function() {
+	this.selectedNodeInEditionMode = true;
+};
+
+/**
+* Unedit the selected node
+* @type Void
+*/
+StormNode.prototype.uneditSelectedNode = function() {
+	this.selectedNodeInEditionMode = false;
+};
+
+/**
+* Check if selected node is in edition mode
+* @returns {Bool}
+*/
+StormNode.prototype.selectedNodeIsInEditionMode = function() {
+	return this.selectedNodeInEditionMode;
 };
 /**
 * Allow dragging this node when to be selected
@@ -1179,7 +1204,38 @@ StormNode.prototype.setPosition = function(vec) {
 		this.nodeCtxWebGL.MROTXYZ = this.MROTXYZ.inverse();
 	} else if(this.objectType == 'polarityPoint') {
 		this.MPOS = this.MPOS.setPosition(vec);
-		for(var n = 0, f = this.nodesProc.length; n < f; n++) this.nodesProc[n].updatekernelDir_Arguments();  
+		
+		for(var p = 0, fp = stormEngineC.polarityPoints.length; p < fp; p++) {
+			if(stormEngineC.polarityPoints[p] == this) {
+				var pp = stormEngineC.polarityPoints[p];
+				
+				for(var n = 0, fn = pp.nodesProc.length; n < fn; n++) {
+					var nproc = pp.nodesProc[n];
+					
+					var oper = pp.MPOS.x(pp.getPosition());
+					
+					var selectedKernel;
+					if(nproc.kernelDirXYZ != undefined) {
+						selectedKernel = nproc.kernelDirXYZ;	
+						selectedKernel.setKernelArg('pole'+p+'X', oper.e[3]); 
+						selectedKernel.setKernelArg('pole'+p+'Y', oper.e[7]); 
+						selectedKernel.setKernelArg('pole'+p+'Z', oper.e[11]);
+					}
+					if(nproc.kernelNodeDir != undefined) {
+						selectedKernel = nproc.kernelNodeDir;
+						selectedKernel.setKernelArg('pole'+p+'X', oper.e[3]); 
+						selectedKernel.setKernelArg('pole'+p+'Y', oper.e[7]); 
+						selectedKernel.setKernelArg('pole'+p+'Z', oper.e[11]);
+					}
+					if(nproc.kernelLinkDir != undefined) {
+						selectedKernel = nproc.kernelLinkDir;
+						selectedKernel.setKernelArg('pole'+p+'X', oper.e[3]); 
+						selectedKernel.setKernelArg('pole'+p+'Y', oper.e[7]); 
+						selectedKernel.setKernelArg('pole'+p+'Z', oper.e[11]);
+					}
+				}
+			}
+		}
 	} else if(this.objectType == 'camera') {
 		if(this.body != undefined) {
 			this.nodePivot.body.moveTo(new Vector3D(vec.e[0],vec.e[1],vec.e[2]));

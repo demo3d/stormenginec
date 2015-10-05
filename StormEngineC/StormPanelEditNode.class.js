@@ -155,8 +155,26 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 												}
 												});
 		};
+		lines_editMode = function() {
+			var str = 	'EditMode: <input type="checkbox" id="INPUTID_StormEditNode_editMode" /><br />';
+			$('#DIVID_StormEditNode_edits').append(str);
+			
+			if(stormEngineC.nearNode.selectedNodeIsInEditionMode() == true) {
+				$("#INPUTID_StormEditNode_editMode").attr('checked','true');
+			} else {
+				$("#INPUTID_StormEditNode_editMode").removeAttr('checked');
+			}
+			
+			$("#INPUTID_StormEditNode_editMode").on('click', function() {
+				if(stormEngineC.nearNode.selectedNodeIsInEditionMode() == true) {
+					stormEngineC.nearNode.uneditSelectedNode();
+				} else {
+					stormEngineC.nearNode.editSelectedNode();
+				}
+			});
+		};
 		lines_draggable = function() {
-			var str = 	'Draggable: <input type="checkbox" id="INPUTID_StormEditNode_draggable" />';
+			var str = 	'Draggable: <input type="checkbox" id="INPUTID_StormEditNode_draggable" /><br />';
 			$('#DIVID_StormEditNode_edits').append(str);
 			
 			if(stormEngineC.nearNode.isDraggable == true) {
@@ -172,7 +190,47 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 					stormEngineC.nearNode.draggable(true);
 				}
 			});
+		};		
+		lines_polarity = function() {
+			var str = 	'POLARITY:<br />'+
+						'+ <input type="radio" name="INPUTNAME_StormEditNode_pp_polarity"  id="INPUTID_StormEditNode_polarity_positive" /> '+
+						'- <input type="radio" name="INPUTNAME_StormEditNode_pp_polarity"  id="INPUTID_StormEditNode_polarity_negative" /><br />';
+			$('#DIVID_StormEditNode_edits').append(str);
+			
+			if(stormEngineC.nearNode.polarity == 1) {
+				$("#INPUTID_StormEditNode_polarity_positive").attr('checked','true');
+			} else {
+				$("#INPUTID_StormEditNode_polarity_negative").attr('checked','true');
+			}
+			
+			$("#INPUTID_StormEditNode_polarity_positive").on('click', function() {
+				stormEngineC.nearNode.setPolarity(1);
+			});
+			$("#INPUTID_StormEditNode_polarity_negative").on('click', function() {
+				stormEngineC.nearNode.setPolarity(0);
+			});
+		};		
+		lines_orbit = function() {
+			var str = 	'ORBIT: <input type="checkbox" id="INPUTID_StormEditNode_orbit" /><br />';
+			$('#DIVID_StormEditNode_edits').append(str);
+			
+			if(stormEngineC.nearNode.orbit == 1) {
+				$("#INPUTID_StormEditNode_orbit").attr('checked','true');
+			} else {
+				$("#INPUTID_StormEditNode_orbit").removeAttr('checked');
+			}
+			
+			$("#INPUTID_StormEditNode_orbit").on('click', function() {
+				if(stormEngineC.nearNode.orbit == 1) {
+					stormEngineC.nearNode.disableOrbit();
+				} else {
+					stormEngineC.nearNode.enableOrbit();
+				}
+			});
 		};
+		
+		
+		
 		
 		
 		if(stormEngineC.nearNode.objectType == 'node') {
@@ -181,6 +239,7 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 								
 				lines_position();
 				lines_rotation();
+				lines_editMode();
 				lines_draggable();
 			} else {
 				$("#INPUTID_StormEditNode_visible").removeAttr('checked');
@@ -196,20 +255,8 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 			lines_position();
 			lines_draggable();
 			
-			var currPolarityPositive = (stormEngineC.nearNode.polarity == 1) ? 'checked' : '';
-			var currPolarityNegative = (stormEngineC.nearNode.polarity == 0) ? 'checked' : '';
-			var str = '<br />POLARITY +<input type="radio" name="INPUTNAME_StormEditNode_pp_polarity" onclick="stormEngineC.nearNode.setPolarity(1);" '+currPolarityPositive+' />'+
-						' -<input type="radio" name="INPUTNAME_StormEditNode_pp_polarity" onclick="stormEngineC.nearNode.setPolarity(0);" '+currPolarityNegative+' />'; 
-			$('#DIVID_StormEditNode_edits').append(str);
-			
-			var currPPorbitEnable = (stormEngineC.nearNode.orbit == 1) ? 'checked="true"' : '';
-			var str = '<br />ORBIT <input type="checkbox" id="INPUTID_StormEditNode_pp_orbit" '+currPPorbitEnable+' />';
-			$('#DIVID_StormEditNode_edits').append(str);
-			$("#INPUTID_StormEditNode_pp_orbit").on('click', function() {
-												var enableDest = $("#INPUTID_StormEditNode_pp_orbit").attr('checked');
-												if(enableDest=='checked') stormEngineC.nearNode.enableOrbit();
-												else stormEngineC.nearNode.disableOrbit();
-											});
+			lines_polarity();			
+			lines_orbit();
 											
 			var str= '<br />FORCE <input id="INPUTNAME_StormEditNode_pp_spinnerForce" value="'+stormEngineC.nearNode.force+'" style="color:#FFF;width:40px">';
 			$('#DIVID_StormEditNode_edits').append(str);
@@ -431,6 +478,17 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				$("#INPUTID_StormEditNode_visible").removeAttr('checked');
 			}
 		}
+		if(stormEngineC.nearNode.objectType == 'buffernodes') {
+			if(stormEngineC.nearNode.visibleOnContext == true) {
+				$("#INPUTID_StormEditNode_visible").attr('checked','true');
+							
+				lines_position();
+				lines_rotation();
+				lines_editMode();
+			} else {
+				$("#INPUTID_StormEditNode_visible").removeAttr('checked');
+			}
+		}		
 		if(stormEngineC.nearNode.objectType == 'camera') {
 			if(stormEngineC.nearNode.visibleOnContext == true) {
 				$("#INPUTID_StormEditNode_visible").attr('checked','true');

@@ -39,9 +39,9 @@ StormGLContext.prototype.initShader_ParticlesAux = function() {
 		
 		'void main(void) {\n'+
 			// normalized and no needed divide by 255 (unpack(aVertexPositionX/255.0)) 	
-			'float texturePosX = (unpack(aVertexPositionX)*'+(stormEngineC.particlesOffset*2).toFixed(7)+')-'+stormEngineC.particlesOffset.toFixed(7)+';\n'+  
-			'float texturePosY = (unpack(aVertexPositionY)*'+(stormEngineC.particlesOffset*2).toFixed(7)+')-'+stormEngineC.particlesOffset.toFixed(7)+';\n'+  
-			'float texturePosZ = (unpack(aVertexPositionZ)*'+(stormEngineC.particlesOffset*2).toFixed(7)+')-'+stormEngineC.particlesOffset.toFixed(7)+';\n'+  
+			'float texturePosX = (unpack(aVertexPositionX)*'+(stormEngineC.particlesOffset*2).toFixed(20)+')-'+stormEngineC.particlesOffset.toFixed(20)+';\n'+  
+			'float texturePosY = (unpack(aVertexPositionY)*'+(stormEngineC.particlesOffset*2).toFixed(20)+')-'+stormEngineC.particlesOffset.toFixed(20)+';\n'+  
+			'float texturePosZ = (unpack(aVertexPositionZ)*'+(stormEngineC.particlesOffset*2).toFixed(20)+')-'+stormEngineC.particlesOffset.toFixed(20)+';\n'+  
 			
 			'vNodeWMatrix = vec4(texturePosX,texturePosY,texturePosZ, 1.0);'+
 			'if(uLightPass == 1) vpositionLightViewportRegion = ScaleMatrix * uPMatrixLight * u_lightWMatrix * vNodeWMatrix;\n'+

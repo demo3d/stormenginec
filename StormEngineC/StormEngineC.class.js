@@ -245,7 +245,7 @@ StormEngineC = function() {
 	this.oldMousePosClickX = 0;
 	this.oldMousePosClickY = 0; 
 	this.isMouseDown = false;
-	this.draggingNodeNow = false;
+	this.dragging = false;
 	
 	this.stormGLContext,this.clgl,this.utils,this.stormMesh;
 	this.giv2;

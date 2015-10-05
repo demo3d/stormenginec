@@ -107,31 +107,48 @@ StormGraph.prototype.update = function(idA, idB) {
 * 	@param {StormV3} jsonIn.position Position of node
 * 	@param {StormNode} jsonIn.node Node with the mesh for the node
 * 	@param {StormV3} jsonIn.color Color of the node (values from 0.0 to 1.0)
- * @returns {Int}
+ * @returns {String}
  */
 StormGraph.prototype.addNodeBN = function(jsonIn) {
-	var bnId = this.bufferNodes.addNode({
-						"position": jsonIn.position,
-						"node": jsonIn.node,
-						"color": jsonIn.color
-						});
+	var bn_nodeArrayItemStart = this.bufferNodes.addNode({
+									"position": jsonIn.position,
+									"node": jsonIn.node,
+									"color": jsonIn.color
+								});
 	
+	// ADD NODE TO ARRAY NODES
+	// this.nodes[__STRING_USER_NODEID__] = __INT_BUFFERNODE_nodeArrayItemStart__
+	this.nodes[jsonIn.id] = bn_nodeArrayItemStart;
 	
-	this.nodes[jsonIn.id] = bnId; // string id
-	
-	return this.nodes[jsonIn.id];
+	return jsonIn.id;
+};
+StormGraph.prototype.updateNodes = function(jsonIn) {
+	this.bufferNodes.updateNodes();
 };
 
+/**
+* Create new node for the graph
+* @param	{Object} jsonIn
+* 	@param {String} jsonIn.origin Node Origin for this link
+* 	@param {String} jsonIn.target Node Target for this link
+ */
 StormGraph.prototype.addLinkBN = function(jsonIn) {
-	var bnId = this.bufferNodes.addNode({
-						"id": jsonIn.id,
-						"position": jsonIn.position,
-						"node": jsonIn.node
-						});
+	var blId = this.bufferNodes.addLink({
+		"origin_nodeId": this.nodes[jsonIn.origin].nodeId,
+		"target_nodeId": this.nodes[jsonIn.target].nodeId,
+		"origin_itemStart": this.nodes[jsonIn.origin].itemStart,
+		"target_itemStart": this.nodes[jsonIn.target].itemStart
+		});
 	
-	
-	this.nodes[jsonIn.id] = bnId; // string id
-	
-	return this.nodes[jsonIn.id];
+	// ADD LINK TO ARRAY LINKS
+	this.links.push({
+		"origin_nodeId": this.nodes[jsonIn.origin].nodeId,
+		"target_nodeId": this.nodes[jsonIn.target].nodeId,
+		"origin_itemStart": this.nodes[jsonIn.origin].itemStart,
+		"target_itemStart": this.nodes[jsonIn.target].itemStart
+		});
+};
+StormGraph.prototype.updateLinks = function(jsonIn) {
+	this.bufferNodes.updateLinks();
 };
 

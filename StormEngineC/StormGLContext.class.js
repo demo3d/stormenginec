@@ -19,6 +19,7 @@ StormGLContext = function(stormCanvasObject, loadScene) {
 	this.particles = stormEngineC.particles;
 	this.polarityPoints = stormEngineC.polarityPoints;
 	this.lights = stormEngineC.lights;
+	this.bufferNodes = stormEngineC.bufferNodes;
 	
 	this.far = 500.0;
 	this.glowSize = 0.5;
@@ -439,6 +440,7 @@ StormGLContext.prototype.initShaders = function() {
 			if(!this._typeMobile && this._supportFormat == this.gl.FLOAT) {
 				this.initShader_ParticlesAux();
 				this.initshader_BN();
+				this.initshader_BNLinks();
 				this.initShader_Lines();
 				this.initShader_DOF();
 			} 
@@ -667,6 +669,9 @@ StormGLContext.prototype.renderGLContext = function() {
 	}
 	if(this.Shader_BN_READY) {
 	    this.render_BufferNodes();	    	
+	}
+	if(this.shader_BNLinks_READY) {
+	    this.render_BufferNodesLinks();	    	
 	}
 	
 	this.hitRectRegion_onclick(); 

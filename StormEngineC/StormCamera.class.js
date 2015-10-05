@@ -93,28 +93,23 @@ StormCamera.prototype.setView = function(view) {
 	this.resetAxis();
 	switch(view) {
 		case 'LEFT':
-			this.nodePivot.setRotation(stormEngineC.utils.degToRad(-90-180),false,$V3([0.0,1.0,0.0]));
-			break;
-		case 'RIGHT':
 			this.nodePivot.setRotation(stormEngineC.utils.degToRad(-90),false,$V3([0.0,1.0,0.0]));
 			break;
-		case 'FRONT':
-			this.nodePivot.setRotation(stormEngineC.utils.degToRad(180),false,$V3([0.0,1.0,0.0]));
+		case 'RIGHT':			
+			this.nodePivot.setRotation(stormEngineC.utils.degToRad(-90-180),false,$V3([0.0,1.0,0.0]));
 			break;
-		case 'BACK':
+		case 'FRONT':
 			this.nodePivot.setRotation(stormEngineC.utils.degToRad(0),false,$V3([0.0,1.0,0.0]));
 			break;
+		case 'BACK':			
+			this.nodePivot.setRotation(stormEngineC.utils.degToRad(180),false,$V3([0.0,1.0,0.0]));
+			break;
 		case 'TOP':
-			this.nodePivot.setRotation(stormEngineC.utils.degToRad(90),false,$V3([1.0,0.0,0.0]));
-			this.nodePivot.setRotation(stormEngineC.utils.degToRad(180),false,$V3([0.0,1.0,0.0]));
-			break;
-		case 'BOTTOM':
 			this.nodePivot.setRotation(stormEngineC.utils.degToRad(-90),false,$V3([1.0,0.0,0.0]));
-			this.nodePivot.setRotation(stormEngineC.utils.degToRad(180),false,$V3([0.0,1.0,0.0]));
 			break;
-	}
-	if(this.nodePivot != undefined) {
-		this.nodePivot.setRotationX(stormEngineC.utils.degToRad(-0.01),true,$V3([1.0,0.0,0.0]));
+		case 'BOTTOM':			
+			this.nodePivot.setRotation(stormEngineC.utils.degToRad(90),false,$V3([1.0,0.0,0.0]));
+			break;
 	}
 };
 
