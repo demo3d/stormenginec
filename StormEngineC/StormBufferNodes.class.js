@@ -294,7 +294,7 @@ StormBufferNodes.prototype.updateNodes = function() {
 		this.CLGL_bufferNodeId.remove();
 		this.CLGL_bufferNodeId_TEMP.remove();
 	}
-	this.CLGL_bufferNodeId = this.generateCLGLBuffer(this.arrayNodeId, "FLOAT");
+	this.CLGL_bufferNodeId = this.generateCLGLBuffer(this.arrayNodeId, "FLOAT"); 
 	this.CLGL_bufferNodeId_TEMP = this.generateCLGLBuffer(this.arrayNodeId, "FLOAT");
 	
 	
@@ -1012,9 +1012,9 @@ StormBufferNodes.prototype.generatekernelDir_Source = function() {
 //*******************************************************************************************************************
 StormBufferNodes.prototype.generateCLGLBuffer = function(arr, type) {
 	var buffer_CLGL;
-	if(type == "FLOAT") {
+	if(type == "FLOAT") { // type FLOAT
 		buffer_CLGL = this.webCLGL.createBuffer(arr.length, type, (this.workAreaSize));
-	} else {
+	} else { // type FLOAT4
 		buffer_CLGL = this.webCLGL.createBuffer(arr.length/4, type, (this.workAreaSize));
 	}
 	this.webCLGL.enqueueWriteBuffer(buffer_CLGL, arr);

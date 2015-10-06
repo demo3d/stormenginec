@@ -8,20 +8,15 @@
 */
 WebCLGLBuffer = function(gl, length, type, linear) { 
 	this.gl = gl;
-	 
-	this._floatSupport = (this.gl.getExtension('OES_texture_float')) ? true : false;
-	if(this._floatSupport)
-		this._supportFormat = this.gl.FLOAT;
-	else
-		this._supportFormat = this.gl.UNSIGNED_BYTE;
-	
-	this._floatLinearSupport = (this.gl.getExtension('OES_texture_float_linear')) ? true : false; 
-	if(this._floatLinearSupport)
-		this._supportFormat = this.gl.FLOAT;
-	else
-		this._supportFormat = this.gl.UNSIGNED_BYTE; 
 		
-	this.type = (type != undefined) ? type : 'FLOAT'; // FLOAT OR FLOAT4
+	this.gl.getExtension('OES_texture_float');	
+	this.gl.getExtension('OES_texture_float_linear');
+	
+	this.type = (type != undefined) ? type : 'FLOAT';
+	this._supportFormat = this.gl.FLOAT;
+	if(this.type == "FLOAT4" || this.type == "FLOAT") this._supportFormat = this.gl.FLOAT;
+	if(this.type == "UINT4" || this.type == "UINT") this._supportFormat = this.gl.UNSIGNED_BYTE;
+	
 	if(length instanceof Object) { 
 		this.length = length[0]*length[1];
 		this.W = length[0];
@@ -34,7 +29,7 @@ WebCLGLBuffer = function(gl, length, type, linear) {
 	this.utils = new WebCLGLUtils(this.gl);
 	
 	this.offset = 0;
-	this.linear = linear;
+	this.linear = (linear != undefined && linear == true) ? true : false;
 	
 	
 	this.gl.pixelStorei(this.gl.UNPACK_FLIP_Y_WEBGL, false);
@@ -57,11 +52,19 @@ WebCLGLBuffer = function(gl, length, type, linear) {
 	
 	this.inData;
 	this.outArray4Uint8Array = new Uint8Array((this.W*this.H)*4); 
+	
+	this.outArray4Uint8ArrayX = new Uint8Array((this.W*this.H)*4); 
+	this.outArray4Uint8ArrayY = new Uint8Array((this.W*this.H)*4); 
+	this.outArray4Uint8ArrayZ = new Uint8Array((this.W*this.H)*4);
+	this.outArray4Uint8ArrayW = new Uint8Array((this.W*this.H)*4); 
+	this.outArray4x4Uint8Array = new Uint8Array((this.W*this.H)*4*4); 
+	
 	this.outArrayFloat32ArrayX = [];
 	this.outArrayFloat32ArrayY = [];
 	this.outArrayFloat32ArrayZ = [];
 	this.outArrayFloat32ArrayW = [];
 	this.outArray4Float32Array = [];
+	
 	
 	// FRAMEBUFFER FOR enqueueNDRangeKernel
 	this.rBuffer = this.gl.createRenderbuffer();
