@@ -24,6 +24,24 @@ StormBufferNodes = function(jsonIn) { StormNode.call(this);
 	//*******************************************************************************************************************
 	// NODES
 	//*******************************************************************************************************************
+	//POS XYZW
+	var kernelPos_Source = 'void main(	float4* posXYZW,'+
+										'float4* dir) {'+
+									'vec2 x = get_global_id();'+
+									'vec3 currentPos = posXYZW[x].xyz;\n'+ 
+									'vec4 dir = dir[x];'+
+									'vec3 currentDir = vec3(dir.x,dir.y,dir.z);\n'+   
+									'vec3 newPos = (currentPos+currentDir);\n'+
+									
+									'out_float4 = vec4(newPos, 1.0);\n'+ 
+							'}';
+	this.kernelNodePos = this.webCLGL.createKernel();
+	this.kernelNodePos.setKernelSource(kernelPos_Source);
+	
+	this.kernelNodeDir = this.webCLGL.createKernel(); 
+	this.kernelNodeDir.setKernelSource(this.generatekernelDir_Source());
+	
+	
 	// default mesh to use
 	var meshNode = new StormNode();
 	meshNode.loadBox();
@@ -42,16 +60,13 @@ StormBufferNodes = function(jsonIn) { StormNode.call(this);
 	///////////////////////////////////////
 	// NodePos
 	///////////////////////////////////////
+	this.arrayNodePosXYZW = [];
 	this.arrayNodePosX = [];
 	this.arrayNodePosY = [];
 	this.arrayNodePosZ = [];
 	
-	this.CLGL_bufferNodePosX;
-	this.CLGL_bufferNodePosY;
-	this.CLGL_bufferNodePosZ;
-	this.CLGL_bufferNodePosX_TEMP;
-	this.CLGL_bufferNodePosY_TEMP;
-	this.CLGL_bufferNodePosZ_TEMP;
+	this.CLGL_bufferNodePosXYZW;
+	this.CLGL_bufferNodePosXYZW_TEMP;
 	
 	this.GL_bufferNodePosX;
 	this.GL_bufferNodePosY;
@@ -60,16 +75,12 @@ StormBufferNodes = function(jsonIn) { StormNode.call(this);
 	///////////////////////////////////////
 	// NodeVertexPos
 	///////////////////////////////////////
-	this.arrayNodeVertexPosX = [];
-	this.arrayNodeVertexPosY = [];
-	this.arrayNodeVertexPosZ = [];
+	this.arrayNodeVertexPos = [];
 	
-	this.GL_bufferNodeVertexPosX;
-	this.GL_bufferNodeVertexPosY;
-	this.GL_bufferNodeVertexPosZ;
+	this.GL_bufferNodeVertexPos;
 	
 	///////////////////////////////////////
-	// NodeVertexPos
+	// NodeVertexColor
 	///////////////////////////////////////
 	this.arrayNodeVertexColor = [];
 	
@@ -108,6 +119,24 @@ StormBufferNodes = function(jsonIn) { StormNode.call(this);
 	//*******************************************************************************************************************
 	// LINKS
 	//*******************************************************************************************************************
+	//POS
+	var kernelPos_Source = 'void main(	float4* posXYZW,'+
+										'float4* dir) {'+
+									'vec2 x = get_global_id();'+
+									'vec3 currentPos = posXYZW[x].xyz;\n'+ 
+									'vec4 dir = dir[x];'+
+									'vec3 currentDir = vec3(dir.x,dir.y,dir.z);\n'+   
+									'vec3 newPos = (currentPos+currentDir);\n'+
+	
+									'out_float4 = vec4(newPos, 1.0);\n'+ 
+								'}';
+	this.kernelLinkPos = this.webCLGL.createKernel();
+	this.kernelLinkPos.setKernelSource(kernelPos_Source);
+	
+	this.kernelLinkDir = this.webCLGL.createKernel(); 
+	this.kernelLinkDir.setKernelSource(this.generatekernelDir_Source());
+	
+	
 	this.currentLinkId = 0;
 	
 	///////////////////////////////////////
@@ -127,13 +156,13 @@ StormBufferNodes = function(jsonIn) { StormNode.call(this);
 	///////////////////////////////////////
 	// LinkPos
 	///////////////////////////////////////
+	this.arrayLinkPosXYZW = [];
 	this.arrayLinkPosX = [];
 	this.arrayLinkPosY = [];
 	this.arrayLinkPosZ = [];
 	
-	this.CLGL_bufferLinkPosX;
-	this.CLGL_bufferLinkPosY;
-	this.CLGL_bufferLinkPosZ;
+	this.CLGL_bufferLinkPosXYZW;
+	this.CLGL_bufferLinkPosXYZW_TEMP;
 	
 	this.GL_bufferLinkPosX;
 	this.GL_bufferLinkPosY;
@@ -163,661 +192,6 @@ StormBufferNodes = function(jsonIn) { StormNode.call(this);
 };
 StormBufferNodes.prototype = Object.create(StormNode.prototype);
 
-
-
-
-
-
-
-
-
-
-
-
-//**********************************************************************************************************************************
-//**********************************************************************************************************************************
-//										NODES
-//**********************************************************************************************************************************
-//**********************************************************************************************************************************
-/**
-* Create new node for the graph
-* @param	{Object} jsonIn
-* 	@param {StormV3} jsonIn.position Position of node
-* 	@param {StormNode} jsonIn.node Node with the mesh for the node
-* 	@param {StormV3} jsonIn.color Color of the node (values from 0.0 to 1.0)
- * @returns {Int}
- */
-StormBufferNodes.prototype.addNode = function(jsonIn) { 
-	var nAIS = this.nodeArrayItemStart;
-	
-	// assign position for this node
-	var nodePosX = (jsonIn != undefined && jsonIn.position != undefined) ? jsonIn.position.e[0] : Math.random()*this.workAreaSize;
-	var nodePosY = (jsonIn != undefined && jsonIn.position != undefined) ? jsonIn.position.e[1] : Math.random()*this.workAreaSize;
-	var nodePosZ = (jsonIn != undefined && jsonIn.position != undefined) ? jsonIn.position.e[2] : Math.random()*this.workAreaSize;
-	// assign mesh for this node
-	var node = (jsonIn != undefined && jsonIn.node != undefined) ? jsonIn.node : meshNode;
-	// assign color for this node
-	var color = (jsonIn != undefined && jsonIn.color != undefined) ? jsonIn.color : $V3([1.0, 1.0, 1.0]);
-		
-	
-	//*******************************************************************************************************************
-	// FILL ARRAYS
-	//*******************************************************************************************************************
-	
-	for(var i=0; i < node.buffersObjects.length; i++) {
-		var bo = node.buffersObjects[i];
-		for(var n=0; n < bo.nodeMeshVertexArray.length/3; n++) {
-			var idxVertex = n*3;
-			
-			///////////////////////////////////////
-			// NodeId
-			///////////////////////////////////////
-			this.arrayNodeId.push(this.currentNodeId);
-			
-			///////////////////////////////////////
-			// NodePos
-			///////////////////////////////////////
-			this.arrayNodePosX.push(nodePosX);
-			this.arrayNodePosY.push(nodePosY);
-			this.arrayNodePosZ.push(nodePosZ);
-			
-			///////////////////////////////////////
-			// NodeVertexPos
-			///////////////////////////////////////
-			this.arrayNodeVertexPosX.push(bo.nodeMeshVertexArray[idxVertex]);
-			this.arrayNodeVertexPosY.push(bo.nodeMeshVertexArray[idxVertex+1]);
-			this.arrayNodeVertexPosZ.push(bo.nodeMeshVertexArray[idxVertex+2]);
-			//console.log(bo.nodeMeshVertexArray[idxVertex]);
-			
-			///////////////////////////////////////
-			// NodeVertexColor
-			///////////////////////////////////////
-			this.arrayNodeVertexColor.push(color.e[0]*255, color.e[1]*255, color.e[2]*255, 255);
-			
-			///////////////////////////////////////
-			// NodeDir
-			///////////////////////////////////////
-			this.arrayNodeDir.push(0, 0, 0, 255);
-			
-			///////////////////////////////////////
-			// NodePolaritys
-			///////////////////////////////////////
-			this.arrayNodePolaritys.push(0);
-			
-			///////////////////////////////////////
-			// NodeDestination
-			///////////////////////////////////////
-			this.arrayNodeDestination.push(0.0, 0.0, 0.0, 255);
-			
-			
-			this.nodeArrayItemStart++;
-		}
-	}
-	//console.log(this.arrayNodePosX.length);
-		
-	var maxNodeIndexId = 0;
-	for(var i=0; i < node.buffersObjects.length; i++) {
-		var bo = node.buffersObjects[i];
-		for(var n=0; n < bo.nodeMeshIndexArray.length; n++) {
-			var idxIndex = n;
-			
-			///////////////////////////////////////
-			// NodeIndices
-			///////////////////////////////////////
-			this.arrayNodeIndices.push(this.startIndexId+bo.nodeMeshIndexArray[idxIndex]);
-			//console.log(this.startIndexId+bo.nodeMeshIndexArray[idxIndex]);
-			
-			if(bo.nodeMeshIndexArray[idxIndex] > maxNodeIndexId) {
-				maxNodeIndexId = bo.nodeMeshIndexArray[idxIndex];			
-			}
-		}
-	}
-	this.startIndexId += (maxNodeIndexId+1);
-	
-	
-	this.currentNodeId++; // augment node id
-	
-	//return this.currentNodeId-1;
-	return {"nodeId": this.currentNodeId-1, "itemStart": nAIS}; // nodeArrayItemStart
-};	
-
-StormBufferNodes.prototype.updateNodes = function() {
-	//*******************************************************************************************************************
-	// CREATE CLGL & GL BUFFERS
-	//*******************************************************************************************************************
-	
-	///////////////////////////////////////
-	// NodeId
-	///////////////////////////////////////
-	// CLGL buffers
-	if(this.CLGL_bufferNodeId != undefined) {
-		this.CLGL_bufferNodeId.remove();
-		this.CLGL_bufferNodeId_TEMP.remove();
-	}
-	this.CLGL_bufferNodeId = this.generateCLGLBuffer(this.arrayNodeId, "FLOAT"); 
-	this.CLGL_bufferNodeId_TEMP = this.generateCLGLBuffer(this.arrayNodeId, "FLOAT");
-	
-	
-	// GL buffers
-	if(this.GL_bufferNodeId != undefined) {
-		this.gl.deleteBuffer(this.GL_bufferNodeId);
-	}
-	this.GL_bufferNodeId = this.generateGLPacketBuffer(this.arrayNodeId, true, "ARRAY_BUFFER");
-	
-	///////////////////////////////////////
-	// NodePos
-	///////////////////////////////////////
-	// CLGL buffers
-	if(this.CLGL_bufferNodePosX != undefined) {
-		this.CLGL_bufferNodePosX.remove();
-		this.CLGL_bufferNodePosY.remove();
-		this.CLGL_bufferNodePosZ.remove();
-		this.CLGL_bufferNodePosX_TEMP.remove();
-		this.CLGL_bufferNodePosY_TEMP.remove();
-		this.CLGL_bufferNodePosZ_TEMP.remove();
-	}
-	this.CLGL_bufferNodePosX = this.generateCLGLBuffer(this.arrayNodePosX, "FLOAT");
-	this.CLGL_bufferNodePosY = this.generateCLGLBuffer(this.arrayNodePosY, "FLOAT");
-	this.CLGL_bufferNodePosZ = this.generateCLGLBuffer(this.arrayNodePosZ, "FLOAT");
-	this.CLGL_bufferNodePosX_TEMP = this.generateCLGLBuffer(this.arrayNodePosX, "FLOAT");
-	this.CLGL_bufferNodePosY_TEMP = this.generateCLGLBuffer(this.arrayNodePosY, "FLOAT");
-	this.CLGL_bufferNodePosZ_TEMP = this.generateCLGLBuffer(this.arrayNodePosZ, "FLOAT");
-	
-	// GL buffers
-	if(this.GL_bufferNodePosX != undefined) {
-		this.gl.deleteBuffer(this.GL_bufferNodePosX);
-		this.gl.deleteBuffer(this.GL_bufferNodePosY);
-		this.gl.deleteBuffer(this.GL_bufferNodePosZ);
-	}
-	this.GL_bufferNodePosX = this.generateGLPacketBuffer(this.arrayNodePosX, true, "ARRAY_BUFFER");
-	this.GL_bufferNodePosY = this.generateGLPacketBuffer(this.arrayNodePosY, true, "ARRAY_BUFFER");
-	this.GL_bufferNodePosZ = this.generateGLPacketBuffer(this.arrayNodePosZ, true, "ARRAY_BUFFER");
-	
-	///////////////////////////////////////
-	// NodeVertexPos
-	///////////////////////////////////////
-	// GL buffers
-	if(this.GL_bufferNodeVertexPosX != undefined) {
-		this.gl.deleteBuffer(this.GL_bufferNodeVertexPosX);
-		this.gl.deleteBuffer(this.GL_bufferNodeVertexPosY);
-		this.gl.deleteBuffer(this.GL_bufferNodeVertexPosZ);
-	}
-	this.GL_bufferNodeVertexPosX = this.generateGLPacketBuffer(this.arrayNodeVertexPosX, true, "ARRAY_BUFFER");
-	this.GL_bufferNodeVertexPosY = this.generateGLPacketBuffer(this.arrayNodeVertexPosY, true, "ARRAY_BUFFER");
-	this.GL_bufferNodeVertexPosZ = this.generateGLPacketBuffer(this.arrayNodeVertexPosZ, true, "ARRAY_BUFFER");
-	
-	///////////////////////////////////////
-	// NodeVertexColor
-	///////////////////////////////////////
-	// GL buffers
-	if(this.GL_bufferNodeVertexColor != undefined) {
-		this.gl.deleteBuffer(this.GL_bufferNodeVertexColor);
-	}
-	this.GL_bufferNodeVertexColor = this.generateGLPacketBuffer(this.arrayNodeVertexColor, false, "ARRAY_BUFFER");
-	
-	///////////////////////////////////////
-	// NodeIndices
-	///////////////////////////////////////
-	// GL buffers
-	if(this.GL_bufferNodeIndices != undefined) {
-		this.gl.deleteBuffer(this.GL_bufferNodeIndices);
-	}
-	this.GL_bufferNodeIndices = this.generateGLPacketBuffer(this.arrayNodeIndices, false, "ELEMENT_ARRAY_BUFFER");
-	
-	///////////////////////////////////////
-	// NodeDir
-	///////////////////////////////////////
-	// CLGL buffers
-	if(this.CLGL_bufferNodeDir != undefined) {
-		this.CLGL_bufferNodeDir.remove();
-		this.CLGL_bufferNodeDir_TEMP.remove();
-	}
-	this.CLGL_bufferNodeDir = this.generateCLGLBuffer(this.arrayNodeDir, "FLOAT4"); 
-	this.CLGL_bufferNodeDir_TEMP = this.generateCLGLBuffer(this.arrayNodeDir, "FLOAT4");
-	
-	///////////////////////////////////////
-	// NodePolaritys
-	///////////////////////////////////////
-	// CLGL buffers
-	if(this.CLGL_bufferNodePolaritys != undefined) {
-		this.CLGL_bufferNodePolaritys.remove();
-	}
-	this.CLGL_bufferNodePolaritys = this.generateCLGLBuffer(this.arrayNodePolaritys, "FLOAT");
-	
-	///////////////////////////////////////
-	// NodeDestination
-	///////////////////////////////////////
-	// CLGL buffers
-	if(this.CLGL_bufferNodeDestination != undefined) {
-		this.CLGL_bufferNodeDestination.remove();
-	}
-	this.CLGL_bufferNodeDestination = this.generateCLGLBuffer(this.arrayNodeDestination, "FLOAT4"); 
-	
-	//*******************************************************************************************************************
-		
-	
-	this.initKernelsNodes();
-	this.initKernelsNodesDir();	
-};
-StormBufferNodes.prototype.initKernelsNodes = function() {
-	//POS
-	var kernelPos_Source = 'void main(	float* posX,'+
-										'float* posY,'+
-										'float* posZ,'+
-										'float4* dir) {'+
-									'vec2 x = get_global_id();'+
-									'vec3 currentPos = vec3(posX[x],posY[x],posZ[x]);\n'+ 
-									'vec4 dir = dir[x];'+
-									'vec3 currentDir = vec3(dir.x,dir.y,dir.z);\n'+   
-									'vec3 newPos = (currentPos+currentDir);\n';
-	
-	var kernelPosX_Source = kernelPos_Source+
-							'out_float = newPos.x;\n'+
-							'}';
-	this.kernelNodePosX = this.webCLGL.createKernel(kernelPosX_Source);
-	this.kernelNodePosX.setKernelArg("posX", this.CLGL_bufferNodePosX);
-	this.kernelNodePosX.setKernelArg("posY", this.CLGL_bufferNodePosY);
-	this.kernelNodePosX.setKernelArg("posZ", this.CLGL_bufferNodePosZ);
-	this.kernelNodePosX.setKernelArg("dir", this.CLGL_bufferNodeDir);
-	
-	var kernelPosY_Source = kernelPos_Source+
-							'out_float = newPos.y;\n'+
-							'}';
-	this.kernelNodePosY = this.webCLGL.createKernel(kernelPosY_Source);
-	this.kernelNodePosY.setKernelArg("posX", this.CLGL_bufferNodePosX);
-	this.kernelNodePosY.setKernelArg("posY", this.CLGL_bufferNodePosY);
-	this.kernelNodePosY.setKernelArg("posZ", this.CLGL_bufferNodePosZ);
-	this.kernelNodePosY.setKernelArg("dir", this.CLGL_bufferNodeDir);
-	
-	var kernelPosZ_Source = kernelPos_Source+
-							'out_float = newPos.z;\n'+
-							'}';
-	this.kernelNodePosZ = this.webCLGL.createKernel(kernelPosZ_Source);
-	this.kernelNodePosZ.setKernelArg("posX", this.CLGL_bufferNodePosX); 
-	this.kernelNodePosZ.setKernelArg("posY", this.CLGL_bufferNodePosY); 
-	this.kernelNodePosZ.setKernelArg("posZ", this.CLGL_bufferNodePosZ);   
-	this.kernelNodePosZ.setKernelArg("dir", this.CLGL_bufferNodeDir);
-};
-
-StormBufferNodes.prototype.initKernelsNodesDir = function() {
-	// DIR
-	var kernelDir_Source = this.generatekernelDir_Source();
-	
-	var kernelDirX_Source = kernelDir_Source+
-							'out_float4 = vec4(newDir,1.0);\n'+
-							'}';
-	this.kernelNodeDir = this.webCLGL.createKernel(kernelDirX_Source); 
-	
-	this.updatekernelNodesDir_Arguments(); 
-};
-/**
-* @private 
-*/
-StormBufferNodes.prototype.updatekernelNodesDir_Arguments = function() {
-	this.kernelNodeDir.setKernelArg("idx", this.CLGL_bufferNodeId); 
-	this.kernelNodeDir.setKernelArg("nodeid", this.CLGL_bufferNodeId); 
-	this.kernelNodeDir.setKernelArg("posX", this.CLGL_bufferNodePosX); 
-	this.kernelNodeDir.setKernelArg("posY", this.CLGL_bufferNodePosY); 
-	this.kernelNodeDir.setKernelArg("posZ", this.CLGL_bufferNodePosZ); 
-	this.kernelNodeDir.setKernelArg("dir", this.CLGL_bufferNodeDir); 
-	this.kernelNodeDir.setKernelArg("particlePolarity", this.CLGL_bufferNodePolaritys); 
-	this.kernelNodeDir.setKernelArg("dest", this.CLGL_bufferNodeDestination); 
-	this.kernelNodeDir.setKernelArg("enableDestination", this.enDestination); 
-	this.kernelNodeDir.setKernelArg("destinationForce", this.destinationForce); 
-	this.kernelNodeDir.setKernelArg("enableDrag", this.enableDrag); 
-	this.kernelNodeDir.setKernelArg("idToDrag", this.idToDrag); 
-	this.kernelNodeDir.setKernelArg("MouseDragTranslationX", this.MouseDragTranslationX); 
-	this.kernelNodeDir.setKernelArg("MouseDragTranslationY", this.MouseDragTranslationY); 
-	this.kernelNodeDir.setKernelArg("MouseDragTranslationZ", this.MouseDragTranslationZ); 
-	this.kernelNodeDir.setKernelArg("islink", 0);  // islink
-	
-	var currentPP = 0;
-	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
-		for(var nb = 0, fb = stormEngineC.polarityPoints[n].nodesProc.length; nb < fb; nb++) {
-			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.polarityPoints[n].nodesProc[nb].idNum) {
-				var oper = this.MPOS.x(stormEngineC.polarityPoints[n].getPosition());
-				this.kernelNodeDir.setKernelArg('pole'+currentPP+'X', oper.e[3]); 
-				this.kernelNodeDir.setKernelArg('pole'+currentPP+'Y', oper.e[7]); 
-				this.kernelNodeDir.setKernelArg('pole'+currentPP+'Z', oper.e[11]); 
-				this.kernelNodeDir.setKernelArg('pole'+currentPP+'Polarity', stormEngineC.polarityPoints[n].polarity); 
-				this.kernelNodeDir.setKernelArg('pole'+currentPP+'Orbit', stormEngineC.polarityPoints[n].orbit); 
-				this.kernelNodeDir.setKernelArg('pole'+currentPP+'Force', stormEngineC.polarityPoints[n].force); 
-				
-				currentPP++;
-			}
-		}
-	}	
-	
-	for(var n = 0, f = stormEngineC.forceFields.length; n < f; n++) {
-		for(var nb = 0, fb = stormEngineC.forceFields[n].nodesProc.length; nb < fb; nb++) {
-			if(this.idNum == stormEngineC.forceFields[n].nodesProc[nb].idNum) {
-				var oper = stormEngineC.forceFields[n].direction;
-				this.kernelNodeDir.setKernelArg('force'+n+'X', oper.e[0]); 
-				this.kernelNodeDir.setKernelArg('force'+n+'Y', oper.e[1]); 
-				this.kernelNodeDir.setKernelArg('force'+n+'Z', oper.e[2]); 
-			}
-		}
-	}	
-};
-
-
-
-
-
-
-
-
-
-//**********************************************************************************************************************************
-//**********************************************************************************************************************************
-//										LINKS
-//**********************************************************************************************************************************
-//**********************************************************************************************************************************
-/**
-* Create new link for the graph
-* @param	{Object} jsonIn
-* 	@param {Int} jsonIn.origin Origin for this link (nodeArrayItemStart)
-* 	@param {Int} jsonIn.target Target for this link (nodeArrayItemStart)
- * @returns {Int}
- */
-StormBufferNodes.prototype.addLink = function(jsonIn) { 
-	//*******************************************************************************************************************
-	// FILL ARRAYS
-	//*******************************************************************************************************************
-		//console.log(jsonIn.origin);
-		//console.log(jsonIn.target);
-	var arr4Uint8_X = this.webCLGL.enqueueReadBuffer_Float(this.CLGL_bufferNodePosX);
-	var arr4Uint8_Y = this.webCLGL.enqueueReadBuffer_Float(this.CLGL_bufferNodePosY); 
-	var arr4Uint8_Z = this.webCLGL.enqueueReadBuffer_Float(this.CLGL_bufferNodePosZ);
-		
-
-		//console.log(arr4Uint8_X);
-		//console.log(arr4Uint8_Y);
-		//console.log(arr4Uint8_Z); 
-	
-	///////////////////////////////////////
-	// LinkId (origin)
-	///////////////////////////////////////
-	this.arrayLinkId.push(this.currentLinkId);
-	
-	///////////////////////////////////////
-	// LinkNodeId (origin)
-	///////////////////////////////////////
-	this.arrayLinkNodeId.push(jsonIn.origin_nodeId);
-	
-	///////////////////////////////////////
-	// LinkPos (origin)
-	///////////////////////////////////////
-	this.arrayLinkPosX.push(arr4Uint8_X[jsonIn.origin_itemStart]);			
-	this.arrayLinkPosY.push(arr4Uint8_Y[jsonIn.origin_itemStart]);
-	this.arrayLinkPosZ.push(arr4Uint8_Z[jsonIn.origin_itemStart]);
-	
-	///////////////////////////////////////
-	// LinkDir (origin)
-	///////////////////////////////////////
-	this.arrayLinkDir.push(0.0, 0.0, 0.0, 255);
-	
-	///////////////////////////////////////
-	// LinkPolaritys (origin)
-	///////////////////////////////////////
-	this.arrayLinkPolaritys.push(0);
-	
-	///////////////////////////////////////
-	// LinkDestination (origin)
-	///////////////////////////////////////
-	this.arrayLinkDestination.push(0.0, 0.0, 0.0, 255);
-	
-	
-	
-	///////////////////////////////////////
-	// LinkId (target)
-	///////////////////////////////////////
-	this.arrayLinkId.push(this.currentLinkId+1);
-	
-	///////////////////////////////////////
-	// LinkNodeId (target)
-	///////////////////////////////////////
-	this.arrayLinkNodeId.push(jsonIn.target_nodeId);
-	
-	///////////////////////////////////////
-	// LinkPos (target)
-	///////////////////////////////////////
-	this.arrayLinkPosX.push(arr4Uint8_X[jsonIn.target_itemStart]);			
-	this.arrayLinkPosY.push(arr4Uint8_Y[jsonIn.target_itemStart]);
-	this.arrayLinkPosZ.push(arr4Uint8_Z[jsonIn.target_itemStart]);
-	
-	///////////////////////////////////////
-	// LinkDir (target)
-	///////////////////////////////////////
-	this.arrayLinkDir.push(0.0, 0.0, 0.0, 255);
-	
-	///////////////////////////////////////
-	// LinkPolaritys (target)
-	///////////////////////////////////////
-	this.arrayLinkPolaritys.push(0);
-	
-	///////////////////////////////////////
-	// LinkDestination (target)
-	///////////////////////////////////////
-	this.arrayLinkDestination.push(0.0, 0.0, 0.0, 255);
-	
-	
-	this.currentLinkId += 2; // augment link id
-	
-	return this.currentLinkId-2;
-};	
-
-StormBufferNodes.prototype.updateLinks = function() {
-	//*******************************************************************************************************************
-	// CREATE CLGL & GL BUFFERS
-	//*******************************************************************************************************************
-	
-	///////////////////////////////////////
-	// LinkId
-	///////////////////////////////////////
-	// CLGL buffers
-	if(this.CLGL_bufferLinkId != undefined) {
-		this.CLGL_bufferLinkId.remove();
-		this.CLGL_bufferLinkId_TEMP.remove();
-	}
-	this.CLGL_bufferLinkId = this.generateCLGLBuffer(this.arrayLinkId, "FLOAT");
-	this.CLGL_bufferLinkId_TEMP = this.generateCLGLBuffer(this.arrayLinkId, "FLOAT");
-	
-	///////////////////////////////////////
-	// LinkNodeId
-	///////////////////////////////////////
-	// CLGL buffers
-	if(this.CLGL_bufferLinkNodeId  != undefined) {
-		this.CLGL_bufferLinkNodeId.remove();
-		this.CLGL_bufferLinkNodeId_TEMP.remove();
-	}
-	this.CLGL_bufferLinkNodeId = this.generateCLGLBuffer(this.arrayLinkNodeId, "FLOAT");
-	this.CLGL_bufferLinkNodeId_TEMP = this.generateCLGLBuffer(this.arrayLinkNodeId, "FLOAT");
-	
-	///////////////////////////////////////
-	// LinkPos
-	///////////////////////////////////////
-	// CLGL buffers
-	if(this.CLGL_bufferLinkPosX  != undefined) {
-		this.CLGL_bufferLinkPosX.remove();
-		this.CLGL_bufferLinkPosY.remove();
-		this.CLGL_bufferLinkPosZ.remove();
-		this.CLGL_bufferLinkPosX_TEMP.remove();
-		this.CLGL_bufferLinkPosY_TEMP.remove();
-		this.CLGL_bufferLinkPosZ_TEMP.remove();
-	}
-	this.CLGL_bufferLinkPosX = this.generateCLGLBuffer(this.arrayLinkPosX, "FLOAT");
-	this.CLGL_bufferLinkPosY = this.generateCLGLBuffer(this.arrayLinkPosY, "FLOAT");
-	this.CLGL_bufferLinkPosZ = this.generateCLGLBuffer(this.arrayLinkPosZ, "FLOAT");
-	this.CLGL_bufferLinkPosX_TEMP = this.generateCLGLBuffer(this.arrayLinkPosX, "FLOAT");
-	this.CLGL_bufferLinkPosY_TEMP = this.generateCLGLBuffer(this.arrayLinkPosY, "FLOAT");
-	this.CLGL_bufferLinkPosZ_TEMP = this.generateCLGLBuffer(this.arrayLinkPosZ, "FLOAT");
-	
-	// GL buffers
-	if(this.GL_bufferLinkPosX  != undefined) {
-		this.gl.deleteBuffer(this.GL_bufferLinkPosX);
-		this.gl.deleteBuffer(this.GL_bufferLinkPosY);
-		this.gl.deleteBuffer(this.GL_bufferLinkPosZ);
-	}
-	this.GL_bufferLinkPosX = this.generateGLPacketBuffer(this.arrayLinkPosX, true, "ARRAY_BUFFER");
-	this.GL_bufferLinkPosY = this.generateGLPacketBuffer(this.arrayLinkPosY, true, "ARRAY_BUFFER");
-	this.GL_bufferLinkPosZ = this.generateGLPacketBuffer(this.arrayLinkPosZ, true, "ARRAY_BUFFER");
-	
-	///////////////////////////////////////
-	// LinkDir
-	///////////////////////////////////////
-	// CLGL buffers
-	if(this.CLGL_bufferLinkDir  != undefined) {
-		this.CLGL_bufferLinkDir.remove();
-		this.CLGL_bufferLinkDir_TEMP.remove();
-	}
-	this.CLGL_bufferLinkDir = this.generateCLGLBuffer(this.arrayLinkDir, "FLOAT4");
-	this.CLGL_bufferLinkDir_TEMP = this.generateCLGLBuffer(this.arrayLinkDir, "FLOAT4");
-	
-	///////////////////////////////////////
-	// LinkPolaritys
-	///////////////////////////////////////
-	// CLGL buffers
-	if(this.CLGL_bufferLinkPolaritys  != undefined) {
-		this.CLGL_bufferLinkPolaritys.remove();
-	}
-	this.CLGL_bufferLinkPolaritys = this.generateCLGLBuffer(this.arrayLinkPolaritys, "FLOAT");
-	
-	///////////////////////////////////////
-	// LinkDestination
-	///////////////////////////////////////
-	// CLGL buffers
-	if(this.CLGL_bufferLinkDestination  != undefined) {
-		this.CLGL_bufferLinkDestination.remove();
-	}
-	this.CLGL_bufferLinkDestination = this.generateCLGLBuffer(this.arrayLinkDestination, "FLOAT4"); 
-	
-	//*******************************************************************************************************************
-	
-	
-	
-	this.initKernelsLinks();
-	this.initKernelsLinksDir();
-};
-StormBufferNodes.prototype.initKernelsLinks = function() {
-	//POS
-	var kernelPos_Source = 'void main(	float* posX,'+
-										'float* posY,'+
-										'float* posZ,'+
-										'float4* dir) {'+
-									'vec2 x = get_global_id();'+
-									'vec3 currentPos = vec3(posX[x],posY[x],posZ[x]);\n'+ 
-									'vec4 dir = dir[x];'+
-									'vec3 currentDir = vec3(dir.x,dir.y,dir.z);\n'+   
-									'vec3 newPos = (currentPos+currentDir);\n';
-	
-	var kernelPosX_Source = kernelPos_Source+
-							'out_float = newPos.x;\n'+
-							'}';
-	this.kernelLinkPosX = this.webCLGL.createKernel(kernelPosX_Source);
-	this.kernelLinkPosX.setKernelArg("posX", this.CLGL_bufferLinkPosX);
-	this.kernelLinkPosX.setKernelArg("posY", this.CLGL_bufferLinkPosY);
-	this.kernelLinkPosX.setKernelArg("posZ", this.CLGL_bufferLinkPosZ);
-	this.kernelLinkPosX.setKernelArg("dir", this.CLGL_bufferLinkDir);
-	
-	var kernelPosY_Source = kernelPos_Source+
-							'out_float = newPos.y;\n'+
-							'}';
-	this.kernelLinkPosY = this.webCLGL.createKernel(kernelPosY_Source);
-	this.kernelLinkPosY.setKernelArg("posX", this.CLGL_bufferLinkPosX);
-	this.kernelLinkPosY.setKernelArg("posY", this.CLGL_bufferLinkPosY);
-	this.kernelLinkPosY.setKernelArg("posZ", this.CLGL_bufferLinkPosZ);
-	this.kernelLinkPosY.setKernelArg("dir", this.CLGL_bufferLinkDir);
-	
-	var kernelPosZ_Source = kernelPos_Source+
-							'out_float = newPos.z;\n'+
-							'}';
-	this.kernelLinkPosZ = this.webCLGL.createKernel(kernelPosZ_Source);
-	this.kernelLinkPosZ.setKernelArg("posX", this.CLGL_bufferLinkPosX); 
-	this.kernelLinkPosZ.setKernelArg("posY", this.CLGL_bufferLinkPosY); 
-	this.kernelLinkPosZ.setKernelArg("posZ", this.CLGL_bufferLinkPosZ);   
-	this.kernelLinkPosZ.setKernelArg("dir", this.CLGL_bufferLinkDir);
-};
-
-StormBufferNodes.prototype.initKernelsLinksDir = function() {
-	// DIR
-	var kernelDir_Source = this.generatekernelDir_Source();
-	
-	var kernelDirX_Source = kernelDir_Source+
-							'out_float4 = vec4(newDir,1.0);\n'+
-							'}';
-	this.kernelLinkDir = this.webCLGL.createKernel(kernelDirX_Source); 
-	
-	this.updatekernelLinksDir_Arguments(); 
-};
-/**
-* @private 
-*/
-StormBufferNodes.prototype.updatekernelLinksDir_Arguments = function() {
-	this.kernelLinkDir.setKernelArg("idx", this.CLGL_bufferLinkId); 
-	this.kernelLinkDir.setKernelArg("nodeid", this.CLGL_bufferLinkNodeId); 
-	this.kernelLinkDir.setKernelArg("posX", this.CLGL_bufferLinkPosX); 
-	this.kernelLinkDir.setKernelArg("posY", this.CLGL_bufferLinkPosY); 
-	this.kernelLinkDir.setKernelArg("posZ", this.CLGL_bufferLinkPosZ); 
-	this.kernelLinkDir.setKernelArg("dir", this.CLGL_bufferLinkDir); 
-	this.kernelLinkDir.setKernelArg("particlePolarity", this.CLGL_bufferLinkPolaritys); 
-	this.kernelLinkDir.setKernelArg("dest", this.CLGL_bufferLinkDestination); 
-	this.kernelLinkDir.setKernelArg("enableDestination", this.enDestination); 
-	this.kernelLinkDir.setKernelArg("destinationForce", this.destinationForce); 
-	this.kernelLinkDir.setKernelArg("enableDrag", this.enableDrag); 
-	this.kernelLinkDir.setKernelArg("idToDrag", this.idToDrag); 
-	this.kernelLinkDir.setKernelArg("MouseDragTranslationX", this.MouseDragTranslationX); 
-	this.kernelLinkDir.setKernelArg("MouseDragTranslationY", this.MouseDragTranslationY); 
-	this.kernelLinkDir.setKernelArg("MouseDragTranslationZ", this.MouseDragTranslationZ); 
-	this.kernelLinkDir.setKernelArg("islink", 1);  // islink
-	
-	var currentPP = 0;
-	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
-		for(var nb = 0, fb = stormEngineC.polarityPoints[n].nodesProc.length; nb < fb; nb++) {
-			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.polarityPoints[n].nodesProc[nb].idNum) {
-				var oper = this.MPOS.x(stormEngineC.polarityPoints[n].getPosition());
-				this.kernelLinkDir.setKernelArg('pole'+n+'X', oper.e[3]); 
-				this.kernelLinkDir.setKernelArg('pole'+n+'Y', oper.e[7]); 
-				this.kernelLinkDir.setKernelArg('pole'+n+'Z', oper.e[11]); 
-				this.kernelLinkDir.setKernelArg('pole'+n+'Polarity', stormEngineC.polarityPoints[n].polarity); 
-				this.kernelLinkDir.setKernelArg('pole'+n+'Orbit', stormEngineC.polarityPoints[n].orbit); 
-				this.kernelLinkDir.setKernelArg('pole'+n+'Force', stormEngineC.polarityPoints[n].force); 
-				
-				currentPP++;
-			}
-		}
-	}	
-	
-	for(var n = 0, f = stormEngineC.forceFields.length; n < f; n++) {
-		for(var nb = 0, fb = stormEngineC.forceFields[n].nodesProc.length; nb < fb; nb++) {
-			if(this.idNum == stormEngineC.forceFields[n].nodesProc[nb].idNum) {
-				var oper = stormEngineC.forceFields[n].direction;
-				this.kernelLinkDir.setKernelArg('force'+n+'X', oper.e[0]); 
-				this.kernelLinkDir.setKernelArg('force'+n+'Y', oper.e[1]); 
-				this.kernelLinkDir.setKernelArg('force'+n+'Z', oper.e[2]); 
-			}
-		}
-	}	
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//**********************************************************************************************************************************
-//**********************************************************************************************************************************
-//										DIR
-//**********************************************************************************************************************************
-//**********************************************************************************************************************************
 /**
 * @private 
 */
@@ -901,9 +275,7 @@ StormBufferNodes.prototype.generatekernelDir_Source = function() {
 	}).bind(this);
 	var kernelDir_Source =	'void main(	float* idx'+
 										',float* nodeid'+
-										',float* posX'+
-										',float* posY'+
-										',float* posZ'+
+										',float4* posXYZW'+
 										',float4* dir'+
 										',float* particlePolarity'+
 										',float4* dest'+
@@ -923,7 +295,7 @@ StormBufferNodes.prototype.generatekernelDir_Source = function() {
 								'float nodeidBN = nodeid[x];'+	
 								'vec4 dirA = dir[x];'+								
 								'vec3 currentDir = vec3(dirA.x,dirA.y,dirA.z);\n'+ 
-								'vec3 currentPos = vec3(posX[x],posY[x],posZ[x]);\n'+ 
+								'vec3 currentPos = posXYZW[x].xyz;\n'+ 
 								'vec4 dest = dest[x];'+
 								'vec3 destinationPos = vec3(dest.x,dest.y,dest.z);\n'+ 
 								
@@ -994,9 +366,570 @@ StormBufferNodes.prototype.generatekernelDir_Source = function() {
 								
 								
 								
-								'vec3 newDir = currentDir;\n';
+								'vec3 newDir = currentDir;\n'+
+	
+								'out_float4 = vec4(newDir,1.0);\n'+
+							'}';
 	return kernelDir_Source;
 };
+
+
+
+
+
+
+
+
+
+
+//**********************************************************************************************************************************
+//**********************************************************************************************************************************
+//										NODES
+//**********************************************************************************************************************************
+//**********************************************************************************************************************************
+/**
+* Create new node for the graph
+* @param	{Object} jsonIn
+* 	@param {StormV3} jsonIn.position Position of node
+* 	@param {StormNode} jsonIn.node Node with the mesh for the node
+* 	@param {StormV3} jsonIn.color Color of the node (values from 0.0 to 1.0)
+ * @returns {Int}
+ */
+StormBufferNodes.prototype.addNode = function(jsonIn) { 
+	var nAIS = this.nodeArrayItemStart;
+	
+	// assign position for this node
+	var nodePosX = (jsonIn != undefined && jsonIn.position != undefined) ? jsonIn.position.e[0] : Math.random()*this.workAreaSize;
+	var nodePosY = (jsonIn != undefined && jsonIn.position != undefined) ? jsonIn.position.e[1] : Math.random()*this.workAreaSize;
+	var nodePosZ = (jsonIn != undefined && jsonIn.position != undefined) ? jsonIn.position.e[2] : Math.random()*this.workAreaSize;
+	// assign mesh for this node
+	this.node = (jsonIn != undefined && jsonIn.node != undefined) ? jsonIn.node : meshNode;
+	// assign color for this node
+	var color = (jsonIn != undefined && jsonIn.color != undefined) ? jsonIn.color : $V3([1.0, 1.0, 1.0]);
+		
+	
+	//*******************************************************************************************************************
+	// FILL ARRAYS
+	//*******************************************************************************************************************
+	
+	for(var i=0; i < this.node.buffersObjects.length; i++) {
+		var bo = this.node.buffersObjects[i];
+		for(var n=0; n < bo.nodeMeshVertexArray.length/3; n++) {
+			var idxVertex = n*3;
+			
+			///////////////////////////////////////
+			// NodeId
+			///////////////////////////////////////
+			this.arrayNodeId.push(this.currentNodeId);
+			
+			///////////////////////////////////////
+			// NodePos
+			///////////////////////////////////////
+			this.arrayNodePosXYZW.push(nodePosX, nodePosY, nodePosZ, 1.0);
+			this.arrayNodePosX.push(nodePosX);
+			this.arrayNodePosY.push(nodePosY);
+			this.arrayNodePosZ.push(nodePosZ);
+			
+			///////////////////////////////////////
+			// NodeVertexPos
+			///////////////////////////////////////
+			this.arrayNodeVertexPos.push(bo.nodeMeshVertexArray[idxVertex], bo.nodeMeshVertexArray[idxVertex+1], bo.nodeMeshVertexArray[idxVertex+2], 1.0);
+			//console.log(bo.nodeMeshVertexArray[idxVertex]);
+			
+			///////////////////////////////////////
+			// NodeVertexColor
+			///////////////////////////////////////
+			this.arrayNodeVertexColor.push(color.e[0], color.e[1], color.e[2], 1.0);
+			
+			
+			this.nodeArrayItemStart++;
+		}
+	}
+	//console.log(this.arrayNodePosX.length);
+		
+	var maxNodeIndexId = 0;
+	for(var i=0; i < this.node.buffersObjects.length; i++) {
+		var bo = this.node.buffersObjects[i];
+		for(var n=0; n < bo.nodeMeshIndexArray.length; n++) {
+			var idxIndex = n;
+			
+			///////////////////////////////////////
+			// NodeIndices
+			///////////////////////////////////////
+			this.arrayNodeIndices.push(this.startIndexId+bo.nodeMeshIndexArray[idxIndex]);
+			//console.log(this.startIndexId+bo.nodeMeshIndexArray[idxIndex]);
+			
+			if(bo.nodeMeshIndexArray[idxIndex] > maxNodeIndexId) {
+				maxNodeIndexId = bo.nodeMeshIndexArray[idxIndex];			
+			}
+		}
+	}
+	this.startIndexId += (maxNodeIndexId+1);
+	
+	
+	this.currentNodeId++; // augment node id
+	
+	//return this.currentNodeId-1;
+	return {"nodeId": this.currentNodeId-1, "itemStart": nAIS}; // nodeArrayItemStart
+};
+/** @private **/
+StormBufferNodes.prototype.updateNodes = function() {
+	this.writeNodeId();
+	this.writeNodePos();
+	this.writeNodeVertexPos();
+	this.writeNodeVertexColor();
+	this.writeNodeIndices();
+	
+	this.writeNodeDir();
+	this.writeNodePolaritys();
+	this.writeNodeDestination();
+	
+	this.updatekernelNodesPos_Arguments();
+	this.updatekernelNodesDir_Arguments();
+};
+
+/** @private **/
+StormBufferNodes.prototype.writeNodeId = function() {	
+	// VERTEX AND FRAGMENT | FLOAT
+	// CLGL buffers
+	if(this.CLGL_bufferNodeId != undefined) {
+		this.CLGL_bufferNodeId.remove();
+		this.CLGL_bufferNodeId_TEMP.remove();
+	}
+	this.CLGL_bufferNodeId = this.webCLGL.createBuffer(this.arrayNodeId.length, "FLOAT", this.workAreaSize);
+	this.CLGL_bufferNodeId_TEMP = this.webCLGL.createBuffer(this.arrayNodeId.length, "FLOAT", this.workAreaSize);
+	
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeId, this.arrayNodeId);
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeId_TEMP, this.arrayNodeId);
+	
+	// GL buffers
+	if(this.GL_bufferNodeId != undefined) {
+		this.gl.deleteBuffer(this.GL_bufferNodeId);
+	}
+	this.GL_bufferNodeId = this.gl.createBuffer();
+	
+	this.enqueueWriteVertexBuffer(this.GL_bufferNodeId, this.arrayNodeId, false, "FLOAT", "ARRAY_BUFFER");
+};
+/** @private **/
+StormBufferNodes.prototype.writeNodePos = function() {	
+	// VERTEX FROM FRAGMENT | VECTOR4
+	// CLGL buffers
+	if(this.CLGL_bufferNodePosXYZW != undefined) { 
+		this.CLGL_bufferNodePosXYZW.remove();
+		this.CLGL_bufferNodePosXYZW_TEMP.remove();
+	}
+	this.CLGL_bufferNodePosXYZW = this.webCLGL.createBuffer(this.arrayNodePosXYZW.length/4, "FLOAT4", this.workAreaSize);
+	this.CLGL_bufferNodePosXYZW_TEMP = this.webCLGL.createBuffer(this.arrayNodePosXYZW.length/4, "FLOAT4", this.workAreaSize);
+	
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodePosXYZW, this.arrayNodePosXYZW);
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodePosXYZW_TEMP, this.arrayNodePosXYZW);
+	
+	// GL buffers
+	if(this.GL_bufferNodePosX != undefined) {
+		this.gl.deleteBuffer(this.GL_bufferNodePosX);
+		this.gl.deleteBuffer(this.GL_bufferNodePosY);
+		this.gl.deleteBuffer(this.GL_bufferNodePosZ);
+	}
+	this.GL_bufferNodePosX = this.gl.createBuffer();
+	this.GL_bufferNodePosY = this.gl.createBuffer();
+	this.GL_bufferNodePosZ = this.gl.createBuffer();
+	
+	this.enqueueWriteVertexBuffer(this.GL_bufferNodePosX, this.arrayNodePosX, true, "UINT", "ARRAY_BUFFER");
+	this.enqueueWriteVertexBuffer(this.GL_bufferNodePosY, this.arrayNodePosY, true, "UINT", "ARRAY_BUFFER");
+	this.enqueueWriteVertexBuffer(this.GL_bufferNodePosZ, this.arrayNodePosZ, true, "UINT", "ARRAY_BUFFER");
+};
+/** @private **/
+StormBufferNodes.prototype.writeNodeVertexPos = function() {
+	// VERTEX | VECTOR4
+	// GL buffers
+	if(this.GL_bufferNodeVertexPos != undefined) {
+		this.gl.deleteBuffer(this.GL_bufferNodeVertexPos);
+	}
+	this.GL_bufferNodeVertexPos = this.gl.createBuffer();
+	
+	this.enqueueWriteVertexBuffer(this.GL_bufferNodeVertexPos, this.arrayNodeVertexPos, false, "FLOAT", "ARRAY_BUFFER");
+};
+/** @private **/
+StormBufferNodes.prototype.writeNodeVertexColor = function() {	
+	// VERTEX | VECTOR4
+	// GL buffers
+	if(this.GL_bufferNodeVertexColor != undefined) {
+		this.gl.deleteBuffer(this.GL_bufferNodeVertexColor);
+	}
+	this.GL_bufferNodeVertexColor = this.gl.createBuffer();
+	
+	this.enqueueWriteVertexBuffer(this.GL_bufferNodeVertexColor, this.arrayNodeVertexColor, false, "FLOAT", "ARRAY_BUFFER");
+};
+/** @private **/
+StormBufferNodes.prototype.writeNodeIndices = function() {	
+	// VERTEX_INDICES | FLOAT
+	// GL buffers
+	if(this.GL_bufferNodeIndices != undefined) {
+		this.gl.deleteBuffer(this.GL_bufferNodeIndices);
+	}
+	this.GL_bufferNodeIndices = this.gl.createBuffer();
+	
+	this.enqueueWriteVertexBuffer(this.GL_bufferNodeIndices, this.arrayNodeIndices, false, "FLOAT", "ELEMENT_ARRAY_BUFFER");
+};
+/** @private **/
+StormBufferNodes.prototype.writeNodeDir = function() {	
+	this.arrayNodeDir = [];	
+	for(var n=0; n < this.arrayNodeId.length; n++) {
+		this.arrayNodeDir.push(0, 0, 0, 255);
+	}
+		
+	// FRAGMENT | VECTOR4
+	// CLGL buffers
+	if(this.CLGL_bufferNodeDir != undefined) {
+		this.CLGL_bufferNodeDir.remove();
+		this.CLGL_bufferNodeDir_TEMP.remove();
+	}
+	this.CLGL_bufferNodeDir = this.webCLGL.createBuffer(this.arrayNodeDir.length/4, "FLOAT4", this.workAreaSize);
+	this.CLGL_bufferNodeDir_TEMP = this.webCLGL.createBuffer(this.arrayNodeDir.length/4, "FLOAT4", this.workAreaSize);
+	
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeDir, this.arrayNodeDir);
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeDir_TEMP, this.arrayNodeDir);
+};
+/** @private **/
+StormBufferNodes.prototype.writeNodePolaritys = function() {	
+	this.arrayNodePolaritys = [];	
+	for(var n=0; n < this.arrayNodeId.length; n++) {
+		this.arrayNodePolaritys.push(0);
+	}
+		
+	// FRAGMENT | FLOAT
+	// CLGL buffers
+	if(this.CLGL_bufferNodePolaritys != undefined) {
+		this.CLGL_bufferNodePolaritys.remove();
+	}
+	this.CLGL_bufferNodePolaritys = this.webCLGL.createBuffer(this.arrayNodePolaritys.length, "FLOAT", this.workAreaSize);
+	
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodePolaritys, this.arrayNodePolaritys);
+};
+/** @private **/
+StormBufferNodes.prototype.writeNodeDestination = function() {	
+	this.arrayNodeDestination = [];	
+	for(var n=0; n < this.arrayNodeId.length; n++) {
+		this.arrayNodeDestination.push(0, 0, 0, 255);
+	}
+	
+	// FRAGMENT | VECTOR4
+	// CLGL buffers
+	if(this.CLGL_bufferNodeDestination != undefined) {
+		this.CLGL_bufferNodeDestination.remove();
+	}
+	this.CLGL_bufferNodeDestination = this.webCLGL.createBuffer(this.arrayNodeDestination.length/4, "FLOAT4", this.workAreaSize); 
+		
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeDestination, this.arrayNodeDestination);
+};
+
+/** @private **/
+StormBufferNodes.prototype.updatekernelNodesPos_Arguments = function() {
+	this.kernelNodePos.setKernelArg("posXYZW", this.CLGL_bufferNodePosXYZW);
+	this.kernelNodePos.setKernelArg("dir", this.CLGL_bufferNodeDir);
+};
+/** @private **/
+StormBufferNodes.prototype.updatekernelNodesDir_Arguments = function() {
+	this.kernelNodeDir.setKernelArg("idx", this.CLGL_bufferNodeId); 
+	this.kernelNodeDir.setKernelArg("nodeid", this.CLGL_bufferNodeId); 
+	this.kernelNodeDir.setKernelArg("posXYZW", this.CLGL_bufferNodePosXYZW);
+	this.kernelNodeDir.setKernelArg("dir", this.CLGL_bufferNodeDir); 
+	this.kernelNodeDir.setKernelArg("particlePolarity", this.CLGL_bufferNodePolaritys); 
+	this.kernelNodeDir.setKernelArg("dest", this.CLGL_bufferNodeDestination); 
+	this.kernelNodeDir.setKernelArg("enableDestination", this.enDestination); 
+	this.kernelNodeDir.setKernelArg("destinationForce", this.destinationForce); 
+	this.kernelNodeDir.setKernelArg("enableDrag", this.enableDrag); 
+	this.kernelNodeDir.setKernelArg("idToDrag", this.idToDrag); 
+	this.kernelNodeDir.setKernelArg("MouseDragTranslationX", this.MouseDragTranslationX); 
+	this.kernelNodeDir.setKernelArg("MouseDragTranslationY", this.MouseDragTranslationY); 
+	this.kernelNodeDir.setKernelArg("MouseDragTranslationZ", this.MouseDragTranslationZ); 
+	this.kernelNodeDir.setKernelArg("islink", 0);  // islink
+	
+	var currentPP = 0;
+	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
+		for(var nb = 0, fb = stormEngineC.polarityPoints[n].nodesProc.length; nb < fb; nb++) {
+			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.polarityPoints[n].nodesProc[nb].idNum) {
+				var oper = this.MPOS.x(stormEngineC.polarityPoints[n].getPosition());
+				this.kernelNodeDir.setKernelArg('pole'+currentPP+'X', oper.e[3]); 
+				this.kernelNodeDir.setKernelArg('pole'+currentPP+'Y', oper.e[7]); 
+				this.kernelNodeDir.setKernelArg('pole'+currentPP+'Z', oper.e[11]); 
+				this.kernelNodeDir.setKernelArg('pole'+currentPP+'Polarity', stormEngineC.polarityPoints[n].polarity); 
+				this.kernelNodeDir.setKernelArg('pole'+currentPP+'Orbit', stormEngineC.polarityPoints[n].orbit); 
+				this.kernelNodeDir.setKernelArg('pole'+currentPP+'Force', stormEngineC.polarityPoints[n].force); 
+				
+				currentPP++;
+			}
+		}
+	}	
+	
+	for(var n = 0, f = stormEngineC.forceFields.length; n < f; n++) {
+		for(var nb = 0, fb = stormEngineC.forceFields[n].nodesProc.length; nb < fb; nb++) {
+			if(this.idNum == stormEngineC.forceFields[n].nodesProc[nb].idNum) {
+				var oper = stormEngineC.forceFields[n].direction;
+				this.kernelNodeDir.setKernelArg('force'+n+'X', oper.e[0]); 
+				this.kernelNodeDir.setKernelArg('force'+n+'Y', oper.e[1]); 
+				this.kernelNodeDir.setKernelArg('force'+n+'Z', oper.e[2]); 
+			}
+		}
+	}	
+};
+
+
+
+
+
+
+
+
+
+//**********************************************************************************************************************************
+//**********************************************************************************************************************************
+//										LINKS
+//**********************************************************************************************************************************
+//**********************************************************************************************************************************
+/**
+* Create new link for the graph
+* @param	{Object} jsonIn
+* 	@param {Int} jsonIn.origin Origin for this link (nodeArrayItemStart)
+* 	@param {Int} jsonIn.target Target for this link (nodeArrayItemStart)
+ * @returns {Int}
+ */
+StormBufferNodes.prototype.addLink = function(jsonIn) { 
+	//*******************************************************************************************************************
+	// FILL ARRAYS
+	//*******************************************************************************************************************
+		//console.log(jsonIn.origin);
+		//console.log(jsonIn.target);
+	var arr4Uint8_XYZW = this.webCLGL.enqueueReadBuffer_Float4(this.CLGL_bufferNodePosXYZW);
+		
+
+		//console.log(arr4Uint8_X);
+		//console.log(arr4Uint8_Y);
+		//console.log(arr4Uint8_Z); 
+	
+	///////////////////////////////////////
+	// LinkId (origin)
+	///////////////////////////////////////
+	this.arrayLinkId.push(this.currentLinkId);
+	
+	///////////////////////////////////////
+	// LinkNodeId (origin)
+	///////////////////////////////////////
+	this.arrayLinkNodeId.push(jsonIn.origin_nodeId);
+	
+	///////////////////////////////////////
+	// LinkPos (origin)
+	///////////////////////////////////////
+	this.arrayLinkPosXYZW.push(arr4Uint8_XYZW[0][jsonIn.origin_itemStart], arr4Uint8_XYZW[1][jsonIn.origin_itemStart], arr4Uint8_XYZW[2][jsonIn.origin_itemStart], 1.0);
+	this.arrayLinkPosX.push(arr4Uint8_XYZW[0][jsonIn.origin_itemStart]);			
+	this.arrayLinkPosY.push(arr4Uint8_XYZW[1][jsonIn.origin_itemStart]);
+	this.arrayLinkPosZ.push(arr4Uint8_XYZW[2][jsonIn.origin_itemStart]);
+	
+	
+	
+	///////////////////////////////////////
+	// LinkId (target)
+	///////////////////////////////////////
+	this.arrayLinkId.push(this.currentLinkId+1);
+	
+	///////////////////////////////////////
+	// LinkNodeId (target)
+	///////////////////////////////////////
+	this.arrayLinkNodeId.push(jsonIn.target_nodeId);
+	
+	///////////////////////////////////////
+	// LinkPos (target)
+	///////////////////////////////////////
+	this.arrayLinkPosXYZW.push(arr4Uint8_XYZW[0][jsonIn.target_itemStart], arr4Uint8_XYZW[1][jsonIn.target_itemStart], arr4Uint8_XYZW[2][jsonIn.target_itemStart], 1.0);	
+	this.arrayLinkPosX.push(arr4Uint8_XYZW[0][jsonIn.target_itemStart]);			
+	this.arrayLinkPosY.push(arr4Uint8_XYZW[1][jsonIn.target_itemStart]);
+	this.arrayLinkPosZ.push(arr4Uint8_XYZW[2][jsonIn.target_itemStart]);
+	
+	
+	this.currentLinkId += 2; // augment link id
+	
+	return this.currentLinkId-2;
+};
+/** @private **/
+StormBufferNodes.prototype.updateLinks = function() {
+	this.writeLinkId();
+	this.writeLinkNodeId();
+	this.writeLinkPos();
+	
+	this.writeLinkDir();
+	this.writeLinkPolaritys();
+	this.writeLinkDestination();
+	
+	this.updatekernelLinksPos_Arguments();
+	this.updatekernelLinksDir_Arguments();
+};
+
+/** @private **/
+StormBufferNodes.prototype.writeLinkId = function() {	
+	// CLGL buffers
+	if(this.CLGL_bufferLinkId != undefined) {
+		this.CLGL_bufferLinkId.remove();
+		this.CLGL_bufferLinkId_TEMP.remove();
+	}
+	this.CLGL_bufferLinkId = this.webCLGL.createBuffer(this.arrayLinkId.length, "FLOAT", this.workAreaSize);
+	this.CLGL_bufferLinkId_TEMP = this.webCLGL.createBuffer(this.arrayLinkId.length, "FLOAT", this.workAreaSize);
+		
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkId, this.arrayLinkId);
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkId_TEMP, this.arrayLinkId);
+};
+/** @private **/
+StormBufferNodes.prototype.writeLinkNodeId = function() {	
+	// CLGL buffers
+	if(this.CLGL_bufferLinkNodeId  != undefined) {
+		this.CLGL_bufferLinkNodeId.remove();
+		this.CLGL_bufferLinkNodeId_TEMP.remove();
+	}
+	this.CLGL_bufferLinkNodeId = this.webCLGL.createBuffer(this.arrayLinkNodeId.length, "FLOAT", this.workAreaSize);
+	this.CLGL_bufferLinkNodeId_TEMP = this.webCLGL.createBuffer(this.arrayLinkNodeId.length, "FLOAT", this.workAreaSize);
+		
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkNodeId, this.arrayLinkNodeId);
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkNodeId_TEMP, this.arrayLinkNodeId);
+};
+/** @private **/
+StormBufferNodes.prototype.writeLinkPos = function() {	
+	// CLGL buffers
+	if(this.CLGL_bufferLinkPosXYZW  != undefined) {
+		this.CLGL_bufferLinkPosXYZW.remove();
+		this.CLGL_bufferLinkPosXYZW_TEMP.remove();
+	}
+	this.CLGL_bufferLinkPosXYZW = this.webCLGL.createBuffer(this.arrayLinkPosXYZW.length/4, "FLOAT4", this.workAreaSize);
+	this.CLGL_bufferLinkPosXYZW_TEMP = this.webCLGL.createBuffer(this.arrayLinkPosXYZW.length/4, "FLOAT4", this.workAreaSize);
+	
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkPosXYZW, this.arrayLinkPosXYZW);
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkPosXYZW_TEMP, this.arrayLinkPosXYZW);
+	
+	// GL buffers
+	if(this.GL_bufferLinkPosX  != undefined) {
+		this.gl.deleteBuffer(this.GL_bufferLinkPosX);
+		this.gl.deleteBuffer(this.GL_bufferLinkPosY);
+		this.gl.deleteBuffer(this.GL_bufferLinkPosZ);
+	}
+	this.GL_bufferLinkPosX = this.gl.createBuffer();
+	this.GL_bufferLinkPosY = this.gl.createBuffer();
+	this.GL_bufferLinkPosZ = this.gl.createBuffer();
+	
+	this.enqueueWriteVertexBuffer(this.GL_bufferLinkPosX, this.arrayLinkPosX, true, "UINT", "ARRAY_BUFFER");
+	this.enqueueWriteVertexBuffer(this.GL_bufferLinkPosY, this.arrayLinkPosY, true, "UINT", "ARRAY_BUFFER");
+	this.enqueueWriteVertexBuffer(this.GL_bufferLinkPosZ, this.arrayLinkPosZ, true, "UINT", "ARRAY_BUFFER");
+};
+/** @private **/
+StormBufferNodes.prototype.writeLinkDir = function() {	
+	this.arrayLinkDir = [];	
+	for(var n=0; n < this.arrayLinkId.length; n++) {
+		this.arrayLinkDir.push(0, 0, 0, 255);
+	}
+		
+	// CLGL buffers
+	if(this.CLGL_bufferLinkDir  != undefined) {
+		this.CLGL_bufferLinkDir.remove();
+		this.CLGL_bufferLinkDir_TEMP.remove();
+	}
+	this.CLGL_bufferLinkDir = this.webCLGL.createBuffer(this.arrayLinkDir.length/4, "FLOAT4", this.workAreaSize);
+	this.CLGL_bufferLinkDir_TEMP = this.webCLGL.createBuffer(this.arrayLinkDir.length/4, "FLOAT4", this.workAreaSize);
+		
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkDir, this.arrayLinkDir);
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkDir_TEMP, this.arrayLinkDir);
+};
+/** @private **/
+StormBufferNodes.prototype.writeLinkPolaritys = function() {	
+	this.arrayLinkPolaritys = [];	
+	for(var n=0; n < this.arrayLinkId.length; n++) {
+		this.arrayLinkPolaritys.push(0);
+	}
+		
+	// CLGL buffers
+	if(this.CLGL_bufferLinkPolaritys  != undefined) {
+		this.CLGL_bufferLinkPolaritys.remove();
+	}
+	this.CLGL_bufferLinkPolaritys = this.webCLGL.createBuffer(this.arrayLinkPolaritys.length, "FLOAT", this.workAreaSize);
+		
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkPolaritys, this.arrayLinkPolaritys);
+};
+/** @private **/
+StormBufferNodes.prototype.writeLinkDestination = function() {	
+	this.arrayLinkDestination = [];	
+	for(var n=0; n < this.arrayLinkId.length; n++) {
+		this.arrayLinkDestination.push(0, 0, 0, 255);  
+	}
+		
+	// CLGL buffers
+	if(this.CLGL_bufferLinkDestination  != undefined) {
+		this.CLGL_bufferLinkDestination.remove();
+	}
+	this.CLGL_bufferLinkDestination = this.webCLGL.createBuffer(this.arrayLinkDestination.length/4, "FLOAT4", this.workAreaSize);
+		
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkDestination, this.arrayLinkDestination);
+};
+
+/** @private **/
+StormBufferNodes.prototype.updatekernelLinksPos_Arguments = function() {
+	this.kernelLinkPos.setKernelArg("posXYZW", this.CLGL_bufferLinkPosXYZW);
+	this.kernelLinkPos.setKernelArg("dir", this.CLGL_bufferLinkDir);
+};
+/** @private **/
+StormBufferNodes.prototype.updatekernelLinksDir_Arguments = function() {
+	this.kernelLinkDir.setKernelArg("idx", this.CLGL_bufferLinkId); 
+	this.kernelLinkDir.setKernelArg("nodeid", this.CLGL_bufferLinkNodeId); 
+	this.kernelLinkDir.setKernelArg("posXYZW", this.CLGL_bufferLinkPosXYZW); 
+	this.kernelLinkDir.setKernelArg("dir", this.CLGL_bufferLinkDir); 
+	this.kernelLinkDir.setKernelArg("particlePolarity", this.CLGL_bufferLinkPolaritys); 
+	this.kernelLinkDir.setKernelArg("dest", this.CLGL_bufferLinkDestination); 
+	this.kernelLinkDir.setKernelArg("enableDestination", this.enDestination); 
+	this.kernelLinkDir.setKernelArg("destinationForce", this.destinationForce); 
+	this.kernelLinkDir.setKernelArg("enableDrag", this.enableDrag); 
+	this.kernelLinkDir.setKernelArg("idToDrag", this.idToDrag); 
+	this.kernelLinkDir.setKernelArg("MouseDragTranslationX", this.MouseDragTranslationX); 
+	this.kernelLinkDir.setKernelArg("MouseDragTranslationY", this.MouseDragTranslationY); 
+	this.kernelLinkDir.setKernelArg("MouseDragTranslationZ", this.MouseDragTranslationZ); 
+	this.kernelLinkDir.setKernelArg("islink", 1);  // islink
+	
+	var currentPP = 0;
+	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
+		for(var nb = 0, fb = stormEngineC.polarityPoints[n].nodesProc.length; nb < fb; nb++) {
+			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.polarityPoints[n].nodesProc[nb].idNum) {
+				var oper = this.MPOS.x(stormEngineC.polarityPoints[n].getPosition());
+				this.kernelLinkDir.setKernelArg('pole'+n+'X', oper.e[3]); 
+				this.kernelLinkDir.setKernelArg('pole'+n+'Y', oper.e[7]); 
+				this.kernelLinkDir.setKernelArg('pole'+n+'Z', oper.e[11]); 
+				this.kernelLinkDir.setKernelArg('pole'+n+'Polarity', stormEngineC.polarityPoints[n].polarity); 
+				this.kernelLinkDir.setKernelArg('pole'+n+'Orbit', stormEngineC.polarityPoints[n].orbit); 
+				this.kernelLinkDir.setKernelArg('pole'+n+'Force', stormEngineC.polarityPoints[n].force); 
+				
+				currentPP++;
+			}
+		}
+	}	
+	
+	for(var n = 0, f = stormEngineC.forceFields.length; n < f; n++) {
+		for(var nb = 0, fb = stormEngineC.forceFields[n].nodesProc.length; nb < fb; nb++) {
+			if(this.idNum == stormEngineC.forceFields[n].nodesProc[nb].idNum) {
+				var oper = stormEngineC.forceFields[n].direction;
+				this.kernelLinkDir.setKernelArg('force'+n+'X', oper.e[0]); 
+				this.kernelLinkDir.setKernelArg('force'+n+'Y', oper.e[1]); 
+				this.kernelLinkDir.setKernelArg('force'+n+'Z', oper.e[2]); 
+			}
+		}
+	}	
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1010,21 +943,8 @@ StormBufferNodes.prototype.generatekernelDir_Source = function() {
 //*******************************************************************************************************************
 // FUNCTION FOR CREATION & UPDATE OF CLGL & GL BUFFERS
 //*******************************************************************************************************************
-StormBufferNodes.prototype.generateCLGLBuffer = function(arr, type) {
-	var buffer_CLGL;
-	if(type == "FLOAT") { // type FLOAT
-		buffer_CLGL = this.webCLGL.createBuffer(arr.length, type, (this.workAreaSize));
-	} else { // type FLOAT4
-		buffer_CLGL = this.webCLGL.createBuffer(arr.length/4, type, (this.workAreaSize));
-	}
-	this.webCLGL.enqueueWriteBuffer(buffer_CLGL, arr);
-
-	return buffer_CLGL;
-};
-StormBufferNodes.prototype.generateGLPacketBuffer = function(arr, packet, arrayType) {
+StormBufferNodes.prototype.enqueueWriteVertexBuffer = function(buffer_GL, arr, packet, type, arrayType) {
 	var pack = (packet != undefined && packet == false) ? false : true;
-	
-	var buffer_GL = this.gl.createBuffer();
 	
 	if(pack == true) {
 		var arrayUint = new Uint8Array(arr.length*4); 	
@@ -1036,7 +956,6 @@ StormBufferNodes.prototype.generateGLPacketBuffer = function(arr, packet, arrayT
 			arrayUint[idd+2] = arrPack[2]*255;
 			arrayUint[idd+3] = arrPack[3]*255;
 		}	
-		
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer_GL);
 		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(arrayUint), this.gl.DYNAMIC_DRAW);
 	} else {
@@ -1045,9 +964,11 @@ StormBufferNodes.prototype.generateGLPacketBuffer = function(arr, packet, arrayT
 			this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(arr), this.gl.DYNAMIC_DRAW);					
 		} else { // ARRAY_BUFFER
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer_GL);
-			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(arr), this.gl.DYNAMIC_DRAW);			
+			if(type == "UINT") {
+				this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(arr), this.gl.DYNAMIC_DRAW);
+			} else {
+				this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(arr), this.gl.DYNAMIC_DRAW);
+			}
 		}
 	}
-	
-	return buffer_GL;
 };

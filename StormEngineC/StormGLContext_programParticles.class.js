@@ -161,22 +161,14 @@ StormGLContext.prototype.render_ParticlesAux = function() {
 				var buffersObject = this.particles[p].buffersObjects[nb];
 				
 				// WEBCLGL    
-				this.particles[p].webCLGL.enqueueNDRangeKernel(this.particles[p].kernelPosX, this.particles[p].buffer_PosTempX); 
-				this.particles[p].webCLGL.enqueueNDRangeKernel(this.particles[p].kernelPosY, this.particles[p].buffer_PosTempY); 
-				this.particles[p].webCLGL.enqueueNDRangeKernel(this.particles[p].kernelPosZ, this.particles[p].buffer_PosTempZ); 
+				this.particles[p].webCLGL.enqueueNDRangeKernel(this.particles[p].kernelPos, this.particles[p].buffer_PosTempXYZW); 				
+				this.particles[p].webCLGL.enqueueNDRangeKernel(this.particles[p].kernelDir, this.particles[p].buffer_DirTemp); 
 				
-				this.particles[p].webCLGL.enqueueNDRangeKernel(this.particles[p].kernelDirXYZ, this.particles[p].buffer_DirTemp); 
-				
-				this.particles[p].webCLGL.copy(this.particles[p].buffer_PosTempX, this.particles[p].buffer_PosX);
-				this.particles[p].webCLGL.copy(this.particles[p].buffer_PosTempY, this.particles[p].buffer_PosY);
-				this.particles[p].webCLGL.copy(this.particles[p].buffer_PosTempZ, this.particles[p].buffer_PosZ);
-				
+				this.particles[p].webCLGL.copy(this.particles[p].buffer_PosTempXYZW, this.particles[p].buffer_PosXYZW);				
 				this.particles[p].webCLGL.copy(this.particles[p].buffer_DirTemp, this.particles[p].buffer_Dir);
 				
 				
-				var arr4Uint8_X = this.particles[p].webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(this.particles[p].buffer_PosX);
-				var arr4Uint8_Y = this.particles[p].webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(this.particles[p].buffer_PosY); 
-				var arr4Uint8_Z = this.particles[p].webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(this.particles[p].buffer_PosZ);
+				var arr4Uint8_XYZW = this.particles[p].webCLGL.enqueueReadBuffer_Packet4Uint8Array_Float4(this.particles[p].buffer_PosXYZW);
 				
 				
 				this.gl.useProgram(this.shader_ParticlesAux); 
@@ -184,19 +176,19 @@ StormGLContext.prototype.render_ParticlesAux = function() {
 				this.gl.enableVertexAttribArray(this.attr_ParticlesAux_posX);
 				this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffersObject.nodeMeshVertexBufferX);
 				//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_X, this.gl.DYNAMIC_DRAW);
-				this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_X);   
+				this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_XYZW[0]);   
 				this.gl.vertexAttribPointer(this.attr_ParticlesAux_posX, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!! 
 				
 				this.gl.enableVertexAttribArray(this.attr_ParticlesAux_posY);
 				this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffersObject.nodeMeshVertexBufferY);
 				//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_Y, this.gl.DYNAMIC_DRAW);
-				this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_Y); 
+				this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_XYZW[1]); 
 				this.gl.vertexAttribPointer(this.attr_ParticlesAux_posY, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
 				
 				this.gl.enableVertexAttribArray(this.attr_ParticlesAux_posZ);
 				this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffersObject.nodeMeshVertexBufferZ);
 				//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_Z, this.gl.DYNAMIC_DRAW);
-				this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_Z);  
+				this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_XYZW[2]);  
 				this.gl.vertexAttribPointer(this.attr_ParticlesAux_posZ, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
 				
 				

@@ -31,21 +31,18 @@ StormPolarityPoint.prototype.remove = function() {
 	stormEngineC.polarityPoints.splice(idToRemove,1);
 	
 	for(var n = 0, f = this.nodesProc.length; n < f; n++) {
-		var kernelDir_Source = this.nodesProc[n].generatekernelDir_Source(); 
-		var kernelDirX_Source = kernelDir_Source+
-								'out_float4 = vec4(newDir,1.0);\n'+
-								'}';
+		var kernelDir_Source = this.nodesProc[n].generatekernelDir_Source();
 		
-		if(this.nodesProc[n].kernelDirXYZ != undefined) {
-			this.nodesProc[n].kernelDirXYZ.setKernelSource(kernelDirX_Source);	
+		if(this.nodesProc[n].kernelDir != undefined) {
+			this.nodesProc[n].kernelDir.setKernelSource(kernelDir_Source);	
 			this.nodesProc[n].updatekernelDir_Arguments(); 
 		}
 		if(this.nodesProc[n].kernelNodeDir != undefined) {
-			this.nodesProc[n].kernelNodeDir.setKernelSource(kernelDirX_Source);	
+			this.nodesProc[n].kernelNodeDir.setKernelSource(kernelDir_Source);	
 			this.nodesProc[n].updatekernelNodesDir_Arguments(); 
 		}
 		if(this.nodesProc[n].kernelLinkDir != undefined) {
-			this.nodesProc[n].kernelLinkDir.setKernelSource(kernelDirX_Source);	
+			this.nodesProc[n].kernelLinkDir.setKernelSource(kernelDir_Source);	
 			this.nodesProc[n].updatekernelLinksDir_Arguments(); 
 		}
 	}
@@ -77,21 +74,18 @@ StormPolarityPoint.prototype.get = function(jsonIn) {
 	var nproc = this.nodesProc[this.nodesProc.length-1];
 	console.log(nproc);
 	
-	var kernelDir_Source = jsonIn.node.generatekernelDir_Source(); 
-	var kernelDirX_Source = kernelDir_Source+
-							'out_float4 = vec4(newDir,1.0);\n'+
-							'}';
+	var kernelDir_Source = jsonIn.node.generatekernelDir_Source();
 	
-	if(nproc.kernelDirXYZ != undefined && nproc.kernelDirXYZ instanceof WebCLGLKernel) {
-		nproc.kernelDirXYZ.setKernelSource(kernelDirX_Source);	
+	if(nproc.kernelDir != undefined && nproc.kernelDir instanceof WebCLGLKernel) { 
+		nproc.kernelDir.setKernelSource(kernelDir_Source);	
 		nproc.updatekernelDir_Arguments(); 
 	}
 	if(nproc.kernelNodeDir != undefined && nproc.kernelNodeDir instanceof WebCLGLKernel) {	
-		nproc.kernelNodeDir.setKernelSource(kernelDirX_Source);	
+		nproc.kernelNodeDir.setKernelSource(kernelDir_Source);	
 		nproc.updatekernelNodesDir_Arguments(); 		
 	}
 	if(nproc.kernelLinkDir != undefined && nproc.kernelLinkDir instanceof WebCLGLKernel) {
-		nproc.kernelLinkDir.setKernelSource(kernelDirX_Source);	
+		nproc.kernelLinkDir.setKernelSource(kernelDir_Source);	
 		nproc.updatekernelLinksDir_Arguments(); 
 	}	
 };
@@ -125,8 +119,8 @@ StormPolarityPoint.prototype.setPolarity = function(polarity) {
 		if(stormEngineC.polarityPoints[p] == this) {
 			for(var n = 0, fn = this.nodesProc.length; n < fn; n++) {				
 				var selectedKernel;
-				if(this.nodesProc[n].kernelDirXYZ != undefined) {
-					selectedKernel = this.nodesProc[n].kernelDirXYZ;	
+				if(this.nodesProc[n].kernelDir != undefined) {
+					selectedKernel = this.nodesProc[n].kernelDir;	
 					selectedKernel.setKernelArg('pole'+p+'Polarity', polarity); 
 				}
 				if(this.nodesProc[n].kernelNodeDir != undefined) {
@@ -154,8 +148,8 @@ StormPolarityPoint.prototype.setForce = function(force) {
 		if(stormEngineC.polarityPoints[p] == this) {
 			for(var n = 0, fn = this.nodesProc.length; n < fn; n++) {				
 				var selectedKernel;
-				if(this.nodesProc[n].kernelDirXYZ != undefined) {
-					selectedKernel = this.nodesProc[n].kernelDirXYZ;	
+				if(this.nodesProc[n].kernelDir != undefined) {
+					selectedKernel = this.nodesProc[n].kernelDir;	
 					selectedKernel.setKernelArg('pole'+p+'Force', force); 
 				}
 				if(this.nodesProc[n].kernelNodeDir != undefined) {
@@ -182,8 +176,8 @@ StormPolarityPoint.prototype.enableOrbit = function() {
 		if(stormEngineC.polarityPoints[p] == this) {
 			for(var n = 0, fn = this.nodesProc.length; n < fn; n++) {				
 				var selectedKernel;
-				if(this.nodesProc[n].kernelDirXYZ != undefined) {
-					selectedKernel = this.nodesProc[n].kernelDirXYZ;	
+				if(this.nodesProc[n].kernelDir != undefined) {
+					selectedKernel = this.nodesProc[n].kernelDir;	
 					selectedKernel.setKernelArg('pole'+p+'Orbit', 1.0); 
 				}
 				if(this.nodesProc[n].kernelNodeDir != undefined) {
@@ -210,8 +204,8 @@ StormPolarityPoint.prototype.disableOrbit = function(force) {
 		if(stormEngineC.polarityPoints[p] == this) {
 			for(var n = 0, fn = this.nodesProc.length; n < fn; n++) {				
 				var selectedKernel;
-				if(this.nodesProc[n].kernelDirXYZ != undefined) {
-					selectedKernel = this.nodesProc[n].kernelDirXYZ;	
+				if(this.nodesProc[n].kernelDir != undefined) {
+					selectedKernel = this.nodesProc[n].kernelDir;	
 					selectedKernel.setKernelArg('pole'+p+'Orbit', 0.0); 
 				}
 				if(this.nodesProc[n].kernelNodeDir != undefined) {

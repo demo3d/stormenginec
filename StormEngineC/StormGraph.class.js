@@ -123,6 +123,10 @@ StormGraph.prototype.addNodeBN = function(jsonIn) {
 	return jsonIn.id;
 };
 StormGraph.prototype.updateNodes = function(jsonIn) {
+	//this.bufferNodes.writeNodeDir();
+	//this.bufferNodes.writeNodePolaritys();
+	//this.bufferNodes.writeNodeDestination();
+	
 	this.bufferNodes.updateNodes();
 };
 
@@ -149,6 +153,10 @@ StormGraph.prototype.addLinkBN = function(jsonIn) {
 		});
 };
 StormGraph.prototype.updateLinks = function(jsonIn) {
+	//this.bufferNodes.writeLinkDir();
+	//this.bufferNodes.writeLinkPolaritys();
+	//this.bufferNodes.writeLinkDestination();
+	
 	this.bufferNodes.updateLinks();
 };
 

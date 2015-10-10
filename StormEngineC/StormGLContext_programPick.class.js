@@ -7,15 +7,13 @@
 StormGLContext.prototype.initShader_Pick = function() {
 	var sourceVertex = this.precision+
 		// for BufferNodes
-		'attribute vec4 aNodeId;\n'+
+		'attribute float aNodeId;\n'+
 		
 		'attribute vec4 aNodePosX;\n'+
 		'attribute vec4 aNodePosY;\n'+
 		'attribute vec4 aNodePosZ;\n'+
 	
-		'attribute vec4 aNodeVertexPosX;\n'+
-		'attribute vec4 aNodeVertexPosY;\n'+
-		'attribute vec4 aNodeVertexPosZ;\n'+
+		'attribute vec4 aNodeVertexPos;\n'+
 		
 		'uniform float u_workAreaSize;\n'+
 		
@@ -51,7 +49,6 @@ StormGLContext.prototype.initShader_Pick = function() {
 				'vec3 vp = vec3(aVertexPosition.x*u_nodeVScale.x, aVertexPosition.y*u_nodeVScale.y, aVertexPosition.z*u_nodeVScale.z);\n'+
 				'gl_Position = uPMatrix * u_cameraWMatrix * u_nodeWMatrix * vec4(vp, 1.0);\n'+
 			'} else if(uVertexType == 1) {'+ // overlay transforms
-				'vNodeId = uNodeId;'+
 				'vec3 vp = vec3(aVertexPosition.x*u_nodeVScale.x, aVertexPosition.y*u_nodeVScale.y, aVertexPosition.z*u_nodeVScale.z);\n'+
 				'vec4 scaleVec = u_cameraWMatrix * u_nodeWMatrix * u_matrixNodeTranform * vec4(vp, 1.0);\n'+
 				'float scale = (length(scaleVec) * LinearDepthConstant)*100.0;'+
@@ -68,7 +65,7 @@ StormGLContext.prototype.initShader_Pick = function() {
 				// NodeId
 				///////////////////////////////////////
 				// normalized and no needed divide by 255 (unpack(aNodeVertexPosX/255.0))
-				'float tex_nodeId = (unpack(aNodeId)*(u_workAreaSize*2.0))-u_workAreaSize;\n'+
+				'float tex_nodeId = aNodeId;\n'+
 				'vNodeId = tex_nodeId+1.0;'+
 			
 				///////////////////////////////////////
@@ -83,11 +80,7 @@ StormGLContext.prototype.initShader_Pick = function() {
 				///////////////////////////////////////
 				// NodeVertexPos
 				///////////////////////////////////////
-				// normalized and no needed divide by 255 (unpack(aNodeVertexPosX/255.0)) 	 
-				'float tex_nodeVertexPosX = (unpack(aNodeVertexPosX)*(u_workAreaSize*2.0))-u_workAreaSize;\n'+  
-				'float tex_nodeVertexPosY = (unpack(aNodeVertexPosY)*(u_workAreaSize*2.0))-u_workAreaSize;\n'+  
-				'float tex_nodeVertexPosZ = (unpack(aNodeVertexPosZ)*(u_workAreaSize*2.0))-u_workAreaSize;\n'+  
-				'vec4 nodeVertexPos = vec4(tex_nodeVertexPosX, tex_nodeVertexPosY, tex_nodeVertexPosZ, 1.0);'+
+				'vec4 nodeVertexPos = aNodeVertexPos;'+
 			
 				
 				'mat4 nodepos = u_nodeWMatrix;'+
@@ -116,7 +109,7 @@ StormGLContext.prototype.initShader_Pick = function() {
 					// uNodeId/4228250625 = value from 0.0 to 1.0
 					'gl_FragColor = pack((uNodeId+1.0)/1000000.0);\n'+ 
 				'} else if(uFragType == 1) {'+ // overlay transforms
-					'gl_FragColor = vec4(0.0, vNodeId, 0.0, 1.0);\n'+ 
+					'gl_FragColor = vec4(0.0, uNodeId, 0.0, 1.0);\n'+ 
 				'} else if(uFragType == 2) {'+ // editing bufferNodes
 					'gl_FragColor = pack(vNodeId/1000000.0);\n'+ 
 				'}'+
@@ -166,9 +159,7 @@ StormGLContext.prototype.pointers_Pick = function() {
 	///////////////////////////////////////
 	// NodeVertexPos
 	///////////////////////////////////////
-	this.attr_Pick_NodeVertexPosX = this.gl.getAttribLocation(this.shader_Pick, "aNodeVertexPosX");
-	this.attr_Pick_NodeVertexPosY = this.gl.getAttribLocation(this.shader_Pick, "aNodeVertexPosY");
-	this.attr_Pick_NodeVertexPosZ = this.gl.getAttribLocation(this.shader_Pick, "aNodeVertexPosZ");
+	this.attr_Pick_NodeVertexPos = this.gl.getAttribLocation(this.shader_Pick, "aNodeVertexPos");
 	
 	
 	this.Shader_Pick_READY = true;
@@ -351,9 +342,7 @@ StormGLContext.prototype.render_buffernodes = function(node) {
 		this.gl.enableVertexAttribArray(this.attr_Pick_NodePosX);
 		this.gl.enableVertexAttribArray(this.attr_Pick_NodePosY);
 		this.gl.enableVertexAttribArray(this.attr_Pick_NodePosZ);
-		this.gl.enableVertexAttribArray(this.attr_Pick_NodeVertexPosX);
-		this.gl.enableVertexAttribArray(this.attr_Pick_NodeVertexPosY);
-		this.gl.enableVertexAttribArray(this.attr_Pick_NodeVertexPosZ);
+		this.gl.enableVertexAttribArray(this.attr_Pick_NodeVertexPos);
 		
 		this.gl.uniform1f(this.u_Pick_uWorkAreaSize, parseFloat(node.workAreaSize));						
 		this.gl.uniformMatrix4fv(this.u_Pick_nodeWMatrix, false, node.MPOS.transpose().e); 
@@ -362,7 +351,7 @@ StormGLContext.prototype.render_buffernodes = function(node) {
 		// NodeId
 		///////////////////////////////////////					
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.GL_bufferNodeId);
-		this.gl.vertexAttribPointer(this.attr_BN_NodeId, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
+		this.gl.vertexAttribPointer(this.attr_BN_NodeId, 1, this.gl.FLOAT, false, 0, 0);
 							
 		///////////////////////////////////////
 		// NodePos
@@ -379,14 +368,8 @@ StormGLContext.prototype.render_buffernodes = function(node) {
 		///////////////////////////////////////
 		// NodeVertexPos
 		///////////////////////////////////////
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.GL_bufferNodeVertexPosX);
-		this.gl.vertexAttribPointer(this.attr_Pick_NodeVertexPosX, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!! 
-		
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.GL_bufferNodeVertexPosY);
-		this.gl.vertexAttribPointer(this.attr_Pick_NodeVertexPosY, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
-		
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.GL_bufferNodeVertexPosZ);
-		this.gl.vertexAttribPointer(this.attr_Pick_NodeVertexPosZ, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.GL_bufferNodeVertexPos);
+		this.gl.vertexAttribPointer(this.attr_Pick_NodeVertexPos, 4, this.gl.FLOAT, false, 0, 0);
 							
 		///////////////////////////////////////
 		// NodeIndices

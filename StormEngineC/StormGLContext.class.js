@@ -671,7 +671,7 @@ StormGLContext.prototype.renderGLContext = function() {
 	    this.render_BufferNodes();	    	
 	}
 	if(this.shader_BNLinks_READY) {
-	    this.render_BufferNodesLinks();	    	
+		this.render_BufferNodesLinks();	    	
 	}
 	
 	this.hitRectRegion_onclick(); 

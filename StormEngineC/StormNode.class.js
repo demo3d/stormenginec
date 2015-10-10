@@ -1215,8 +1215,8 @@ StormNode.prototype.setPosition = function(vec) {
 					var oper = pp.MPOS.x(pp.getPosition());
 					
 					var selectedKernel;
-					if(nproc.kernelDirXYZ != undefined) {
-						selectedKernel = nproc.kernelDirXYZ;	
+					if(nproc.kernelDir != undefined) {
+						selectedKernel = nproc.kernelDir;	
 						selectedKernel.setKernelArg('pole'+p+'X', oper.e[3]); 
 						selectedKernel.setKernelArg('pole'+p+'Y', oper.e[7]); 
 						selectedKernel.setKernelArg('pole'+p+'Z', oper.e[11]);

@@ -105,12 +105,13 @@ StormParticles.prototype.generateParticles = function(jsonIn) {
 StormParticles.prototype.setDisposal = function(jsonIn) { 	
 	if(this.isGraph == true) {		
 		var arra = [];
-		var arraGraph = [];
 		//var arraEnd = []; 
 		
+		var arrayXYZW = [];
 		var arrayX = [];
 		var arrayY = [];
 		var arrayZ = [];
+		var arrayGraphXYZW = [];
 		var arrayGraphX = [];
 		var arrayGraphY = [];
 		var arrayGraphZ = [];
@@ -138,15 +139,15 @@ StormParticles.prototype.setDisposal = function(jsonIn) {
 		}
 		
 		for(var n = 0, f = this.graph.length; n < f; n++) {
+			arrayGraphXYZW.push(arrayX[this.graph[n].origin], arrayY[this.graph[n].origin], arrayZ[this.graph[n].origin]);
 			arrayGraphX.push(arrayX[this.graph[n].origin]);			
 			arrayGraphY.push(arrayY[this.graph[n].origin]);
 			arrayGraphZ.push(arrayZ[this.graph[n].origin]);
+			
+			arrayGraphXYZW.push(arrayX[this.graph[n].end], arrayY[this.graph[n].end], arrayZ[this.graph[n].end]);
 			arrayGraphX.push(arrayX[this.graph[n].end]);			
 			arrayGraphY.push(arrayY[this.graph[n].end]);
 			arrayGraphZ.push(arrayZ[this.graph[n].end]);
-			
-			arraGraph.push(arrayX[this.graph[n].origin], arrayY[this.graph[n].origin], arrayZ[this.graph[n].origin], 0.0);
-			arraGraph.push(arrayX[this.graph[n].end], arrayY[this.graph[n].end], arrayZ[this.graph[n].end], 0.0);	
 			
 			var hasParent = false;
 			for(var nb = 0; nb < this.graph.length; nb++) {
@@ -174,14 +175,12 @@ StormParticles.prototype.setDisposal = function(jsonIn) {
 		//var color = (jsonIn.color != undefined) ? jsonIn.color : $V3([1.0,1.0,1.0]);
 		//bObject.material.write(color);
 		
-		this.webCLGL.enqueueWriteBuffer(this.buffer_InitPos, arraGraph);
-		this.webCLGL.enqueueWriteBuffer(this.buffer_PosX, arrayGraphX);
-		this.webCLGL.enqueueWriteBuffer(this.buffer_PosY, arrayGraphY);
-		this.webCLGL.enqueueWriteBuffer(this.buffer_PosZ, arrayGraphZ);
+		this.webCLGL.enqueueWriteBuffer(this.buffer_InitPos, arrayGraphXYZW);
+		this.webCLGL.enqueueWriteBuffer(this.buffer_PosXYZW, arrayGraphXYZW);
 		
 		this.webCLGL.enqueueWriteBuffer(this.buffer_ParentId, arrayParentId);
 	} else {
-		var arra = []; 
+		var arraXYZW = []; 
 		var arrayX = []; 
 		var arrayY = []; 
 		var arrayZ = []; 
@@ -192,10 +191,12 @@ StormParticles.prototype.setDisposal = function(jsonIn) {
 		for(var n = 0, f = this.particlesLength; n < f; n++) {
 			if(jsonIn != undefined && jsonIn.constructor === Array) {			
 				var v = this.getPosition().add(jsonIn[n]);
+				
+				arraXYZW.push(v.e[0],v.e[1],v.e[2],0.0);
 				arrayX.push(v.e[0]);
 				arrayY.push(v.e[1]);
 				arrayZ.push(v.e[2]);
-				arra.push(v.e[0],v.e[1],v.e[2],0.0);
+				
 			} else if(jsonIn == undefined || jsonIn.radius != undefined) {
 				var rad = (jsonIn == undefined) ? 1.0 : jsonIn.radius;
 				var currAngleH = Math.random()*360.0;
@@ -205,17 +206,21 @@ StormParticles.prototype.setDisposal = function(jsonIn) {
 								sin(currAngleH) * Math.abs(sin(currAngleV)) * rad]);
 								
 				v = this.getPosition().add(v);
+				
+				arraXYZW.push(v.e[0],v.e[1],v.e[2],0.0);
 				arrayX.push(v.e[0]);
 				arrayY.push(v.e[1]);
 				arrayZ.push(v.e[2]);
-				arra.push(v.e[0],v.e[1],v.e[2],0.0);
+				
 			} else if(jsonIn.width != undefined) {
 				var spac = (jsonIn.spacing != undefined) ? jsonIn.spacing : 0.01; 
 				var oper = this.MPOS.x($V3([hP,0.0,vP]));
+				
+				arraXYZW.push(oper.e[0],oper.e[1],oper.e[2],0.0);
 				arrayX.push(oper.e[3]);
 				arrayY.push(oper.e[7]);
 				arrayZ.push(oper.e[11]);
-				arra.push(oper.e[0],oper.e[1],oper.e[2],0.0);
+				
 				h++;
 				hP+=spac;
 				if(h > jsonIn.width-1) {h=0;hP=0;vP+=spac;}
@@ -231,10 +236,8 @@ StormParticles.prototype.setDisposal = function(jsonIn) {
 		//var color = (jsonIn.color != undefined) ? jsonIn.color : $V3([1.0,1.0,1.0]);
 		//bObject.material.write(color);
 		
-		this.webCLGL.enqueueWriteBuffer(this.buffer_InitPos, arra);
-		this.webCLGL.enqueueWriteBuffer(this.buffer_PosX, arrayX);
-		this.webCLGL.enqueueWriteBuffer(this.buffer_PosY, arrayY);
-		this.webCLGL.enqueueWriteBuffer(this.buffer_PosZ, arrayZ);
+		this.webCLGL.enqueueWriteBuffer(this.buffer_InitPos, arraXYZW);
+		this.webCLGL.enqueueWriteBuffer(this.buffer_PosXYZW, arraXYZW);
 	}
 	
 };
@@ -323,8 +326,8 @@ StormParticles.prototype.setDestinationWidthHeight = function(jsonIn, enable) {
 		hP+=spac;
 		if(h > jsonIn.width-1) {h=0;hP=0;vP+=spac;}
 	}
-	this.kernelDirXYZ.setKernelArg("enableDestination", this.enDestination);
-	this.kernelDirXYZ.setKernelArg("destinationForce", this.destinationForce);
+	this.kernelDir.setKernelArg("enableDestination", this.enDestination);
+	this.kernelDir.setKernelArg("destinationForce", this.destinationForce);
 	this.webCLGL.enqueueWriteBuffer(this.buffer_Destination, arrayDest);
 };
 
@@ -404,8 +407,8 @@ StormParticles.prototype.setDestinationVolume = function(jsonIn, enable) {
 		arrayColorRGBA[id+3] = (arrayColorRGBAT[id+3] != undefined) ? arrayColorRGBAT[id+3] : 0.0;
 	}
 	
-	this.kernelDirXYZ.setKernelArg("enableDestination", this.enDestination);
-	this.kernelDirXYZ.setKernelArg("destinationForce", this.destinationForce);
+	this.kernelDir.setKernelArg("enableDestination", this.enDestination);
+	this.kernelDir.setKernelArg("destinationForce", this.destinationForce);
 	this.webCLGL.enqueueWriteBuffer(this.buffer_Destination, arrayDest);
 	
 	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.buffer_ColorRGBA);
@@ -422,7 +425,7 @@ StormParticles.prototype.setDestinationVolume = function(jsonIn, enable) {
 StormParticles.prototype.setDestinationForce = function(force) { 	
 	this.destinationForce = (force != undefined) ? force : this.destinationForce;
 	
-	this.kernelDirXYZ.setKernelArg("destinationForce", this.destinationForce);
+	this.kernelDir.setKernelArg("destinationForce", this.destinationForce);
 };
 
 /**
@@ -432,7 +435,7 @@ StormParticles.prototype.setDestinationForce = function(force) {
 StormParticles.prototype.disableDestination = function() { 	
 	this.enDestination = 0;
 	
-	this.kernelDirXYZ.setKernelArg("enableDestination", this.enDestination);
+	this.kernelDir.setKernelArg("enableDestination", this.enDestination);
 };
 /**
 * Enable destination
@@ -441,7 +444,7 @@ StormParticles.prototype.disableDestination = function() {
 StormParticles.prototype.enableDestination = function() { 	
 	this.enDestination = 1;
 	
-	this.kernelDirXYZ.setKernelArg("enableDestination", this.enDestination);
+	this.kernelDir.setKernelArg("enableDestination", this.enDestination);
 };
 
 /**
@@ -452,10 +455,8 @@ StormParticles.prototype.enableDestination = function() {
 StormParticles.prototype.setLifeDistance = function(lifeDistance) { 	
 	this.lifeDistance = (lifeDistance != undefined) ? lifeDistance : this.lifeDistance;
 	
-	this.kernelPosX.setKernelArg("lifeDistance", this.lifeDistance);
-	this.kernelPosY.setKernelArg("lifeDistance", this.lifeDistance);
-	this.kernelPosZ.setKernelArg("lifeDistance", this.lifeDistance);
-	this.kernelDirXYZ.setKernelArg("lifeDistance", this.lifeDistance);
+	this.kernelPos.setKernelArg("lifeDistance", this.lifeDistance);
+	this.kernelDir.setKernelArg("lifeDistance", this.lifeDistance);
 };
 
 /**
@@ -493,9 +494,7 @@ StormParticles.prototype.makeWebCLGL = function() {
 	this.buffer_InitPos = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT4', offset);
 	this.buffer_InitDir = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT4', offset);
 	this.buffer_ParentId = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', 100);
-	this.buffer_PosX = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', offset);this.buffer_PosTempX = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', offset);
-	this.buffer_PosY = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', offset);this.buffer_PosTempY = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', offset);
-	this.buffer_PosZ = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', offset);this.buffer_PosTempZ = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', offset); 
+	this.buffer_PosXYZW = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT4', offset);this.buffer_PosTempXYZW = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT4', offset);
 	this.buffer_Dir = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT4', offset);this.buffer_DirTemp = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT4', offset);
 	this.buffer_ParticlesPolaritys = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT', offset);
 	this.buffer_Destination = this.webCLGL.createBuffer(this.particlesLength, 'FLOAT4', offset); 
@@ -503,60 +502,32 @@ StormParticles.prototype.makeWebCLGL = function() {
 	
 	// POS
 	var kernelPos_Source = 'void main(	float4* initPos,'+
-										'float* posX,'+
-										'float* posY,'+
-										'float* posZ,'+
+										'float4* posXYZW,'+
 										'float4* dir,'+
 										'float lifeDistance) {'+
 								'vec2 x = get_global_id();'+
-								'vec3 currentPos = vec3(posX[x],posY[x],posZ[x]);\n'+ 
+								'vec3 currentPos = posXYZW[x].xyz;\n'+ 
 								'vec4 dir = dir[x];'+
 								'vec3 currentDir = vec3(dir.x,dir.y,dir.z);\n'+   
 								'vec3 newPos = (currentPos+currentDir);\n'+
 								'vec4 initPos = initPos[x];'+
 								'if(lifeDistance > 0.0 && distance(vec3(initPos.x,initPos.y,initPos.z),newPos) > lifeDistance)'+
-									'newPos = vec3(initPos.x,initPos.y,initPos.z);'; 
+									'newPos = vec3(initPos.x,initPos.y,initPos.z);'+
+									
+								'out_float4 = vec4(newPos, 1.0);\n'+
+								'}';
+							
+	this.kernelPos = this.webCLGL.createKernel();
+	this.kernelPos.setKernelSource(kernelPos_Source);	
 	
-	var kernelPosX_Source = kernelPos_Source+
-							'out_float = newPos.x;\n'+
-							'}';
-	this.kernelPosX = this.webCLGL.createKernel(kernelPosX_Source);
-	this.kernelPosX.setKernelArg("initPos", this.buffer_InitPos);
-	this.kernelPosX.setKernelArg("posX", this.buffer_PosX);
-	this.kernelPosX.setKernelArg("posY", this.buffer_PosY);
-	this.kernelPosX.setKernelArg("posZ", this.buffer_PosZ);
-	this.kernelPosX.setKernelArg("dir", this.buffer_Dir);
-	this.kernelPosX.setKernelArg("lifeDistance", this.lifeDistance);
+	this.kernelPos.setKernelArg("initPos", this.buffer_InitPos);
+	this.kernelPos.setKernelArg("posXYZW", this.buffer_PosXYZW);
+	this.kernelPos.setKernelArg("dir", this.buffer_Dir);
+	this.kernelPos.setKernelArg("lifeDistance", this.lifeDistance);
 	
-	var kernelPosY_Source = kernelPos_Source+
-							'out_float = newPos.y;\n'+
-							'}';
-	this.kernelPosY = this.webCLGL.createKernel(kernelPosY_Source);
-	this.kernelPosY.setKernelArg("initPos", this.buffer_InitPos);
-	this.kernelPosY.setKernelArg("posX", this.buffer_PosX);
-	this.kernelPosY.setKernelArg("posY", this.buffer_PosY);
-	this.kernelPosY.setKernelArg("posZ", this.buffer_PosZ);
-	this.kernelPosY.setKernelArg("dir", this.buffer_Dir);
-	this.kernelPosY.setKernelArg("lifeDistance", this.lifeDistance);
-	
-	var kernelPosZ_Source = kernelPos_Source+
-							'out_float = newPos.z;\n'+
-							'}';
-	this.kernelPosZ = this.webCLGL.createKernel(kernelPosZ_Source);
-	this.kernelPosZ.setKernelArg("initPos", this.buffer_InitPos); 
-	this.kernelPosZ.setKernelArg("posX", this.buffer_PosX); 
-	this.kernelPosZ.setKernelArg("posY", this.buffer_PosY); 
-	this.kernelPosZ.setKernelArg("posZ", this.buffer_PosZ);   
-	this.kernelPosZ.setKernelArg("dir", this.buffer_Dir);
-	this.kernelPosZ.setKernelArg("lifeDistance", this.lifeDistance);
-	
-	// DIR
-	var kernelDir_Source = this.generatekernelDir_Source();
-	
-	var kernelDirX_Source = kernelDir_Source+
-							'out_float4 = vec4(newDir,1.0);\n'+
-							'}';
-	this.kernelDirXYZ = this.webCLGL.createKernel(kernelDirX_Source); 
+	// DIR		
+	this.kernelDir = this.webCLGL.createKernel(); 
+	this.kernelDir.setKernelSource(this.generatekernelDir_Source());	
 	
 	this.updatekernelDir_Arguments(); 
 }; 
@@ -576,7 +547,7 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 							',float pole'+currentPP+'Polarity'+
 							',float pole'+currentPP+'Orbit'+
 							',float pole'+currentPP+'Force';
-					currentPP++
+					currentPP++;
 				}
 			}
 		} 
@@ -599,7 +570,7 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 	}).bind(this);
 	
 	lines_poles = (function() {
-		var str = 'vec3 polePos;float toDir; vec3 cc;float distanceToPole;\n';
+		var str = 'float workAreaSize;vec3 polePos;float toDir; vec3 cc;float distanceToPole;\n';
 		var currentPP = 0;
 		for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
 			for(var nb = 0, fb = stormEngineC.polarityPoints[n].nodesProc.length; nb < fb; nb++) {
@@ -607,11 +578,20 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 					str += 'polePos = vec3(pole'+currentPP+'X,pole'+currentPP+'Y,pole'+currentPP+'Z);\n'+ 
 							'toDir = 1.0;\n'+  
 							'if(sign(particlePolarity[x]) == 0.0 && sign(pole'+currentPP+'Polarity) == 1.0) toDir = -1.0;\n'+
-							'if(sign(particlePolarity[x]) == 1.0 && sign(pole'+currentPP+'Polarity) == 0.0) toDir = -1.0;\n'+ 
+							'if(sign(particlePolarity[x]) == 1.0 && sign(pole'+currentPP+'Polarity) == 0.0) toDir = -1.0;\n'+
+							'workAreaSize = '+stormEngineC.particlesOffset.toFixed(20)+';'+ 
 							'distanceToPole = distance(currentPos,polePos);'+
-							'cc = normalize(currentPos-polePos)*(inversesqrt(distanceToPole)*1.0)*toDir;\n'+
-							'if(pole'+currentPP+'Orbit == 1.0) cc *= sqrt(distanceToPole);'+
-							'currentDir = currentDir+(cc*pole'+currentPP+'Force);\n';
+							
+								//'cc = normalize(currentPos-polePos)*( abs(distanceToPole)*1.0 )*toDir;\n'+
+							
+							//'if(pole'+n+'Orbit == 0.0)'+			
+							'cc = normalize(polePos-currentPos)*( abs(distanceToPole)*0.1*(pole'+currentPP+'Force) )*toDir*-1.0;\n'+	
+							'cc += normalize(polePos-currentPos)*( abs(workAreaSize-distanceToPole)*0.1*(1.0-pole'+currentPP+'Force) )*toDir;\n'+
+							
+							'if(pole'+currentPP+'Orbit == 1.0) cc = normalize(polePos-currentPos)*( abs(workAreaSize-distanceToPole)*0.1*(pole'+currentPP+'Force) )*toDir*-1.0;\n'+
+							//'else if(pole'+n+'Atraction == 1.0) cc = normalize(polePos-currentPos)*( abs(distanceToPole)*0.1*(pole'+n+'Force) )*toDir*-1.0;\n'+	
+							
+							'currentDir = (currentDir)+(cc);\n';
 					currentPP++;
 				}
 			}
@@ -634,9 +614,7 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 	}).bind(this);
 	var kernelDir_Source =	'void main(float4* initPos'+
 										',float4* initDir'+
-										',float* posX'+
-										',float* posY'+
-										',float* posZ'+
+										',float4* posXYZW'+
 										',float4* dir'+
 										',float isGraph'+
 										',float* parentId'+
@@ -651,7 +629,7 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 								'vec2 x = get_global_id();\n'+	 
 								'vec4 dirA = dir[x];'+								
 								'vec3 currentDir = vec3(dirA.x,dirA.y,dirA.z);\n'+ 
-								'vec3 currentPos = vec3(posX[x],posY[x],posZ[x]);\n'+ 
+								'vec3 currentPos = posXYZW[x].xyz;\n'+ 
 								'vec4 dest = dest[x];'+
 								'vec3 destinationPos = vec3(dest.x,dest.y,dest.z);\n'+ 
 								
@@ -707,7 +685,7 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 									'float row = floor(num);\n'+
 									
 									'vec2 xb = vec2(float(col)*workItemWidth, float(row)*workItemHeight);'+
-									'posParent = vec3(posX[xb], posY[xb], posZ[xb]);'+
+									'posParent = posXYZW[xb].xyz;'+
 									'vec3 dirParent = posParent-vec3(0.0,0.0,0.0);'+
 									'vec3 destinationPoss = posParent+dirParent;'+
 									'dirToDestination = destinationPoss-currentPos;'+
@@ -742,38 +720,39 @@ StormParticles.prototype.generatekernelDir_Source = function() {
 								'}'+
 								
 								
-								'vec3 newDir = currentDir;\n';
+								'vec3 newDir = currentDir;\n'+
+	
+								'out_float4 = vec4(newDir,1.0);\n'+
+							'}';
 	return kernelDir_Source;
 };
 /**
 * @private 
 */
 StormParticles.prototype.updatekernelDir_Arguments = function() {
-	this.kernelDirXYZ.setKernelArg("initPos", this.buffer_InitPos);
-	this.kernelDirXYZ.setKernelArg("initDir", this.buffer_InitDir);
-	this.kernelDirXYZ.setKernelArg("posX", this.buffer_PosX);
-	this.kernelDirXYZ.setKernelArg("posY", this.buffer_PosY);
-	this.kernelDirXYZ.setKernelArg("posZ", this.buffer_PosZ);
-	this.kernelDirXYZ.setKernelArg("dir", this.buffer_Dir);
-	this.kernelDirXYZ.setKernelArg("isGraph", (this.isGraph == true)?1.0:0.0);
-	this.kernelDirXYZ.setKernelArg("parentId", this.buffer_ParentId);
-	this.kernelDirXYZ.setKernelArg("particlePolarity", this.buffer_ParticlesPolaritys);
-	this.kernelDirXYZ.setKernelArg("dest", this.buffer_Destination);
-	this.kernelDirXYZ.setKernelArg("enableDestination", this.enDestination);
-	this.kernelDirXYZ.setKernelArg("destinationForce", this.destinationForce);
-	this.kernelDirXYZ.setKernelArg("lifeDistance", this.lifeDistance);
+	this.kernelDir.setKernelArg("initPos", this.buffer_InitPos);
+	this.kernelDir.setKernelArg("initDir", this.buffer_InitDir);
+	this.kernelDir.setKernelArg("posXYZW", this.buffer_PosXYZW);
+	this.kernelDir.setKernelArg("dir", this.buffer_Dir);
+	this.kernelDir.setKernelArg("isGraph", (this.isGraph == true)?1.0:0.0);
+	this.kernelDir.setKernelArg("parentId", this.buffer_ParentId);
+	this.kernelDir.setKernelArg("particlePolarity", this.buffer_ParticlesPolaritys);
+	this.kernelDir.setKernelArg("dest", this.buffer_Destination);
+	this.kernelDir.setKernelArg("enableDestination", this.enDestination);
+	this.kernelDir.setKernelArg("destinationForce", this.destinationForce);
+	this.kernelDir.setKernelArg("lifeDistance", this.lifeDistance);
 	
 	var currentPP = 0;
 	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
 		for(var nb = 0, fb = stormEngineC.polarityPoints[n].nodesProc.length; nb < fb; nb++) {
 			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.polarityPoints[n].nodesProc[nb].idNum) {
 				var oper = this.MPOS.x(stormEngineC.polarityPoints[n].getPosition());
-				this.kernelDirXYZ.setKernelArg('pole'+currentPP+'X', oper.e[3]); 
-				this.kernelDirXYZ.setKernelArg('pole'+currentPP+'Y', oper.e[7]); 
-				this.kernelDirXYZ.setKernelArg('pole'+currentPP+'Z', oper.e[11]); 
-				this.kernelDirXYZ.setKernelArg('pole'+currentPP+'Polarity', stormEngineC.polarityPoints[n].polarity); 
-				this.kernelDirXYZ.setKernelArg('pole'+currentPP+'Orbit', stormEngineC.polarityPoints[n].orbit); 
-				this.kernelDirXYZ.setKernelArg('pole'+currentPP+'Force', stormEngineC.polarityPoints[n].force); 
+				this.kernelDir.setKernelArg('pole'+currentPP+'X', oper.e[3]); 
+				this.kernelDir.setKernelArg('pole'+currentPP+'Y', oper.e[7]); 
+				this.kernelDir.setKernelArg('pole'+currentPP+'Z', oper.e[11]); 
+				this.kernelDir.setKernelArg('pole'+currentPP+'Polarity', stormEngineC.polarityPoints[n].polarity); 
+				this.kernelDir.setKernelArg('pole'+currentPP+'Orbit', stormEngineC.polarityPoints[n].orbit); 
+				this.kernelDir.setKernelArg('pole'+currentPP+'Force', stormEngineC.polarityPoints[n].force); 
 				
 				currentPP++;
 			}
@@ -784,9 +763,9 @@ StormParticles.prototype.updatekernelDir_Arguments = function() {
 		for(var nb = 0, fb = stormEngineC.forceFields[n].nodesProc.length; nb < fb; nb++) {
 			if(this.idNum == stormEngineC.forceFields[n].nodesProc[nb].idNum) {
 				var oper = stormEngineC.forceFields[n].direction;
-				this.kernelDirXYZ.setKernelArg('force'+currentPP+'X', oper.e[0]); 
-				this.kernelDirXYZ.setKernelArg('force'+currentPP+'Y', oper.e[1]); 
-				this.kernelDirXYZ.setKernelArg('force'+currentPP+'Z', oper.e[2]); 
+				this.kernelDir.setKernelArg('force'+currentPP+'X', oper.e[0]); 
+				this.kernelDir.setKernelArg('force'+currentPP+'Y', oper.e[1]); 
+				this.kernelDir.setKernelArg('force'+currentPP+'Z', oper.e[2]); 
 				
 				currentPP++;
 			}
