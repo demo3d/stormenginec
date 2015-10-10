@@ -28,36 +28,24 @@ THE SOFTWARE.
 * @param {WebGLRenderingContext} [webglcontext=undefined] your WebGLRenderingContext
 */
 WebCLGL = function(webglcontext) { 
+	this.utils = new WebCLGLUtils();
+	
 	// WEBGL CONTEXT
 	this.e = undefined;
 	if(webglcontext == undefined) {
 		this.e = document.createElement('canvas');
 		this.e.width = 32;
 		this.e.height = 32;
-		try {
-			this.gl = this.e.getContext("webgl", {antialias: false});
-		} catch(e) {
-			this.gl = undefined;
-		}
-		if(this.gl == undefined) {
-			try {
-				this.gl = this.e.getContext("experimental-webgl", {antialias: false});
-			} catch(e) {
-				this.gl = undefined;
-			}
-		}
+		this.gl = this.utils.getWebGLContextFromCanvas(this.e, {antialias: false});
 	} else this.gl = webglcontext; 
-		
+	
 	this.gl.getExtension('OES_texture_float');	
 	this.gl.getExtension('OES_texture_float_linear');
 	
 	var highPrecisionSupport = this.gl.getShaderPrecisionFormat(this.gl.FRAGMENT_SHADER, this.gl.HIGH_FLOAT);
 	this.precision = (highPrecisionSupport.precision != 0) ? 'precision highp float;\n\nprecision highp int;\n\n' : 'precision lowp float;\n\nprecision lowp int;\n\n';
 	
-	this.gl.viewport(0, 0, 32, 32);  
-	this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 	
-	this.utils = new WebCLGLUtils(this.gl);
 	
 	// QUAD
 	var mesh = this.utils.loadQuad(undefined,1.0,1.0);
@@ -111,7 +99,7 @@ WebCLGL = function(webglcontext) {
 			'}\n';
 			
 	this.shader_readpixels = this.gl.createProgram();
-	this.utils.createShader("CLGLREADPIXELS", sourceVertex, sourceFragment, this.shader_readpixels);
+	this.utils.createShader(this.gl, "CLGLREADPIXELS", sourceVertex, sourceFragment, this.shader_readpixels);
 			
 	this.u_offset = this.gl.getUniformLocation(this.shader_readpixels, "u_offset");
 	this.u_vectorValue = this.gl.getUniformLocation(this.shader_readpixels, "u_vectorValue");
@@ -145,7 +133,7 @@ WebCLGL = function(webglcontext) {
 			'gl_FragColor = texture;'+
 		'}';
 	this.shader_copyTexture = this.gl.createProgram();
-	this.utils.createShader("CLGLCOPYTEXTURE", sourceVertex, sourceFragment, this.shader_copyTexture);
+	this.utils.createShader(this.gl, "CLGLCOPYTEXTURE", sourceVertex, sourceFragment, this.shader_copyTexture);
 	
 	this.attr_copyTexture_pos = this.gl.getAttribLocation(this.shader_copyTexture, "aVertexPosition");
 	this.attr_copyTexture_tex = this.gl.getAttribLocation(this.shader_copyTexture, "aTextureCoord");
@@ -285,6 +273,7 @@ WebCLGL.prototype.enqueueNDRangeKernel = function(kernel, buffer) {
 	this.gl.viewport(0, 0, buffer.W, buffer.H);		
 	this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, buffer.fBuffer); 
 	this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, buffer.textureData, 0);
+	
 	var kp = kernel.kernelPrograms[0];
 	this.gl.useProgram(kp.kernel);  
 
@@ -366,9 +355,15 @@ WebCLGL.prototype.enqueueReadBuffer = function(buffer, item) {
 		this.gl.readPixels(0, 0, buffer.W, buffer.H, this.gl.RGBA, this.gl.UNSIGNED_BYTE, buffer.outArray4Uint8ArrayW);
 		return buffer.outArray4Uint8ArrayW.subarray(0, arrLength);
 	}
-	
-	//this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
-	//this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+};
+
+WebCLGL.prototype.prepareViewportForBufferRead = function(buffer) {
+	this.gl.viewport(0, 0, buffer.W, buffer.H); 
+	this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);		
+	if(this.e != undefined) {
+		this.e.width = buffer.W;
+		this.e.height = buffer.H;
+	}
 };
 
 /**
@@ -379,16 +374,16 @@ WebCLGL.prototype.enqueueReadBuffer = function(buffer, item) {
 **/
 WebCLGL.prototype.enqueueReadBuffer_Packet4Uint8Array_Float4 = function(buffer) {
 	if(buffer.type == "FLOAT4") {		
-		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
-		this.gl.viewport(0, 0, buffer.W, buffer.H); 
-		if(this.e != undefined) {this.e.width = buffer.W;this.e.height = buffer.H;}
+		this.prepareViewportForBufferRead(buffer);
 		
 		this.gl.useProgram(this.shader_readpixels);
 		
-		return [this.enqueueReadBuffer(buffer, 0),
-		        this.enqueueReadBuffer(buffer, 1),
-		        this.enqueueReadBuffer(buffer, 2),
-		        this.enqueueReadBuffer(buffer, 3)];
+		buffer.Packet4Uint8Array_Float4 = [	this.enqueueReadBuffer(buffer, 0),
+							              	this.enqueueReadBuffer(buffer, 1),
+							              	this.enqueueReadBuffer(buffer, 2),
+							              	this.enqueueReadBuffer(buffer, 3)];
+		
+		return buffer.Packet4Uint8Array_Float4;
 	} else 
 		return false;
 };
@@ -403,11 +398,11 @@ WebCLGL.prototype.enqueueReadBuffer_Float4 = function(buffer) {
 	if(buffer.type == "FLOAT4") {
 		var packet4Uint8Array = this.enqueueReadBuffer_Packet4Uint8Array_Float4(buffer);
 		
-		var arrayOut = [];	
+		buffer.Float4 = [];	
 		for(var n=0, fn= packet4Uint8Array.length; n < fn; n++) {
 			var arr = packet4Uint8Array[n];
 			
-			var outArrayFloat32Array = new Float32Array((buffer.W*buffer.H)*4);
+			outArrayFloat32Array = new Float32Array((buffer.W*buffer.H)*4);
 			for(var nb = 0, fnb = arr.length/4; nb < fnb; nb++) {
 				var idd = nb*4;
 				if(buffer.offset>0) outArrayFloat32Array[nb] = (this.utils.unpack([arr[idd+0]/255,
@@ -420,10 +415,10 @@ WebCLGL.prototype.enqueueReadBuffer_Float4 = function(buffer) {
 																			arr[idd+3]/255]));
 			}
 			
-			arrayOut.push(outArrayFloat32Array);
+			buffer.Float4.push(outArrayFloat32Array);
 		}
 		
-		return arrayOut;
+		return buffer.Float4;
 	} else 
 		return false;	
 };
@@ -459,15 +454,14 @@ WebCLGL.prototype.enqueueReadBuffer_Float4 = function(buffer) {
 * gl.uniform1i(sampler_FloatInPacket4Uint8Array, 0);
 */
 WebCLGL.prototype.enqueueReadBuffer_Packet4Uint8Array_Float = function(buffer) {
-	if(buffer.type == "FLOAT") {		
-		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
-		this.gl.viewport(0, 0, buffer.W, buffer.H); 
-		if(this.e != undefined) {this.e.width = buffer.W;this.e.height = buffer.H;}
-		
+	if(buffer.type == "FLOAT") {
+		this.prepareViewportForBufferRead(buffer);		
 		
 		this.gl.useProgram(this.shader_readpixels);
 	
-		return [this.enqueueReadBuffer(buffer, 0)];
+		buffer.Packet4Uint8Array_Float = [this.enqueueReadBuffer(buffer, 0)];
+		
+		return buffer.Packet4Uint8Array_Float;
 	} else 
 		return false;
 }; 
@@ -482,7 +476,7 @@ WebCLGL.prototype.enqueueReadBuffer_Float = function(buffer) {
 	if(buffer.type == "FLOAT") {
 		var packet4Uint8Array = this.enqueueReadBuffer_Packet4Uint8Array_Float(buffer);
 		
-		var arrayOut = [];		
+		buffer.Float = [];	
 		for(var n=0, fn= packet4Uint8Array.length; n < fn; n++) {
 			var arr = packet4Uint8Array[n];
 			
@@ -499,10 +493,10 @@ WebCLGL.prototype.enqueueReadBuffer_Float = function(buffer) {
 																			arr[idd+3]/255]));
 			}
 			
-			arrayOut.push(outArrayFloat32Array);
+			buffer.Float.push(outArrayFloat32Array);
 		}
 		
-		return arrayOut;
+		return buffer.Float;
 	} else 
 		return false	
 };

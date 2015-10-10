@@ -146,27 +146,7 @@ StormGLContext.prototype.render_BufferNodes = function() {
 			this.gl.uniform1f(this.u_BN_uWorkAreaSize, parseFloat(bn.workAreaSize));
 			this.gl.uniform1f(this.u_BN_uNodesSize, parseFloat(bn.currentNodeId-1));
 			
-			this.gl.uniformMatrix4fv(this.u_BN_nodeWMatrix, false, bn.MPOS.transpose().e); 
-			
-			
-			// WEBCLGL    
-			bn.webCLGL.enqueueNDRangeKernel(bn.kernelNodePos, bn.CLGL_bufferNodePosXYZW_TEMP);  			
-			bn.webCLGL.enqueueNDRangeKernel(bn.kernelNodeDir, bn.CLGL_bufferNodeDir_TEMP); 
-			
-			bn.webCLGL.copy(bn.CLGL_bufferNodePosXYZW_TEMP, bn.CLGL_bufferNodePosXYZW);			
-			bn.webCLGL.copy(bn.CLGL_bufferNodeDir_TEMP, bn.CLGL_bufferNodeDir); 
-			
-			
-			// CLGL_bufferNodePosXYZW is type FLOAT4.
-			// FLOAT4 arr4Uint8_XYZW is one array contains 4 arrays (one per axis).
-			//Distint to FLOAT4 is one array contains 1 array
-			var arr4Uint8_XYZW = bn.webCLGL.enqueueReadBuffer_Packet4Uint8Array_Float4(bn.CLGL_bufferNodePosXYZW);  
-			
-			
-			
-			
-			this.gl.useProgram(this.shader_BN); 
-			
+			this.gl.uniformMatrix4fv(this.u_BN_nodeWMatrix, false, bn.MPOS.transpose().e);
 			
 			///////////////////////////////////////
 			// NodeId
@@ -182,19 +162,19 @@ StormGLContext.prototype.render_BufferNodes = function() {
 			this.gl.enableVertexAttribArray(this.attr_BN_NodePosX);
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodePosX);
 			//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_X, this.gl.DYNAMIC_DRAW);
-			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_XYZW[0]);    
+			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, bn.CLGL_bufferNodePosXYZW.Packet4Uint8Array_Float4[0]);    
 			this.gl.vertexAttribPointer(this.attr_BN_NodePosX, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!! 
 			
 			this.gl.enableVertexAttribArray(this.attr_BN_NodePosY);
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodePosY);
 			//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_Y, this.gl.DYNAMIC_DRAW);
-			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_XYZW[1]); 
+			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, bn.CLGL_bufferNodePosXYZW.Packet4Uint8Array_Float4[1]); 
 			this.gl.vertexAttribPointer(this.attr_BN_NodePosY, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
 			
 			this.gl.enableVertexAttribArray(this.attr_BN_NodePosZ);
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferNodePosZ);
 			//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_Z, this.gl.DYNAMIC_DRAW);
-			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, arr4Uint8_XYZW[2]);   
+			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0, bn.CLGL_bufferNodePosXYZW.Packet4Uint8Array_Float4[2]);   
 			this.gl.vertexAttribPointer(this.attr_BN_NodePosZ, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
 			
 			
@@ -339,45 +319,25 @@ StormGLContext.prototype.render_BufferNodesLinks = function() {
 			
 			this.gl.uniformMatrix4fv(this.u_BNLinks_nodeWMatrix, false, bn.MPOS.transpose().e); 
 			
-			
-			// WEBCLGL    
-			bn.webCLGL.enqueueNDRangeKernel(bn.kernelLinkPos, bn.CLGL_bufferLinkPosXYZW_TEMP);			
-			bn.webCLGL.enqueueNDRangeKernel(bn.kernelLinkDir, bn.CLGL_bufferLinkDir_TEMP); 
-			
-			bn.webCLGL.copy(bn.CLGL_bufferLinkPosXYZW_TEMP, bn.CLGL_bufferLinkPosXYZW);			
-			bn.webCLGL.copy(bn.CLGL_bufferLinkDir_TEMP, bn.CLGL_bufferLinkDir);
-			
-			
-			// CLGL_bufferNodePosXYZW is type FLOAT4.
-			// FLOAT4 arr4Uint8_XYZW is one array contains 4 arrays (one per axis).
-			//Distint to FLOAT4 is one array contains 1 array
-			var arr4Uint8_XYZW = bn.webCLGL.enqueueReadBuffer_Packet4Uint8Array_Float4(bn.CLGL_bufferLinkPosXYZW);   
-			
-			
-			
-			
-			this.gl.useProgram(this.shader_BNLinks); 
-			
-			
 			///////////////////////////////////////
 			// LinkPos
 			///////////////////////////////////////
 			this.gl.enableVertexAttribArray(this.attr_BNLinks_LinkPosX);
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferLinkPosX);
 			//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_X, this.gl.DYNAMIC_DRAW);
-			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0,  arr4Uint8_XYZW[0]);    
+			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0,  bn.CLGL_bufferLinkPosXYZW.Packet4Uint8Array_Float4[0]);    
 			this.gl.vertexAttribPointer(this.attr_BNLinks_LinkPosX, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!! 
 			
 			this.gl.enableVertexAttribArray(this.attr_BNLinks_LinkPosY);
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferLinkPosY);
 			//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_Y, this.gl.DYNAMIC_DRAW);
-			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0,  arr4Uint8_XYZW[1]); 
+			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0,  bn.CLGL_bufferLinkPosXYZW.Packet4Uint8Array_Float4[1]); 
 			this.gl.vertexAttribPointer(this.attr_BNLinks_LinkPosY, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
 			
 			this.gl.enableVertexAttribArray(this.attr_BNLinks_LinkPosZ);
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, bn.GL_bufferLinkPosZ);
 			//this.gl.bufferData(this.gl.ARRAY_BUFFER, arr4Uint8_Z, this.gl.DYNAMIC_DRAW);
-			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0,  arr4Uint8_XYZW[2]);   
+			this.gl.bufferSubData(this.gl.ARRAY_BUFFER, 0,  bn.CLGL_bufferLinkPosXYZW.Packet4Uint8Array_Float4[2]);   
 			this.gl.vertexAttribPointer(this.attr_BNLinks_LinkPosZ, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
 			
 			

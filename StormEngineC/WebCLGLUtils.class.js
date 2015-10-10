@@ -3,8 +3,8 @@
 * @class
 * @constructor
 */
-WebCLGLUtils = function(gl) { 
-	this.gl = gl;
+WebCLGLUtils = function() { 
+	
 };
 
 /** @private  */
@@ -53,32 +53,52 @@ WebCLGLUtils.prototype.loadQuad = function(node, length, height) {
 	
 	return meshObject;
 };
+/** @private */
+WebCLGLUtils.prototype.getWebGLContextFromCanvas = function(canvas, ctxOpt) {
+	var gl;
+	try {
+		if(ctxOpt == undefined) gl = canvas.getContext("webgl");
+		else gl = canvas.getContext("webgl", ctxOpt);
+	} catch(e) {
+		gl = null;
+    }
+	if(gl == null) {
+		try {
+			if(ctxOpt == undefined) gl = canvas.getContext("experimental-webgl");
+			else gl = canvas.getContext("experimental-webgl", ctxOpt);
+		} catch(e) {
+			gl = null;
+		}
+	}
+	if(gl == null) gl = false;
+	return gl;
+};
 /**
  * @private 
  */
-WebCLGLUtils.prototype.createShader = function(name, sourceVertex, sourceFragment, shaderProgram) {
+WebCLGLUtils.prototype.createShader = function(gl, name, sourceVertex, sourceFragment, shaderProgram) {
 	var _sv = false, _sf = false;
 	
-	var shaderVertex = this.gl.createShader(this.gl.VERTEX_SHADER);
-	this.gl.shaderSource(shaderVertex, sourceVertex);
-	this.gl.compileShader(shaderVertex);
-	if (!this.gl.getShaderParameter(shaderVertex, this.gl.COMPILE_STATUS)) {
+	var shaderVertex = gl.createShader(gl.VERTEX_SHADER);
+	gl.shaderSource(shaderVertex, sourceVertex);
+	gl.compileShader(shaderVertex);
+	if (!gl.getShaderParameter(shaderVertex, gl.COMPILE_STATUS)) {
 		alert('Error sourceVertex of shader '+name+'. See console.');
-		console.log('Error vertex-shader '+name+':\n '+this.gl.getShaderInfoLog(shaderVertex));
-		if(this.gl.getShaderInfoLog(shaderVertex) != undefined) {
-			console.log(this.gl.getShaderInfoLog(shaderVertex));
+		console.log('Error vertex-shader '+name+':\n '+gl.getShaderInfoLog(shaderVertex));
+		if(gl.getShaderInfoLog(shaderVertex) != undefined) {
+			console.log(gl.getShaderInfoLog(shaderVertex));
 		}
 	} else  {
-		this.gl.attachShader(shaderProgram, shaderVertex);
+		gl.attachShader(shaderProgram, shaderVertex);
 		_sv = true;
 	}
 	
-	var shaderFragment = this.gl.createShader(this.gl.FRAGMENT_SHADER);
-	this.gl.shaderSource(shaderFragment, sourceFragment);
-	this.gl.compileShader(shaderFragment);
-	if (!this.gl.getShaderParameter(shaderFragment, this.gl.COMPILE_STATUS)) {
+	var shaderFragment = gl.createShader(gl.FRAGMENT_SHADER);
+	gl.shaderSource(shaderFragment, sourceFragment);
+	gl.compileShader(shaderFragment);
+	if (!gl.getShaderParameter(shaderFragment, gl.COMPILE_STATUS)) {
 		alert('Error sourceFragment of shader '+name+'. See console.');
-		var infoLog = this.gl.getShaderInfoLog(shaderFragment);
+		var infoLog = gl.getShaderInfoLog(shaderFragment);
 		console.log('Error fragment-shader '+name+':\n '+infoLog);
 		if(infoLog != undefined) {
 			console.log(infoLog);
@@ -91,7 +111,7 @@ WebCLGLUtils.prototype.createShader = function(name, sourceVertex, sourceFragmen
 					arrErrors.push([line,errors[n]]);
 				}
 			}
-			var sour = this.gl.getShaderSource(shaderFragment).split("\n");
+			var sour = gl.getShaderSource(shaderFragment).split("\n");
 			sour.unshift("");
 			for(var n = 0, f = sour.length; n < f; n++) {
 				var lineWithError = false;
@@ -111,17 +131,17 @@ WebCLGLUtils.prototype.createShader = function(name, sourceVertex, sourceFragmen
 			}
 		}
 	} else {
-		this.gl.attachShader(shaderProgram, shaderFragment);	
+		gl.attachShader(shaderProgram, shaderFragment);	
 		_sf = true;
 	}
 	
 	if(_sv == true && _sf == true) {
-		this.gl.linkProgram(shaderProgram);
-		if (!this.gl.getProgramParameter(shaderProgram, this.gl.LINK_STATUS)) {
+		gl.linkProgram(shaderProgram);
+		if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
 			alert('Error in shader '+name);
 			console.log('Error shader program '+name+':\n ');
-			if(this.gl.getProgramInfoLog(shaderProgram) != undefined) {
-				console.log(this.gl.getProgramInfoLog(shaderProgram));
+			if(gl.getProgramInfoLog(shaderProgram) != undefined) {
+				console.log(gl.getProgramInfoLog(shaderProgram));
 			} 
 			return false;
 		} else {

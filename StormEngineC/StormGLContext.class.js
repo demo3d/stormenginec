@@ -572,6 +572,39 @@ StormGLContext.prototype.createShader = function(gl, name, sourceVertex, sourceF
  * @private 
  */
 StormGLContext.prototype.renderGLContext = function() {
+	for(var n=0; n < stormEngineC.bufferNodes.length; n++) {
+		var bn = stormEngineC.bufferNodes[n];
+		
+		if(bn.arrayNodeId.length) {
+			// WEBCLGL    
+			bn.webCLGL.enqueueNDRangeKernel(bn.kernelNodePos, bn.CLGL_bufferNodePosXYZW_TEMP);  			
+			bn.webCLGL.enqueueNDRangeKernel(bn.kernelNodeDir, bn.CLGL_bufferNodeDir_TEMP); 
+			
+			bn.webCLGL.copy(bn.CLGL_bufferNodePosXYZW_TEMP, bn.CLGL_bufferNodePosXYZW);			
+			bn.webCLGL.copy(bn.CLGL_bufferNodeDir_TEMP, bn.CLGL_bufferNodeDir); 
+			
+			// CLGL_bufferNodePosXYZW is type FLOAT4.
+			// FLOAT4 arr4Uint8_XYZW is one array contains 4 arrays (one per axis).
+			//Distint to FLOAT4 is one array contains 1 array
+			bn.webCLGL.enqueueReadBuffer_Packet4Uint8Array_Float4(bn.CLGL_bufferNodePosXYZW);  
+		}
+		if(bn.arrayLinkId.length) {
+			// WEBCLGL    
+			bn.webCLGL.enqueueNDRangeKernel(bn.kernelLinkPos, bn.CLGL_bufferLinkPosXYZW_TEMP);			
+			bn.webCLGL.enqueueNDRangeKernel(bn.kernelLinkDir, bn.CLGL_bufferLinkDir_TEMP); 
+			
+			bn.webCLGL.copy(bn.CLGL_bufferLinkPosXYZW_TEMP, bn.CLGL_bufferLinkPosXYZW);			
+			bn.webCLGL.copy(bn.CLGL_bufferLinkDir_TEMP, bn.CLGL_bufferLinkDir);
+			
+			
+			// CLGL_bufferNodePosXYZW is type FLOAT4.
+			// FLOAT4 arr4Uint8_XYZW is one array contains 4 arrays (one per axis).
+			//Distint to FLOAT4 is one array contains 1 array
+			bn.webCLGL.enqueueReadBuffer_Packet4Uint8Array_Float4(bn.CLGL_bufferLinkPosXYZW);  
+		}
+	}
+	
+	
 	this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
 	
 	if(this.Shader_Pick_READY) {
