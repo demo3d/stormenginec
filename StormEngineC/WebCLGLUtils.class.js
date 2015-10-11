@@ -212,31 +212,31 @@ WebCLGLUtils.prototype.unpack = function(colour) {
 * @returns {String}
 */
 WebCLGLUtils.prototype.packGLSLFunctionString = function() {
-	return 'vec4 pack (float depth) {'+
-				'const vec4 bias = vec4(1.0 / 255.0,'+
-							'1.0 / 255.0,'+
-							'1.0 / 255.0,'+
-							'0.0);'+
+	return 'vec4 pack (float depth) {\n'+
+				'const vec4 bias = vec4(1.0 / 255.0,\n'+
+							'1.0 / 255.0,\n'+
+							'1.0 / 255.0,\n'+
+							'0.0);\n'+
 
-				'float r = depth;'+
-				'float g = fract(r * 255.0);'+
-				'float b = fract(g * 255.0);'+
-				'float a = fract(b * 255.0);'+
-				'vec4 colour = vec4(r, g, b, a);'+
+				'float r = depth;\n'+
+				'float g = fract(r * 255.0);\n'+
+				'float b = fract(g * 255.0);\n'+
+				'float a = fract(b * 255.0);\n'+
+				'vec4 colour = vec4(r, g, b, a);\n'+
 				
-				'return colour - (colour.yzww * bias);'+
-			'}';
+				'return colour - (colour.yzww * bias);\n'+
+			'}\n';
 };
 /**
 * Get unpack GLSL function string
 * @returns {String}
 */
 WebCLGLUtils.prototype.unpackGLSLFunctionString = function() {
-	return 'float unpack (vec4 colour) {'+
-				'const vec4 bitShifts = vec4(1.0,'+
-								'1.0 / 255.0,'+
-								'1.0 / (255.0 * 255.0),'+
-								'1.0 / (255.0 * 255.0 * 255.0));'+
-				'return dot(colour, bitShifts);'+
-			'}';
+	return 'float unpack (vec4 colour) {\n'+
+				'const vec4 bitShifts = vec4(1.0,\n'+
+								'1.0 / 255.0,\n'+
+								'1.0 / (255.0 * 255.0),\n'+
+								'1.0 / (255.0 * 255.0 * 255.0));\n'+
+				'return dot(colour, bitShifts);\n'+
+			'}\n';
 };

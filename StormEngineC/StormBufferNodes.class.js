@@ -24,7 +24,7 @@ StormBufferNodes = function(jsonIn) { StormNode.call(this);
 	//*******************************************************************************************************************
 	// NODES
 	//*******************************************************************************************************************
-	//POS XYZW
+	// NODES POSITION KERNEL
 	var kernelPos_Source = 'void main(	float4* posXYZW,'+
 										'float4* dir) {'+
 									'vec2 x = get_global_id();'+
@@ -38,8 +38,41 @@ StormBufferNodes = function(jsonIn) { StormNode.call(this);
 	this.kernelNodePos = this.webCLGL.createKernel();
 	this.kernelNodePos.setKernelSource(kernelPos_Source);
 	
+	// NODES DIRECTION KERNEL
 	this.kernelNodeDir = this.webCLGL.createKernel(); 
 	this.kernelNodeDir.setKernelSource(this.generatekernelDir_Source());
+	
+	// NODES VERTEX AND FRAGMENT PROGRAMS 
+	var vfNode_vertexSource = 'void main(float* nodeId,'+
+										'float4*kernel nodePos,'+
+										'float4* nodeVertexPos,'+
+										'float4* nodeVertexCol,'+
+										'mat4 PMatrix,'+
+										'mat4 cameraWMatrix,'+
+										'mat4 nodeWMatrix,'+
+										'float workAreaSize,'+
+										'float nodesSize) {'+
+									'vec2 x = get_global_id();'+
+									'float nodeIdx = nodeId[x];\n'+  
+									'vec4 nodePosition = nodePos[x];\n'+
+									'vec4 nodeVertexPosition = nodeVertexPos[x];\n'+
+									'vec4 nodeVertexColor = nodeVertexCol[x];\n'+
+									
+									
+									'mat4 nodepos = nodeWMatrix;'+
+									'nodepos[3][0] = nodePosition.x;'+
+									'nodepos[3][1] = nodePosition.y;'+
+									'nodepos[3][2] = nodePosition.z;'+
+									'gl_Position = PMatrix * cameraWMatrix * nodepos * nodeVertexPosition;\n'+
+							'}';
+	var vfNode_fragmentSource = 'void main(	float nodesSize) {'+
+										'vec2 x = get_global_id();'+
+										
+										'gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n'+
+									'}';
+	this.vfNode = this.webCLGL.createVertexFragmentProgram();
+	this.vfNode.setVertexSource(vfNode_vertexSource);
+	this.vfNode.setFragmentSource(vfNode_fragmentSource);
 	
 	
 	// default mesh to use

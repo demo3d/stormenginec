@@ -120,7 +120,7 @@ WebCLGLKernel.prototype.compile = function() {
 		
 		lines_attrs()+
 		
-		this.utils.unpackGLSLFunctionString()+ 
+		//this.utils.unpackGLSLFunctionString()+ 
 		
 		'varying vec2 global_id;\n'+ 
 		
