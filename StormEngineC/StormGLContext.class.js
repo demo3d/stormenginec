@@ -439,8 +439,6 @@ StormGLContext.prototype.initShaders = function() {
 			
 			if(!this._typeMobile && this._supportFormat == this.gl.FLOAT) {
 				this.initShader_ParticlesAux();
-				this.initshader_BN();
-				this.initshader_BNLinks();
 				this.initShader_Lines();
 				this.initShader_DOF();
 			} 
@@ -572,6 +570,7 @@ StormGLContext.prototype.createShader = function(gl, name, sourceVertex, sourceF
  * @private 
  */
 StormGLContext.prototype.renderGLContext = function() {
+	// perform bufferNodes webclgl kernels
 	for(var n=0; n < stormEngineC.bufferNodes.length; n++) {
 		var bn = stormEngineC.bufferNodes[n];
 		
@@ -700,13 +699,35 @@ StormGLContext.prototype.renderGLContext = function() {
 	if(this.Shader_ParticlesAux_READY && this.particles.length > 0) {
 		this.render_ParticlesAux();
 	}
-	if(this.Shader_BN_READY) {
-	    this.render_BufferNodes();	    	
-	}
-	if(this.shader_BNLinks_READY) {
-		this.render_BufferNodesLinks();	    	
-	}
+		
+	// perform bufferNodes webclgl vertexFragmentProgram
+    for(var n=0; n < stormEngineC.bufferNodes.length; n++) {
+		var bn = stormEngineC.bufferNodes[n];
+		
+		if(bn.arrayNodeId.length) {
+			bn.vfNode.setVertexArg("PMatrix", stormEngineC.defaultCamera.mPMatrix.transpose().e);
+			bn.vfNode.setVertexArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
+			bn.vfNode.setVertexArg("nodeWMatrix", bn.MPOS.transpose().e);
+			//bn.vfNode.setVertexArg("workAreaSize", parseFloat(bn.workAreaSize));
+			bn.vfNode.setVertexArg("nodesSize", parseFloat(bn.currentLinkId-2));
+			
+			bn.vfNode.setFragmentArg("nodesSize", parseFloat(bn.currentLinkId-2));
+			
+			bn.webCLGL.enqueueVertexFragmentProgram(bn.vfNode, bn.CLGL_bufferNodeIndices, bn.arrayNodeIndices.length);
+		}
+		if(bn.arrayLinkId.length) {
+			bn.vfLinks.setVertexArg("PMatrix", stormEngineC.defaultCamera.mPMatrix.transpose().e);
+			bn.vfLinks.setVertexArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
+			bn.vfLinks.setVertexArg("nodeWMatrix", bn.MPOS.transpose().e);
+			//bn.vfNode.setVertexArg("workAreaSize", parseFloat(bn.workAreaSize));
+			
+			bn.vfLinks.setFragmentArg("nodesSize", parseFloat(bn.currentLinkId-2));
+			
+			bn.webCLGL.enqueueVertexFragmentProgram(bn.vfLinks, undefined, bn.arrayLinkId.length);
+		}
+	}	
 	
+    
 	this.hitRectRegion_onclick(); 
 	if(this.Shader_DOF_READY && stormEngineC.defaultCamera.DOFenable) {
 		this.render_DOF(); 

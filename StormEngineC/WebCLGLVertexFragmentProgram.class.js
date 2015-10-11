@@ -279,7 +279,7 @@ WebCLGLVertexFragmentProgram.prototype.compileVertexFragmentSource = function() 
 			this.vertexSource+
 
 		'}\n';
-	console.log(sourceVertex);	
+	//console.log(sourceVertex);	
 	var sourceFragment = this.precision+
 		
 		lines_fragment_attrs()+
@@ -304,10 +304,10 @@ WebCLGLVertexFragmentProgram.prototype.compileVertexFragmentSource = function() 
 			this.fragmentSource+
 			
 		'}\n';
-	console.log(sourceFragment);	
+	//console.log(sourceFragment);	
 	
 	this.vertexFragmentProgram = this.gl.createProgram();
-	this.utils.createShader(this.gl, "WEBCLGL VERTEX FRAGMENT", sourceVertex, sourceFragment, this.vertexFragmentProgram);
+	this.utils.createShader(this.gl, "WEBCLGL VERTEX FRAGMENT PROGRAM", sourceVertex, sourceFragment, this.vertexFragmentProgram);
 	
 	
 	this.vertexAttributes = []; // {location,value}
@@ -315,8 +315,7 @@ WebCLGLVertexFragmentProgram.prototype.compileVertexFragmentSource = function() 
 	this.fragmentSamplers = []; // {location,value}
 	this.fragmentUniforms = []; // {location,value}
 	
-	//this.attr_VertexPos = this.gl.getAttribLocation(this.vertexFragmentProgram, "aVertexPosition");
-	//this.attr_TextureCoord = this.gl.getAttribLocation(this.vertexFragmentProgram, "aTextureCoord");	
+	// vertexAttributes & vertexUniforms
 	for(var n = 0, f = this.in_vertex_values.length; n < f; n++) {
 		if(	this.in_vertex_values[n].type == 'buffer_float4_fromKernel') {
 			this.vertexAttributes.push({location:[this.gl.getAttribLocation(this.vertexFragmentProgram, this.in_vertex_values[n].name+"0"),
@@ -340,7 +339,7 @@ WebCLGLVertexFragmentProgram.prototype.compileVertexFragmentSource = function() 
 			
 			this.in_vertex_values[n].idPointer = this.vertexAttributes.length-1;
 		} else if(this.in_vertex_values[n].type == 'float' || this.in_vertex_values[n].type == 'mat4') {
-			this.vertexUniforms.push({location:this.gl.getUniformLocation(this.vertexFragmentProgram, this.in_vertex_values[n].name),
+			this.vertexUniforms.push({location:[this.gl.getUniformLocation(this.vertexFragmentProgram, this.in_vertex_values[n].name)],
 										value:this.in_vertex_values[n].value,
 										type: this.in_vertex_values[n].type});
 
@@ -348,6 +347,7 @@ WebCLGLVertexFragmentProgram.prototype.compileVertexFragmentSource = function() 
 		}
 	}
 	
+	// fragmentSamplers & fragmentUniforms
 	for(var n = 0, f = this.in_fragment_values.length; n < f; n++) {
 		if(this.in_fragment_values[n].type == 'buffer_float4' || this.in_fragment_values[n].type == 'buffer_float') {
 			this.fragmentSamplers.push({location:[this.gl.getUniformLocation(this.vertexFragmentProgram, this.in_fragment_values[n].name)],
@@ -356,7 +356,7 @@ WebCLGLVertexFragmentProgram.prototype.compileVertexFragmentSource = function() 
 			
 			this.in_fragment_values[n].idPointer = this.fragmentSamplers.length-1;
 		} else if(this.in_fragment_values[n].type == 'float') {
-			this.fragmentUniforms.push({location:this.gl.getUniformLocation(this.vertexFragmentProgram, this.in_fragment_values[n].name),
+			this.fragmentUniforms.push({location:[this.gl.getUniformLocation(this.vertexFragmentProgram, this.in_fragment_values[n].name)],
 										value:this.in_fragment_values[n].value,
 										type: this.in_fragment_values[n].type});
 			
@@ -390,7 +390,7 @@ WebCLGLVertexFragmentProgram.prototype.setVertexArg = function(argument, data) {
 	}
 	
 	if(this.in_vertex_values[numArg] == undefined) {
-		console.log("argument "+argument+" not exist in this kernel");
+		console.log("argument "+argument+" not exist in this vertex program");
 		return;
 	}
 	this.in_vertex_values[numArg].value = data;
@@ -426,7 +426,7 @@ WebCLGLVertexFragmentProgram.prototype.setFragmentArg = function(argument, data)
 	}
 	
 	if(this.in_fragment_values[numArg] == undefined) {
-		console.log("argument "+argument+" not exist in this kernel");
+		console.log("argument "+argument+" not exist in this fragment program");
 		return;
 	}
 	this.in_fragment_values[numArg].value = data;

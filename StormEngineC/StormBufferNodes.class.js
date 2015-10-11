@@ -82,77 +82,20 @@ StormBufferNodes = function(jsonIn) { StormNode.call(this);
 	this.currentNodeId = 0;	
 	this.nodeArrayItemStart = 0;
 	
-	///////////////////////////////////////
-	// NodeId
-	///////////////////////////////////////
 	this.arrayNodeId = [];
-	
-	this.CLGL_bufferNodeId;
-	this.CLGL_bufferNodeId_TEMP;
-	
-	///////////////////////////////////////
-	// NodePos
-	///////////////////////////////////////
 	this.arrayNodePosXYZW = [];
-	this.arrayNodePosX = [];
-	this.arrayNodePosY = [];
-	this.arrayNodePosZ = [];
-	
-	this.CLGL_bufferNodePosXYZW;
-	this.CLGL_bufferNodePosXYZW_TEMP;
-	
-	this.GL_bufferNodePosX;
-	this.GL_bufferNodePosY;
-	this.GL_bufferNodePosZ;
-	
-	///////////////////////////////////////
-	// NodeVertexPos
-	///////////////////////////////////////
 	this.arrayNodeVertexPos = [];
-	
-	this.GL_bufferNodeVertexPos;
-	
-	///////////////////////////////////////
-	// NodeVertexColor
-	///////////////////////////////////////
 	this.arrayNodeVertexColor = [];
-	
-	this.GL_bufferNodeVertexColor;
-	
-	///////////////////////////////////////
-	// NodeIndices
-	///////////////////////////////////////
 	this.startIndexId = 0;
 	this.arrayNodeIndices = [];
-	
-	this.GL_bufferNodeIndices;
-	
-	///////////////////////////////////////
-	// NodeDir
-	///////////////////////////////////////
 	this.arrayNodeDir = [];
-	
-	this.CLGL_bufferNodeDir;
-	this.CLGL_bufferNodeDir_TEMP;
-	
-	///////////////////////////////////////
-	// NodePolaritys
-	///////////////////////////////////////
 	this.arrayNodePolaritys = [];
-	
-	this.CLGL_bufferNodePolaritys;
-	
-	///////////////////////////////////////
-	// NodeDestination
-	///////////////////////////////////////
 	this.arrayNodeDestination = [];
-	
-	this.CLGL_bufferNodeDestination;
 	
 	//*******************************************************************************************************************
 	// LINKS
 	//*******************************************************************************************************************
-	//POS
+	// LINKS POSITION KERNEL
 	var kernelPos_Source = 'void main(	float4* posXYZW,'+
 										'float4* dir) {'+
 									'vec2 x = get_global_id();'+
@@ -166,62 +109,45 @@ StormBufferNodes = function(jsonIn) { StormNode.call(this);
 	this.kernelLinkPos = this.webCLGL.createKernel();
 	this.kernelLinkPos.setKernelSource(kernelPos_Source);
 	
+	// LINKS DIRECTION KERNEL
 	this.kernelLinkDir = this.webCLGL.createKernel(); 
 	this.kernelLinkDir.setKernelSource(this.generatekernelDir_Source());
+	
+	// LINKS VERTEX AND FRAGMENT PROGRAMS 
+	var vfLinks_vertexSource = 'void main(float4*kernel linkPos,'+
+										'mat4 PMatrix,'+
+										'mat4 cameraWMatrix,'+
+										'mat4 nodeWMatrix,'+
+										'float workAreaSize) {'+
+									'vec2 x = get_global_id();'+
+									'vec4 linkPosition = linkPos[x];\n'+
+									
+									
+									'mat4 nodepos = nodeWMatrix;'+
+									'nodepos[3][0] = linkPosition.x;'+
+									'nodepos[3][1] = linkPosition.y;'+
+									'nodepos[3][2] = linkPosition.z;'+
+									'gl_Position = PMatrix * cameraWMatrix * nodepos * vec4(0.0, 0.0, 0.0, 1.0);\n'+
+							'}';
+	var vfLinks_fragmentSource = 'void main(	float nodesSize) {'+
+										'vec2 x = get_global_id();'+
+										
+										'gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n'+
+									'}';
+	this.vfLinks = this.webCLGL.createVertexFragmentProgram();
+	this.vfLinks.setVertexSource(vfLinks_vertexSource);
+	this.vfLinks.setFragmentSource(vfLinks_fragmentSource);
+	
 	
 	
 	this.currentLinkId = 0;
 	
-	///////////////////////////////////////
-	// LinkId
-	///////////////////////////////////////
 	this.arrayLinkId = [];
-	
-	this.CLGL_bufferLinkId;
-	
-	///////////////////////////////////////
-	// LinkNodeId
-	///////////////////////////////////////
 	this.arrayLinkNodeId = [];
-	
-	this.CLGL_bufferLinkNodeId;
-	
-	///////////////////////////////////////
-	// LinkPos
-	///////////////////////////////////////
 	this.arrayLinkPosXYZW = [];
-	this.arrayLinkPosX = [];
-	this.arrayLinkPosY = [];
-	this.arrayLinkPosZ = [];
-	
-	this.CLGL_bufferLinkPosXYZW;
-	this.CLGL_bufferLinkPosXYZW_TEMP;
-	
-	this.GL_bufferLinkPosX;
-	this.GL_bufferLinkPosY;
-	this.GL_bufferLinkPosZ;
-	
-	///////////////////////////////////////
-	// LinkDir
-	///////////////////////////////////////
 	this.arrayLinkDir = [];
-	
-	this.CLGL_bufferLinkDir;
-	this.CLGL_bufferLinkDir_TEMP; 
-	
-	///////////////////////////////////////
-	// LinkPolaritys
-	///////////////////////////////////////
 	this.arrayLinkPolaritys = [];
-	
-	this.CLGL_bufferLinkPolaritys;
-	
-	///////////////////////////////////////
-	// LinkDestination
-	///////////////////////////////////////
 	this.arrayLinkDestination = [];
-	
-	this.CLGL_bufferLinkDestination;
 };
 StormBufferNodes.prototype = Object.create(StormNode.prototype);
 
@@ -450,28 +376,10 @@ StormBufferNodes.prototype.addNode = function(jsonIn) {
 		for(var n=0; n < bo.nodeMeshVertexArray.length/3; n++) {
 			var idxVertex = n*3;
 			
-			///////////////////////////////////////
-			// NodeId
-			///////////////////////////////////////
 			this.arrayNodeId.push(this.currentNodeId);
-			
-			///////////////////////////////////////
-			// NodePos
-			///////////////////////////////////////
 			this.arrayNodePosXYZW.push(nodePosX, nodePosY, nodePosZ, 1.0);
-			this.arrayNodePosX.push(nodePosX);
-			this.arrayNodePosY.push(nodePosY);
-			this.arrayNodePosZ.push(nodePosZ);
-			
-			///////////////////////////////////////
-			// NodeVertexPos
-			///////////////////////////////////////
 			this.arrayNodeVertexPos.push(bo.nodeMeshVertexArray[idxVertex], bo.nodeMeshVertexArray[idxVertex+1], bo.nodeMeshVertexArray[idxVertex+2], 1.0);
 			//console.log(bo.nodeMeshVertexArray[idxVertex]);
-			
-			///////////////////////////////////////
-			// NodeVertexColor
-			///////////////////////////////////////
 			this.arrayNodeVertexColor.push(color.e[0], color.e[1], color.e[2], 1.0);
 			
 			
@@ -486,9 +394,6 @@ StormBufferNodes.prototype.addNode = function(jsonIn) {
 		for(var n=0; n < bo.nodeMeshIndexArray.length; n++) {
 			var idxIndex = n;
 			
-			///////////////////////////////////////
-			// NodeIndices
-			///////////////////////////////////////
 			this.arrayNodeIndices.push(this.startIndexId+bo.nodeMeshIndexArray[idxIndex]);
 			//console.log(this.startIndexId+bo.nodeMeshIndexArray[idxIndex]);
 			
@@ -519,90 +424,37 @@ StormBufferNodes.prototype.updateNodes = function() {
 	
 	this.updatekernelNodesPos_Arguments();
 	this.updatekernelNodesDir_Arguments();
+	this.updatevfNode_Arguments();
 };
 
 /** @private **/
-StormBufferNodes.prototype.writeNodeId = function() {	
-	// VERTEX AND FRAGMENT | FLOAT
-	// CLGL buffers
-	if(this.CLGL_bufferNodeId != undefined) {
-		this.CLGL_bufferNodeId.remove();
-		this.CLGL_bufferNodeId_TEMP.remove();
-	}
-	this.CLGL_bufferNodeId = this.webCLGL.createBuffer(this.arrayNodeId.length, "FLOAT", this.workAreaSize);
-	this.CLGL_bufferNodeId_TEMP = this.webCLGL.createBuffer(this.arrayNodeId.length, "FLOAT", this.workAreaSize);
-	
+StormBufferNodes.prototype.writeNodeId = function() {
+	this.CLGL_bufferNodeId = this.webCLGL.createBuffer(this.arrayNodeId.length, "FLOAT", this.workAreaSize, false, "VERTEX_AND_FRAGMENT");
+	this.CLGL_bufferNodeId_TEMP = this.webCLGL.createBuffer(this.arrayNodeId.length, "FLOAT", this.workAreaSize, false, "VERTEX_AND_FRAGMENT");	
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeId, this.arrayNodeId);
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeId_TEMP, this.arrayNodeId);
-	
-	// GL buffers
-	if(this.GL_bufferNodeId != undefined) {
-		this.gl.deleteBuffer(this.GL_bufferNodeId);
-	}
-	this.GL_bufferNodeId = this.gl.createBuffer();
-	
-	this.enqueueWriteVertexBuffer(this.GL_bufferNodeId, this.arrayNodeId, false, "FLOAT", "ARRAY_BUFFER");
 };
 /** @private **/
-StormBufferNodes.prototype.writeNodePos = function() {	
-	// VERTEX FROM FRAGMENT | VECTOR4
-	// CLGL buffers
-	if(this.CLGL_bufferNodePosXYZW != undefined) { 
-		this.CLGL_bufferNodePosXYZW.remove();
-		this.CLGL_bufferNodePosXYZW_TEMP.remove();
-	}
-	this.CLGL_bufferNodePosXYZW = this.webCLGL.createBuffer(this.arrayNodePosXYZW.length/4, "FLOAT4", this.workAreaSize);
-	this.CLGL_bufferNodePosXYZW_TEMP = this.webCLGL.createBuffer(this.arrayNodePosXYZW.length/4, "FLOAT4", this.workAreaSize);
-	
+StormBufferNodes.prototype.writeNodePos = function() {
+	this.CLGL_bufferNodePosXYZW = this.webCLGL.createBuffer(this.arrayNodePosXYZW.length/4, "FLOAT4", this.workAreaSize, false, "VERTEX_FROM_KERNEL");
+	this.CLGL_bufferNodePosXYZW_TEMP = this.webCLGL.createBuffer(this.arrayNodePosXYZW.length/4, "FLOAT4", this.workAreaSize, false, "VERTEX_FROM_KERNEL");	
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodePosXYZW, this.arrayNodePosXYZW);
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodePosXYZW_TEMP, this.arrayNodePosXYZW);
-	
-	// GL buffers
-	if(this.GL_bufferNodePosX != undefined) {
-		this.gl.deleteBuffer(this.GL_bufferNodePosX);
-		this.gl.deleteBuffer(this.GL_bufferNodePosY);
-		this.gl.deleteBuffer(this.GL_bufferNodePosZ);
-	}
-	this.GL_bufferNodePosX = this.gl.createBuffer();
-	this.GL_bufferNodePosY = this.gl.createBuffer();
-	this.GL_bufferNodePosZ = this.gl.createBuffer();
-	
-	this.enqueueWriteVertexBuffer(this.GL_bufferNodePosX, this.arrayNodePosX, true, "UINT", "ARRAY_BUFFER");
-	this.enqueueWriteVertexBuffer(this.GL_bufferNodePosY, this.arrayNodePosY, true, "UINT", "ARRAY_BUFFER");
-	this.enqueueWriteVertexBuffer(this.GL_bufferNodePosZ, this.arrayNodePosZ, true, "UINT", "ARRAY_BUFFER");
 };
 /** @private **/
 StormBufferNodes.prototype.writeNodeVertexPos = function() {
-	// VERTEX | VECTOR4
-	// GL buffers
-	if(this.GL_bufferNodeVertexPos != undefined) {
-		this.gl.deleteBuffer(this.GL_bufferNodeVertexPos);
-	}
-	this.GL_bufferNodeVertexPos = this.gl.createBuffer();
-	
-	this.enqueueWriteVertexBuffer(this.GL_bufferNodeVertexPos, this.arrayNodeVertexPos, false, "FLOAT", "ARRAY_BUFFER");
+	this.CLGL_bufferNodeVertexPos = this.webCLGL.createBuffer(this.arrayNodeVertexPos.length/4, "FLOAT4", this.workAreaSize, false, "VERTEX");	
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeVertexPos, this.arrayNodeVertexPos);
 };
 /** @private **/
-StormBufferNodes.prototype.writeNodeVertexColor = function() {	
-	// VERTEX | VECTOR4
-	// GL buffers
-	if(this.GL_bufferNodeVertexColor != undefined) {
-		this.gl.deleteBuffer(this.GL_bufferNodeVertexColor);
-	}
-	this.GL_bufferNodeVertexColor = this.gl.createBuffer();
-	
-	this.enqueueWriteVertexBuffer(this.GL_bufferNodeVertexColor, this.arrayNodeVertexColor, false, "FLOAT", "ARRAY_BUFFER");
+StormBufferNodes.prototype.writeNodeVertexColor = function() {
+	this.CLGL_bufferNodeVertexColor = this.webCLGL.createBuffer(this.arrayNodeVertexColor.length/4, "FLOAT4", this.workAreaSize, false, "VERTEX");	
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeVertexColor, this.arrayNodeVertexColor);
 };
 /** @private **/
-StormBufferNodes.prototype.writeNodeIndices = function() {	
-	// VERTEX_INDICES | FLOAT
-	// GL buffers
-	if(this.GL_bufferNodeIndices != undefined) {
-		this.gl.deleteBuffer(this.GL_bufferNodeIndices);
-	}
-	this.GL_bufferNodeIndices = this.gl.createBuffer();
-	
-	this.enqueueWriteVertexBuffer(this.GL_bufferNodeIndices, this.arrayNodeIndices, false, "FLOAT", "ELEMENT_ARRAY_BUFFER");
+StormBufferNodes.prototype.writeNodeIndices = function() {
+	this.CLGL_bufferNodeIndices = this.webCLGL.createBuffer(this.arrayNodeIndices.length, "FLOAT", this.workAreaSize, false, "VERTEX_INDEX");	
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeIndices, this.arrayNodeIndices);
 };
 /** @private **/
 StormBufferNodes.prototype.writeNodeDir = function() {	
@@ -610,16 +462,9 @@ StormBufferNodes.prototype.writeNodeDir = function() {
 	for(var n=0; n < this.arrayNodeId.length; n++) {
 		this.arrayNodeDir.push(0, 0, 0, 255);
 	}
-		
-	// FRAGMENT | VECTOR4
-	// CLGL buffers
-	if(this.CLGL_bufferNodeDir != undefined) {
-		this.CLGL_bufferNodeDir.remove();
-		this.CLGL_bufferNodeDir_TEMP.remove();
-	}
-	this.CLGL_bufferNodeDir = this.webCLGL.createBuffer(this.arrayNodeDir.length/4, "FLOAT4", this.workAreaSize);
-	this.CLGL_bufferNodeDir_TEMP = this.webCLGL.createBuffer(this.arrayNodeDir.length/4, "FLOAT4", this.workAreaSize);
 	
+	this.CLGL_bufferNodeDir = this.webCLGL.createBuffer(this.arrayNodeDir.length/4, "FLOAT4", this.workAreaSize, false, "FRAGMENT");
+	this.CLGL_bufferNodeDir_TEMP = this.webCLGL.createBuffer(this.arrayNodeDir.length/4, "FLOAT4", this.workAreaSize, false, "FRAGMENT");	
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeDir, this.arrayNodeDir);
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeDir_TEMP, this.arrayNodeDir);
 };
@@ -629,14 +474,8 @@ StormBufferNodes.prototype.writeNodePolaritys = function() {
 	for(var n=0; n < this.arrayNodeId.length; n++) {
 		this.arrayNodePolaritys.push(0);
 	}
-		
-	// FRAGMENT | FLOAT
-	// CLGL buffers
-	if(this.CLGL_bufferNodePolaritys != undefined) {
-		this.CLGL_bufferNodePolaritys.remove();
-	}
-	this.CLGL_bufferNodePolaritys = this.webCLGL.createBuffer(this.arrayNodePolaritys.length, "FLOAT", this.workAreaSize);
 	
+	this.CLGL_bufferNodePolaritys = this.webCLGL.createBuffer(this.arrayNodePolaritys.length, "FLOAT", this.workAreaSize, false, "FRAGMENT");	
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodePolaritys, this.arrayNodePolaritys);
 };
 /** @private **/
@@ -646,13 +485,7 @@ StormBufferNodes.prototype.writeNodeDestination = function() {
 		this.arrayNodeDestination.push(0, 0, 0, 255);
 	}
 	
-	// FRAGMENT | VECTOR4
-	// CLGL buffers
-	if(this.CLGL_bufferNodeDestination != undefined) {
-		this.CLGL_bufferNodeDestination.remove();
-	}
-	this.CLGL_bufferNodeDestination = this.webCLGL.createBuffer(this.arrayNodeDestination.length/4, "FLOAT4", this.workAreaSize); 
-		
+	this.CLGL_bufferNodeDestination = this.webCLGL.createBuffer(this.arrayNodeDestination.length/4, "FLOAT4", this.workAreaSize, false, "FRAGMENT"); 		
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeDestination, this.arrayNodeDestination);
 };
 
@@ -706,8 +539,20 @@ StormBufferNodes.prototype.updatekernelNodesDir_Arguments = function() {
 		}
 	}	
 };
-
-
+/** @private **/
+StormBufferNodes.prototype.updatevfNode_Arguments = function() {
+	this.vfNode.setVertexArg("nodeId", this.CLGL_bufferNodeId);
+	this.vfNode.setVertexArg("nodePos", this.CLGL_bufferNodePosXYZW);
+	this.vfNode.setVertexArg("nodeVertexPos", this.CLGL_bufferNodeVertexPos);
+	this.vfNode.setVertexArg("nodeVertexCol", this.CLGL_bufferNodeVertexColor);
+	this.vfNode.setVertexArg("PMatrix", stormEngineC.defaultCamera.mPMatrix.transpose().e);
+	this.vfNode.setVertexArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
+	this.vfNode.setVertexArg("nodeWMatrix", this.MPOS.transpose().e);
+	this.vfNode.setVertexArg("workAreaSize", parseFloat(this.workAreaSize));
+	this.vfNode.setVertexArg("nodesSize", parseFloat(this.currentNodeId-1));
+	 	
+	this.vfNode.setFragmentArg("nodesSize", parseFloat(this.currentNodeId-1));
+};
 
 
 
@@ -731,52 +576,20 @@ StormBufferNodes.prototype.addLink = function(jsonIn) {
 	//*******************************************************************************************************************
 	// FILL ARRAYS
 	//*******************************************************************************************************************
-		//console.log(jsonIn.origin);
-		//console.log(jsonIn.target);
+	//console.log(jsonIn.origin);
+	//console.log(jsonIn.target);
 	var arr4Uint8_XYZW = this.webCLGL.enqueueReadBuffer_Float4(this.CLGL_bufferNodePosXYZW);
-		
-
-		//console.log(arr4Uint8_X);
-		//console.log(arr4Uint8_Y);
-		//console.log(arr4Uint8_Z); 
+	//console.log(arr4Uint8_XYZW);
 	
-	///////////////////////////////////////
-	// LinkId (origin)
-	///////////////////////////////////////
+	// (origin)
 	this.arrayLinkId.push(this.currentLinkId);
-	
-	///////////////////////////////////////
-	// LinkNodeId (origin)
-	///////////////////////////////////////
 	this.arrayLinkNodeId.push(jsonIn.origin_nodeId);
-	
-	///////////////////////////////////////
-	// LinkPos (origin)
-	///////////////////////////////////////
 	this.arrayLinkPosXYZW.push(arr4Uint8_XYZW[0][jsonIn.origin_itemStart], arr4Uint8_XYZW[1][jsonIn.origin_itemStart], arr4Uint8_XYZW[2][jsonIn.origin_itemStart], 1.0);
-	this.arrayLinkPosX.push(arr4Uint8_XYZW[0][jsonIn.origin_itemStart]);			
-	this.arrayLinkPosY.push(arr4Uint8_XYZW[1][jsonIn.origin_itemStart]);
-	this.arrayLinkPosZ.push(arr4Uint8_XYZW[2][jsonIn.origin_itemStart]);
 	
-	
-	
-	///////////////////////////////////////
-	// LinkId (target)
-	///////////////////////////////////////
+	// (target)
 	this.arrayLinkId.push(this.currentLinkId+1);
-	
-	///////////////////////////////////////
-	// LinkNodeId (target)
-	///////////////////////////////////////
 	this.arrayLinkNodeId.push(jsonIn.target_nodeId);
-	
-	///////////////////////////////////////
-	// LinkPos (target)
-	///////////////////////////////////////
 	this.arrayLinkPosXYZW.push(arr4Uint8_XYZW[0][jsonIn.target_itemStart], arr4Uint8_XYZW[1][jsonIn.target_itemStart], arr4Uint8_XYZW[2][jsonIn.target_itemStart], 1.0);	
-	this.arrayLinkPosX.push(arr4Uint8_XYZW[0][jsonIn.target_itemStart]);			
-	this.arrayLinkPosY.push(arr4Uint8_XYZW[1][jsonIn.target_itemStart]);
-	this.arrayLinkPosZ.push(arr4Uint8_XYZW[2][jsonIn.target_itemStart]);
 	
 	
 	this.currentLinkId += 2; // augment link id
@@ -795,60 +608,29 @@ StormBufferNodes.prototype.updateLinks = function() {
 	
 	this.updatekernelLinksPos_Arguments();
 	this.updatekernelLinksDir_Arguments();
+	this.updatevfLinks_Arguments();
 };
 
 /** @private **/
-StormBufferNodes.prototype.writeLinkId = function() {	
-	// CLGL buffers
-	if(this.CLGL_bufferLinkId != undefined) {
-		this.CLGL_bufferLinkId.remove();
-		this.CLGL_bufferLinkId_TEMP.remove();
-	}
-	this.CLGL_bufferLinkId = this.webCLGL.createBuffer(this.arrayLinkId.length, "FLOAT", this.workAreaSize);
-	this.CLGL_bufferLinkId_TEMP = this.webCLGL.createBuffer(this.arrayLinkId.length, "FLOAT", this.workAreaSize);
-		
+StormBufferNodes.prototype.writeLinkId = function() {
+	this.CLGL_bufferLinkId = this.webCLGL.createBuffer(this.arrayLinkId.length, "FLOAT", this.workAreaSize, false, "FRAGMENT");
+	this.CLGL_bufferLinkId_TEMP = this.webCLGL.createBuffer(this.arrayLinkId.length, "FLOAT", this.workAreaSize, false, "FRAGMENT");		
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkId, this.arrayLinkId);
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkId_TEMP, this.arrayLinkId);
 };
 /** @private **/
-StormBufferNodes.prototype.writeLinkNodeId = function() {	
-	// CLGL buffers
-	if(this.CLGL_bufferLinkNodeId  != undefined) {
-		this.CLGL_bufferLinkNodeId.remove();
-		this.CLGL_bufferLinkNodeId_TEMP.remove();
-	}
-	this.CLGL_bufferLinkNodeId = this.webCLGL.createBuffer(this.arrayLinkNodeId.length, "FLOAT", this.workAreaSize);
-	this.CLGL_bufferLinkNodeId_TEMP = this.webCLGL.createBuffer(this.arrayLinkNodeId.length, "FLOAT", this.workAreaSize);
-		
+StormBufferNodes.prototype.writeLinkNodeId = function() {
+	this.CLGL_bufferLinkNodeId = this.webCLGL.createBuffer(this.arrayLinkNodeId.length, "FLOAT", this.workAreaSize, false, "FRAGMENT");
+	this.CLGL_bufferLinkNodeId_TEMP = this.webCLGL.createBuffer(this.arrayLinkNodeId.length, "FLOAT", this.workAreaSize, false, "FRAGMENT");		
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkNodeId, this.arrayLinkNodeId);
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkNodeId_TEMP, this.arrayLinkNodeId);
 };
 /** @private **/
-StormBufferNodes.prototype.writeLinkPos = function() {	
-	// CLGL buffers
-	if(this.CLGL_bufferLinkPosXYZW  != undefined) {
-		this.CLGL_bufferLinkPosXYZW.remove();
-		this.CLGL_bufferLinkPosXYZW_TEMP.remove();
-	}
-	this.CLGL_bufferLinkPosXYZW = this.webCLGL.createBuffer(this.arrayLinkPosXYZW.length/4, "FLOAT4", this.workAreaSize);
-	this.CLGL_bufferLinkPosXYZW_TEMP = this.webCLGL.createBuffer(this.arrayLinkPosXYZW.length/4, "FLOAT4", this.workAreaSize);
-	
+StormBufferNodes.prototype.writeLinkPos = function() {
+	this.CLGL_bufferLinkPosXYZW = this.webCLGL.createBuffer(this.arrayLinkPosXYZW.length/4, "FLOAT4", this.workAreaSize, false, "VERTEX_FROM_KERNEL");
+	this.CLGL_bufferLinkPosXYZW_TEMP = this.webCLGL.createBuffer(this.arrayLinkPosXYZW.length/4, "FLOAT4", this.workAreaSize, false, "VERTEX_FROM_KERNEL");	
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkPosXYZW, this.arrayLinkPosXYZW);
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkPosXYZW_TEMP, this.arrayLinkPosXYZW);
-	
-	// GL buffers
-	if(this.GL_bufferLinkPosX  != undefined) {
-		this.gl.deleteBuffer(this.GL_bufferLinkPosX);
-		this.gl.deleteBuffer(this.GL_bufferLinkPosY);
-		this.gl.deleteBuffer(this.GL_bufferLinkPosZ);
-	}
-	this.GL_bufferLinkPosX = this.gl.createBuffer();
-	this.GL_bufferLinkPosY = this.gl.createBuffer();
-	this.GL_bufferLinkPosZ = this.gl.createBuffer();
-	
-	this.enqueueWriteVertexBuffer(this.GL_bufferLinkPosX, this.arrayLinkPosX, true, "UINT", "ARRAY_BUFFER");
-	this.enqueueWriteVertexBuffer(this.GL_bufferLinkPosY, this.arrayLinkPosY, true, "UINT", "ARRAY_BUFFER");
-	this.enqueueWriteVertexBuffer(this.GL_bufferLinkPosZ, this.arrayLinkPosZ, true, "UINT", "ARRAY_BUFFER");
 };
 /** @private **/
 StormBufferNodes.prototype.writeLinkDir = function() {	
@@ -856,15 +638,9 @@ StormBufferNodes.prototype.writeLinkDir = function() {
 	for(var n=0; n < this.arrayLinkId.length; n++) {
 		this.arrayLinkDir.push(0, 0, 0, 255);
 	}
-		
-	// CLGL buffers
-	if(this.CLGL_bufferLinkDir  != undefined) {
-		this.CLGL_bufferLinkDir.remove();
-		this.CLGL_bufferLinkDir_TEMP.remove();
-	}
-	this.CLGL_bufferLinkDir = this.webCLGL.createBuffer(this.arrayLinkDir.length/4, "FLOAT4", this.workAreaSize);
-	this.CLGL_bufferLinkDir_TEMP = this.webCLGL.createBuffer(this.arrayLinkDir.length/4, "FLOAT4", this.workAreaSize);
-		
+	
+	this.CLGL_bufferLinkDir = this.webCLGL.createBuffer(this.arrayLinkDir.length/4, "FLOAT4", this.workAreaSize, false, "FRAGMENT");
+	this.CLGL_bufferLinkDir_TEMP = this.webCLGL.createBuffer(this.arrayLinkDir.length/4, "FLOAT4", this.workAreaSize, false, "FRAGMENT");		
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkDir, this.arrayLinkDir);
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkDir_TEMP, this.arrayLinkDir);
 };
@@ -874,13 +650,8 @@ StormBufferNodes.prototype.writeLinkPolaritys = function() {
 	for(var n=0; n < this.arrayLinkId.length; n++) {
 		this.arrayLinkPolaritys.push(0);
 	}
-		
-	// CLGL buffers
-	if(this.CLGL_bufferLinkPolaritys  != undefined) {
-		this.CLGL_bufferLinkPolaritys.remove();
-	}
-	this.CLGL_bufferLinkPolaritys = this.webCLGL.createBuffer(this.arrayLinkPolaritys.length, "FLOAT", this.workAreaSize);
-		
+	
+	this.CLGL_bufferLinkPolaritys = this.webCLGL.createBuffer(this.arrayLinkPolaritys.length, "FLOAT", this.workAreaSize, false, "FRAGMENT");		
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkPolaritys, this.arrayLinkPolaritys);
 };
 /** @private **/
@@ -889,13 +660,8 @@ StormBufferNodes.prototype.writeLinkDestination = function() {
 	for(var n=0; n < this.arrayLinkId.length; n++) {
 		this.arrayLinkDestination.push(0, 0, 0, 255);  
 	}
-		
-	// CLGL buffers
-	if(this.CLGL_bufferLinkDestination  != undefined) {
-		this.CLGL_bufferLinkDestination.remove();
-	}
-	this.CLGL_bufferLinkDestination = this.webCLGL.createBuffer(this.arrayLinkDestination.length/4, "FLOAT4", this.workAreaSize);
-		
+	
+	this.CLGL_bufferLinkDestination = this.webCLGL.createBuffer(this.arrayLinkDestination.length/4, "FLOAT4", this.workAreaSize, false, "FRAGMENT");		
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferLinkDestination, this.arrayLinkDestination);
 };
 
@@ -949,59 +715,14 @@ StormBufferNodes.prototype.updatekernelLinksDir_Arguments = function() {
 		}
 	}	
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//*******************************************************************************************************************
-// FUNCTION FOR CREATION & UPDATE OF CLGL & GL BUFFERS
-//*******************************************************************************************************************
-StormBufferNodes.prototype.enqueueWriteVertexBuffer = function(buffer_GL, arr, packet, type, arrayType) {
-	var pack = (packet != undefined && packet == false) ? false : true;
-	
-	if(pack == true) {
-		var arrayUint = new Uint8Array(arr.length*4); 	
-		for(var n = 0, f = arr.length; n < f; n++) {  
-			var idd = n*4;
-			var arrPack = stormEngineC.utils.pack((arr[n]+(((this.workAreaSize*2.0))/2))/((this.workAreaSize*2.0))); 
-			arrayUint[idd+0] = arrPack[0]*255;
-			arrayUint[idd+1] = arrPack[1]*255;
-			arrayUint[idd+2] = arrPack[2]*255;
-			arrayUint[idd+3] = arrPack[3]*255;
-		}	
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer_GL);
-		this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(arrayUint), this.gl.DYNAMIC_DRAW);
-	} else {
-		if(arrayType != undefined && arrayType == "ELEMENT_ARRAY_BUFFER") {
-			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, buffer_GL);
-			this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(arr), this.gl.DYNAMIC_DRAW);					
-		} else { // ARRAY_BUFFER
-			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffer_GL);
-			if(type == "UINT") {
-				this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(arr), this.gl.DYNAMIC_DRAW);
-			} else {
-				this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(arr), this.gl.DYNAMIC_DRAW);
-			}
-		}
-	}
+/** @private **/
+StormBufferNodes.prototype.updatevfLinks_Arguments = function() {
+	this.vfLinks.setVertexArg("linkPos", this.CLGL_bufferLinkPosXYZW);
+	this.vfLinks.setVertexArg("PMatrix", stormEngineC.defaultCamera.mPMatrix.transpose().e);
+	this.vfLinks.setVertexArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
+	this.vfLinks.setVertexArg("nodeWMatrix", this.MPOS.transpose().e);
+	this.vfLinks.setVertexArg("workAreaSize", parseFloat(this.workAreaSize));
+	 	
+	this.vfLinks.setFragmentArg("nodesSize", parseFloat(this.currentLinkId-2));
 };
+

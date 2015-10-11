@@ -170,18 +170,19 @@ WebCLGLBuffer.prototype.writeWebGLBuffer = function(arr, flip) {
 	var makePack = function(arrr, items) {
 		var arOut = [];
 		if(items > 1) {
-			var ar = new Float32Array(arrr.length/4);
+			var arX = new Float32Array(arrr.length/4);
+			var arY = new Float32Array(arrr.length/4);
+			var arZ = new Float32Array(arrr.length/4);
+			var arW = new Float32Array(arrr.length/4);
 			
-			for(var i = 0, fi = items.length; i < fi; i++) {
-				for(var n = 0, f = arrr.length/4; n < f; n++) {
-					var id = n*4;
-					ar[n] = arrr[id];
-					ar[n] = arrr[id+1];
-					ar[n] = arrr[id+2];
-					ar[n] = arrr[id+3];
-				}
-				arOut.push(ar);
+			for(var n = 0, f = arrr.length/4; n < f; n++) {
+				var id = n*4;
+				arX[n] = arrr[id];
+				arY[n] = arrr[id+1];
+				arZ[n] = arrr[id+2];
+				arW[n] = arrr[id+3];
 			}
+			arOut.push(arX,arY,arZ,arW);
 		} else {
 			arOut.push(arrr);
 		}
@@ -207,20 +208,22 @@ WebCLGLBuffer.prototype.writeWebGLBuffer = function(arr, flip) {
 	
 	if(this.mode == "VERTEX_FROM_KERNEL") { // "VERTEX_FROM_KERNEL" PACKET ARRAY_BUFFER	
 		if(this.type == 'FLOAT') {
+			var arPack = makePack(arr, 1);
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexData0);
-			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(makePack(arr, 1)[0]), this.gl.DYNAMIC_DRAW);
+			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(arPack[0]), this.gl.DYNAMIC_DRAW);
 		} else if(this.type == 'FLOAT4') {
+			var arPack = makePack(arr, 4);
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexData0);
-			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(makePack(arr, 4)[0]), this.gl.DYNAMIC_DRAW);
+			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(arPack[0]), this.gl.DYNAMIC_DRAW);
 			
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexData1);
-			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(makePack(arr, 4)[1]), this.gl.DYNAMIC_DRAW);
+			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(arPack[1]), this.gl.DYNAMIC_DRAW);
 			
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexData2);
-			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(makePack(arr, 4)[2]), this.gl.DYNAMIC_DRAW);
+			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(arPack[2]), this.gl.DYNAMIC_DRAW);
 			
 			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexData3);
-			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(makePack(arr, 4)[3]), this.gl.DYNAMIC_DRAW);
+			this.gl.bufferData(this.gl.ARRAY_BUFFER, new Uint8Array(arPack[3]), this.gl.DYNAMIC_DRAW);
 		}
 	} else {
 		if(this.mode == "VERTEX_INDEX") { // "VERTEX_INDEX" ELEMENT_ARRAY_BUFFER

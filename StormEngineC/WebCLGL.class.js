@@ -230,7 +230,8 @@ WebCLGL.prototype.createVertexFragmentProgram = function(vertexSource, vertexHea
 WebCLGL.prototype.enqueueWriteBuffer = function(buffer, arr, flip) {
 	if(buffer.mode == "FRAGMENT" || buffer.mode == "VERTEX_FROM_KERNEL" || buffer.mode == "VERTEX_AND_FRAGMENT") {
 		buffer.writeWebGLTextureBuffer(arr, flip);
-	} else if(buffer.mode == "VERTEX" || buffer.mode == "VERTEX_INDEX" || buffer.mode == "VERTEX_FROM_KERNEL" || buffer.mode == "VERTEX_AND_FRAGMENT") {
+	}
+	if(buffer.mode == "VERTEX" || buffer.mode == "VERTEX_INDEX" || buffer.mode == "VERTEX_FROM_KERNEL" || buffer.mode == "VERTEX_AND_FRAGMENT") {
 		buffer.writeWebGLBuffer(arr, flip);
 	}
 };
@@ -282,7 +283,7 @@ WebCLGL.prototype.enqueueNDRangeKernel = function(webCLGLKernel, webCLGLBuffer) 
 * @type Void
 * @param {WebCLGLVertexFragmentProgram} webCLGLVertexFragmentProgram 
 */
-WebCLGL.prototype.enqueueVertexFragmentProgram = function(webCLGLVertexFragmentProgram, bufferIndex) {
+WebCLGL.prototype.enqueueVertexFragmentProgram = function(webCLGLVertexFragmentProgram, bufferIndex, length) {
 	this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 	
 	this.gl.useProgram(webCLGLVertexFragmentProgram.vertexFragmentProgram);  
@@ -300,7 +301,7 @@ WebCLGL.prototype.enqueueVertexFragmentProgram = function(webCLGLVertexFragmentP
 		currentTextureUnit++;
 	}	
 	for(var n = 0, f = webCLGLVertexFragmentProgram.fragmentUniforms.length; n < f; n++) {
-		this.gl.uniform1f(webCLGLVertexFragmentProgram.fragmentUniforms[n].location, webCLGLVertexFragmentProgram.fragmentUniforms[n].value);
+		this.gl.uniform1f(webCLGLVertexFragmentProgram.fragmentUniforms[n].location[0], webCLGLVertexFragmentProgram.fragmentUniforms[n].value);
 	}
 	
 	for(var n = 0, f = webCLGLVertexFragmentProgram.vertexAttributes.length; n < f; n++) {
@@ -340,14 +341,18 @@ WebCLGL.prototype.enqueueVertexFragmentProgram = function(webCLGLVertexFragmentP
 	}
 	for(var n = 0, f = webCLGLVertexFragmentProgram.vertexUniforms.length; n < f; n++) {
 		if(webCLGLVertexFragmentProgram.vertexUniforms[n].type == 'float') {
-			this.gl.uniform1f(webCLGLVertexFragmentProgram.vertexUniforms[n].location, webCLGLVertexFragmentProgram.vertexUniforms[n].value);
-		} else { // mat4
-			this.gl.uniformMatrix4fv(webCLGLVertexFragmentProgram.vertexUniforms[n].location, webCLGLVertexFragmentProgram.vertexUniforms[n].value);
+			this.gl.uniform1f(webCLGLVertexFragmentProgram.vertexUniforms[n].location[0], webCLGLVertexFragmentProgram.vertexUniforms[n].value);
+		} else if(webCLGLVertexFragmentProgram.vertexUniforms[n].type == 'mat4') {
+			this.gl.uniformMatrix4fv(webCLGLVertexFragmentProgram.vertexUniforms[n].location[0], false, webCLGLVertexFragmentProgram.vertexUniforms[n].value);
 		}
 	}
 	
-	this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, bufferIndex.vertexData0);
-	this.gl.drawElements(this.gl.TRIANGLES, bufferIndex.length, this.gl.UNSIGNED_SHORT, 0);
+	if(bufferIndex != undefined) {
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, bufferIndex.vertexData0);
+		this.gl.drawElements(this.gl.TRIANGLES, length, this.gl.UNSIGNED_SHORT, 0);
+	} else {
+		this.gl.drawArrays(this.gl.LINES, 0, length);
+	}
 };
 
 /**
