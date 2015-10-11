@@ -553,7 +553,33 @@ StormBufferNodes.prototype.updatevfNode_Arguments = function() {
 	 	
 	this.vfNode.setFragmentArg("nodesSize", parseFloat(this.currentNodeId-1));
 };
-
+/** @private **/
+StormBufferNodes.prototype.prerenderBN_nodes = function() {
+	if(this.arrayNodeId.length) {
+		// WEBCLGL    
+		this.webCLGL.enqueueNDRangeKernel(this.kernelNodePos, this.CLGL_bufferNodePosXYZW_TEMP);  			
+		this.webCLGL.enqueueNDRangeKernel(this.kernelNodeDir, this.CLGL_bufferNodeDir_TEMP); 
+		
+		this.webCLGL.copy(this.CLGL_bufferNodePosXYZW_TEMP, this.CLGL_bufferNodePosXYZW);			
+		this.webCLGL.copy(this.CLGL_bufferNodeDir_TEMP, this.CLGL_bufferNodeDir); 
+		
+		this.webCLGL.enqueueReadBuffer_Packet4Uint8Array_Float4(this.CLGL_bufferNodePosXYZW);  
+	}
+};
+/** @private **/
+StormBufferNodes.prototype.renderBN_nodes = function() {
+	if(this.arrayNodeId.length) {
+		this.vfNode.setVertexArg("PMatrix", stormEngineC.defaultCamera.mPMatrix.transpose().e);
+		this.vfNode.setVertexArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
+		this.vfNode.setVertexArg("nodeWMatrix", this.MPOS.transpose().e);
+		//this.vfNode.setVertexArg("workAreaSize", parseFloat(this.workAreaSize));
+		this.vfNode.setVertexArg("nodesSize", parseFloat(this.currentLinkId-2));
+		
+		this.vfNode.setFragmentArg("nodesSize", parseFloat(this.currentLinkId-2));
+		
+		this.webCLGL.enqueueVertexFragmentProgram(this.vfNode, this.CLGL_bufferNodeIndices, this.arrayNodeIndices.length);
+	}
+};
 
 
 
@@ -725,4 +751,29 @@ StormBufferNodes.prototype.updatevfLinks_Arguments = function() {
 	 	
 	this.vfLinks.setFragmentArg("nodesSize", parseFloat(this.currentLinkId-2));
 };
-
+/** @private **/
+StormBufferNodes.prototype.prerenderBN_links = function() {
+	if(this.arrayLinkId.length) {
+		// WEBCLGL    
+		this.webCLGL.enqueueNDRangeKernel(this.kernelLinkPos, this.CLGL_bufferLinkPosXYZW_TEMP);			
+		this.webCLGL.enqueueNDRangeKernel(this.kernelLinkDir, this.CLGL_bufferLinkDir_TEMP); 
+		
+		this.webCLGL.copy(this.CLGL_bufferLinkPosXYZW_TEMP, this.CLGL_bufferLinkPosXYZW);			
+		this.webCLGL.copy(this.CLGL_bufferLinkDir_TEMP, this.CLGL_bufferLinkDir);
+		
+		this.webCLGL.enqueueReadBuffer_Packet4Uint8Array_Float4(this.CLGL_bufferLinkPosXYZW);  
+	}
+};
+/** @private **/
+StormBufferNodes.prototype.renderBN_links = function() {
+	if(this.arrayLinkId.length) {
+		this.vfLinks.setVertexArg("PMatrix", stormEngineC.defaultCamera.mPMatrix.transpose().e);
+		this.vfLinks.setVertexArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
+		this.vfLinks.setVertexArg("nodeWMatrix", this.MPOS.transpose().e);
+		//this.vfNode.setVertexArg("workAreaSize", parseFloat(this.workAreaSize));
+		
+		this.vfLinks.setFragmentArg("nodesSize", parseFloat(this.currentLinkId-2));
+		
+		this.webCLGL.enqueueVertexFragmentProgram(this.vfLinks, undefined, this.arrayLinkId.length);
+	}
+};

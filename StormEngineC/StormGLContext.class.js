@@ -574,33 +574,8 @@ StormGLContext.prototype.renderGLContext = function() {
 	for(var n=0; n < stormEngineC.bufferNodes.length; n++) {
 		var bn = stormEngineC.bufferNodes[n];
 		
-		if(bn.arrayNodeId.length) {
-			// WEBCLGL    
-			bn.webCLGL.enqueueNDRangeKernel(bn.kernelNodePos, bn.CLGL_bufferNodePosXYZW_TEMP);  			
-			bn.webCLGL.enqueueNDRangeKernel(bn.kernelNodeDir, bn.CLGL_bufferNodeDir_TEMP); 
-			
-			bn.webCLGL.copy(bn.CLGL_bufferNodePosXYZW_TEMP, bn.CLGL_bufferNodePosXYZW);			
-			bn.webCLGL.copy(bn.CLGL_bufferNodeDir_TEMP, bn.CLGL_bufferNodeDir); 
-			
-			// CLGL_bufferNodePosXYZW is type FLOAT4.
-			// FLOAT4 arr4Uint8_XYZW is one array contains 4 arrays (one per axis).
-			//Distint to FLOAT4 is one array contains 1 array
-			bn.webCLGL.enqueueReadBuffer_Packet4Uint8Array_Float4(bn.CLGL_bufferNodePosXYZW);  
-		}
-		if(bn.arrayLinkId.length) {
-			// WEBCLGL    
-			bn.webCLGL.enqueueNDRangeKernel(bn.kernelLinkPos, bn.CLGL_bufferLinkPosXYZW_TEMP);			
-			bn.webCLGL.enqueueNDRangeKernel(bn.kernelLinkDir, bn.CLGL_bufferLinkDir_TEMP); 
-			
-			bn.webCLGL.copy(bn.CLGL_bufferLinkPosXYZW_TEMP, bn.CLGL_bufferLinkPosXYZW);			
-			bn.webCLGL.copy(bn.CLGL_bufferLinkDir_TEMP, bn.CLGL_bufferLinkDir);
-			
-			
-			// CLGL_bufferNodePosXYZW is type FLOAT4.
-			// FLOAT4 arr4Uint8_XYZW is one array contains 4 arrays (one per axis).
-			//Distint to FLOAT4 is one array contains 1 array
-			bn.webCLGL.enqueueReadBuffer_Packet4Uint8Array_Float4(bn.CLGL_bufferLinkPosXYZW);  
-		}
+		bn.prerenderBN_nodes();
+		bn.prerenderBN_links();
 	}
 	
 	
@@ -704,27 +679,8 @@ StormGLContext.prototype.renderGLContext = function() {
     for(var n=0; n < stormEngineC.bufferNodes.length; n++) {
 		var bn = stormEngineC.bufferNodes[n];
 		
-		if(bn.arrayNodeId.length) {
-			bn.vfNode.setVertexArg("PMatrix", stormEngineC.defaultCamera.mPMatrix.transpose().e);
-			bn.vfNode.setVertexArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
-			bn.vfNode.setVertexArg("nodeWMatrix", bn.MPOS.transpose().e);
-			//bn.vfNode.setVertexArg("workAreaSize", parseFloat(bn.workAreaSize));
-			bn.vfNode.setVertexArg("nodesSize", parseFloat(bn.currentLinkId-2));
-			
-			bn.vfNode.setFragmentArg("nodesSize", parseFloat(bn.currentLinkId-2));
-			
-			bn.webCLGL.enqueueVertexFragmentProgram(bn.vfNode, bn.CLGL_bufferNodeIndices, bn.arrayNodeIndices.length);
-		}
-		if(bn.arrayLinkId.length) {
-			bn.vfLinks.setVertexArg("PMatrix", stormEngineC.defaultCamera.mPMatrix.transpose().e);
-			bn.vfLinks.setVertexArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
-			bn.vfLinks.setVertexArg("nodeWMatrix", bn.MPOS.transpose().e);
-			//bn.vfNode.setVertexArg("workAreaSize", parseFloat(bn.workAreaSize));
-			
-			bn.vfLinks.setFragmentArg("nodesSize", parseFloat(bn.currentLinkId-2));
-			
-			bn.webCLGL.enqueueVertexFragmentProgram(bn.vfLinks, undefined, bn.arrayLinkId.length);
-		}
+		bn.renderBN_nodes();
+		bn.renderBN_links();
 	}	
 	
     
