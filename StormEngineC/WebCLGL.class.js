@@ -308,6 +308,7 @@ WebCLGL.prototype.enqueueVertexFragmentProgram = function(webCLGLVertexFragmentP
 	for(var n = 0, f = webCLGLVertexFragmentProgram.fragmentUniforms.length; n < f; n++) {
 		this.gl.uniform1f(webCLGLVertexFragmentProgram.fragmentUniforms[n].location[0], webCLGLVertexFragmentProgram.fragmentUniforms[n].value);
 	}
+	this.gl.uniform1f(webCLGLVertexFragmentProgram.uOffset, bufferIndex.offset);
 	
 	for(var n = 0, f = webCLGLVertexFragmentProgram.vertexAttributes.length; n < f; n++) {
 		if(webCLGLVertexFragmentProgram.vertexAttributes[n].type == 'buffer_float4_fromKernel') {

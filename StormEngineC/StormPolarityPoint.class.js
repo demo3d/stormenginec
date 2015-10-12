@@ -31,19 +31,19 @@ StormPolarityPoint.prototype.remove = function() {
 	stormEngineC.polarityPoints.splice(idToRemove,1);
 	
 	for(var n = 0, f = this.nodesProc.length; n < f; n++) {
-		var kernelDir_Source = this.nodesProc[n].generatekernelDir_Source();
-		
 		if(this.nodesProc[n].kernelDir != undefined) {
-			this.nodesProc[n].kernelDir.setKernelSource(kernelDir_Source);	
+			this.nodesProc[n].kernelDir.setKernelSource(this.nodesProc[n].generatekernelDir_Source());	
 			this.nodesProc[n].updatekernelDir_Arguments(); 
 		}
 		if(this.nodesProc[n].kernelNodeDir != undefined) {
-			this.nodesProc[n].kernelNodeDir.setKernelSource(kernelDir_Source);	
-			this.nodesProc[n].updatekernelNodesDir_Arguments(); 
+			this.kernelSources = new KernelSources();	
+			this.nodesProc[n].kernelNodeDir.setKernelSource(this.kernelSources.direction(this.nodesProc[n].objectType, this.nodesProc[n].idNum));	
+			this.nodesProc[n].set_polaritypoints(); 
 		}
 		if(this.nodesProc[n].kernelLinkDir != undefined) {
-			this.nodesProc[n].kernelLinkDir.setKernelSource(kernelDir_Source);	
-			this.nodesProc[n].updatekernelLinksDir_Arguments(); 
+			this.kernelSources = new KernelSources();	
+			this.nodesProc[n].kernelLinkDir.setKernelSource(this.kernelSources.direction(this.nodesProc[n].objectType, this.nodesProc[n].idNum));	
+			this.nodesProc[n].set_polaritypoints(); 
 		}
 	}
 	
@@ -51,13 +51,13 @@ StormPolarityPoint.prototype.remove = function() {
 };
 
 /**
-* Get a node of particles or buffernodes or buffernodeslinks
+* Get a node of particles or webclgllayout
 * @type Void
 * @param	{Object} jsonIn
 * 	@param {StormNode} jsonIn.node The node.
 */
 StormPolarityPoint.prototype.get = function(jsonIn) {   	
-	if(jsonIn.node.objectType != 'particles' && jsonIn.node.objectType != 'buffernodes' && jsonIn.node.objectType != 'buffernodeslinks') {
+	if(jsonIn.node.objectType != 'particles' && jsonIn.node.objectType != 'webclgllayout') {
 		alert('you must select a particle or buffernodes');
 		return;
 	}
@@ -65,7 +65,7 @@ StormPolarityPoint.prototype.get = function(jsonIn) {
 
 	for(var n = 0, f = this.nodesProc.length; n < f; n++) {
 		if(jsonIn.node.objectType == this.nodesProc[n].objectType && jsonIn.node.idNum == this.nodesProc[n].idNum) {
-			alert('This particle or buffernodes or buffernodeslinks already exist in this polarity point');
+			alert('This particle or webclgllayout already exist in this polarity point');
 			return;
 		}
 	}
@@ -83,12 +83,12 @@ StormPolarityPoint.prototype.get = function(jsonIn) {
 	if(nproc.kernelNodeDir != undefined && nproc.kernelNodeDir instanceof WebCLGLKernel) {
 		this.kernelSources = new KernelSources();		
 		nproc.kernelNodeDir.setKernelSource(this.kernelSources.direction(nproc.objectType, nproc.idNum));	
-		nproc.updatekernelNodesDir_Arguments(); 		
+		nproc.updatekernelDir_Arguments(); 		
 	}
 	if(nproc.kernelLinkDir != undefined && nproc.kernelLinkDir instanceof WebCLGLKernel) {
 		this.kernelSources = new KernelSources();
 		nproc.kernelLinkDir.setKernelSource(this.kernelSources.direction(nproc.objectType, nproc.idNum));	
-		nproc.updatekernelLinksDir_Arguments(); 
+		nproc.updatekernelDir_Arguments(); 
 	}	
 };
 

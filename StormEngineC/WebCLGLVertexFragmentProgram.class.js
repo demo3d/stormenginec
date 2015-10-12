@@ -84,9 +84,7 @@ WebCLGLVertexFragmentProgram.prototype.setVertexSource = function(vertexSource, 
 	
 	if(this.fragmentSource != undefined) this.compileVertexFragmentSource();
 };
-/**
-* @private 
-*/
+/** @private **/
 WebCLGLVertexFragmentProgram.prototype.parseVertexSource = function(source) {
 	//console.log(source);
 	for(var n = 0, f = this.in_vertex_values.length; n < f; n++) { // for each in_vertex_values (in argument)
@@ -164,9 +162,7 @@ WebCLGLVertexFragmentProgram.prototype.setFragmentSource = function(fragmentSour
 	
 	if(this.vertexSource != undefined) this.compileVertexFragmentSource();
 };
-/**
-* @private 
-*/
+/** @private **/
 WebCLGLVertexFragmentProgram.prototype.parseFragmentSource = function(source) {
 	//console.log(source);
 	for(var n = 0, f = this.in_fragment_values.length; n < f; n++) { // for each in_fragment_values (in argument)
@@ -208,9 +204,7 @@ WebCLGLVertexFragmentProgram.prototype.parseFragmentSource = function(source) {
 
 
 
-/**
-* @private 
-*/
+/** @private **/
 WebCLGLVertexFragmentProgram.prototype.compileVertexFragmentSource = function() {
 	lines_vertex_attrs = (function() {
 		str = '';
@@ -249,21 +243,22 @@ WebCLGLVertexFragmentProgram.prototype.compileVertexFragmentSource = function() 
 	
 	
 	var sourceVertex = 	this.precision+
-
+		'uniform float uOffset;\n'+
+		
 		lines_vertex_attrs()+
 		
 		this.utils.unpackGLSLFunctionString()+ 
 		
 		'vec4 buffer_float4_fromKernel_data(vec4 arg0, vec4 arg1, vec4 arg2, vec4 arg3) {\n'+
-			'float argX = (unpack(arg0)*(workAreaSize*2.0))-workAreaSize;\n'+  
-			'float argY = (unpack(arg1)*(workAreaSize*2.0))-workAreaSize;\n'+  
-			'float argZ = (unpack(arg2)*(workAreaSize*2.0))-workAreaSize;\n'+
-			'float argW = (unpack(arg3)*(workAreaSize*2.0))-workAreaSize;\n'+
+			'float argX = (unpack(arg0)*(uOffset*2.0))-uOffset;\n'+  
+			'float argY = (unpack(arg1)*(uOffset*2.0))-uOffset;\n'+  
+			'float argZ = (unpack(arg2)*(uOffset*2.0))-uOffset;\n'+
+			'float argW = (unpack(arg3)*(uOffset*2.0))-uOffset;\n'+
 		
 			'return vec4(argX, argY, argZ, argW);\n'+
 		'}\n'+
 		'float buffer_float_fromKernel_data(vec4 arg0) {\n'+
-			'float argX = (unpack(arg0)*(workAreaSize*2.0))-workAreaSize;\n'+ 
+			'float argX = (unpack(arg0)*(uOffset*2.0))-uOffset;\n'+ 
 			
 			'return argX;\n'+
 		'}\n'+
@@ -314,6 +309,8 @@ WebCLGLVertexFragmentProgram.prototype.compileVertexFragmentSource = function() 
 	this.vertexUniforms = []; // {location,value}
 	this.fragmentSamplers = []; // {location,value}
 	this.fragmentUniforms = []; // {location,value}
+	
+	this.uOffset = this.gl.getUniformLocation(this.vertexFragmentProgram, "uOffset");
 	
 	// vertexAttributes & vertexUniforms
 	for(var n = 0, f = this.in_vertex_values.length; n < f; n++) {

@@ -60,8 +60,7 @@ if(window.jQuery == undefined) {
 document.write('<script type="text/javascript" src="'+stormEngineCDirectory+'/colorPicker/colorpicker.js"></script>');
 
 
-var includesF = [//'/StormMathMin.class.js', 
-                 '/KernelSources.class.js',
+var includesF = [//'/StormMathMin.class.js',
                  '/StormMath.class.js',
 				'/StormMaterial.class.js',
 				'/StormGLContext.class.js',
@@ -82,13 +81,12 @@ var includesF = [//'/StormMathMin.class.js',
 				'/WebCLGLKernel.class.js',
 				'/WebCLGLKernelProgram.class.js',
 				'/WebCLGLVertexFragmentProgram.class.js',
-				'/WebCLGL.class.js',  
+				'/WebCLGL.class.js', 
+				'/WebCLGLLayout_3DpositionByDirection.class.js',
 				'/StormNode.class.js',
 				'/StormGroupNodes.class.js',
 				'/StormMesh.class.js',
-				'/StormBufferObject.class.js',
-				'/StormBufferNodes.class.js',
-				'/StormBufferNodesLinks.class.js',
+				'/StormBufferObject.class.js',				
 				'/StormLine.class.js',
 				'/StormCamera.class.js',
 				'/StormLight.class.js',
@@ -260,8 +258,6 @@ StormEngineC = function() {
 	this.lights = [];this.idxLights = 0;
 	this.particles = [];this.idxParticles = 0;
 	this.particlesOffset = 300.0;
-	this.bufferNodes = [];this.idxBufferNodes = 0;
-	this.bufferNodesLinks = [];this.idxBufferNodesLinks = 0;
 	this.graphs = [];this.idxGraphs = 0;
 	this.polarityPoints = [];this.idxPolarityPoint = 0;
 	this.forceFields = [];this.idxForceField = 0;
@@ -1565,28 +1561,6 @@ StormEngineC.prototype.createVoxelizator = function() {
 	vox.name = 'voxelizator '+this.idxVoxelizators++; 
 	this.voxelizators.push(vox); 
 	return vox;
-};
-/**
-* Create bufferNodes
-* @returns {StormBufferNodes}
-*/
-StormEngineC.prototype.createBufferNodes = function(jsonIn) { 	
-	var bn = new StormBufferNodes(jsonIn);
-	bn.idNum = this.bufferNodes.length;
-	bn.name = 'buffernodes '+this.idxBufferNodes++; 
-	this.bufferNodes.push(bn); 
-	return bn;
-};
-/**
-* Create bufferNodesLinks
-* @returns {StormBufferNodesLinks}
-*/
-StormEngineC.prototype.createBufferNodesLinks = function(jsonIn) { 	
-	var bn = new StormBufferNodesLinks(jsonIn);
-	bn.idNum = this.bufferNodesLinks.length;
-	bn.name = 'buffernodesLinks '+this.idxBufferNodesLinks++; 
-	this.bufferNodesLinks.push(bn); 
-	return bn;
 };
 /**
 * Create graph

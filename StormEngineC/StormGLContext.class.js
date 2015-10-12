@@ -571,8 +571,8 @@ StormGLContext.prototype.createShader = function(gl, name, sourceVertex, sourceF
  */
 StormGLContext.prototype.renderGLContext = function() {
 	for(var n=0; n < stormEngineC.graphs.length; n++) {
-		if(stormEngineC.graphs[n].arrayNodeId.length) stormEngineC.graphs[n].bufferNodes.prerender();
-		if(stormEngineC.graphs[n].arrayLinkId.length) stormEngineC.graphs[n].bufferNodesLinks.prerender();
+		if(stormEngineC.graphs[n].arrayNodeId.length) stormEngineC.graphs[n].prerender_nodes();
+		if(stormEngineC.graphs[n].arrayLinkId.length) stormEngineC.graphs[n].prerender_links();
 	}
 	
 	this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
@@ -672,8 +672,8 @@ StormGLContext.prototype.renderGLContext = function() {
 	}
 		
 	for(var n=0; n < stormEngineC.graphs.length; n++) {
-		if(stormEngineC.graphs[n].arrayNodeId.length) stormEngineC.graphs[n].bufferNodes.render();
-		if(stormEngineC.graphs[n].arrayLinkId.length) stormEngineC.graphs[n].bufferNodesLinks.render();
+		if(stormEngineC.graphs[n].arrayNodeId.length) stormEngineC.graphs[n].render_nodes();
+		if(stormEngineC.graphs[n].arrayLinkId.length) stormEngineC.graphs[n].render_links();
 	}	
 	
     

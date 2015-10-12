@@ -193,7 +193,7 @@ StormGLContext.prototype.render_Pick = function() {
 			var pick = (function(nodes) {
 				if(	this.gettedPixel instanceof StormNode ||
 					this.gettedPixel instanceof StormPolarityPoint ||
-					this.gettedPixel instanceof StormBufferNodes) { // selection is a node
+					this.gettedPixel instanceof WebCLGLLayout_3DpositionByDirection) { // selection is a node
 					stormEngineC.selectNode(this.gettedPixel);
 					
 					if(this.gettedPixel.isDraggable) {
@@ -604,7 +604,7 @@ StormGLContext.prototype.drag = function() {
 	} else { // selection not in edit mode
 		if(	this.gettedPixel instanceof StormNode ||
 			this.gettedPixel instanceof StormPolarityPoint ||
-			this.gettedPixel instanceof StormBufferNodes) { // selection is a node?
+			this.gettedPixel instanceof WebCLGLLayout_3DpositionByDirection) { // selection is a node?
 			var dir = stormEngineC.utils.getDraggingScreenVector(); 
 			stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));
 		} else if(this.gettedPixel > 0) { // selection is transform axis of a selected node?
