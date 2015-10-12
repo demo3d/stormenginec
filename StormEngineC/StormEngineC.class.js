@@ -61,7 +61,8 @@ document.write('<script type="text/javascript" src="'+stormEngineCDirectory+'/co
 
 
 var includesF = [//'/StormMathMin.class.js', 
-				 '/StormMath.class.js',
+                 '/KernelSources.class.js',
+                 '/StormMath.class.js',
 				'/StormMaterial.class.js',
 				'/StormGLContext.class.js',
 				'/StormGLContext_programBackground.class.js',
@@ -87,6 +88,7 @@ var includesF = [//'/StormMathMin.class.js',
 				'/StormMesh.class.js',
 				'/StormBufferObject.class.js',
 				'/StormBufferNodes.class.js',
+				'/StormBufferNodesLinks.class.js',
 				'/StormLine.class.js',
 				'/StormCamera.class.js',
 				'/StormLight.class.js',
@@ -259,6 +261,8 @@ StormEngineC = function() {
 	this.particles = [];this.idxParticles = 0;
 	this.particlesOffset = 300.0;
 	this.bufferNodes = [];this.idxBufferNodes = 0;
+	this.bufferNodesLinks = [];this.idxBufferNodesLinks = 0;
+	this.graphs = [];this.idxGraphs = 0;
 	this.polarityPoints = [];this.idxPolarityPoint = 0;
 	this.forceFields = [];this.idxForceField = 0;
 	this.materials = [];this.idxMaterials = 0;
@@ -1574,10 +1578,27 @@ StormEngineC.prototype.createBufferNodes = function(jsonIn) {
 	return bn;
 };
 /**
+* Create bufferNodesLinks
+* @returns {StormBufferNodesLinks}
+*/
+StormEngineC.prototype.createBufferNodesLinks = function(jsonIn) { 	
+	var bn = new StormBufferNodesLinks(jsonIn);
+	bn.idNum = this.bufferNodesLinks.length;
+	bn.name = 'buffernodesLinks '+this.idxBufferNodesLinks++; 
+	this.bufferNodesLinks.push(bn); 
+	return bn;
+};
+/**
 * Create graph
 * @returns {StormGraph}
 */
 StormEngineC.prototype.createGraph = function() {   
+	var graph = new StormGraph();
+	graph.idNum = this.graphs.length;
+	graph.name = 'graph '+this.idxGraphs++; 
+	this.graphs.push(graph); 
+	return graph;
+	
 	var graph = new StormGraph();
 	return graph;
 };

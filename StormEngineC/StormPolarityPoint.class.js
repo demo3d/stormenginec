@@ -51,13 +51,13 @@ StormPolarityPoint.prototype.remove = function() {
 };
 
 /**
-* Get a node of particles or buffernodes
+* Get a node of particles or buffernodes or buffernodeslinks
 * @type Void
 * @param	{Object} jsonIn
 * 	@param {StormNode} jsonIn.node The node.
 */
 StormPolarityPoint.prototype.get = function(jsonIn) {   	
-	if(jsonIn.node.objectType != 'particles' && jsonIn.node.objectType != 'buffernodes') {
+	if(jsonIn.node.objectType != 'particles' && jsonIn.node.objectType != 'buffernodes' && jsonIn.node.objectType != 'buffernodeslinks') {
 		alert('you must select a particle or buffernodes');
 		return;
 	}
@@ -65,7 +65,7 @@ StormPolarityPoint.prototype.get = function(jsonIn) {
 
 	for(var n = 0, f = this.nodesProc.length; n < f; n++) {
 		if(jsonIn.node.objectType == this.nodesProc[n].objectType && jsonIn.node.idNum == this.nodesProc[n].idNum) {
-			alert('This particle or buffernodes already exist in this polarity point');
+			alert('This particle or buffernodes or buffernodeslinks already exist in this polarity point');
 			return;
 		}
 	}
@@ -74,18 +74,20 @@ StormPolarityPoint.prototype.get = function(jsonIn) {
 	var nproc = this.nodesProc[this.nodesProc.length-1];
 	console.log(nproc);
 	
-	var kernelDir_Source = jsonIn.node.generatekernelDir_Source();
 	
-	if(nproc.kernelDir != undefined && nproc.kernelDir instanceof WebCLGLKernel) { 
+	if(nproc.kernelDir != undefined && nproc.kernelDir instanceof WebCLGLKernel) {
+		var kernelDir_Source = jsonIn.node.generatekernelDir_Source(); 
 		nproc.kernelDir.setKernelSource(kernelDir_Source);	
 		nproc.updatekernelDir_Arguments(); 
 	}
-	if(nproc.kernelNodeDir != undefined && nproc.kernelNodeDir instanceof WebCLGLKernel) {	
-		nproc.kernelNodeDir.setKernelSource(kernelDir_Source);	
+	if(nproc.kernelNodeDir != undefined && nproc.kernelNodeDir instanceof WebCLGLKernel) {
+		this.kernelSources = new KernelSources();		
+		nproc.kernelNodeDir.setKernelSource(this.kernelSources.direction(nproc.objectType, nproc.idNum));	
 		nproc.updatekernelNodesDir_Arguments(); 		
 	}
 	if(nproc.kernelLinkDir != undefined && nproc.kernelLinkDir instanceof WebCLGLKernel) {
-		nproc.kernelLinkDir.setKernelSource(kernelDir_Source);	
+		this.kernelSources = new KernelSources();
+		nproc.kernelLinkDir.setKernelSource(this.kernelSources.direction(nproc.objectType, nproc.idNum));	
 		nproc.updatekernelLinksDir_Arguments(); 
 	}	
 };

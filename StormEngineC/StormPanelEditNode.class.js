@@ -489,6 +489,17 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				$("#INPUTID_StormEditNode_visible").removeAttr('checked');
 			}
 		}		
+		if(stormEngineC.nearNode.objectType == 'buffernodeslinks') {
+			if(stormEngineC.nearNode.visibleOnContext == true) {
+				$("#INPUTID_StormEditNode_visible").attr('checked','true');
+							
+				lines_position();
+				lines_rotation();
+				lines_editMode();
+			} else {
+				$("#INPUTID_StormEditNode_visible").removeAttr('checked');
+			}
+		}		
 		if(stormEngineC.nearNode.objectType == 'camera') {
 			if(stormEngineC.nearNode.visibleOnContext == true) {
 				$("#INPUTID_StormEditNode_visible").attr('checked','true');

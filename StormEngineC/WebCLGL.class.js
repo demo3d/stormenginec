@@ -281,9 +281,14 @@ WebCLGL.prototype.enqueueNDRangeKernel = function(webCLGLKernel, webCLGLBuffer) 
 /**
 * Perform WebGL graphical representation
 * @type Void
-* @param {WebCLGLVertexFragmentProgram} webCLGLVertexFragmentProgram 
+* @param {WebCLGLVertexFragmentProgram} webCLGLVertexFragmentProgram
+* @param {webCLGLBuffer} webCLGLBuffer Buffer of indices (Buffer mode "VERTEX_INDEX")
+* @param {Int} length Length of indices or array
+* @param {Int} [drawMode=4] 0=POINTS, 3=LINE_STRIP, 2=LINE_LOOP, 1=LINES, 5=TRIANGLE_STRIP, 6=TRIANGLE_FAN and 4=TRIANGLES
 */
-WebCLGL.prototype.enqueueVertexFragmentProgram = function(webCLGLVertexFragmentProgram, bufferIndex, length) {
+WebCLGL.prototype.enqueueVertexFragmentProgram = function(webCLGLVertexFragmentProgram, bufferIndex, length, drawMode) {
+	var Dmode = (drawMode != undefined) ? drawMode : 4;
+	
 	this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 	
 	this.gl.useProgram(webCLGLVertexFragmentProgram.vertexFragmentProgram);  
@@ -349,9 +354,9 @@ WebCLGL.prototype.enqueueVertexFragmentProgram = function(webCLGLVertexFragmentP
 	
 	if(bufferIndex != undefined) {
 		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, bufferIndex.vertexData0);
-		this.gl.drawElements(this.gl.TRIANGLES, length, this.gl.UNSIGNED_SHORT, 0);
+		this.gl.drawElements(Dmode, length, this.gl.UNSIGNED_SHORT, 0);
 	} else {
-		this.gl.drawArrays(this.gl.LINES, 0, length);
+		this.gl.drawArrays(Dmode, 0, length);
 	}
 };
 

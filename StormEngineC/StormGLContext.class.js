@@ -570,14 +570,10 @@ StormGLContext.prototype.createShader = function(gl, name, sourceVertex, sourceF
  * @private 
  */
 StormGLContext.prototype.renderGLContext = function() {
-	// perform bufferNodes webclgl kernels
-	for(var n=0; n < stormEngineC.bufferNodes.length; n++) {
-		var bn = stormEngineC.bufferNodes[n];
-		
-		bn.prerenderBN_nodes();
-		bn.prerenderBN_links();
+	for(var n=0; n < stormEngineC.graphs.length; n++) {
+		if(stormEngineC.graphs[n].arrayNodeId.length) stormEngineC.graphs[n].bufferNodes.prerender();
+		if(stormEngineC.graphs[n].arrayLinkId.length) stormEngineC.graphs[n].bufferNodesLinks.prerender();
 	}
-	
 	
 	this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
 	
@@ -675,12 +671,9 @@ StormGLContext.prototype.renderGLContext = function() {
 		this.render_ParticlesAux();
 	}
 		
-	// perform bufferNodes webclgl vertexFragmentProgram
-    for(var n=0; n < stormEngineC.bufferNodes.length; n++) {
-		var bn = stormEngineC.bufferNodes[n];
-		
-		bn.renderBN_nodes();
-		bn.renderBN_links();
+	for(var n=0; n < stormEngineC.graphs.length; n++) {
+		if(stormEngineC.graphs[n].arrayNodeId.length) stormEngineC.graphs[n].bufferNodes.render();
+		if(stormEngineC.graphs[n].arrayLinkId.length) stormEngineC.graphs[n].bufferNodesLinks.render();
 	}	
 	
     

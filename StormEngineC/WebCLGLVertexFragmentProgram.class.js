@@ -1,5 +1,5 @@
 /** 
-* WebCLGLKernel Object
+* WebCLGLVertexFragmentProgram Object
 * @class
 * @constructor
 */
