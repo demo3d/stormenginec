@@ -342,7 +342,6 @@ StormEngineC.prototype.loadManager = function() {
 	
 	this.utils = new StormUtils();
 	this.clgl = new WebCLGL(this.stormGLContext.gl);
-	this.clglBufferNodes = new WebCLGL(this.stormGLContext.gl);
 	
 	this.stormMesh = new StormMesh();
 	this.giv2 = new StormGI();

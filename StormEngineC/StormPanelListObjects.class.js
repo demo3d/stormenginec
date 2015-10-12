@@ -83,11 +83,11 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.particles["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.particles[n].name+"</div>";
 		}
 	}
-	for(var n=0, f = stormEngineC.bufferNodes.length; n < f; n++) {
-		if(stormEngineC.bufferNodes[n].systemVisible == true) {
-			var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'buffernodes' && stormEngineC.nearNode == stormEngineC.bufferNodes[n]) ? '#444' : '#000';
-			var colorText = (stormEngineC.bufferNodes[n].visibleOnContext == true) ? '#FFF': '#999';
-			str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.bufferNodes["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.bufferNodes[n].name+"</div>";
+	for(var n=0, f = stormEngineC.graphs.length; n < f; n++) {
+		if(stormEngineC.graphs[n].systemVisible == true) {
+			var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'buffernodes' && stormEngineC.nearNode == stormEngineC.graphs[n]) ? '#444' : '#000';
+			var colorText = (stormEngineC.graphs[n].visibleOnContext == true) ? '#FFF': '#999';
+			str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.graphs["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.graphs[n].name+"</div>";
 		}
 	}
 	for(var n=0, f = stormEngineC.voxelizators.length; n < f; n++) {

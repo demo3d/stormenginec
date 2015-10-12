@@ -35,15 +35,12 @@ StormPolarityPoint.prototype.remove = function() {
 			this.nodesProc[n].kernelDir.setKernelSource(this.nodesProc[n].generatekernelDir_Source());	
 			this.nodesProc[n].updatekernelDir_Arguments(); 
 		}
-		if(this.nodesProc[n].kernelNodeDir != undefined) {
-			this.kernelSources = new KernelSources();	
-			this.nodesProc[n].kernelNodeDir.setKernelSource(this.kernelSources.direction(this.nodesProc[n].objectType, this.nodesProc[n].idNum));	
-			this.nodesProc[n].set_polaritypoints(); 
-		}
-		if(this.nodesProc[n].kernelLinkDir != undefined) {
-			this.kernelSources = new KernelSources();	
-			this.nodesProc[n].kernelLinkDir.setKernelSource(this.kernelSources.direction(this.nodesProc[n].objectType, this.nodesProc[n].idNum));	
-			this.nodesProc[n].set_polaritypoints(); 
+		if(this.nodesProc[n].clglLayout_nodes != undefined) { 
+			this.nodesProc[n].clglLayout_nodes.kernel_direction.setKernelSource(this.nodesProc[n].clglLayout_nodes.directionSource());	
+			this.nodesProc[n].updateNodes(); 
+
+			this.nodesProc[n].clglLayout_links.kernel_direction.setKernelSource(this.nodesProc[n].clglLayout_links.directionSource());
+			this.nodesProc[n].updateLinks(); 
 		}
 	}
 	
@@ -57,15 +54,15 @@ StormPolarityPoint.prototype.remove = function() {
 * 	@param {StormNode} jsonIn.node The node.
 */
 StormPolarityPoint.prototype.get = function(jsonIn) {   	
-	if(jsonIn.node.objectType != 'particles' && jsonIn.node.objectType != 'webclgllayout') {
-		alert('you must select a particle or buffernodes');
+	if(jsonIn.node.objectType != 'particles' && jsonIn.node.objectType != 'graph') {
+		alert('you must select a particle or graph');
 		return;
 	}
 
 
 	for(var n = 0, f = this.nodesProc.length; n < f; n++) {
 		if(jsonIn.node.objectType == this.nodesProc[n].objectType && jsonIn.node.idNum == this.nodesProc[n].idNum) {
-			alert('This particle or webclgllayout already exist in this polarity point');
+			alert('This particle or graph already exist in this polarity point');
 			return;
 		}
 	}
@@ -80,16 +77,13 @@ StormPolarityPoint.prototype.get = function(jsonIn) {
 		nproc.kernelDir.setKernelSource(kernelDir_Source);	
 		nproc.updatekernelDir_Arguments(); 
 	}
-	if(nproc.kernelNodeDir != undefined && nproc.kernelNodeDir instanceof WebCLGLKernel) {
-		this.kernelSources = new KernelSources();		
-		nproc.kernelNodeDir.setKernelSource(this.kernelSources.direction(nproc.objectType, nproc.idNum));	
-		nproc.updatekernelDir_Arguments(); 		
+	if(nproc.clglLayout_nodes != undefined) {
+		nproc.clglLayout_nodes.kernel_direction.setKernelSource(nproc.clglLayout_nodes.directionSource());	
+		nproc.updateNodes(); 		 
+		
+		nproc.clglLayout_links.kernel_direction.setKernelSource(nproc.clglLayout_links.directionSource());	
+		nproc.updateLinks(); 		
 	}
-	if(nproc.kernelLinkDir != undefined && nproc.kernelLinkDir instanceof WebCLGLKernel) {
-		this.kernelSources = new KernelSources();
-		nproc.kernelLinkDir.setKernelSource(this.kernelSources.direction(nproc.objectType, nproc.idNum));	
-		nproc.updatekernelDir_Arguments(); 
-	}	
 };
 
 /**

@@ -12,8 +12,9 @@ StormGraph = function(jsonIn) { StormNode.call(this);
 	
 	this.offset = (jsonIn != undefined && jsonIn.offset != undefined) ? jsonIn.offset : 100.0;
 	
-	this.clglLayout_nodes = new WebCLGLLayout_3DpositionByDirection({"offset": this.offset});
-	this.clglLayout_links = new WebCLGLLayout_3DpositionByDirection({"offset": this.offset});
+	this.webCLGL = new WebCLGL(this.gl);
+	this.clglLayout_nodes = new WebCLGLLayout_3DpositionByDirection(this.webCLGL, {"offset": this.offset});
+	this.clglLayout_links = new WebCLGLLayout_3DpositionByDirection(this.webCLGL, {"offset": this.offset});
 	
 	this.nodes = {};
 	this.links = [];
@@ -156,6 +157,35 @@ StormGraph.prototype.addNodeNow = function(jsonIn) {
 	return {"nodeId": this.currentNodeId-1, "itemStart": nAIS}; // nodeArrayItemStart
 };
 StormGraph.prototype.updateNodes = function(jsonIn) {
+	var arrPP = [];
+	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
+		for(var nb = 0, fb = stormEngineC.polarityPoints[n].nodesProc.length; nb < fb; nb++) {
+			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.polarityPoints[n].nodesProc[nb].idNum) {
+				var oper = this.MPOS.x(stormEngineC.polarityPoints[n].getPosition());
+				
+				arrPP.push({"x": oper.e[3], "y": oper.e[7], "z": oper.e[11],
+							"polarity": stormEngineC.polarityPoints[n].polarity,
+							"orbit": stormEngineC.polarityPoints[n].orbit,
+							"force": stormEngineC.polarityPoints[n].force});
+			}
+		}
+	}	
+	this.clglLayout_nodes.set_polaritypoints(arrPP);
+	
+	
+	var arrF = [];
+	for(var n = 0, f = stormEngineC.forceFields.length; n < f; n++) {
+		for(var nb = 0, fb = stormEngineC.forceFields[n].nodesProc.length; nb < fb; nb++) {
+			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.forceFields[n].nodesProc[nb].idNum) {
+				var oper = stormEngineC.forceFields[n].direction;
+				
+				arrF.push({"x": oper.e[3], "y": oper.e[7], "z": oper.e[11]});
+			}
+		}
+	}
+	this.clglLayout_nodes.set_forces(arrF);
+	
+	
 	this.clglLayout_nodes.setBuffer_Id(this.arrayNodeId);
 	this.clglLayout_nodes.setBuffer_NodeId(this.arrayNodeId);
 	this.clglLayout_nodes.setBuffer_Pos(this.arrayNodePosXYZW);
@@ -195,8 +225,6 @@ StormGraph.prototype.updateNodes = function(jsonIn) {
 	this.clglLayout_nodes.set_MouseDragTranslationY(0);
 	this.clglLayout_nodes.set_MouseDragTranslationZ(0);
 	this.clglLayout_nodes.set_islink(0);
-	
-	this.clglLayout_nodes.set_polaritypoints();
 };
 
 /** @private **/
@@ -293,6 +321,34 @@ StormGraph.prototype.addLinkNow = function(jsonIn) {
 	return this.currentLinkId-2;
 };
 StormGraph.prototype.updateLinks = function(jsonIn) {
+	var arrPP = [];
+	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
+		for(var nb = 0, fb = stormEngineC.polarityPoints[n].nodesProc.length; nb < fb; nb++) {
+			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.polarityPoints[n].nodesProc[nb].idNum) {
+				var oper = this.MPOS.x(stormEngineC.polarityPoints[n].getPosition());
+				
+				arrPP.push({"x": oper.e[3], "y": oper.e[7], "z": oper.e[11],
+							"polarity": stormEngineC.polarityPoints[n].polarity,
+							"orbit": stormEngineC.polarityPoints[n].orbit,
+							"force": stormEngineC.polarityPoints[n].force});
+			}
+		}
+	}	
+	this.clglLayout_links.set_polaritypoints(arrPP);
+	
+	var arrF = [];
+	for(var n = 0, f = stormEngineC.forceFields.length; n < f; n++) {
+		for(var nb = 0, fb = stormEngineC.forceFields[n].nodesProc.length; nb < fb; nb++) {
+			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.forceFields[n].nodesProc[nb].idNum) {
+				var oper = stormEngineC.forceFields[n].direction;
+				
+				arrF.push({"x": oper.e[3], "y": oper.e[7], "z": oper.e[11]});
+			}
+		}
+	}
+	this.clglLayout_links.set_forces(arrF);
+	
+	
 	this.clglLayout_links.setBuffer_Id(this.arrayLinkId);
 	this.clglLayout_links.setBuffer_NodeId(this.arrayLinkNodeId);
 	this.clglLayout_links.setBuffer_Pos(this.arrayLinkPosXYZW);
@@ -332,9 +388,7 @@ StormGraph.prototype.updateLinks = function(jsonIn) {
 	this.clglLayout_links.set_MouseDragTranslationY(0);
 	this.clglLayout_links.set_MouseDragTranslationZ(0);
 	this.clglLayout_links.set_islink(1);
-	
-	this.clglLayout_links.set_polaritypoints();
-};
+}; 
 
 /** @private **/
 StormGraph.prototype.prerender_links = function() {
