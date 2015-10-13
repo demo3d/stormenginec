@@ -20,9 +20,17 @@ StormMesh = function() {
 */
 StormMesh.prototype.loadPoint = function(node) {
 	this.vertexArray = [0.0, 0.0, 0.0];
+	this.normalArray = [0.0, 1.0, 0.0];	
+	this.textureArray = [0.0, 0.0, 0.0];
+	this.textureUnitArray = [0.0];
+	this.indexArray = [0];
 	
 	var meshObject = new Object;
 	meshObject.vertexArray = this.vertexArray;
+	meshObject.normalArray = this.normalArray;
+	meshObject.textureArray = this.textureArray;
+	meshObject.textureUnitArray = this.textureUnitArray;
+	meshObject.indexArray = this.indexArray;
 	
 	if(node != undefined) { 
 		var bObject = node.attachMesh(meshObject);

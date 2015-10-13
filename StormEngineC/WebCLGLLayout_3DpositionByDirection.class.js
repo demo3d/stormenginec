@@ -20,13 +20,19 @@ WebCLGLLayout_3DpositionByDirection = function(webCLGL, jsonIn) {
 	
 	// KERNEL POSITION BY DIRECTION
 	this.kernel_positionByDirection = this.webCLGL.createKernel();
-	this.kernel_positionByDirection.setKernelSource(this.positionByDirectionSource());
+	this.kernel_positionByDirection.setKernelSource(this.source_positionByDirection());
 	
 	// KERNEL DIRECTION
 	this.kernel_direction = this.webCLGL.createKernel(); 
-	this.kernel_direction.setKernelSource(this.directionSource());
-	
-	// VERTEX AND FRAGMENT PROGRAMS 
+	this.kernel_direction.setKernelSource(this.source_direction());
+};
+
+/**
+ * Set the Vertex & Fragment program sources
+ * @param 
+ */
+WebCLGLLayout_3DpositionByDirection.prototype.setVFProgram = function(headVertex, sourceVertex, headFragment, sourcefragment) {
+	//VERTEX AND FRAGMENT PROGRAMS 
 	var vfProgram_vertexSource = 'void main(float* nodeId,'+
 										'float4*kernel nodePos,'+
 										'float4* nodeVertexPos,'+
@@ -35,46 +41,39 @@ WebCLGLLayout_3DpositionByDirection = function(webCLGL, jsonIn) {
 										'mat4 cameraWMatrix,'+
 										'mat4 nodeWMatrix,'+
 										'float nodesSize) {'+
-									'vec2 x = get_global_id();'+
-									
-									'float nodeIdx = nodeId[x];\n'+  
-									'vec4 nodePosition = nodePos[x];\n'+
-									'vec4 nodeVertexPosition = nodeVertexPos[x];\n'+
-									'vec4 nodeVertexColor = nodeVertexCol[x];\n'+
-									
-									'mat4 nodepos = nodeWMatrix;'+
-									'nodepos[3][0] = nodePosition.x;'+
-									'nodepos[3][1] = nodePosition.y;'+
-									'nodepos[3][2] = nodePosition.z;'+
-									
-									'gl_Position = PMatrix * cameraWMatrix * nodepos * nodeVertexPosition;\n'+
+										sourceVertex[0]+
 							'}';
 	var vfProgram_fragmentSource = 'void main(float nodesSize) {'+
-										'vec2 x = get_global_id();'+
-										
-										'gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n'+
+										sourcefragment[0]+
 									'}';
+
 	this.vfProgram = this.webCLGL.createVertexFragmentProgram();
-	this.vfProgram.setVertexSource(vfProgram_vertexSource);
-	this.vfProgram.setFragmentSource(vfProgram_fragmentSource);
+	this.vfProgram.setVertexSource(vfProgram_vertexSource, headVertex[0]);
+	this.vfProgram.setFragmentSource(vfProgram_fragmentSource, headFragment[0]);
 };
 
 /** @private **/
-WebCLGLLayout_3DpositionByDirection.prototype.positionByDirectionSource = function() {
-	var kernelPos_Source = 'void main(	float4* posXYZW,'+
-										'float4* dir) {'+
-										'vec2 x = get_global_id();'+
-										'vec3 currentPos = posXYZW[x].xyz;\n'+ 
-										'vec4 dir = dir[x];'+
-										'vec3 currentDir = vec3(dir.x,dir.y,dir.z);\n'+   
-										'vec3 newPos = (currentPos+currentDir);\n'+
-										
-										'out_float4 = vec4(newPos, 1.0);\n'+ 
-									'}';
-	return kernelPos_Source;
+WebCLGLLayout_3DpositionByDirection.prototype.source_positionByDirection = function() {
+	var str = 'void main(float4* initPos,'+
+						'float4* posXYZW,'+
+						'float4* dir,'+
+						'float lifeDistance) {'+
+							'vec2 x = get_global_id();'+
+							'vec3 currentPos = posXYZW[x].xyz;\n'+ 
+							'vec4 dir = dir[x];'+
+							'vec3 currentDir = vec3(dir.x,dir.y,dir.z);\n'+   
+							'vec3 newPos = (currentPos+currentDir);\n'+
+							
+							'vec4 initPos = initPos[x];'+
+							'if(lifeDistance > 0.0 && distance(vec3(initPos.x,initPos.y,initPos.z),newPos) > lifeDistance)'+
+								'newPos = vec3(initPos.x,initPos.y,initPos.z);'+
+								
+							'out_float4 = vec4(newPos, 1.0);\n'+ 
+			'}';
+	return str;
 };
 /** @private **/
-WebCLGLLayout_3DpositionByDirection.prototype.directionSource = function() {
+WebCLGLLayout_3DpositionByDirection.prototype.source_direction = function() {
 	lines_argumentsPoles = (function() {
 		var str = '';
 		for(var n = 0, f = this.arrPP.length; n < f; n++) {
@@ -128,14 +127,17 @@ WebCLGLLayout_3DpositionByDirection.prototype.directionSource = function() {
 		} 
 		return str;
 	}).bind(this);
-	var kernelDir_Source =	'void main(	float* idx'+
+var str =	'void main(					float* idx'+
 										',float* nodeid'+
+										',float4* initPos'+
+										',float4* initDir'+
 										',float4* posXYZW'+
 										',float4* dir'+
 										',float* particlePolarity'+
 										',float4* dest'+
 										',float enableDestination'+
 										',float destinationForce'+
+										',float lifeDistance'+
 										',float enableDrag'+
 										',float idToDrag'+
 										',float MouseDragTranslationX'+
@@ -217,15 +219,20 @@ WebCLGLLayout_3DpositionByDirection.prototype.directionSource = function() {
 								
 								lines_forces()+
 								
-								'currentDir = currentDir*0.8;'+ // air resistence
+								'currentDir = currentDir*0.5;'+ // air resistence
 								
-								
+								'vec3 newPos = (currentPos+currentDir);\n'+
+								'vec4 initPos = initPos[x];'+
+								'if(lifeDistance > 0.0 && distance(vec3(initPos.x,initPos.y,initPos.z),newPos) > lifeDistance) {'+
+									'vec4 initDir = vec4(initDir[x]);'+
+									'currentDir = vec3(initDir.x,initDir.y,initDir.z);'+
+								'}'+
 								
 								'vec3 newDir = currentDir;\n'+
 	
 								'out_float4 = vec4(newDir,1.0);\n'+
 							'}';
-	return kernelDir_Source;
+	return str;
 };
 
 /** @private **/
@@ -253,6 +260,11 @@ WebCLGLLayout_3DpositionByDirection.prototype.set_enableDestination = function(e
 /** @private **/
 WebCLGLLayout_3DpositionByDirection.prototype.set_destinationForce = function(destinationForce) {
 	this.kernel_direction.setKernelArg("destinationForce", destinationForce); 
+};
+/** @private **/
+WebCLGLLayout_3DpositionByDirection.prototype.set_lifeDistance = function(lifeDistance) {
+	this.kernel_positionByDirection.setKernelArg("lifeDistance", lifeDistance); 
+	this.kernel_direction.setKernelArg("lifeDistance", lifeDistance); 
 };
 /** @private **/
 WebCLGLLayout_3DpositionByDirection.prototype.set_enableDrag = function(enableDrag) {
@@ -299,6 +311,21 @@ WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_NodeId = function(arr) {
 	this.vfProgram.setVertexArg("nodeId", this.CLGL_bufferNodeId);
 };
 /** @private **/
+WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_InitPos = function(arr) {
+	this.CLGL_bufferInitPos = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "FRAGMENT");
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferInitPos, arr);
+	
+	this.kernel_positionByDirection.setKernelArg("initPos", this.CLGL_bufferInitPos);
+	this.kernel_direction.setKernelArg("initPos", this.CLGL_bufferInitPos);
+};
+/** @private **/
+WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_InitDir = function(arr) {
+	this.CLGL_bufferInitDir = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "FRAGMENT");
+	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferInitDir, arr);
+	
+	this.kernel_direction.setKernelArg("initDir", this.CLGL_bufferInitDir);
+};
+/** @private **/
 WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Pos = function(arr) {
 	this.CLGL_bufferPosXYZW = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "VERTEX_FROM_KERNEL");
 	this.CLGL_bufferPosXYZW_TEMP = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "VERTEX_FROM_KERNEL");	
@@ -308,6 +335,8 @@ WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Pos = function(arr) {
 	this.kernel_positionByDirection.setKernelArg("posXYZW", this.CLGL_bufferPosXYZW);
 	this.kernel_direction.setKernelArg("posXYZW", this.CLGL_bufferPosXYZW);
 	this.vfProgram.setVertexArg("nodePos", this.CLGL_bufferPosXYZW); // this from kernel
+	
+	this.setBuffer_InitPos(arr);
 };
 /** @private **/
 WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_VertexPos = function(arr) {
@@ -338,6 +367,8 @@ WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Dir = function(arr) {
 	
 	this.kernel_positionByDirection.setKernelArg("dir", this.CLGL_bufferDir);
 	this.kernel_direction.setKernelArg("dir", this.CLGL_bufferDir); 
+	
+	this.setBuffer_InitDir(arr);
 };
 /** @private **/
 WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Polaritys = function(arr) {
@@ -356,7 +387,7 @@ WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Destination = function(a
 /** @private **/
 WebCLGLLayout_3DpositionByDirection.prototype.set_polaritypoints = function(arrPP) {
 	this.arrPP = arrPP;
-	this.kernel_direction.setKernelSource(this.directionSource());
+	this.kernel_direction.setKernelSource(this.source_direction());
 	
 	for(var n = 0, f = this.arrPP.length; n < f; n++) {
 		this.kernel_direction.setKernelArg('pole'+n+'X', this.arrPP[n].x); 
@@ -375,7 +406,7 @@ WebCLGLLayout_3DpositionByDirection.prototype.set_polaritypoints = function(arrP
 /** @private **/
 WebCLGLLayout_3DpositionByDirection.prototype.set_forces = function(arrF) {
 	this.arrF = arrF;
-	this.kernel_direction.setKernelSource(this.directionSource());
+	this.kernel_direction.setKernelSource(this.source_direction());
 	
 	for(var n = 0, f = this.arrPP.length; n < f; n++) {
 		this.kernel_direction.setKernelArg('pole'+n+'X', this.arrPP[n].x); 

@@ -18,7 +18,7 @@ WebCLGLBuffer = function(gl, length, type, offset, linear, mode) {
 		this.W = Math.ceil(Math.sqrt(this.length)); 
 		this.H = this.W;
 	}
-	//this.utils = new WebCLGLUtils();
+	this.utils = new WebCLGLUtils();
 	
 	this.type = (type != undefined) ? type : 'FLOAT';
 	this._supportFormat = this.gl.FLOAT;
