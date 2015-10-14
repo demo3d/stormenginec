@@ -190,6 +190,7 @@ WebCLGL.prototype.copy = function(valueToRead, valueToWrite) {
 * @param {String} [type="FLOAT"] type FLOAT4 OR FLOAT
 * @param {Int} [offset=0] If 0 the range is from 0.0 to 1.0 else if >0 then the range is from -offset.0 to offset.0
 * @property {Bool} [linear=false] linear texParameteri type for the WebGLTexture
+* @property {String} [mode="FRAGMENT"] Mode for this buffer. "FRAGMENT", "VERTEX", "VERTEX_INDEX", "VERTEX_FROM_KERNEL", "VERTEX_AND_FRAGMENT" 
 * @returns {WebCLGLBuffer} 
 */
 WebCLGL.prototype.createBuffer = function(length, type, offset, linear, mode) {
@@ -413,6 +414,7 @@ WebCLGL.prototype.enqueueReadBuffer = function(buffer, item) {
 	}
 };
 
+/** @private **/
 WebCLGL.prototype.prepareViewportForBufferRead = function(buffer) {
 	this.gl.viewport(0, 0, buffer.W, buffer.H); 
 	this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);		
@@ -458,7 +460,7 @@ WebCLGL.prototype.enqueueReadBuffer_Float4 = function(buffer) {
 		for(var n=0, fn= packet4Uint8Array.length; n < fn; n++) {
 			var arr = packet4Uint8Array[n];
 			
-			var outArrayFloat32Array = new Float32Array((buffer.W*buffer.H)*4);
+			var outArrayFloat32Array = new Float32Array((buffer.W*buffer.H));
 			for(var nb = 0, fnb = arr.length/4; nb < fnb; nb++) {
 				var idd = nb*4;
 				if(buffer.offset>0) outArrayFloat32Array[nb] = (this.utils.unpack([arr[idd+0]/255,
@@ -471,7 +473,7 @@ WebCLGL.prototype.enqueueReadBuffer_Float4 = function(buffer) {
 																			arr[idd+3]/255]));
 			}
 			
-			buffer.Float4.push(outArrayFloat32Array);
+			buffer.Float4.push(outArrayFloat32Array.subarray(0, buffer.length));
 		}
 		
 		return buffer.Float4;
@@ -536,7 +538,7 @@ WebCLGL.prototype.enqueueReadBuffer_Float = function(buffer) {
 		for(var n=0, fn= packet4Uint8Array.length; n < fn; n++) {
 			var arr = packet4Uint8Array[n];
 			
-			var outArrayFloat32Array = new Float32Array((buffer.W*buffer.H)*4);
+			var outArrayFloat32Array = new Float32Array((buffer.W*buffer.H));
 			for(var nb = 0, fnb = arr.length/4; nb < fnb; nb++) {
 				var idd = nb*4;
 				if(buffer.offset>0) outArrayFloat32Array[nb] = (this.utils.unpack([arr[idd+0]/255,
@@ -549,7 +551,7 @@ WebCLGL.prototype.enqueueReadBuffer_Float = function(buffer) {
 																			arr[idd+3]/255]));
 			}
 			
-			buffer.Float.push(outArrayFloat32Array);
+			buffer.Float.push(outArrayFloat32Array.subarray(0, buffer.length));
 		}
 		
 		return buffer.Float;

@@ -119,12 +119,12 @@ StormPolarityPoint.prototype.setPolarity = function(polarity) {
 					selectedKernel = this.nodesProc[n].kernelDir;	
 					selectedKernel.setKernelArg('pole'+p+'Polarity', polarity); 
 				}
-				if(this.nodesProc[n].kernelNodeDir != undefined) {
-					selectedKernel = this.nodesProc[n].kernelNodeDir;
+				if(this.nodesProc[n].clglLayout_nodes != undefined) {
+					selectedKernel = this.nodesProc[n].clglLayout_nodes.kernel_direction;
 					selectedKernel.setKernelArg('pole'+p+'Polarity', polarity); 
 				}
-				if(this.nodesProc[n].kernelLinkDir != undefined) {
-					selectedKernel = this.nodesProc[n].kernelLinkDir;
+				if(this.nodesProc[n].clglLayout_links != undefined) {
+					selectedKernel = this.nodesProc[n].clglLayout_links.kernel_direction;
 					selectedKernel.setKernelArg('pole'+p+'Polarity', polarity); 
 				}
 			}
@@ -148,12 +148,12 @@ StormPolarityPoint.prototype.setForce = function(force) {
 					selectedKernel = this.nodesProc[n].kernelDir;	
 					selectedKernel.setKernelArg('pole'+p+'Force', force); 
 				}
-				if(this.nodesProc[n].kernelNodeDir != undefined) {
-					selectedKernel = this.nodesProc[n].kernelNodeDir;
+				if(this.nodesProc[n].clglLayout_nodes != undefined) {
+					selectedKernel = this.nodesProc[n].clglLayout_nodes.kernel_direction;
 					selectedKernel.setKernelArg('pole'+p+'Force', force); 
 				}
-				if(this.nodesProc[n].kernelLinkDir != undefined) {
-					selectedKernel = this.nodesProc[n].kernelLinkDir;
+				if(this.nodesProc[n].clglLayout_links != undefined) {
+					selectedKernel = this.nodesProc[n].clglLayout_links.kernel_direction;
 					selectedKernel.setKernelArg('pole'+p+'Force', force); 
 				}
 			}
@@ -176,12 +176,12 @@ StormPolarityPoint.prototype.enableOrbit = function() {
 					selectedKernel = this.nodesProc[n].kernelDir;	
 					selectedKernel.setKernelArg('pole'+p+'Orbit', 1.0); 
 				}
-				if(this.nodesProc[n].kernelNodeDir != undefined) {
-					selectedKernel = this.nodesProc[n].kernelNodeDir;
+				if(this.nodesProc[n].clglLayout_nodes != undefined) {
+					selectedKernel = this.nodesProc[n].clglLayout_nodes.kernel_direction;
 					selectedKernel.setKernelArg('pole'+p+'Orbit', 1.0); 
 				}
-				if(this.nodesProc[n].kernelLinkDir != undefined) {
-					selectedKernel = this.nodesProc[n].kernelLinkDir;
+				if(this.nodesProc[n].clglLayout_links != undefined) {
+					selectedKernel = this.nodesProc[n].clglLayout_links.kernel_direction;
 					selectedKernel.setKernelArg('pole'+p+'Orbit', 1.0); 
 				}
 			}
@@ -204,12 +204,12 @@ StormPolarityPoint.prototype.disableOrbit = function(force) {
 					selectedKernel = this.nodesProc[n].kernelDir;	
 					selectedKernel.setKernelArg('pole'+p+'Orbit', 0.0); 
 				}
-				if(this.nodesProc[n].kernelNodeDir != undefined) {
-					selectedKernel = this.nodesProc[n].kernelNodeDir;
+				if(this.nodesProc[n].clglLayout_nodes != undefined) {
+					selectedKernel = this.nodesProc[n].clglLayout_nodes.kernel_direction;
 					selectedKernel.setKernelArg('pole'+p+'Orbit', 0.0); 
 				}
-				if(this.nodesProc[n].kernelLinkDir != undefined) {
-					selectedKernel = this.nodesProc[n].kernelLinkDir;
+				if(this.nodesProc[n].clglLayout_links != undefined) {
+					selectedKernel = this.nodesProc[n].clglLayout_links.kernel_direction;
 					selectedKernel.setKernelArg('pole'+p+'Orbit', 0.0); 
 				}
 			}

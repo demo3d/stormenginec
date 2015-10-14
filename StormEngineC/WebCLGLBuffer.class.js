@@ -133,14 +133,15 @@ WebCLGLBuffer.prototype.writeWebGLTextureBuffer = function(arr, flip) {
 			//console.log("Write arr with length of "+arr.length+" in Buffer "+this.type+" with length of "+this.length+" (W: "+this.W+"; H: "+this.H+")");
 			
 			if(this.type == 'FLOAT4') {
+				var arrt = new Float32Array((this.W*this.H)*4);
+				for(var n=0; n < arr.length; n++) arrt[n] = arr[n];
 				//texImage2D(			target, 			level, 	internalformat, 	width, height, border, 	format, 		type, 			pixels);
 				if(arr instanceof Uint8Array) {
-					this.gl.texImage2D(	this.gl.TEXTURE_2D, 0, 		this.gl.RGBA, 		this.W, this.H, 0, 	this.gl.RGBA, 	this.gl.FLOAT, 	new Float32Array(arr));
+					this.gl.texImage2D(	this.gl.TEXTURE_2D, 0, 		this.gl.RGBA, 		this.W, this.H, 0, 	this.gl.RGBA, 	this.gl.FLOAT, 	arrt);
 				} else if(arr instanceof Float32Array) {
-					this.gl.texImage2D(this.gl.TEXTURE_2D, 	0, 		this.gl.RGBA, 		this.W, this.H, 0, 	this.gl.RGBA, 	this.gl.FLOAT, 	arr);
-				} else {
-					while(arr.length < (this.W*this.H)*4)  arr.push(0.0,0.0,0.0,0.0);
-					this.gl.texImage2D(this.gl.TEXTURE_2D, 	0, 		this.gl.RGBA, 		this.W, this.H, 0, 	this.gl.RGBA, 	this.gl.FLOAT, 	new Float32Array(arr));
+					this.gl.texImage2D(this.gl.TEXTURE_2D, 	0, 		this.gl.RGBA, 		this.W, this.H, 0, 	this.gl.RGBA, 	this.gl.FLOAT, 	arrt);
+				} else {					
+					this.gl.texImage2D(this.gl.TEXTURE_2D, 	0, 		this.gl.RGBA, 		this.W, this.H, 0, 	this.gl.RGBA, 	this.gl.FLOAT, 	arrt);
 				}
 			} else if(this.type == 'FLOAT') {
 				var arrayTemp = new Float32Array(this.W*this.H*4); 

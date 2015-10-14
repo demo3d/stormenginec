@@ -1221,14 +1221,14 @@ StormNode.prototype.setPosition = function(vec) {
 						selectedKernel.setKernelArg('pole'+p+'Y', oper.e[7]); 
 						selectedKernel.setKernelArg('pole'+p+'Z', oper.e[11]);
 					}
-					if(nproc.kernelNodeDir != undefined) {
-						selectedKernel = nproc.kernelNodeDir;
+					if(nproc.clglLayout_nodes != undefined) {
+						selectedKernel = nproc.clglLayout_nodes.kernel_direction;
 						selectedKernel.setKernelArg('pole'+p+'X', oper.e[3]); 
 						selectedKernel.setKernelArg('pole'+p+'Y', oper.e[7]); 
 						selectedKernel.setKernelArg('pole'+p+'Z', oper.e[11]);
 					}
-					if(nproc.kernelLinkDir != undefined) {
-						selectedKernel = nproc.kernelLinkDir;
+					if(nproc.clglLayout_nodes != undefined) {
+						selectedKernel = nproc.clglLayout_links.kernel_direction;
 						selectedKernel.setKernelArg('pole'+p+'X', oper.e[3]); 
 						selectedKernel.setKernelArg('pole'+p+'Y', oper.e[7]); 
 						selectedKernel.setKernelArg('pole'+p+'Z', oper.e[11]);

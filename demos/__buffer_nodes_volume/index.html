@@ -91,7 +91,7 @@
 				var nodePosX = -(graph.offset/2);
 				var nodePosZ = -(graph.offset/2);				
 				ntt = function() {					
-					var node = graph.addNodeBN({
+					var node = graph.addNode({
 										"name": idx.toString(),
 										"position": $V3([nodePosX, 0.0, nodePosZ]),
 										"node": meshNode,
@@ -115,7 +115,7 @@
 					var y = -(graph.offset/2)+(Math.random()*graph.offset);
 					var z = -(graph.offset/2)+(Math.random()*graph.offset);
 					
-					var node = graph.addNodeBN({
+					var node = graph.addNode({
 										"name": n.toString(),
 										"position": $V3([x, y, z]),
 										"node": meshNode,
@@ -128,43 +128,43 @@
 					var A = parseInt(Math.random()*numNodes).toString();
 					var B = parseInt(Math.random()*numNodes).toString();
 					
-					graph.addLinkBN({"origin": A,
+					graph.addLink({"origin": A,
 									"target": B});
 				}
 				graph.updateLinks();
 				
 				
 				
-				/*var node = graph.addNodeBN({
+				/*var node = graph.addNode({
 					"name": "0",
 					"position": $V3([-1.0, 1.0, 0.0]),
 					"node": meshNode,
 					"color": $V3([1.0,0.0,0.0])
 					});
-				var node = graph.addNodeBN({
+				var node = graph.addNode({
 					"name": "1",
 					"position": $V3([1.0, 1.0, 0.0]),
 					"node": meshNode,
 					"color": $V3([0.0,1.0,0.0])
 					});
-				graph.addLinkBN({"origin": "0",
+				graph.addLink({"origin": "0",
 					"target": "1"}); 
 				
 				
 				
-				var node = graph.addNodeBN({
+				var node = graph.addNode({
 					"name": "2",
 					"position": $V3([0.0, 1.0, -1.0]),
 					"node": meshNode,
 					"color": $V3([0.0,0.0,1.0])
 					});
-				var node = graph.addNodeBN({
+				var node = graph.addNode({
 					"name": "3",
 					"position": $V3([0.0, 1.0, 1.0]),
 					"node": meshNode,
 					"color": $V3([0.0,1.0,1.0])
 					});
-				graph.addLinkBN({"origin": "2",
+				graph.addLink({"origin": "2",
 								"target": "3"});
 				
 				graph.updateNodes();

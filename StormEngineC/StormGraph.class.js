@@ -187,7 +187,6 @@ StormGraph.prototype.addNodeNow = function(jsonIn) {
 	}
 	this.startIndexId += (maxNodeIndexId+1);
 	
-	
 	this.currentNodeId++; // augment node id
 	
 	//return this.currentNodeId-1;
@@ -233,13 +232,16 @@ StormGraph.prototype.addLink = function(jsonIn) {
  * @returns {Int}
  */
 StormGraph.prototype.addLinkNow = function(jsonIn) {
+	var arr4Uint8_XYZW = this.clglLayout_nodes.webCLGL.enqueueReadBuffer_Float4(this.clglLayout_nodes.CLGL_bufferPosXYZW);
+	
+	
 	// (origin)
 	this.arrayLinkId.push(this.currentLinkId);
 	this.arrayLinkNodeName.push(jsonIn.origin_nodeName);
 	this.arrayLinkNodeId.push(jsonIn.origin_nodeId);
-	this.arrayLinkPosXYZW.push(	this.arrayNodePosXYZW[(jsonIn.origin_itemStart*4)],
-								this.arrayNodePosXYZW[(jsonIn.origin_itemStart*4)+1],
-								this.arrayNodePosXYZW[(jsonIn.origin_itemStart*4)+2],
+	this.arrayLinkPosXYZW.push(	arr4Uint8_XYZW[0][(jsonIn.origin_itemStart)],
+								arr4Uint8_XYZW[1][(jsonIn.origin_itemStart)],
+								arr4Uint8_XYZW[2][(jsonIn.origin_itemStart)],
 								1.0);
 	this.arrayLinkVertexPos.push(0.0, 0.0, 0.0, 1.0);
 	this.arrayLinkVertexColor.push(1.0, 1.0, 1.0, 1.0);
@@ -248,9 +250,9 @@ StormGraph.prototype.addLinkNow = function(jsonIn) {
 	this.arrayLinkId.push(this.currentLinkId+1);
 	this.arrayLinkNodeName.push(jsonIn.target_nodeName);
 	this.arrayLinkNodeId.push(jsonIn.target_nodeId);
-	this.arrayLinkPosXYZW.push(	this.arrayNodePosXYZW[(jsonIn.target_itemStart*4)],
-								this.arrayNodePosXYZW[(jsonIn.target_itemStart*4)+1],
-								this.arrayNodePosXYZW[(jsonIn.target_itemStart*4)+2],
+	this.arrayLinkPosXYZW.push(	arr4Uint8_XYZW[0][(jsonIn.target_itemStart)],
+								arr4Uint8_XYZW[1][(jsonIn.target_itemStart)],
+								arr4Uint8_XYZW[2][(jsonIn.target_itemStart)],
 								1.0);	
 	this.arrayLinkVertexPos.push(0.0, 0.0, 0.0, 1.0);
 	this.arrayLinkVertexColor.push(1.0, 1.0, 1.0, 1.0);
@@ -311,7 +313,21 @@ StormGraph.prototype.updateNodes = function(jsonIn) {
 	
 	this.clglLayout_nodes.setBuffer_Id(this.arrayNodeId);
 	this.clglLayout_nodes.setBuffer_NodeId(this.arrayNodeId);
+		
+	if(this.clglLayout_nodes.CLGL_bufferPosXYZW != undefined) {
+		var arr4Uint8_XYZW = this.clglLayout_nodes.webCLGL.enqueueReadBuffer_Float4(this.clglLayout_nodes.CLGL_bufferPosXYZW);
+		//var arr4Uint8_XYZW = this.clglLayout_nodes.CLGL_bufferPosXYZW.Float4;
+		for(var n = 0, f = arr4Uint8_XYZW[0].length; n < f; n++) {
+			var idx = n*4;
+			this.arrayNodePosXYZW[idx] = arr4Uint8_XYZW[0][n];
+			this.arrayNodePosXYZW[idx+1] = arr4Uint8_XYZW[1][n];
+			this.arrayNodePosXYZW[idx+2] = arr4Uint8_XYZW[2][n];
+			this.arrayNodePosXYZW[idx+3] = arr4Uint8_XYZW[3][n];
+		}
+		
+	}
 	this.clglLayout_nodes.setBuffer_Pos(this.arrayNodePosXYZW);
+	
 	this.clglLayout_nodes.setBuffer_VertexPos(this.arrayNodeVertexPos);
 	this.clglLayout_nodes.setBuffer_VertexColor(this.arrayNodeVertexColor);
 	this.clglLayout_nodes.setBuffer_Indices(this.arrayNodeIndices);
@@ -550,7 +566,7 @@ StormGraph.prototype.set_destinationWidthHeight = function(width, height) {
 * @param {StormVoxelizator} voxelizator
 * @type Void
 */
-StormGraph.prototype.set_destinationToVolume = function(voxelizator) {
+StormGraph.prototype.set_destinationVolume = function(voxelizator) {
 	this.set_enableDestination();
 	this.set_destinationForce(0.5);
 		

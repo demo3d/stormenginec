@@ -53,7 +53,7 @@ WebCLGLUtils.prototype.loadQuad = function(node, length, height) {
 	
 	return meshObject;
 };
-/** @private */
+/** @private **/
 WebCLGLUtils.prototype.getWebGLContextFromCanvas = function(canvas, ctxOpt) {
 	var gl;
 	try {
