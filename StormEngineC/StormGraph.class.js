@@ -94,6 +94,9 @@ StormGraph = function(jsonIn) { StormNode.call(this);
 	
 	
 	this.enDestination = 0;
+	this.polarity = 1; // positive
+	this.lifeDistance = 0.0;
+	this.destinationForce = 0.5;
 };
 StormGraph.prototype = Object.create(StormNode.prototype);
 
@@ -169,7 +172,6 @@ StormGraph.prototype.addNodeNow = function(jsonIn) {
 			this.nodeArrayItemStart++;
 		}
 	}
-	//console.log(this.arrayNodePosX.length);
 		
 	var maxNodeIndexId = 0;
 	for(var i=0; i < this.node.buffersObjects.length; i++) {
@@ -487,9 +489,9 @@ StormGraph.prototype.render = function() {
 * @type Void
 */
 StormGraph.prototype.set_destinationForce = function(value) { 
-	this.destForce = value;
-	this.clglLayout_nodes.set_destinationForce(this.destForce);
-	this.clglLayout_links.set_destinationForce(this.destForce);
+	this.destinationForce = value;
+	this.clglLayout_nodes.set_destinationForce(this.destinationForce);
+	this.clglLayout_links.set_destinationForce(this.destinationForce);
 };
 /**
 * Disable destination
@@ -520,31 +522,48 @@ StormGraph.prototype.set_lifeDistance = function(value) {
 	this.clglLayout_links.set_lifeDistance(this.lifeDistance);
 };
 /**
+* Polarity
+* @param {Int} polarity
+* @type Void
+*/
+StormGraph.prototype.set_polarity = function(polarity) { 
+	this.polarity = polarity;
+	this.clglLayout_nodes.setBuffer_Polaritys(this.polarity);
+};
+/**
 * Destination by width and height
 * @param {Int} width
 * @param {Int} height
 * @type Void
 */
-StormGraph.prototype.set_destinationWidthHeight = function(width, height) {
+/**
+* Set position
+* @type Void
+* @param {Object} position For make a square or spherical disposal
+* 	@param {Float} position.width Width
+* 	@param {Float} position.height Height
+* 	@param {Float} position.spacing Spacing
+*/
+StormGraph.prototype.set_destinationWidthHeight = function(jsonIn) {
 	this.set_enableDestination();
 	this.set_destinationForce(0.5);
 		
 	this.arrayNodeDestination = [];	
 	var totalNodes = this.currentNodeId-1;
-	var totalDestinations = width*height;
+	var totalDestinations = jsonIn.width*jsonIn.height;
 	var nodesPerCell = totalNodes/totalDestinations;
 	var nodesInCell = 0;	
 	var currentNodeId = -1;
 	var x = 0;
 	var z = 0;
-	var separation = 1.0;
+	var spacing = (jsonIn.spacing != undefined) ? jsonIn.spacing : 0.01; 
 	for(var n=0; n < this.arrayNodeId.length; n++) {
 		if(currentNodeId != this.arrayNodeId[n]) {
 			currentNodeId = this.arrayNodeId[n];
 			
 			if(nodesInCell > nodesPerCell) {				
 				x++;
-				if(x > width-1) {
+				if(x > jsonIn.width-1) {
 					x = 0;
 					z++;
 				}
@@ -552,14 +571,14 @@ StormGraph.prototype.set_destinationWidthHeight = function(width, height) {
 			}
 			nodesInCell++;
 			
-			this.arrayNodeDestination.push(x*separation, 0, z*separation, 255);			
+			this.arrayNodeDestination.push(x*spacing, 0, z*spacing, 255);			
 		} else {
-			this.arrayNodeDestination.push(x*separation, 0, z*separation, 255);
+			this.arrayNodeDestination.push(x*spacing, 0, z*spacing, 255);
 		}
 	}
 	this.clglLayout_nodes.setBuffer_Destination(this.arrayNodeDestination);
 	
-	this.updateLinkDestination();	
+	this.setLinksDestinationToNodesDestination();	
 };
 /**
 * Destination to voxel volume
@@ -682,7 +701,6 @@ StormGraph.prototype.set_dir = function(direction) {
 * @type Void
 */
 StormGraph.prototype.setLinksDirToNodesDir = function() {
-	// update direction for links
 	this.arrayLinkDir = [];	
 	for(var n=0; n < this.arrayLinkId.length; n++) {
 		var currentLinkNodeName = this.arrayLinkNodeName[n];		
@@ -694,4 +712,76 @@ StormGraph.prototype.setLinksDirToNodesDir = function() {
 								1.0);
 	}
 	this.clglLayout_links.setBuffer_Dir(this.arrayLinkDir);
+};
+/**
+* Set position
+* @type Void
+* @param {Array<StormV3>} position For make through a Array
+* @param {Object} position For make a square or spherical disposal
+* 	@param {Float} position.width Width
+* 	@param {Float} position.height Height
+* 	@param {Float} position.spacing Spacing
+* 	@param {Float} [position.radius=0.5] Radius for type spherical (Anule width/height)
+*/
+StormGraph.prototype.set_pos = function(jsonIn) { 	
+	this.arrayNodePosXYZW = []; 
+	var currentNodeId = -1;
+	var currentNodePos;
+	
+	var h = 0, hP = 0, vP = 0;	
+	for(var n=0; n < this.arrayNodeId.length; n++) {
+		if(currentNodeId != this.arrayNodeId[n]) {
+			currentNodeId = this.arrayNodeId[n];
+			
+			if(jsonIn != undefined && jsonIn.constructor === Array) {			
+				var v = this.getPosition().add(jsonIn[n]);
+				
+				currentNodePos = [v.e[0], v.e[1], v.e[2], 0.0];
+				
+			} else if(jsonIn == undefined || jsonIn.radius != undefined) {
+				var rad = (jsonIn == undefined) ? 1.0 : jsonIn.radius;
+				var currAngleH = Math.random()*360.0;
+				var currAngleV = Math.random()*180.0;
+				var v = $V3([	cos(currAngleH) * Math.abs(sin(currAngleV)) * rad,  
+								cos(currAngleV) * rad * Math.random(),
+								sin(currAngleH) * Math.abs(sin(currAngleV)) * rad]);
+								
+				v = this.getPosition().add(v);
+				
+				currentNodePos = [v.e[0], v.e[1], v.e[2], 0.0];
+				
+			} else if(jsonIn.width != undefined) {
+				var spac = (jsonIn.spacing != undefined) ? jsonIn.spacing : 0.01; 
+				var oper = this.MPOS.x($V3([hP,0.0,vP]));
+				
+				currentNodePos = [oper.e[3], oper.e[7], oper.e[11], 0.0];
+				
+				h++;
+				hP+=spac;
+				if(h > jsonIn.width-1) {h=0;hP=0;vP+=spac;}
+			}
+			
+			
+			this.arrayNodePosXYZW.push(currentNodePos[0], currentNodePos[1], currentNodePos[2], currentNodePos[3]);
+		} else {
+			this.arrayNodePosXYZW.push(currentNodePos[0], currentNodePos[1], currentNodePos[2], currentNodePos[3]);
+		}
+	}
+	
+	this.clglLayout_nodes.setBuffer_Pos(this.arrayNodePosXYZW);
+	
+	this.setLinksPosToNodesPos();
+};
+StormGraph.prototype.setLinksPosToNodesPos = function() {
+	this.arrayLinkPos = [];	
+	for(var n=0; n < this.arrayLinkId.length; n++) {
+		var currentLinkNodeName = this.arrayLinkNodeName[n];		
+		var nodeNameItemStart = this.nodes[currentLinkNodeName].itemStart;
+		
+		this.arrayLinkPos.push(this.arrayNodePosXYZW[(nodeNameItemStart*4)],
+								this.arrayNodePosXYZW[(nodeNameItemStart*4)+1],
+								this.arrayNodePosXYZW[(nodeNameItemStart*4)+2],
+								1.0);
+	}
+	this.clglLayout_links.setBuffer_Pos(this.arrayLinkPos);
 };

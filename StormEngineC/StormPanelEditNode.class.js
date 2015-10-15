@@ -11,33 +11,11 @@ StormEngineC_PanelEditNode = function() {
 * @private
 */
 StormEngineC_PanelEditNode.prototype.loadPanel = function() {
-	var html = '<input type="checkbox" id="INPUTID_StormEditNode_visible" /> <span id="DIVID_StormEditNode_name"></span> <button id="BUTTONID_removenode">REMOVE</button>'+
+	var html = '<span style="font-weight:bold" id="DIVID_StormEditNode_name"></span>'+
 				'<div id="DIVID_StormEditNode_edits"></div>';
 	
 	var _this = this;
 	stormEngineC.makePanel(_this, 'DIVID_StormPanelEditNode', 'EDIT OBJECT', html);
-	
-	
-	
-	
-	
-	$("#INPUTID_StormEditNode_visible").on('click', function() {
-											if(stormEngineC.nearNode.visibleOnContext == true) {
-												stormEngineC.nearNode.visible(false);
-											} else {
-												stormEngineC.nearNode.visible(true);
-											}
-											
-											stormEngineC.PanelListObjects.showListObjects();
-											stormEngineC.PanelEditNode.updateNearNode();
-										});
-	document.getElementById("BUTTONID_removenode").addEventListener("click", function() {
-		stormEngineC.nearNode.remove();
-		
-		stormEngineC.PanelListObjects.showListObjects();
-		stormEngineC.nearNode = undefined;
-		stormEngineC.PanelEditNode.updateNearNode();
-	});
 };
 
 /**
@@ -55,69 +33,15 @@ StormEngineC_PanelEditNode.prototype.show = function() {
 */
 StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 	if(stormEngineC.nearNode == undefined) {
-		$("#INPUTID_StormEditNode_visible").removeAttr('checked');
 		$('#DIVID_StormEditNode_name').html("");
-		document.getElementById("BUTTONID_removenode").style.display = "none";
 		$('#DIVID_StormEditNode_edits').html('');
 	} else {
 		if(stormEngineC.nearNode.name != undefined) $('#DIVID_StormEditNode_name').html(stormEngineC.nearNode.name);
-		document.getElementById("BUTTONID_removenode").style.display = "block";
 		$('#DIVID_StormEditNode_edits').html('');
 		
 		
 		
 		
-		lines_position = function() {
-			var strMoves = 	'<div>'+
-								'TRANSLATE: '+
-								'<input id="StormEN_spinnerTranslX" name="value" value="'+stormEngineC.nearNode.getPosition().e[0]+'" style="color:#FFF;width:40px">'+
-								'<input id="StormEN_spinnerTranslY" name="value" value="'+stormEngineC.nearNode.getPosition().e[1]+'" style="color:#FFF;width:40px">'+
-								'<input id="StormEN_spinnerTranslZ" name="value" value="'+stormEngineC.nearNode.getPosition().e[2]+'" style="color:#FFF;width:40px">'+
-							'</div>';
-			$('#DIVID_StormEditNode_edits').html(strMoves);
-			$("#StormEN_spinnerTranslX").spinner({numberFormat:"n", step: 0.1,
-												spin: function(event, ui) {
-													var vecTranslation = $V3([ui.value, $("#StormEN_spinnerTranslY").val(), $("#StormEN_spinnerTranslZ").val()]);
-													stormEngineC.nearNode.setPosition(vecTranslation);
-													stormEngineC.debugValues = [];
-													stormEngineC.setDebugValue(0, vecTranslation, stormEngineC.nearNode.name);
-												},
-												change: function(event, ui) {
-													var vecTranslation = $V3([$(this).val(), $("#StormEN_spinnerTranslY").val(), $("#StormEN_spinnerTranslZ").val()]);
-													stormEngineC.nearNode.setPosition(vecTranslation);
-													stormEngineC.debugValues = [];
-													stormEngineC.setDebugValue(0, vecTranslation, stormEngineC.nearNode.name);
-												}
-												});
-				$("#StormEN_spinnerTranslY").spinner({numberFormat:"n", step: 0.1,
-												spin: function(event, ui) {
-													var vecTranslation = $V3([$("#StormEN_spinnerTranslX").val(), ui.value, $("#StormEN_spinnerTranslZ").val()]);
-													stormEngineC.nearNode.setPosition(vecTranslation);
-													stormEngineC.debugValues = [];
-													stormEngineC.setDebugValue(0, vecTranslation, stormEngineC.nearNode.name);
-												},
-												change: function(event, ui) {
-													var vecTranslation = $V3([$("#StormEN_spinnerTranslX").val(), $(this).val(), $("#StormEN_spinnerTranslZ").val()]);
-													stormEngineC.nearNode.setPosition(vecTranslation);
-													stormEngineC.debugValues = [];
-													stormEngineC.setDebugValue(0, vecTranslation, stormEngineC.nearNode.name);
-												}
-												});
-				$("#StormEN_spinnerTranslZ").spinner({numberFormat:"n", step: 0.1,
-												spin: function(event, ui) {
-													var vecTranslation = $V3([$("#StormEN_spinnerTranslX").val(), $("#StormEN_spinnerTranslY").val(), ui.value]);
-													stormEngineC.nearNode.setPosition(vecTranslation);
-													stormEngineC.debugValues = [];
-													stormEngineC.setDebugValue(0, vecTranslation, stormEngineC.nearNode.name);
-												},
-												change: function(event, ui) {
-													var vecTranslation = $V3([$("#StormEN_spinnerTranslX").val(), $("#StormEN_spinnerTranslY").val(), $(this).val()]);
-													stormEngineC.nearNode.setPosition(vecTranslation);
-													stormEngineC.debugValues = [];
-													stormEngineC.setDebugValue(0, vecTranslation, stormEngineC.nearNode.name);
-												}
-												}); 
-		};
 		lines_rotation = function() {
 			var strMoves = 	'<div>'+
 								'ROTATE: '+
@@ -155,670 +79,629 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 												}
 												});
 		};
-		lines_editMode = function() {
-			var str = 	'EditMode: <input type="checkbox" id="INPUTID_StormEditNode_editMode" /><br />';
+		add_removeBtn = function(clickCallback) {
+			var str = '<button id="BUTTONID_remove">REMOVE</button><br />';
 			$('#DIVID_StormEditNode_edits').append(str);
 			
-			if(stormEngineC.nearNode.selectedNodeIsInEditionMode() == true) {
-				$("#INPUTID_StormEditNode_editMode").attr('checked','true');
-			} else {
-				$("#INPUTID_StormEditNode_editMode").removeAttr('checked');
-			}
-			
-			$("#INPUTID_StormEditNode_editMode").on('click', function() {
-				if(stormEngineC.nearNode.selectedNodeIsInEditionMode() == true) {
-					stormEngineC.nearNode.uneditSelectedNode();
-				} else {
-					stormEngineC.nearNode.editSelectedNode();
-				}
+			document.getElementById("BUTTONID_remove").addEventListener("click", function() {
+				clickCallback();
+				
+				stormEngineC.PanelListObjects.showListObjects();
+				stormEngineC.nearNode = undefined;
+				stormEngineC.PanelEditNode.updateNearNode();
 			});
 		};
-		lines_draggable = function() {
-			var str = 	'Draggable: <input type="checkbox" id="INPUTID_StormEditNode_draggable" /><br />';
+		add_checkbox = function(name, variable, checkCallback, uncheckCallback) {
+			var str = 	name+': <input type="checkbox" id="INPUTID_StormEditNode_'+name+'" /><br />';
 			$('#DIVID_StormEditNode_edits').append(str);
 			
-			if(stormEngineC.nearNode.isDraggable == true) {
-				$("#INPUTID_StormEditNode_draggable").attr('checked','true');
+			if(variable === true || variable === 1) {
+				document.getElementById("INPUTID_StormEditNode_"+name).checked = true;
 			} else {
-				$("#INPUTID_StormEditNode_draggable").removeAttr('checked');
+				document.getElementById("INPUTID_StormEditNode_"+name).checked = false;
 			}
 			
-			$("#INPUTID_StormEditNode_draggable").on('click', function() {
-				if(stormEngineC.nearNode.isDraggable == true) {
-					stormEngineC.nearNode.draggable(false);
+			$("#INPUTID_StormEditNode_"+name).on('click', function() {
+				if(document.getElementById("INPUTID_StormEditNode_"+name).checked == false) {
+					uncheckCallback();
 				} else {
-					stormEngineC.nearNode.draggable(true);
+					checkCallback();
 				}
 			});
 		};		
-		lines_polarity = function() {
-			var str = 	'POLARITY:<br />'+
-						'+ <input type="radio" name="INPUTNAME_StormEditNode_pp_polarity"  id="INPUTID_StormEditNode_polarity_positive" /> '+
-						'- <input type="radio" name="INPUTNAME_StormEditNode_pp_polarity"  id="INPUTID_StormEditNode_polarity_negative" /><br />';
+		add_radio = function(name, text1, text2, variable, check1Callback, check2Callback) {
+			var str = 	name+': '+
+						text1+' <input type="radio" name="INPUTNAME_StormEditNode_'+name+'"  id="INPUTID_StormEditNode_'+name+'_'+text1+'" /> '+
+						text2+' <input type="radio" name="INPUTNAME_StormEditNode_'+name+'"  id="INPUTID_StormEditNode_'+name+'_'+text2+'" /><br />';
 			$('#DIVID_StormEditNode_edits').append(str);
 			
-			if(stormEngineC.nearNode.polarity == 1) {
-				$("#INPUTID_StormEditNode_polarity_positive").attr('checked','true');
+			if(variable === true || variable === 1) {
+				document.getElementById("INPUTID_StormEditNode_"+name+"_"+text1).checked = true;
 			} else {
-				$("#INPUTID_StormEditNode_polarity_negative").attr('checked','true');
+				document.getElementById("INPUTID_StormEditNode_"+name+"_"+text2).checked = true;
 			}
 			
-			$("#INPUTID_StormEditNode_polarity_positive").on('click', function() {
-				stormEngineC.nearNode.setPolarity(1);
+			$("#INPUTID_StormEditNode_"+name+"_"+text1).on('click', function() {
+				check1Callback();
 			});
-			$("#INPUTID_StormEditNode_polarity_negative").on('click', function() {
-				stormEngineC.nearNode.setPolarity(0);
-			});
-		};		
-		lines_orbit = function() {
-			var str = 	'ORBIT: <input type="checkbox" id="INPUTID_StormEditNode_orbit" /><br />';
-			$('#DIVID_StormEditNode_edits').append(str);
-			
-			if(stormEngineC.nearNode.orbit == 1) {
-				$("#INPUTID_StormEditNode_orbit").attr('checked','true');
-			} else {
-				$("#INPUTID_StormEditNode_orbit").removeAttr('checked');
-			}
-			
-			$("#INPUTID_StormEditNode_orbit").on('click', function() {
-				if(stormEngineC.nearNode.orbit == 1) {
-					stormEngineC.nearNode.disableOrbit();
-				} else {
-					stormEngineC.nearNode.enableOrbit();
-				}
+			$("#INPUTID_StormEditNode_"+name+"_"+text2).on('click', function() {
+				check2Callback();
 			});
 		};
-		
-		
-		
-		
-		
-		if(stormEngineC.nearNode.objectType == 'node') {
-			if(stormEngineC.nearNode.visibleOnContext == true) {
-				$("#INPUTID_StormEditNode_visible").attr('checked','true');
-								
-				lines_position();
-				lines_rotation();
-				lines_editMode();
-				lines_draggable();
-			} else {
-				$("#INPUTID_StormEditNode_visible").removeAttr('checked');
-			}
-		}
-		if(stormEngineC.nearNode.objectType == 'polarityPoint') {
-			if(stormEngineC.nearNode.visibleOnContext == true) {
-				$("#INPUTID_StormEditNode_visible").attr('checked','true');
-			} else {
-				$("#INPUTID_StormEditNode_visible").removeAttr('checked');
-			}
-						
-			lines_position();
-			lines_draggable();
-			
-			lines_polarity();			
-			lines_orbit();
-											
-			var str= '<br />FORCE <input id="INPUTNAME_StormEditNode_pp_spinnerForce" value="'+stormEngineC.nearNode.force+'" style="color:#FFF;width:40px">';
+		add_spinner = function(name, variable, steps, onSpinCallback) {
+			var str = name+' <input id="INPUTID_StormEditNode_'+name+'" value="'+variable+'" style="color:#FFF;width:40px"><br />';
 			$('#DIVID_StormEditNode_edits').append(str);
-			$("#INPUTNAME_StormEditNode_pp_spinnerForce").spinner({numberFormat:"n", step: 0.1,
+			$("#INPUTID_StormEditNode_"+name).spinner({numberFormat:"n", step: steps,
 															spin: function(event, ui) {
-																stormEngineC.nearNode.setForce(ui.value);
+																onSpinCallback(ui.value);
 															}
 														});
-														
-			var str = "<fieldset><legend></legend>"+
-						"<button type=\"button\" id=\"BUTTONID_StormEditNode_pp_get\">get particles</button>";
-						for(var n = 0, f = stormEngineC.nearNode.nodesProc.length; n < f; n++) str += '<br />'+stormEngineC.nearNode.nodesProc[n].name;
-			str +="</fieldset>";
+		};
+		add_3dspinner = function(name, vectorVariable, steps, onSpinCallback) {
+			var str = '<div>'+
+						name+': '+
+						'<input id="StormEN_spinner'+name+'X" name="value" value="'+vectorVariable.e[0]+'" style="background:red;color:#FFF;width:40px">'+
+						'<input id="StormEN_spinner'+name+'Y" name="value" value="'+vectorVariable.e[1]+'" style="background:green;color:#FFF;width:40px">'+
+						'<input id="StormEN_spinner'+name+'Z" name="value" value="'+vectorVariable.e[2]+'" style="background:blue;color:#FFF;width:40px">'+
+					'</div>';
+					$('#DIVID_StormEditNode_edits').append(str);
+					$("#StormEN_spinner"+name+"X").spinner({numberFormat:"n", step: steps,
+										spin: function(event, ui) {
+											var vector = $V3([ui.value, $("#StormEN_spinner"+name+"Y").val(), $("#StormEN_spinner"+name+"Z").val()]);
+											onSpinCallback(vector);
+										},
+										change: function(event, ui) {
+											var vector = $V3([$(this).val(), $("#StormEN_spinner"+name+"Y").val(), $("#StormEN_spinner"+name+"Z").val()]);
+											onSpinCallback(vector);
+										}
+										});
+					$("#StormEN_spinner"+name+"Y").spinner({numberFormat:"n", step: steps,
+										spin: function(event, ui) {
+											var vector = $V3([$("#StormEN_spinner"+name+"X").val(), ui.value, $("#StormEN_spinner"+name+"Z").val()]);
+											onSpinCallback(vector);
+										},
+										change: function(event, ui) {
+											var vector = $V3([$("#StormEN_spinner"+name+"X").val(), $(this).val(), $("#StormEN_spinner"+name+"Z").val()]);
+											onSpinCallback(vector);
+										}
+										});
+					$("#StormEN_spinner"+name+"Z").spinner({numberFormat:"n", step: steps,
+										spin: function(event, ui) {
+											var vector = $V3([$("#StormEN_spinner"+name+"X").val(), $("#StormEN_spinner"+name+"Y").val(), ui.value]);
+											onSpinCallback(vector);
+										},
+										change: function(event, ui) {
+											var vector = $V3([$("#StormEN_spinner"+name+"X").val(), $("#StormEN_spinner"+name+"Y").val(), $(this).val()]);
+											onSpinCallback(vector);
+										}
+										}); 
+		};
+		add_slider = function(name, min, max, fvalue, steps, onSlideCallback) {
+			var str = 	name+': <span id="DIVID_StormEditNode_'+name+'">'+fvalue+'</span>'+
+						'<div id="DIVID_StormEditNode_'+name+'_SLIDER"></div>';
+			$("#DIVID_StormEditNode_edits").append(str);
+			$("#DIVID_StormEditNode_"+name+"_SLIDER").slider({	"max": max,
+																"min": min,
+																"value": fvalue,
+																"step": steps,
+																"slide":function(event,ui) {
+																		onSlideCallback(ui.value);
+																		$('#DIVID_StormEditNode_'+name).text(ui.value);
+																	}});
+		};
+		add_input = function(name, min, fvalue, onKeyupCallback) {
+			var str = 	name+': <input id="INPUTID_StormEditNode_'+name+'" type="text" value="'+fvalue+'" style="width:40px"/>m<br />';
 			$('#DIVID_StormEditNode_edits').append(str);
 			
-			$("#BUTTONID_StormEditNode_pp_get").on('click', function() {
-													stormEngineC.pickingCall='get({node:_selectedNode_});';  
-													stormEngineC.PanelListObjects.show();
-													$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
-													document.body.style.cursor='pointer';
-												});
+			$("#INPUTID_StormEditNode_"+name).on('keyup', function() {
+												if($(this).val() > min) {
+													onKeyupCallback();
+												} else {
+													$(this).val(min);
+													onKeyupCallback();
+												}
+											});
+		};
+		add_valuesAndBtn = function(name, arrayTexts, arrayDefaultValues, onClickCallback) {
+			var str = "<button id='BUTTONID_StormEditNode_"+name+"'>"+name+"</button>";
+			for(var n=0; n < arrayTexts.length; n++) {
+				str += arrayTexts[n]+' <input type="text" id="INPUTID_StormEditNode_'+name+'_'+arrayTexts[n]+'" value="'+arrayDefaultValues[n]+'" style="width:40px"/>';			
+			}
+			str += "<br />";
+			$('#DIVID_StormEditNode_edits').append(str);
+			
+			$("#BUTTONID_StormEditNode_"+name).on('click', function() {
+				var settedValues = [];
+				for(var n=0; n < arrayTexts.length; n++) {
+					settedValues.push($('#INPUTID_StormEditNode_'+name+'_'+arrayTexts[n]).val());
+				}
+				onClickCallback(settedValues);
+			});
+		};
+		add_btn = function(name, onClickCallback) {
+			var str = "<button id='BUTTONID_StormEditNode_"+name+"'>"+name+"</button><br />";
+			$('#DIVID_StormEditNode_edits').append(str);
+			
+			$("#BUTTONID_StormEditNode_"+name).on('click', function() {
+				onClickCallback();
+			});
+		};
+		
+		
+		
+		
+		if(stormEngineC.nearNode.objectType == 'node') {								
+			add_removeBtn(function() {
+				stormEngineC.nearNode.remove();
+			});
+			
+			add_checkbox("VISIBILITY", stormEngineC.nearNode.visibleOnContext,
+					function() {
+						stormEngineC.nearNode.visible(true);
+						stormEngineC.PanelListObjects.showListObjects();
+						stormEngineC.PanelEditNode.updateNearNode();
+					}, function() {
+						stormEngineC.nearNode.visible(false);
+						stormEngineC.PanelListObjects.showListObjects();
+						stormEngineC.PanelEditNode.updateNearNode();
+					});	
+			
+			add_3dspinner("POSITION", stormEngineC.nearNode.getPosition(), 0.1, function(vector) {
+				stormEngineC.nearNode.setPosition(vector);
+				stormEngineC.debugValues = [];
+				stormEngineC.setDebugValue(0, vector, stormEngineC.nearNode.name);
+			});
+			
+			lines_rotation();
+			
+			add_checkbox("EDITMODE", stormEngineC.nearNode.selectedNodeIsInEditionMode(),
+					function() {
+						stormEngineC.nearNode.editSelectedNode();
+					}, function() {
+						stormEngineC.nearNode.uneditSelectedNode();
+					});
+			
+			add_checkbox("DRAGGABLE", stormEngineC.nearNode.isDraggable,
+					function() {
+						stormEngineC.nearNode.draggable(true);
+					}, function() {
+						stormEngineC.nearNode.draggable(false);
+					});
+		}
+		if(stormEngineC.nearNode.objectType == 'polarityPoint') {	
+			add_removeBtn(function() {
+				stormEngineC.nearNode.remove();
+			});
+			
+			add_checkbox("VISIBILITY", stormEngineC.nearNode.visibleOnContext,
+					function() {
+						stormEngineC.nearNode.visible(true);
+						stormEngineC.PanelListObjects.showListObjects();
+						stormEngineC.PanelEditNode.updateNearNode();
+					}, function() {
+						stormEngineC.nearNode.visible(false);
+						stormEngineC.PanelListObjects.showListObjects();
+						stormEngineC.PanelEditNode.updateNearNode();
+					});
+			
+			add_3dspinner("POSITION", stormEngineC.nearNode.getPosition(), 0.1, function(vector) {
+				stormEngineC.nearNode.setPosition(vector);
+				stormEngineC.debugValues = [];
+				stormEngineC.setDebugValue(0, vector, stormEngineC.nearNode.name);
+			});
+			
+			add_checkbox("DRAGGABLE", stormEngineC.nearNode.isDraggable,
+					function() {
+						stormEngineC.nearNode.draggable(true);
+					}, function() {
+						stormEngineC.nearNode.draggable(false);
+					});	
+			
+			add_radio("POLARITY", "positive", "negative", stormEngineC.nearNode.polarity,
+					function() {
+						stormEngineC.nearNode.setPolarity(1);
+					}, function() {
+						stormEngineC.nearNode.setPolarity(0);
+					});	
+			
+			add_checkbox("ORBIT", stormEngineC.nearNode.orbit,
+					function() {
+						stormEngineC.nearNode.enableOrbit();
+					}, function() {
+						stormEngineC.nearNode.disableOrbit();
+					});
+			
+			add_spinner("FORCE", stormEngineC.nearNode.force, 0.05, function(value) {
+				stormEngineC.nearNode.setForce(value);
+			});
+			
+			add_btn("GET_PARTICLES", function() {
+				stormEngineC.pickingCall='get({node:_selectedNode_});';  
+				stormEngineC.PanelListObjects.show();
+				$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
+				document.body.style.cursor='pointer';
+			});
+			var str = "";
+			for(var n = 0, f = stormEngineC.nearNode.nodesProc.length; n < f; n++)
+				str += '<br />'+stormEngineC.nearNode.nodesProc[n].name;
+			$('#DIVID_StormEditNode_edits').append(str);
 		}
 		if(stormEngineC.nearNode.objectType == 'forceField') {
-			if(stormEngineC.nearNode.visibleOnContext == true) {
-				$("#INPUTID_StormEditNode_visible").attr('checked','true');
-				
-				//lines_position();
-				
-				var str = "<button type=\"button\" onclick=\"stormEngineC.nearNode.deleteForceField();$('#DIVID_StormEditNode_edits').html('');stormEngineC.PanelListObjects.showListObjects();\">Delete</button>"; 
-				$('#DIVID_StormEditNode_edits').html(str);
-												
-				
-															
-				var strMoves = 	'<div>'+
-								'TRANSLATE: '+
-								'<input id="StormEN_spinnerForceDirX" name="value" value="'+stormEngineC.nearNode.direction.e[0]+'" style="color:#FFF;width:40px">'+
-								'<input id="StormEN_spinnerForceDirY" name="value" value="'+stormEngineC.nearNode.direction.e[1]+'" style="color:#FFF;width:40px">'+
-								'<input id="StormEN_spinnerForceDirZ" name="value" value="'+stormEngineC.nearNode.direction.e[2]+'" style="color:#FFF;width:40px">'+
-							'</div>';
-			$('#DIVID_StormEditNode_edits').append(strMoves);
-			$("#StormEN_spinnerForceDirX").spinner({numberFormat:"n", step: 0.1,
-												spin: function(event, ui) {
-													var vec = $V3([ui.value, $("#StormEN_spinnerForceDirY").val(), $("#StormEN_spinnerForceDirZ").val()]);
-													stormEngineC.nearNode.setDirection(vec);
-												},
-												change: function(event, ui) {
-													var vec = $V3([$(this).val(), $("#StormEN_spinnerForceDirY").val(), $("#StormEN_spinnerForceDirZ").val()]);
-													stormEngineC.nearNode.setDirection(vec);
-												}
-												});
-				$("#StormEN_spinnerForceDirY").spinner({numberFormat:"n", step: 0.1,
-												spin: function(event, ui) {
-													var vec = $V3([$("#StormEN_spinnerForceDirX").val(), ui.value, $("#StormEN_spinnerForceDirZ").val()]);
-													stormEngineC.nearNode.setDirection(vec);
-												},
-												change: function(event, ui) {
-													var vec = $V3([$("#StormEN_spinnerForceDirX").val(), $(this).val(), $("#StormEN_spinnerForceDirZ").val()]);
-													stormEngineC.nearNode.setDirection(vec);
-												}
-												});
-				$("#StormEN_spinnerForceDirZ").spinner({numberFormat:"n", step: 0.1,
-												spin: function(event, ui) {
-													var vec = $V3([$("#StormEN_spinnerForceDirX").val(), $("#StormEN_spinnerForceDirY").val(), ui.value]);
-													stormEngineC.nearNode.setDirection(vec);
-												},
-												change: function(event, ui) {
-													var vec = $V3([$("#StormEN_spinnerForceDirX").val(), $("#StormEN_spinnerForceDirY").val(), $(this).val()]);
-													stormEngineC.nearNode.setDirection(vec);
-												}
-												});
-				
-				var str = "<fieldset><legend></legend>"+
-							"<button type=\"button\" id=\"BUTTONID_StormEditNode_ff_get\">get particles</button>";
-							for(var n = 0, f = stormEngineC.nearNode.nodesProc.length; n < f; n++) str += '<br />'+stormEngineC.nearNode.nodesProc[n].name;
-				str +="</fieldset>";
-				$('#DIVID_StormEditNode_edits').append(str);
-				
-				$("#BUTTONID_StormEditNode_ff_get").on('click', function() {
-													stormEngineC.pickingCall='get({node:_selectedNode_});';  
-													stormEngineC.PanelListObjects.show();
-													$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
-													document.body.style.cursor='pointer';
-												});
-			} else {
-				$("#INPUTID_StormEditNode_visible").removeAttr('checked');
-			}
+			//lines_position();
+			add_removeBtn(function() {
+				stormEngineC.nearNode.deleteForceField();
+			});
+						
+			add_3dspinner("DIRECTION", stormEngineC.nearNode.direction, 0.1, function(vector) {
+				stormEngineC.nearNode.setDirection(vector);
+			});
+			
+			add_btn("GET_PARTICLES", function() {
+				stormEngineC.pickingCall='get({node:_selectedNode_});';  
+				stormEngineC.PanelListObjects.show();
+				$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
+				document.body.style.cursor='pointer';
+			});
+			var str = "";
+			for(var n = 0, f = stormEngineC.nearNode.nodesProc.length; n < f; n++) 
+				str += '<br />'+stormEngineC.nearNode.nodesProc[n].name;
+			$('#DIVID_StormEditNode_edits').append(str);
 		}
-		if(stormEngineC.nearNode.objectType == 'particles') {
-			if(stormEngineC.nearNode.visibleOnContext == true) {
-				$("#INPUTID_StormEditNode_visible").attr('checked','true');
-							
-				lines_position();
-				lines_rotation();
-				
-				var currParticlesSelfshadows = (stormEngineC.nearNode.selfshadows == 1) ? 'checked="true"' : '';
-				var str= '<br />setSelfshadows <input type="checkbox" id="INPUTID_StormEditNode_particles_selfshadows" '+currParticlesSelfshadows+' />';
-				$('#DIVID_StormEditNode_edits').append(str);
-				$("#INPUTID_StormEditNode_particles_selfshadows").on('click', function() {
-													var enableSelfshadows = $("#INPUTID_StormEditNode_particles_selfshadows").attr('checked');
-													if(enableSelfshadows=='checked') stormEngineC.nearNode.setSelfshadows(true);
-													else stormEngineC.nearNode.setSelfshadows(false);
-												});
-												
-				var currParticlesShadows = (stormEngineC.nearNode.shadows == 1) ? 'checked="true"' : '';
-				var str= '<br />setShadows <input type="checkbox" id="INPUTID_StormEditNode_particles_shadows" '+currParticlesShadows+' />';
-				$('#DIVID_StormEditNode_edits').append(str);
-				$("#INPUTID_StormEditNode_particles_shadows").on('click', function() {
-													var enableShadows = $("#INPUTID_StormEditNode_particles_shadows").attr('checked');
-													if(enableShadows=='checked') stormEngineC.nearNode.setShadows(true);
-													else stormEngineC.nearNode.setShadows(false);
-												});
-				
-				var str= '<br />setPointSize <input id="INPUTID_StormEditNode_particlesPointSize" value="'+stormEngineC.nearNode.pointSize+'" style="color:#FFF;width:40px">';
-				$('#DIVID_StormEditNode_edits').append(str);
-				$("#INPUTID_StormEditNode_particlesPointSize").spinner({numberFormat:"n", step: 0.1,
-																spin: function(event, ui) {
-																	stormEngineC.nearNode.setPointSize(ui.value);
-																}
-															});
-															
-				var currParticlesPositive = (stormEngineC.nearNode.polarity == 1) ? 'checked' : '';
-				var currParticlesNegative = (stormEngineC.nearNode.polarity == 0) ? 'checked' : '';
-				var str = "<br /><button type=\"button\" onclick=\"stormEngineC.nearNode.deleteParticles();$('#DIVID_StormEditNode_edits').html('');stormEngineC.PanelListObjects.showListObjects();\">Delete</button>"+
-							'<br />setPolarity +<input type="radio" name="INPUTNAME_StormEditNode_particles_polarity" onclick="stormEngineC.nearNode.setPolarity(1);" '+currParticlesPositive+' />'+
-							' -<input type="radio" name="INPUTNAME_StormEditNode_particles_polarity" onclick="stormEngineC.nearNode.setPolarity(0);" '+currParticlesNegative+' />'+
-							"<table style='width:100%'><tr>"+
-								"<td style='width:18px;text-align:left'>setColor</td>"+
-								"<td style='text-align:left'>"+
-									"<input id='INPUTID_StormEditNode_particles_colorButton' type='file' style='display:none'/>"+
-									"<div id='DIVID_StormEditNode_particles_color' title='setColor' onclick='$(this).prev().click();' onmouseover='$(this).css(\"border\", \"1px solid #EEE\");' onmouseout='$(this).css(\"border\", \"1px solid #CCC\");' style='cursor:pointer;width:16px;height:16px;border:1px solid #CCC'></div>"+
-								"</td>"+
-							"</tr></table>"+
-							"<table style='width:100%'><tr>"+
-								"<td style='width:18px;text-align:left'>setDisposal</td>"+
-								"<td style='text-align:center'>"+
-									'W<input type="text" id="INPUTID_StormEditNode_setDisposal_width" value="128" style="width:40px"/>'+
-									'H<input type="text" id="INPUTID_StormEditNode_setDisposal_height" value="128" style="width:40px"/>'+
-									'<button type="button" id="BUTTONID_StormEditNode_setDisposalWH" style="width:100%;padding:0px">set</button>'+
-								"</td>"+
-								"<td style='text-align:center'>"+
-									'W<input type="text" id="INPUTID_StormEditNode_setDisposal_radius" value="0.5" style="width:40px"/>'+
-									'<button type="button" id="BUTTONID_StormEditNode_setDisposalR" style="width:100%;padding:0px">set</button>'+
-								"</td>"+
-							"</tr></table>"+
-							'setDirection <button type="button" onclick="stormEngineC.nearNode.setDirection();">0.0</button>'+
-							"<button type=\"button\" onclick=\"stormEngineC.nearNode.setDirection('random');\">random</button>";
-							
-				$('#DIVID_StormEditNode_edits').append(str);
-				document.getElementById('INPUTID_StormEditNode_particles_colorButton').onchange=function() {
-					var filereader = new FileReader();
-					filereader.onload = function(event) {
-						var img = new Image();
-						img.onload = function() {
-							var splitName = $('#INPUTID_StormEditNode_particles_colorButton').val().split('/');
-							splitName = splitName[splitName.length-1];
-							
-							stormEngineC.nearNode.setColor(img);
-							$('#INPUTID_StormEditNode_setDisposal_width').val(img.width);
-							$('#INPUTID_StormEditNode_setDisposal_height').val(img.height);
-							$('#INPUTID_StormEditNode_particlesDestination_width').val(img.width);
-							$('#INPUTID_StormEditNode_particlesDestination_height').val(img.height);
-							img.style.width = '16px';
-							img.style.height = '16px';
-							$('#DIVID_StormEditNode_particles_color').html(img);
-							$('#DIVID_StormEditNode_particles_color').attr('title',splitName);
-						};
-						img.src = event.target.result; // Set src from upload, original byte sequence
+		if(stormEngineC.nearNode.objectType == 'particles') {		
+			add_removeBtn(function() {
+				stormEngineC.nearNode.deleteParticles();
+			});
+			
+			add_3dspinner("POSITION", stormEngineC.nearNode.getPosition(), 0.1, function(vector) {
+				stormEngineC.nearNode.setPosition(vector);
+				stormEngineC.debugValues = [];
+				stormEngineC.setDebugValue(0, vector, stormEngineC.nearNode.name);
+			});
+			
+			lines_rotation();
+			
+			add_checkbox("SELFSHADOWS", stormEngineC.nearNode.selfshadows,
+					function() {
+						stormEngineC.nearNode.setSelfshadows(true);
+					}, function() {
+						stormEngineC.nearNode.setSelfshadows(false);
+					});		
+			
+			add_checkbox("SHADOWS", stormEngineC.nearNode.shadows,
+					function() {
+						stormEngineC.nearNode.setShadows(true);
+					}, function() {
+						stormEngineC.nearNode.setShadows(false);
+					});	
+			
+			add_spinner("POINTSIZE", stormEngineC.nearNode.pointSize, 0.1, function(value) {
+				stormEngineC.nearNode.setPointSize(value);
+			});
+			
+			add_radio("POLARITY", "positive", "negative", stormEngineC.nearNode.polarity,
+					function() {
+						stormEngineC.nearNode.setPolarity(1);
+					}, function() {
+						stormEngineC.nearNode.setPolarity(0);
+					});	
+			
+			var str = "<table style='width:100%'><tr>"+
+						"<td style='width:18px;text-align:left'>setColor</td>"+
+						"<td style='text-align:left'>"+
+							"<input id='INPUTID_StormEditNode_particles_colorButton' type='file' style='display:none'/>"+
+							"<div id='DIVID_StormEditNode_particles_color' title='setColor' onclick='$(this).prev().click();' onmouseover='$(this).css(\"border\", \"1px solid #EEE\");' onmouseout='$(this).css(\"border\", \"1px solid #CCC\");' style='cursor:pointer;width:16px;height:16px;border:1px solid #CCC'></div>"+
+						"</td>"+
+					"</tr></table>";						
+			$('#DIVID_StormEditNode_edits').append(str);			
+			document.getElementById('INPUTID_StormEditNode_particles_colorButton').onchange=function() {
+				var filereader = new FileReader();
+				filereader.onload = function(event) {
+					var img = new Image();
+					img.onload = function() {
+						var splitName = $('#INPUTID_StormEditNode_particles_colorButton').val().split('/');
+						splitName = splitName[splitName.length-1];
+						
+						stormEngineC.nearNode.setColor(img);
+						$('#INPUTID_StormEditNode_setDisposal_width').val(img.width);
+						$('#INPUTID_StormEditNode_setDisposal_height').val(img.height);
+						$('#INPUTID_StormEditNode_particlesDestination_width').val(img.width);
+						$('#INPUTID_StormEditNode_particlesDestination_height').val(img.height);
+						img.style.width = '16px';
+						img.style.height = '16px';
+						$('#DIVID_StormEditNode_particles_color').html(img);
+						$('#DIVID_StormEditNode_particles_color').attr('title',splitName);
 					};
-					filereader.readAsDataURL(this.files[0]);
+					img.src = event.target.result; // Set src from upload, original byte sequence
 				};
-				$("#BUTTONID_StormEditNode_setDisposalWH").on('click', function() {
-													stormEngineC.nearNode.setDisposal({width:$('#INPUTID_StormEditNode_setDisposal_width').val(),
-																						height:$('#INPUTID_StormEditNode_setDisposal_height').val()});
-												});
-				$("#BUTTONID_StormEditNode_setDisposalR").on('click', function() {
-													stormEngineC.nearNode.setDisposal({radius:$('#INPUTID_StormEditNode_setDisposal_radius').val()});
-												});
-				
-				var str= '<br />setLifeDistance <input id="INPUTID_StormEditNode_particlesLifeDistance" value="'+stormEngineC.nearNode.lifeDistance+'" style="color:#FFF;width:40px">';
-				$('#DIVID_StormEditNode_edits').append(str);
-				$("#INPUTID_StormEditNode_particlesLifeDistance").spinner({numberFormat:"n", step: 0.1,
-																spin: function(event, ui) {
-																	stormEngineC.nearNode.setLifeDistance(ui.value);
-																}
-															});
-															
-				var currParticlesDestinationEnable = (stormEngineC.nearNode.enDestination == 1) ? 'checked="true"' : '';
-				var str= '<fieldset><legend>PARTICLE DESTINATION</legend>'+
-							'ENABLE <input type="checkbox" id="INPUTID_StormEditNode_particles_destination" '+currParticlesDestinationEnable+' />'+
-							'<br />setDestinationForce <input id="INPUTID_StormEditNode_particlesDestination_spinnerForce" value="'+stormEngineC.nearNode.destinationForce+'" style="color:#FFF;width:40px">'+
-							'<br /><button type="button" id="BUTTONID_StormEditNode_particlesDestination_setDestination">setDestinationWidthHeight</button>'+
-								'W<input type="text" id="INPUTID_StormEditNode_particlesDestination_width" value="128" style="width:40px"/>'+
-								'H<input type="text" id="INPUTID_StormEditNode_particlesDestination_height" value="128" style="width:40px"/>'+
-							'<br /><button type="button" id="BUTTONID_StormEditNode_particlesDestination_setDestinationVolume">setDestinationVolume</button>'+
-						'</fieldset>';
-				$('#DIVID_StormEditNode_edits').append(str);
-				$("#INPUTID_StormEditNode_particles_destination").on('click', function() {
-													if(stormEngineC.nearNode.enDestination==1) stormEngineC.nearNode.disableDestination();
-													else stormEngineC.nearNode.enableDestination();
-												});
-				$("#INPUTID_StormEditNode_particlesDestination_spinnerForce").spinner({numberFormat:"n", step: 0.1,
-																spin: function(event, ui) {
-																	stormEngineC.nearNode.setDestinationForce(ui.value);
-																}
-															});
-				$("#BUTTONID_StormEditNode_particlesDestination_setDestination").on('click', function() {
-													var enableDest = $("#INPUTID_StormEditNode_particles_destination").attr('checked','true');
-													stormEngineC.nearNode.setDestinationWidthHeight({width:$('#INPUTID_StormEditNode_particlesDestination_width').val(),
-																									height:$('#INPUTID_StormEditNode_particlesDestination_height').val(),
-																									force:$('#INPUTID_StormEditNode_particlesDestination_spinnerForce').val()});
-												});
-				$("#BUTTONID_StormEditNode_particlesDestination_setDestinationVolume").on('click', function() {
-													stormEngineC.pickingCall='setDestinationVolume({voxelizator:_selectedNode_});';  
-													stormEngineC.PanelListObjects.show();
-													$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
-													document.body.style.cursor='pointer';
-												});
-			} else {
-				$("#INPUTID_StormEditNode_visible").removeAttr('checked');
-			}
+				filereader.readAsDataURL(this.files[0]);
+			};
+			
+			add_btn("DIRECTION_TO_0", function() {
+				stormEngineC.nearNode.setDirection();
+			});
+			
+			add_btn("DIRECTION_TO_RANDOM", function() {
+				stormEngineC.nearNode.setDirection('random');
+			});
+			
+			add_valuesAndBtn("DISPOSAL_WidthHeight", ["width", "height"], ["128", "128"], function(arrayValues) {				
+					stormEngineC.nearNode.setDisposal({width: arrayValues[0], height: arrayValues[1]});
+			});
+			
+			add_valuesAndBtn("DISPOSAL_RADIUS", ["radius"], ["0.5"], function(arrayValues) {				
+				stormEngineC.nearNode.setDisposal({width: arrayValues[0], height: arrayValues[1]});
+				stormEngineC.nearNode.setDisposal({radius: arrayValues[0]});
+			});
+			
+			add_spinner("LIFE_DISTANCE", stormEngineC.nearNode.lifeDistance, 0.1, function(value) {
+				stormEngineC.nearNode.setLifeDistance(value);
+			});
+			
+			
+			add_checkbox("DESTINATION", stormEngineC.nearNode.enDestination,
+					function() {
+						stormEngineC.nearNode.enableDestination();
+					}, function() {
+						stormEngineC.nearNode.disableDestination();
+					});	
+			
+			add_spinner("DESTINATION_FORCE", stormEngineC.nearNode.destinationForce, 0.1, function(value) {
+				stormEngineC.nearNode.setDestinationForce(value);
+			});
+			
+			add_valuesAndBtn("DESTINATION_WidthHeight", ["width", "height"], ["128", "128"], function(arrayValues) {				
+				stormEngineC.nearNode.setDestinationWidthHeight(arrayValues[0], arrayValues[1]);
+			});
+			
+			add_btn("DESTINATION_VOLUME", function() {
+				stormEngineC.pickingCall='setDestinationVolume({voxelizator:_selectedNode_});';  
+				stormEngineC.PanelListObjects.show();
+				$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
+				document.body.style.cursor='pointer';
+			});
+		}
+		if(stormEngineC.nearNode.objectType == 'graph') {		
+			/*add_removeBtn(function() {
+				stormEngineC.nearNode.deleteParticles();
+			});*/
+			
+			var str = 	"<div>"+(stormEngineC.nearNode.currentNodeId)+" nodes: [vertices: "+stormEngineC.nearNode.arrayNodeVertexPos.length+", indices: "+stormEngineC.nearNode.arrayNodeIndices.length+"]</div>"+
+						"<div>"+(stormEngineC.nearNode.currentLinkId/2)+" links: [vertices: "+stormEngineC.nearNode.arrayLinkVertexPos.length+", indices: "+stormEngineC.nearNode.arrayLinkIndices.length+"]</div>";						
+			$('#DIVID_StormEditNode_edits').append(str);
+
+			add_3dspinner("POSITION", stormEngineC.nearNode.getPosition(), 0.1, function(vector) {
+				stormEngineC.nearNode.setPosition(vector);
+				stormEngineC.debugValues = [];
+				stormEngineC.setDebugValue(0, vector, stormEngineC.nearNode.name);
+			});
+			
+			//lines_rotation();
+			
+			add_checkbox("SELFSHADOWS", stormEngineC.nearNode.selfshadows,
+					function() {
+						stormEngineC.nearNode.setSelfshadows(true);
+					}, function() {
+						stormEngineC.nearNode.setSelfshadows(false);
+					});		
+			
+			add_checkbox("SHADOWS", stormEngineC.nearNode.shadows,
+					function() {
+						stormEngineC.nearNode.setShadows(true);
+					}, function() {
+						stormEngineC.nearNode.setShadows(false);
+					});	
+			
+			/*add_spinner("POINTSIZE", stormEngineC.nearNode.pointSize, 0.1, function(value) {
+				stormEngineC.nearNode.setPointSize(value);
+			});*/
+			
+			add_radio("POLARITY", "positive", "negative", stormEngineC.nearNode.polarity,
+					function() {
+						stormEngineC.nearNode.set_polarity(1);
+					}, function() {
+						stormEngineC.nearNode.set_polarity(0);
+					});	
+			
+			var str = "<table style='width:100%'><tr>"+
+						"<td style='width:18px;text-align:left'>setColor</td>"+
+						"<td style='text-align:left'>"+
+							"<input id='INPUTID_StormEditNode_particles_colorButton' type='file' style='display:none'/>"+
+							"<div id='DIVID_StormEditNode_particles_color' title='setColor' onclick='$(this).prev().click();' onmouseover='$(this).css(\"border\", \"1px solid #EEE\");' onmouseout='$(this).css(\"border\", \"1px solid #CCC\");' style='cursor:pointer;width:16px;height:16px;border:1px solid #CCC'></div>"+
+						"</td>"+
+					"</tr></table>";						
+			$('#DIVID_StormEditNode_edits').append(str);			
+			document.getElementById('INPUTID_StormEditNode_particles_colorButton').onchange=function() {
+				var filereader = new FileReader();
+				filereader.onload = function(event) {
+					var img = new Image();
+					img.onload = function() {
+						var splitName = $('#INPUTID_StormEditNode_particles_colorButton').val().split('/');
+						splitName = splitName[splitName.length-1];
+						
+						stormEngineC.nearNode.setColor(img);
+						$('#INPUTID_StormEditNode_setDisposal_width').val(img.width);
+						$('#INPUTID_StormEditNode_setDisposal_height').val(img.height);
+						$('#INPUTID_StormEditNode_particlesDestination_width').val(img.width);
+						$('#INPUTID_StormEditNode_particlesDestination_height').val(img.height);
+						img.style.width = '16px';
+						img.style.height = '16px';
+						$('#DIVID_StormEditNode_particles_color').html(img);
+						$('#DIVID_StormEditNode_particles_color').attr('title',splitName);
+					};
+					img.src = event.target.result; // Set src from upload, original byte sequence
+				};
+				filereader.readAsDataURL(this.files[0]);
+			};
+			
+			add_btn("DIRECTION_TO_0", function() {
+				stormEngineC.nearNode.set_dir();
+			});
+			
+			add_btn("DIRECTION_TO_RANDOM", function() {
+				stormEngineC.nearNode.set_dir('random');
+			});
+			
+			add_valuesAndBtn("POSITION_WidthHeight", ["width", "height", "spacing"], ["128", "128", "1.5"], function(arrayValues) {				
+				stormEngineC.nearNode.set_pos({"width": parseFloat(arrayValues[0]), "height": parseFloat(arrayValues[1]), "spacing": parseFloat(arrayValues[2])});
+			});
+			
+			add_valuesAndBtn("POSITION_RADIUS", ["radius"], ["1.5"], function(arrayValues) {	
+				stormEngineC.nearNode.set_pos({"radius": arrayValues[0]});
+			});
+			
+			add_spinner("LIFE_DISTANCE", stormEngineC.nearNode.lifeDistance, 0.1, function(value) {
+				stormEngineC.nearNode.set_lifeDistance(value);
+			});
+			
+			
+			add_checkbox("DESTINATION", stormEngineC.nearNode.enDestination,
+					function() {
+						stormEngineC.nearNode.set_enableDestination();
+					}, function() {
+						stormEngineC.nearNode.set_disableDestination();
+					});	
+			
+			add_spinner("DESTINATION_FORCE", stormEngineC.nearNode.destinationForce, 0.1, function(value) {
+				stormEngineC.nearNode.set_destinationForce(value);
+			});
+			
+			add_valuesAndBtn("DESTINATION_WidthHeight", ["width", "height", "spacing"], ["128", "128", "1.5"], function(arrayValues) {				
+				stormEngineC.nearNode.set_destinationWidthHeight({"width": arrayValues[0], "height": arrayValues[1], "spacing": arrayValues[2]});
+			});
+			
+			add_btn("DESTINATION_VOLUME", function() {
+				stormEngineC.pickingCall='setDestinationVolume({voxelizator:_selectedNode_});';  
+				stormEngineC.PanelListObjects.show();
+				$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
+				document.body.style.cursor='pointer';
+			});
 		}
 		if(stormEngineC.nearNode.objectType == 'buffernodes') {
-			if(stormEngineC.nearNode.visibleOnContext == true) {
-				$("#INPUTID_StormEditNode_visible").attr('checked','true');
-							
-				lines_position();
-				lines_rotation();
-				lines_editMode();
-			} else {
-				$("#INPUTID_StormEditNode_visible").removeAttr('checked');
-			}
+			add_3dspinner("POSITION", stormEngineC.nearNode.getPosition(), 0.1, function(vector) {
+				stormEngineC.nearNode.setPosition(vector);
+				stormEngineC.debugValues = [];
+				stormEngineC.setDebugValue(0, vector, stormEngineC.nearNode.name);
+			});
+			lines_rotation();
+			add_checkbox("EDITMODE", stormEngineC.nearNode.selectedNodeIsInEditionMode(),
+					function() {
+						stormEngineC.nearNode.editSelectedNode();
+					}, function() {
+						stormEngineC.nearNode.uneditSelectedNode();
+					});
 		}	
 		if(stormEngineC.nearNode.objectType == 'camera') {
-			if(stormEngineC.nearNode.visibleOnContext == true) {
-				$("#INPUTID_StormEditNode_visible").attr('checked','true');
-				
-				//$('#DIVID_StormEditNode_edits').html(strTranslateRotate);
-				
-				// checkbox Set Active
-				var str = 	'Set Active: <input id="INPUTID_StormEditNode_nodeCam_setActive" type="checkbox" /><br />';
-				$('#DIVID_StormEditNode_edits').append(str);
-				
-				if(stormEngineC.nearNode.idNum == stormEngineC.defaultCamera.idNum) {
-					$("#INPUTID_StormEditNode_nodeCam_setActive").attr('checked','true');
-				} else {
-					$("#INPUTID_StormEditNode_nodeCam_setActive").removeAttr('checked');
-				}
-				$("#INPUTID_StormEditNode_nodeCam_setActive").on('click', function() {
-													stormEngineC.setWebGLCam(stormEngineC.nearNode);
-													stormEngineC.PanelEditNode.updateNearNode();
-												});
-				
-				// lock rotations
-				var str = 	'Lock rotation X: <input type="checkbox" id="INPUTID_StormEditNode_lockRotationX" /><br />'+
-							'Lock rotation Y: <input type="checkbox" id="INPUTID_StormEditNode_lockRotationY" />';
-				$('#DIVID_StormEditNode_edits').append(str);
-				
-				if(stormEngineC.nearNode.lockRotX == true) {
-					$("#INPUTID_StormEditNode_lockRotationX").attr('checked','true');
-				} else {
-					$("#INPUTID_StormEditNode_lockRotationX").removeAttr('checked');
-				}
-				if(stormEngineC.nearNode.lockRotY == true) {
-					$("#INPUTID_StormEditNode_lockRotationY").attr('checked','true');
-				} else {
-					$("#INPUTID_StormEditNode_lockRotationY").removeAttr('checked');
-				}
-				
-				$("#INPUTID_StormEditNode_lockRotationX").on('click', function() {
-					if(stormEngineC.nearNode.lockRotX == true) {
-						stormEngineC.nearNode.unlockRotationX();
-					} else {
-						stormEngineC.nearNode.lockRotationX();
-					}
-				});
-				$("#INPUTID_StormEditNode_lockRotationY").on('click', function() {
-					if(stormEngineC.nearNode.lockRotY == true) {
-						stormEngineC.nearNode.unlockRotationY();
-					} else {
-						stormEngineC.nearNode.lockRotationY();
-					}
-				});
-				
-				// FOV
-				var str = '<br />setFov: <span id="DIVID_StormEditNode_FOV">'+stormEngineC.nearNode.fov+'</span>'+
-							'<div id="DIVID_StormEditNode_FOV_SLIDER"></div>';
-				$("#DIVID_StormEditNode_edits").append(str);
-				$("#DIVID_StormEditNode_FOV_SLIDER").slider({max:180.0,
-													min:0.1,
-													value:stormEngineC.nearNode.fov,
-													step:0.1,
-													slide:function(event,ui){
-															stormEngineC.nearNode.setFov(ui.value);
-															$('#DIVID_StormEditNode_FOV').text(ui.value);
-														}});
-														
-				// input Focus distance
-				var str = 	'Focus distance: <input id="INPUTID_StormEditNode_focusExtern" type="text" value="'+stormEngineC.nearNode.focusExtern+'" style="width:40px"/>m<br />';
-							//'FocusInt: <input type="text" value="'+stormEngineC.nearNode.focusIntern+'" style="width:200px"/>m';
-				$('#DIVID_StormEditNode_edits').append(str);
-				
-				$("#INPUTID_StormEditNode_focusExtern").on('keyup', function() {
-													if($(this).val() > 0.55) {
-														stormEngineC.nearNode.focusExtern = $(this).val();
-														stormEngineC.nearNode.setFocusIntern();
-													} else {
-														$(this).val(0.55);
-														stormEngineC.nearNode.focusExtern = $(this).val();
-														stormEngineC.nearNode.setFocusIntern();
-													}
-												});
-												
-				// checkbox View focus
-				var str = 	'View focus: <input id="INPUTID_StormEditNode_nodeCam_viewFocus" type="checkbox" />';
-				$('#DIVID_StormEditNode_edits').append(str);
-				
-				if(stormEngineC.nearNode.nodePivot.nodeFocus.visibleOnContext == true) {
-					$("#INPUTID_StormEditNode_nodeCam_viewFocus").attr('checked','true');
-				} else {
-					$("#INPUTID_StormEditNode_nodeCam_viewFocus").removeAttr('checked');
-				}
-				$("#INPUTID_StormEditNode_nodeCam_viewFocus").on('click', function() {
-													if(stormEngineC.nearNode.nodePivot.nodeFocus.visibleOnContext == true) {
-														stormEngineC.nearNode.nodePivot.nodeFocus.visibleOnContext = false;
-													} else {
-														stormEngineC.nearNode.nodePivot.nodeFocus.visibleOnContext = true;
-													}
-													
-												});
-				
-				// checkbox DOF
-				var dofStatus = stormEngineC.defaultCamera.DOFenable == false ? '' : 'checked';
-				var str = '<br />enableDOF: <input id="INPUTID_StormEditNode_useDOF" type="checkbox" '+dofStatus+'/>';
-				$('#DIVID_StormEditNode_edits').append(str);
-				
-				$("#INPUTID_StormEditNode_useDOF").on('click', function() {
-					stormEngineC.defaultCamera.DOFenable = stormEngineC.defaultCamera.DOFenable == false ? true : false;
-				});
-				
-				// checkbox DOF autofocus
-				var dofautoStatus = stormEngineC.defaultCamera.autofocus == false ? '' : 'checked';
-				var str = '<br />enableAutofocus: <input id="INPUTID_StormEditNode_useAUTOFOCUS" type="checkbox" '+dofautoStatus+'/>';
-				$('#DIVID_StormEditNode_edits').append(str);
-				
-				$("#INPUTID_StormEditNode_useAUTOFOCUS").on('click', function() {
-					stormEngineC.defaultCamera.autofocus = stormEngineC.defaultCamera.autofocus == false ? true : false;
-				});
-		
-			} else {
-				$("#INPUTID_StormEditNode_visible").removeAttr('checked');
-			}
+			add_checkbox("SET_ACTIVE", (stormEngineC.nearNode.idNum == stormEngineC.defaultCamera.idNum),
+					function() {
+						stormEngineC.setWebGLCam(stormEngineC.nearNode);
+						stormEngineC.PanelEditNode.updateNearNode();
+					}, function() {
+						
+					});
 			
+			add_checkbox("LOCK_ROTATION_X", stormEngineC.nearNode.lockRotX,
+					function() {
+						stormEngineC.nearNode.lockRotationX();
+					}, function() {
+						stormEngineC.nearNode.unlockRotationX();
+					});
+			
+			add_checkbox("LOCK_ROTATION_Y", stormEngineC.nearNode.lockRotY,
+					function() {
+						stormEngineC.nearNode.lockRotationY();
+					}, function() {
+						stormEngineC.nearNode.unlockRotationY();
+					});
+			
+			add_slider("FOV", 0.1, 180.0, stormEngineC.nearNode.fov, 0.1, function(fvalue) {
+						stormEngineC.nearNode.setFov(fvalue);
+					});
+							
+			add_input("FOCUS_DISTANCE", 0.55, stormEngineC.nearNode.focusExtern, function() {
+						stormEngineC.nearNode.focusExtern = $(this).val();
+						stormEngineC.nearNode.setFocusIntern();
+					});
+						
+			add_checkbox("VIEW_FOCUS", stormEngineC.nearNode.nodePivot.nodeFocus.visibleOnContext,
+					function() {
+						stormEngineC.nearNode.nodePivot.nodeFocus.visibleOnContext = true;
+					}, function() {
+						stormEngineC.nearNode.nodePivot.nodeFocus.visibleOnContext = false;
+					});
+			
+			add_checkbox("DOF", stormEngineC.defaultCamera.DOFenable,
+					function() {
+						stormEngineC.defaultCamera.DOFenable = true;
+					}, function() {
+						stormEngineC.defaultCamera.DOFenable = false;
+					});
+			
+			add_checkbox("AUTO_FOCUS", stormEngineC.defaultCamera.autofocus,
+					function() {
+						stormEngineC.defaultCamera.autofocus = true;
+					}, function() {
+						stormEngineC.defaultCamera.autofocus = false;
+					});
 		}
 		if(stormEngineC.nearNode.objectType == 'light') {
-			if(stormEngineC.nearNode.visibleOnContext == true) {
-				$("#INPUTID_StormEditNode_visible").attr('checked','true');
-				
-				if(stormEngineC.nearNode.type != "sun") {
-					lines_position();
-				}
-				// FOV
-				var str = '<br />setFov: <span id="DIVID_StormEditNode_FOV">'+stormEngineC.nearNode.fov+'</span>'+
-							'<div id="DIVID_StormEditNode_FOV_SLIDER"></div>';
-				$("#DIVID_StormEditNode_edits").append(str);
-				$("#DIVID_StormEditNode_FOV_SLIDER").slider({max:180.0,
-													min:0.1,
-													value:stormEngineC.nearNode.fov,
-													step:0.1,
-													slide:function(event,ui){
-															stormEngineC.nearNode.setFov(ui.value);
-															$('#DIVID_StormEditNode_FOV').text(ui.value);
-														}});
-				// COLOR
-				var str = 'Color: <div id="DIVID_StormEditNode_color_paramColor" style="width:16px;height:16px;border:1px solid #CCC;cursor:pointer;background:rgb('+parseInt(stormEngineC.nearNode.color.e[0]*255)+','+parseInt(stormEngineC.nearNode.color.e[1]*255)+','+parseInt(stormEngineC.nearNode.color.e[2]*255)+');" ></div>'+
-							'<input id="INPUTID_StormEditNode_color" type="text" style="display:none"/>'+
-							'Kelvins: <span id="SPANID_StormEditNode_currentKelvins">5770</span>K'+
-							'<div id="INPUTID_StormEditNode_kelvins" style="width:200px"></div>'; 
-				$('#DIVID_StormEditNode_edits').append(str);
-				
-				$('#INPUTID_StormEditNode_color').ColorPicker({'onChange':function(hsb, hex, rgb) {
-																				stormEngineC.nearNode.setLightColor($V3([rgb.r/255, rgb.g/255, rgb.b/255]));
-																				$('#DIVID_StormEditNode_color_paramColor').css('background','rgb('+rgb.r+','+rgb.g+','+rgb.b+')');
-																			}
-																});
-				$('#INPUTID_StormEditNode_color').ColorPickerSetColor({'r':stormEngineC.nearNode.color.e[0], 'g': stormEngineC.nearNode.color.e[1], 'b':stormEngineC.nearNode.color.e[2]});//normalizado 0.0-1.0
-				$("#DIVID_StormEditNode_color_paramColor").on('click', function() {
-													$('#INPUTID_StormEditNode_color').css('display','block');
-													$('#INPUTID_StormEditNode_color').click();
-													$('#INPUTID_StormEditNode_color').css('display','none');
-													$('.colorpicker').css('zIndex',currentStormZIndex);
-												});
-												
-				$('#INPUTID_StormEditNode_kelvins').slider({ 'value': 5770,
-															'max':15000,
-															'min':1000,
-															'slide':function(event, ui) {
-																				stormEngineC.nearNode.setLightColor(ui.value);
-																				$('#DIVID_StormEditNode_color_paramColor').css('background','rgb('+parseInt(stormEngineC.nearNode.color.e[0]*255)+','+parseInt(stormEngineC.nearNode.color.e[1]*255)+','+parseInt(stormEngineC.nearNode.color.e[2]*255)+')');
-																				$('#SPANID_StormEditNode_currentKelvins').html(ui.value);
-																			}});
-																			
-				// DIRECTION
-				if(stormEngineC.nearNode.type == "sun") {
-					var str = 	'Direction<br />'+
-								'X: <span id="SPANID_StormEditNode_xDirVal">'+stormEngineC.nearNode.direction.e[0].toFixed(2)+'</span>'+
-								'<div id="SPANID_StormEditNode_xSlider"></div>'+
-								'Z: <span id="SPANID_StormEditNode_zDirVal">'+stormEngineC.nearNode.direction.e[2].toFixed(2)+'</span>'+
-								'<div id="SPANID_StormEditNode_zSlider"></div>';
-					$('#DIVID_StormEditNode_edits').append(str);
-					
-					$("#SPANID_StormEditNode_xSlider").slider({	min: -1.0,
-											max: 1.0,
-											step: 0.001,
-											value: parseInt(stormEngineC.nearNode.direction.e[0]),
-											slide: function( event, ui ) {
-														$('#SPANID_StormEditNode_xDirVal').text(ui.value);
-														stormEngineC.lights[0].setDirection($V3([$('#SPANID_StormEditNode_xDirVal').text(), -0.5, $('#SPANID_StormEditNode_zDirVal').text()])); 
-													}
-										});
-	
-					$("#SPANID_StormEditNode_zSlider").slider({	min: -1.0,
-											max: 1.0,
-											step: 0.001,
-											value: parseInt(stormEngineC.nearNode.direction.e[2]),
-											slide: function( event, ui ) {
-														$('#SPANID_StormEditNode_zDirVal').text(ui.value);
-														stormEngineC.lights[0].setDirection($V3([$('#SPANID_StormEditNode_xDirVal').text(), -0.5, $('#SPANID_StormEditNode_zDirVal').text()]));
-													}
-										}); 
-	
-				}
-			} else {
-				$("#INPUTID_StormEditNode_visible").removeAttr('checked');
+			if(stormEngineC.nearNode.type != "sun") {
+				add_3dspinner("POSITION", stormEngineC.nearNode.getPosition(), 0.1, function(vector) {
+					stormEngineC.nearNode.setPosition(vector);
+					stormEngineC.debugValues = [];
+					stormEngineC.setDebugValue(0, vector, stormEngineC.nearNode.name);
+				});
 			}
+			
+			add_slider("FOV", 0.1, 180.0, stormEngineC.nearNode.fov, 0.1, function(fvalue) {
+				stormEngineC.nearNode.setFov(fvalue);
+			});
+			
+			// COLOR
+			var str = 'Color: <div id="DIVID_StormEditNode_color_paramColor" style="width:16px;height:16px;border:1px solid #CCC;cursor:pointer;background:rgb('+parseInt(stormEngineC.nearNode.color.e[0]*255)+','+parseInt(stormEngineC.nearNode.color.e[1]*255)+','+parseInt(stormEngineC.nearNode.color.e[2]*255)+');" ></div>'+
+						'<input id="INPUTID_StormEditNode_color" type="text" style="display:none"/>'; 
+			$('#DIVID_StormEditNode_edits').append(str);
+			
+			$("#DIVID_StormEditNode_color_paramColor").on('click', function() {
+				$('#INPUTID_StormEditNode_color').css('display','block');
+				$('#INPUTID_StormEditNode_color').click();
+				$('#INPUTID_StormEditNode_color').css('display','none');
+				$('.colorpicker').css('zIndex',currentStormZIndex);
+			});
+			
+			$('#INPUTID_StormEditNode_color').ColorPicker({'onChange':function(hsb, hex, rgb) {
+																			stormEngineC.nearNode.setLightColor($V3([rgb.r/255, rgb.g/255, rgb.b/255]));
+																			$('#DIVID_StormEditNode_color_paramColor').css('background','rgb('+rgb.r+','+rgb.g+','+rgb.b+')');
+																		}
+															});
+			$('#INPUTID_StormEditNode_color').ColorPickerSetColor({'r':stormEngineC.nearNode.color.e[0], 'g': stormEngineC.nearNode.color.e[1], 'b':stormEngineC.nearNode.color.e[2]});//normalizado 0.0-1.0
+			
+
+			add_slider("KELVINS", 1000, 15000, stormEngineC.nearNode.fov, 0.1, function(fvalue) {
+				stormEngineC.nearNode.setLightColor(fvalue);
+				$('#DIVID_StormEditNode_color_paramColor').css('background','rgb('+parseInt(stormEngineC.nearNode.color.e[0]*255)+','+parseInt(stormEngineC.nearNode.color.e[1]*255)+','+parseInt(stormEngineC.nearNode.color.e[2]*255)+')');
+			});
+			
+			this.lightDirectionX = stormEngineC.nearNode.direction.e[0];
+			this.lightDirectionZ = stormEngineC.nearNode.direction.e[2];
+			add_slider("DIRECTION_X", -1.0, 1.0, this.lightDirectionX, 0.001, (function(fvalue) {
+				stormEngineC.lights[0].setDirection($V3([fvalue, -0.5, this.lightDirectionZ])); 
+			}).bind(this));			
+			add_slider("DIRECTION_Y", -1.0, 1.0, this.lightDirectionZ, 0.001, (function(fvalue) {
+				stormEngineC.lights[0].setDirection($V3([this.lightDirectionX, -0.5, fvalue])); 
+			}).bind(this));
 		}
 		
 		if(stormEngineC.nearNode.objectType == 'line') {
-			if(stormEngineC.nearNode.visibleOnContext == true) {
-				$("#INPUTID_StormEditNode_visible").attr('checked','true');
-				
-				var strMoves = 	'<div>'+
-									'setOrigin: '+
-									'<input id="StormEN_spinnerTranslX" name="value" value="'+stormEngineC.nearNode.origin.e[0]+'" style="color:#FFF;width:40px">'+
-									'<input id="StormEN_spinnerTranslY" name="value" value="'+stormEngineC.nearNode.origin.e[1]+'" style="color:#FFF;width:40px">'+
-									'<input id="StormEN_spinnerTranslZ" name="value" value="'+stormEngineC.nearNode.origin.e[2]+'" style="color:#FFF;width:40px">'+
-									'<br />setEnd:'+
-									'<input id="StormEN_spinnerETranslX" name="value" value="'+stormEngineC.nearNode.end.e[0]+'" style="color:#FFF;width:40px">'+
-									'<input id="StormEN_spinnerETranslY" name="value" value="'+stormEngineC.nearNode.end.e[1]+'" style="color:#FFF;width:40px">'+
-									'<input id="StormEN_spinnerETranslZ" name="value" value="'+stormEngineC.nearNode.end.e[2]+'" style="color:#FFF;width:40px">'+
-								'</div>';
-				$('#DIVID_StormEditNode_edits').html(strMoves);
-				$("#StormEN_spinnerTranslX").spinner({numberFormat:"n", step: 0.1,
-													spin: function(event, ui) {
-														var vecOrigin = $V3([ui.value, $("#StormEN_spinnerTranslY").val(), $("#StormEN_spinnerTranslZ").val()]);
-														var vecEnd = $V3([$("#StormEN_spinnerETranslX").val(), $("#StormEN_spinnerETranslY").val(), $("#StormEN_spinnerETranslZ").val()]);
-														stormEngineC.nearNode.setOrigin(vecOrigin);
-														stormEngineC.debugValues = [];
-														stormEngineC.setDebugValue(0, vecOrigin, stormEngineC.nearNode.name+' origin');
-														stormEngineC.setDebugValue(1, vecEnd, stormEngineC.nearNode.name+' end');
-													},
-													change: function(event, ui) {
-														var vecOrigin = $V3([$(this).val(), $("#StormEN_spinnerTranslY").val(), $("#StormEN_spinnerTranslZ").val()]);
-														var vecEnd = $V3([$("#StormEN_spinnerETranslX").val(), $("#StormEN_spinnerETranslY").val(), $("#StormEN_spinnerETranslZ").val()]);
-														stormEngineC.nearNode.setOrigin(vecOrigin);
-														stormEngineC.debugValues = [];
-														stormEngineC.setDebugValue(0, vecOrigin, stormEngineC.nearNode.name+' origin');
-														stormEngineC.setDebugValue(1, vecEnd, stormEngineC.nearNode.name+' end');
-													}
-													});
-					$("#StormEN_spinnerTranslY").spinner({numberFormat:"n", step: 0.1,
-													spin: function(event, ui) {
-														var vecOrigin = $V3([$("#StormEN_spinnerTranslX").val(), ui.value, $("#StormEN_spinnerTranslZ").val()]);
-														var vecEnd = $V3([$("#StormEN_spinnerETranslX").val(), $("#StormEN_spinnerETranslY").val(), $("#StormEN_spinnerETranslZ").val()]);
-														stormEngineC.nearNode.setOrigin(vecOrigin);
-														stormEngineC.debugValues = [];
-														stormEngineC.setDebugValue(0, vecOrigin, stormEngineC.nearNode.name+' origin');
-														stormEngineC.setDebugValue(1, vecEnd, stormEngineC.nearNode.name+' end');
-													},
-													change: function(event, ui) {
-														var vecOrigin = $V3([$("#StormEN_spinnerTranslX").val(), $(this).val(), $("#StormEN_spinnerTranslZ").val()]);
-														var vecEnd = $V3([$("#StormEN_spinnerETranslX").val(), $("#StormEN_spinnerETranslY").val(), $("#StormEN_spinnerETranslZ").val()]);
-														stormEngineC.nearNode.setOrigin(vecOrigin);
-														stormEngineC.debugValues = [];
-														stormEngineC.setDebugValue(0, vecOrigin, stormEngineC.nearNode.name+' origin');
-														stormEngineC.setDebugValue(1, vecEnd, stormEngineC.nearNode.name+' end');
-													}
-													});
-					$("#StormEN_spinnerTranslZ").spinner({numberFormat:"n", step: 0.1,
-													spin: function(event, ui) {
-														var vecOrigin = $V3([$("#StormEN_spinnerTranslX").val(), $("#StormEN_spinnerTranslY").val(), ui.value]);
-														var vecEnd = $V3([$("#StormEN_spinnerETranslX").val(), $("#StormEN_spinnerETranslY").val(), $("#StormEN_spinnerETranslZ").val()]);
-														stormEngineC.nearNode.setOrigin(vecOrigin);
-														stormEngineC.debugValues = [];
-														stormEngineC.setDebugValue(0, vecOrigin, stormEngineC.nearNode.name+' origin');
-														stormEngineC.setDebugValue(1, vecEnd, stormEngineC.nearNode.name+' end');
-													},
-													change: function(event, ui) {
-														var vecOrigin = $V3([$("#StormEN_spinnerTranslX").val(), $("#StormEN_spinnerTranslY").val(), $(this).val()]);
-														var vecEnd = $V3([$("#StormEN_spinnerETranslX").val(), $("#StormEN_spinnerETranslY").val(), $("#StormEN_spinnerETranslZ").val()]);
-														stormEngineC.nearNode.setOrigin(vecOrigin);
-														stormEngineC.debugValues = [];
-														stormEngineC.setDebugValue(0, vecOrigin, stormEngineC.nearNode.name+' origin');
-														stormEngineC.setDebugValue(1, vecEnd, stormEngineC.nearNode.name+' end');
-													}
-													});
-					$("#StormEN_spinnerETranslX").spinner({numberFormat:"n", step: 0.1,
-													spin: function(event, ui) {
-														var vecOrigin = $V3([$("#StormEN_spinnerTranslX").val(), $("#StormEN_spinnerTranslY").val(), $("#StormEN_spinnerTranslZ").val()]);
-														var vecEnd = $V3([ui.value, $("#StormEN_spinnerETranslY").val(), $("#StormEN_spinnerETranslZ").val()]);
-														stormEngineC.nearNode.setEnd(vecEnd);
-														stormEngineC.debugValues = [];
-														stormEngineC.setDebugValue(0, vecOrigin, stormEngineC.nearNode.name+' origin');
-														stormEngineC.setDebugValue(1, vecEnd, stormEngineC.nearNode.name+' end');
-													},
-													change: function(event, ui) {
-														var vecOrigin = $V3([$("#StormEN_spinnerTranslX").val(), $("#StormEN_spinnerTranslY").val(), $("#StormEN_spinnerTranslZ").val()]);
-														var vecEnd = $V3([$(this).val(), $("#StormEN_spinnerETranslY").val(), $("#StormEN_spinnerETranslZ").val()]);
-														stormEngineC.nearNode.setEnd(vecEnd);
-														stormEngineC.debugValues = [];
-														stormEngineC.setDebugValue(0, vecOrigin, stormEngineC.nearNode.name+' origin');
-														stormEngineC.setDebugValue(1, vecEnd, stormEngineC.nearNode.name+' end');
-													}
-													});
-					$("#StormEN_spinnerETranslY").spinner({numberFormat:"n", step: 0.1,
-													spin: function(event, ui) {
-														var vecOrigin = $V3([$("#StormEN_spinnerTranslX").val(), $("#StormEN_spinnerTranslY").val(), $("#StormEN_spinnerTranslZ").val()]);
-														var vecEnd = $V3([$("#StormEN_spinnerETranslX").val(), ui.value, $("#StormEN_spinnerETranslZ").val()]);
-														stormEngineC.nearNode.setEnd(vecEnd);
-														stormEngineC.debugValues = [];
-														stormEngineC.setDebugValue(0, vecOrigin, stormEngineC.nearNode.name+' origin');
-														stormEngineC.setDebugValue(1, vecEnd, stormEngineC.nearNode.name+' end');
-													},
-													change: function(event, ui) {
-														var vecOrigin = $V3([$("#StormEN_spinnerTranslX").val(), $("#StormEN_spinnerTranslY").val(), $("#StormEN_spinnerTranslZ").val()]);
-														var vecEnd = $V3([$("#StormEN_spinnerETranslX").val(), $(this).val(), $("#StormEN_spinnerETranslZ").val()]);
-														stormEngineC.nearNode.setEnd(vecEnd);
-														stormEngineC.debugValues = [];
-														stormEngineC.setDebugValue(0, vecOrigin, stormEngineC.nearNode.name+' origin');
-														stormEngineC.setDebugValue(1, vecEnd, stormEngineC.nearNode.name+' end');
-													}
-													});
-					$("#StormEN_spinnerETranslZ").spinner({numberFormat:"n", step: 0.1,
-													spin: function(event, ui) {
-														var vecOrigin = $V3([$("#StormEN_spinnerTranslX").val(), $("#StormEN_spinnerTranslY").val(), $("#StormEN_spinnerTranslZ").val()]);
-														var vecEnd = $V3([$("#StormEN_spinnerETranslX").val(), $("#StormEN_spinnerETranslY").val(), ui.value]);
-														stormEngineC.nearNode.setEnd(vecEnd);
-														stormEngineC.debugValues = [];
-														stormEngineC.setDebugValue(0, vecOrigin, stormEngineC.nearNode.name+' origin');
-														stormEngineC.setDebugValue(1, vecEnd, stormEngineC.nearNode.name+' end');
-													},
-													change: function(event, ui) {
-														var vecOrigin = $V3([$("#StormEN_spinnerTranslX").val(), $("#StormEN_spinnerTranslY").val(), $("#StormEN_spinnerTranslZ").val()]);
-														var vecEnd = $V3([$("#StormEN_spinnerETranslX").val(), $("#StormEN_spinnerETranslY").val(), $(this).val()]);
-														stormEngineC.nearNode.setEnd(vecEnd);
-														stormEngineC.debugValues = []; 
-														stormEngineC.setDebugValue(0, vecOrigin, stormEngineC.nearNode.name+' origin');
-														stormEngineC.setDebugValue(1, vecEnd, stormEngineC.nearNode.name+' end'); 
-													}
-													});
-			} else {
-				$("#INPUTID_StormEditNode_visible").removeAttr('checked');
-			}
+			add_3dspinner("ORIGIN", stormEngineC.nearNode.origin, 0.1, function(vector) {
+				stormEngineC.nearNode.setOrigin(vector);
+				stormEngineC.debugValues = [];
+				stormEngineC.setDebugValue(0, vector, stormEngineC.nearNode.name+' origin');
+			});
+			add_3dspinner("END", stormEngineC.nearNode.end, 0.1, function(vector) {
+				stormEngineC.nearNode.setEnd(vector);
+				stormEngineC.debugValues = [];
+				stormEngineC.setDebugValue(1, vector, stormEngineC.nearNode.name+' end');
+			});
 		}
 		
 		if(stormEngineC.nearNode.objectType == 'voxelizator') {
