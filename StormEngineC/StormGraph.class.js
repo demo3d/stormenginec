@@ -50,6 +50,10 @@ StormGraph = function(jsonIn) { StormNode.call(this);
 	
 	
 	
+	this.splitNodes;
+	this.splitNodesIndices;
+	this.splitNodesEvery = 1820; // (256*256)/36indices
+	
 	this.arrayNodeId = [];
 	this.arrayNodePosXYZW = [];
 	this.arrayNodeVertexPos = [];
@@ -73,6 +77,10 @@ StormGraph = function(jsonIn) { StormNode.call(this);
 	
 	
 	
+	
+	this.splitLinks;
+	this.splitLinksIndices;
+	this.splitLinksEvery = 8192; // (256*256)/8
 	
 	this.arrayLinkId = [];
 	this.arrayLinkNodeName = [];
@@ -187,13 +195,126 @@ StormGraph.prototype.addNodeNow = function(jsonIn) {
 			}
 		}
 	}
+	
+	if(this.startIndexId == 0) {
+		if(this.splitNodes == undefined) {
+			this.splitNodes = [];
+			this.splitNodesIndices = [];
+			this.splitNodes.push(this.arrayNodeId.length*this.splitNodesEvery);
+			this.splitNodesIndices.push(this.arrayNodeIndices.length*this.splitNodesEvery);
+		} else {
+			this.splitNodes.push(this.splitNodes[0]*(this.splitNodes.length+1));
+			this.splitNodesIndices.push(this.splitNodesIndices[0]*(this.splitNodesIndices.length+1)); 
+		}		
+	}
 	this.startIndexId += (maxNodeIndexId+1);
+	if(this.arrayNodeIndices.length == this.splitNodesIndices[this.splitNodesIndices.length-1]) { 
+		this.startIndexId = 0;
+	}
 	
 	this.currentNodeId++; // augment node id
 	
 	//return this.currentNodeId-1;
 	return {"nodeId": this.currentNodeId-1, "itemStart": nAIS}; // nodeArrayItemStart
 };
+StormGraph.prototype.updateNodes = function(jsonIn) {	
+	var arrPP = [];
+	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
+		for(var nb = 0, fb = stormEngineC.polarityPoints[n].nodesProc.length; nb < fb; nb++) {
+			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.polarityPoints[n].nodesProc[nb].idNum) {
+				var oper = this.MPOS.x(stormEngineC.polarityPoints[n].getPosition());
+				
+				arrPP.push({"x": oper.e[3], "y": oper.e[7], "z": oper.e[11],
+							"polarity": stormEngineC.polarityPoints[n].polarity,
+							"orbit": stormEngineC.polarityPoints[n].orbit,
+							"force": stormEngineC.polarityPoints[n].force});
+			}
+		}
+	}	
+	this.clglLayout_nodes.set_polaritypoints(arrPP);
+	
+	
+	var arrF = [];
+	for(var n = 0, f = stormEngineC.forceFields.length; n < f; n++) {
+		for(var nb = 0, fb = stormEngineC.forceFields[n].nodesProc.length; nb < fb; nb++) {
+			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.forceFields[n].nodesProc[nb].idNum) {
+				var oper = stormEngineC.forceFields[n].direction;
+				
+				arrF.push({"x": oper.e[3], "y": oper.e[7], "z": oper.e[11]});
+			}
+		}
+	}
+	this.clglLayout_nodes.set_forces(arrF);
+	
+	
+	this.clglLayout_nodes.setBuffer_Id(this.arrayNodeId, this.splitNodes);
+	this.clglLayout_nodes.setBuffer_NodeId(this.arrayNodeId, this.splitNodes);
+		
+	if(this.clglLayout_nodes.CLGL_bufferPosXYZW != undefined) {
+		var arr4Uint8_XYZW = this.clglLayout_nodes.webCLGL.enqueueReadBuffer_Float4(this.clglLayout_nodes.CLGL_bufferPosXYZW);
+		//var arr4Uint8_XYZW = this.clglLayout_nodes.CLGL_bufferPosXYZW.Float4;
+		for(var n = 0, f = arr4Uint8_XYZW[0].length; n < f; n++) {
+			var idx = n*4;
+			this.arrayNodePosXYZW[idx] = arr4Uint8_XYZW[0][n];
+			this.arrayNodePosXYZW[idx+1] = arr4Uint8_XYZW[1][n];
+			this.arrayNodePosXYZW[idx+2] = arr4Uint8_XYZW[2][n];
+			this.arrayNodePosXYZW[idx+3] = arr4Uint8_XYZW[3][n];
+		}
+		
+	}
+	this.clglLayout_nodes.setBuffer_Pos(this.arrayNodePosXYZW, this.splitNodes);
+	
+	this.clglLayout_nodes.setBuffer_VertexPos(this.arrayNodeVertexPos, this.splitNodes);
+	this.clglLayout_nodes.setBuffer_VertexColor(this.arrayNodeVertexColor, this.splitNodes);
+	this.clglLayout_nodes.setBuffer_Indices(this.arrayNodeIndices, this.splitNodesIndices);
+	
+	this.arrayNodeDir = [];	
+	for(var n=0; n < this.arrayNodeId.length; n++) {
+		this.arrayNodeDir.push(0, 0, 0, 255);
+	}
+	this.clglLayout_nodes.setBuffer_Dir(this.arrayNodeDir, this.splitNodes);
+	
+	this.arrayNodePolaritys = [];	
+	for(var n=0; n < this.arrayNodeId.length; n++) {
+		this.arrayNodePolaritys.push(0);
+	}
+	this.clglLayout_nodes.setBuffer_Polaritys(this.arrayNodePolaritys, this.splitNodes);
+	
+	this.arrayNodeDestination = [];	
+	for(var n=0; n < this.arrayNodeId.length; n++) {
+		this.arrayNodeDestination.push(0, 0, 0, 255);
+	}
+	this.clglLayout_nodes.setBuffer_Destination(this.arrayNodeDestination, this.splitNodes);
+	
+	
+	this.clglLayout_nodes.set_PMatrix(stormEngineC.defaultCamera.mPMatrix.transpose().e);
+	this.clglLayout_nodes.set_cameraWMatrix(stormEngineC.defaultCamera.MPOS.transpose().e);
+	this.clglLayout_nodes.set_nodeWMatrix(this.MPOS.transpose().e);
+	this.clglLayout_nodes.set_nodesSize(parseFloat(this.currentNodeId-1));
+	
+	this.clglLayout_nodes.set_enableDestination(0);
+	this.clglLayout_nodes.set_destinationForce(0);
+	this.clglLayout_nodes.set_lifeDistance(0);
+	this.clglLayout_nodes.set_enableDrag(0);
+	this.clglLayout_nodes.set_idToDrag(0);
+	this.clglLayout_nodes.set_MouseDragTranslationX(0);
+	this.clglLayout_nodes.set_MouseDragTranslationY(0);
+	this.clglLayout_nodes.set_MouseDragTranslationZ(0);
+	this.clglLayout_nodes.set_islink(0);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
 * Create new node for the graph
@@ -261,112 +382,26 @@ StormGraph.prototype.addLinkNow = function(jsonIn) {
 	
 	
 	this.arrayLinkIndices.push(this.startIndexId_link, this.startIndexId_link+1);
+	
+	if(this.startIndexId_link == 0) {
+		if(this.splitLinks == undefined) {
+			this.splitLinks = [];
+			this.splitLinksIndices = [];
+			this.splitLinks.push(this.arrayLinkId.length*this.splitLinksEvery);
+			this.splitLinksIndices.push(this.arrayLinkIndices.length*this.splitLinksEvery);
+		} else {
+			this.splitLinks.push(this.splitLinks[0]*(this.splitLinks.length+1));
+			this.splitLinksIndices.push(this.splitLinksIndices[0]*(this.splitLinksIndices.length+1)); 
+		}	
+	}
 	this.startIndexId_link += 2;
+	if(this.arrayLinkIndices.length == this.splitLinksIndices[this.splitLinksIndices.length-1]) { 
+		this.startIndexId_link = 0;
+	}
 	
 	this.currentLinkId += 2; // augment link id
 	
 	return this.currentLinkId-2;
-};
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-StormGraph.prototype.updateNodes = function(jsonIn) {
-	var arrPP = [];
-	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
-		for(var nb = 0, fb = stormEngineC.polarityPoints[n].nodesProc.length; nb < fb; nb++) {
-			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.polarityPoints[n].nodesProc[nb].idNum) {
-				var oper = this.MPOS.x(stormEngineC.polarityPoints[n].getPosition());
-				
-				arrPP.push({"x": oper.e[3], "y": oper.e[7], "z": oper.e[11],
-							"polarity": stormEngineC.polarityPoints[n].polarity,
-							"orbit": stormEngineC.polarityPoints[n].orbit,
-							"force": stormEngineC.polarityPoints[n].force});
-			}
-		}
-	}	
-	this.clglLayout_nodes.set_polaritypoints(arrPP);
-	
-	
-	var arrF = [];
-	for(var n = 0, f = stormEngineC.forceFields.length; n < f; n++) {
-		for(var nb = 0, fb = stormEngineC.forceFields[n].nodesProc.length; nb < fb; nb++) {
-			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.forceFields[n].nodesProc[nb].idNum) {
-				var oper = stormEngineC.forceFields[n].direction;
-				
-				arrF.push({"x": oper.e[3], "y": oper.e[7], "z": oper.e[11]});
-			}
-		}
-	}
-	this.clglLayout_nodes.set_forces(arrF);
-	
-	
-	this.clglLayout_nodes.setBuffer_Id(this.arrayNodeId);
-	this.clglLayout_nodes.setBuffer_NodeId(this.arrayNodeId);
-		
-	if(this.clglLayout_nodes.CLGL_bufferPosXYZW != undefined) {
-		var arr4Uint8_XYZW = this.clglLayout_nodes.webCLGL.enqueueReadBuffer_Float4(this.clglLayout_nodes.CLGL_bufferPosXYZW);
-		//var arr4Uint8_XYZW = this.clglLayout_nodes.CLGL_bufferPosXYZW.Float4;
-		for(var n = 0, f = arr4Uint8_XYZW[0].length; n < f; n++) {
-			var idx = n*4;
-			this.arrayNodePosXYZW[idx] = arr4Uint8_XYZW[0][n];
-			this.arrayNodePosXYZW[idx+1] = arr4Uint8_XYZW[1][n];
-			this.arrayNodePosXYZW[idx+2] = arr4Uint8_XYZW[2][n];
-			this.arrayNodePosXYZW[idx+3] = arr4Uint8_XYZW[3][n];
-		}
-		
-	}
-	this.clglLayout_nodes.setBuffer_Pos(this.arrayNodePosXYZW);
-	
-	this.clglLayout_nodes.setBuffer_VertexPos(this.arrayNodeVertexPos);
-	this.clglLayout_nodes.setBuffer_VertexColor(this.arrayNodeVertexColor);
-	this.clglLayout_nodes.setBuffer_Indices(this.arrayNodeIndices);
-	
-	this.arrayNodeDir = [];	
-	for(var n=0; n < this.arrayNodeId.length; n++) {
-		this.arrayNodeDir.push(0, 0, 0, 255);
-	}
-	this.clglLayout_nodes.setBuffer_Dir(this.arrayNodeDir);
-	
-	this.arrayNodePolaritys = [];	
-	for(var n=0; n < this.arrayNodeId.length; n++) {
-		this.arrayNodePolaritys.push(0);
-	}
-	this.clglLayout_nodes.setBuffer_Polaritys(this.arrayNodePolaritys);
-	
-	this.arrayNodeDestination = [];	
-	for(var n=0; n < this.arrayNodeId.length; n++) {
-		this.arrayNodeDestination.push(0, 0, 0, 255);
-	}
-	this.clglLayout_nodes.setBuffer_Destination(this.arrayNodeDestination);
-	
-	
-	this.clglLayout_nodes.set_PMatrix(stormEngineC.defaultCamera.mPMatrix.transpose().e);
-	this.clglLayout_nodes.set_cameraWMatrix(stormEngineC.defaultCamera.MPOS.transpose().e);
-	this.clglLayout_nodes.set_nodeWMatrix(this.MPOS.transpose().e);
-	this.clglLayout_nodes.set_nodesSize(parseFloat(this.currentNodeId-1));
-	
-	this.clglLayout_nodes.set_enableDestination(0);
-	this.clglLayout_nodes.set_destinationForce(0);
-	this.clglLayout_nodes.set_lifeDistance(0);
-	this.clglLayout_nodes.set_enableDrag(0);
-	this.clglLayout_nodes.set_idToDrag(0);
-	this.clglLayout_nodes.set_MouseDragTranslationX(0);
-	this.clglLayout_nodes.set_MouseDragTranslationY(0);
-	this.clglLayout_nodes.set_MouseDragTranslationZ(0);
-	this.clglLayout_nodes.set_islink(0);
 };
 StormGraph.prototype.updateLinks = function(jsonIn) {
 	var arrPP = [];
@@ -397,30 +432,30 @@ StormGraph.prototype.updateLinks = function(jsonIn) {
 	this.clglLayout_links.set_forces(arrF);
 	
 	
-	this.clglLayout_links.setBuffer_Id(this.arrayLinkId);
-	this.clglLayout_links.setBuffer_NodeId(this.arrayLinkNodeId);
-	this.clglLayout_links.setBuffer_Pos(this.arrayLinkPosXYZW);
-	this.clglLayout_links.setBuffer_VertexPos(this.arrayLinkVertexPos);
-	this.clglLayout_links.setBuffer_VertexColor(this.arrayLinkVertexColor);
-	this.clglLayout_links.setBuffer_Indices(this.arrayLinkIndices);
+	this.clglLayout_links.setBuffer_Id(this.arrayLinkId, this.splitLinks);
+	this.clglLayout_links.setBuffer_NodeId(this.arrayLinkNodeId, this.splitLinks);
+	this.clglLayout_links.setBuffer_Pos(this.arrayLinkPosXYZW, this.splitLinks);
+	this.clglLayout_links.setBuffer_VertexPos(this.arrayLinkVertexPos, this.splitLinks);
+	this.clglLayout_links.setBuffer_VertexColor(this.arrayLinkVertexColor, this.splitLinks);
+	this.clglLayout_links.setBuffer_Indices(this.arrayLinkIndices, this.splitLinksIndices);
 	
 	this.arrayLinkDir = [];	
 	for(var n=0; n < this.arrayLinkId.length; n++) {
 		this.arrayLinkDir.push(0, 0, 0, 255);
 	}
-	this.clglLayout_links.setBuffer_Dir(this.arrayLinkDir);
+	this.clglLayout_links.setBuffer_Dir(this.arrayLinkDir, this.splitLinks);
 	
 	this.arrayLinkPolaritys = [];	
 	for(var n=0; n < this.arrayLinkId.length; n++) {
 		this.arrayLinkPolaritys.push(0);
 	}
-	this.clglLayout_links.setBuffer_Polaritys(this.arrayLinkPolaritys);
+	this.clglLayout_links.setBuffer_Polaritys(this.arrayLinkPolaritys, this.splitLinks);
 	
 	this.arrayLinkDestination = [];	
 	for(var n=0; n < this.arrayLinkId.length; n++) {
 		this.arrayLinkDestination.push(0, 0, 0, 255);  
 	}
-	this.clglLayout_links.setBuffer_Destination(this.arrayLinkDestination);
+	this.clglLayout_links.setBuffer_Destination(this.arrayLinkDestination, this.splitLinks);
 	
 	
 	this.clglLayout_links.set_PMatrix(stormEngineC.defaultCamera.mPMatrix.transpose().e);
@@ -576,7 +611,7 @@ StormGraph.prototype.set_destinationWidthHeight = function(jsonIn) {
 			this.arrayNodeDestination.push(x*spacing, 0, z*spacing, 255);
 		}
 	}
-	this.clglLayout_nodes.setBuffer_Destination(this.arrayNodeDestination);
+	this.clglLayout_nodes.setBuffer_Destination(this.arrayNodeDestination, this.splitNodes);
 	
 	this.setLinksDestinationToNodesDestination();	
 };
@@ -643,7 +678,7 @@ StormGraph.prototype.set_destinationVolume = function(voxelizator) {
 			this.arrayNodeDestination.push(CCX*separation, CCY*separation, CCZ*separation, 255);
 		}
 	}
-	this.clglLayout_nodes.setBuffer_Destination(this.arrayNodeDestination);
+	this.clglLayout_nodes.setBuffer_Destination(this.arrayNodeDestination, this.splitNodes);
 	
 	this.setLinksDestinationToNodesDestination();
 };
@@ -663,7 +698,7 @@ StormGraph.prototype.setLinksDestinationToNodesDestination = function() {
 										this.arrayNodeDestination[(nodeNameItemStart*4)+2],
 										1.0);
 	}
-	this.clglLayout_links.setBuffer_Destination(this.arrayLinkDestination);
+	this.clglLayout_links.setBuffer_Destination(this.arrayLinkDestination, this.splitLinks);
 };
 
 /**
@@ -692,7 +727,7 @@ StormGraph.prototype.set_dir = function(direction) {
 			this.arrayNodeDir.push(currNodeDirection[0], currNodeDirection[1], currNodeDirection[2], currNodeDirection[3]);
 		}
 	}
-	this.clglLayout_nodes.setBuffer_Dir(this.arrayNodeDir);
+	this.clglLayout_nodes.setBuffer_Dir(this.arrayNodeDir, this.splitNodes);
 	
 	this.setLinksDirToNodesDir();
 };
@@ -711,7 +746,7 @@ StormGraph.prototype.setLinksDirToNodesDir = function() {
 								this.arrayNodeDir[(nodeNameItemStart*4)+2],
 								1.0);
 	}
-	this.clglLayout_links.setBuffer_Dir(this.arrayLinkDir);
+	this.clglLayout_links.setBuffer_Dir(this.arrayLinkDir, this.splitLinks);
 };
 /**
 * Set position
@@ -768,7 +803,7 @@ StormGraph.prototype.set_pos = function(jsonIn) {
 		}
 	}
 	
-	this.clglLayout_nodes.setBuffer_Pos(this.arrayNodePosXYZW);
+	this.clglLayout_nodes.setBuffer_Pos(this.arrayNodePosXYZW, this.splitNodes);
 	
 	this.setLinksPosToNodesPos();
 };
@@ -783,5 +818,5 @@ StormGraph.prototype.setLinksPosToNodesPos = function() {
 								this.arrayNodePosXYZW[(nodeNameItemStart*4)+2],
 								1.0);
 	}
-	this.clglLayout_links.setBuffer_Pos(this.arrayLinkPos);
+	this.clglLayout_links.setBuffer_Pos(this.arrayLinkPos, this.splitLinks);
 };

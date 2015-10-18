@@ -12,9 +12,6 @@ WebCLGLLayout_3DpositionByDirection = function(webCLGL, jsonIn) {
 	
 	this.offset = (jsonIn != undefined && jsonIn.offset != undefined) ? jsonIn.offset : 100.0;
 	
-	this.verticesCount = 0;
-	this.indicesCount = 0;
-	
 	this.arrPP = [];
 	this.arrF = [];
 	
@@ -291,19 +288,18 @@ WebCLGLLayout_3DpositionByDirection.prototype.set_islink = function(islink) {
 	this.kernel_direction.setKernelArg("islink", islink);
 };
 /** @private **/
-WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Id = function(arr) {
-	this.verticesCount = arr.length;
-	this.CLGL_bufferId = this.webCLGL.createBuffer(arr.length, "FLOAT", this.offset, false, "VERTEX_AND_FRAGMENT");
-	this.CLGL_bufferId_TEMP = this.webCLGL.createBuffer(arr.length, "FLOAT", this.offset, false, "VERTEX_AND_FRAGMENT");	
+WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Id = function(arr, splits) {
+	this.CLGL_bufferId = this.webCLGL.createBuffer(arr.length, "FLOAT", this.offset, false, "VERTEX_AND_FRAGMENT", splits);
+	this.CLGL_bufferId_TEMP = this.webCLGL.createBuffer(arr.length, "FLOAT", this.offset, false, "VERTEX_AND_FRAGMENT", splits);	
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferId, arr);
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferId_TEMP, arr);
 	
 	this.kernel_direction.setKernelArg("idx", this.CLGL_bufferId);
 };
 /** @private **/
-WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_NodeId = function(arr) {
-	this.CLGL_bufferNodeId = this.webCLGL.createBuffer(arr.length, "FLOAT", this.offset, false, "VERTEX_AND_FRAGMENT"); 
-	this.CLGL_bufferNodeId_TEMP = this.webCLGL.createBuffer(arr.length, "FLOAT", this.offset, false, "VERTEX_AND_FRAGMENT");	
+WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_NodeId = function(arr, splits) {
+	this.CLGL_bufferNodeId = this.webCLGL.createBuffer(arr.length, "FLOAT", this.offset, false, "VERTEX_AND_FRAGMENT", splits); 
+	this.CLGL_bufferNodeId_TEMP = this.webCLGL.createBuffer(arr.length, "FLOAT", this.offset, false, "VERTEX_AND_FRAGMENT", splits);	
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeId, arr);
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferNodeId_TEMP, arr);
 	
@@ -311,24 +307,24 @@ WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_NodeId = function(arr) {
 	this.vfProgram.setVertexArg("nodeId", this.CLGL_bufferNodeId);
 };
 /** @private **/
-WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_InitPos = function(arr) {
-	this.CLGL_bufferInitPos = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "FRAGMENT");
+WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_InitPos = function(arr, splits) {
+	this.CLGL_bufferInitPos = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "FRAGMENT", splits);
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferInitPos, arr);
 	
 	this.kernel_positionByDirection.setKernelArg("initPos", this.CLGL_bufferInitPos);
 	this.kernel_direction.setKernelArg("initPos", this.CLGL_bufferInitPos);
 };
 /** @private **/
-WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_InitDir = function(arr) {
-	this.CLGL_bufferInitDir = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "FRAGMENT");
+WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_InitDir = function(arr, splits) {
+	this.CLGL_bufferInitDir = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "FRAGMENT", splits);
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferInitDir, arr);
 	
 	this.kernel_direction.setKernelArg("initDir", this.CLGL_bufferInitDir);
 };
 /** @private **/
-WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Pos = function(arr) {
-	this.CLGL_bufferPosXYZW = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "VERTEX_FROM_KERNEL");
-	this.CLGL_bufferPosXYZW_TEMP = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "VERTEX_FROM_KERNEL");	
+WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Pos = function(arr, splits) {
+	this.CLGL_bufferPosXYZW = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "VERTEX_FROM_KERNEL", splits);
+	this.CLGL_bufferPosXYZW_TEMP = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "VERTEX_FROM_KERNEL", splits);	
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferPosXYZW, arr);
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferPosXYZW_TEMP, arr);
 	
@@ -336,50 +332,49 @@ WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Pos = function(arr) {
 	this.kernel_direction.setKernelArg("posXYZW", this.CLGL_bufferPosXYZW);
 	this.vfProgram.setVertexArg("nodePos", this.CLGL_bufferPosXYZW); // this from kernel
 	
-	this.setBuffer_InitPos(arr);
+	this.setBuffer_InitPos(arr, splits);
 };
 /** @private **/
-WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_VertexPos = function(arr) {
-	this.CLGL_bufferVertexPos = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "VERTEX");	
+WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_VertexPos = function(arr, splits) {
+	this.CLGL_bufferVertexPos = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "VERTEX", splits);	
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferVertexPos, arr);
 	
 	this.vfProgram.setVertexArg("nodeVertexPos", this.CLGL_bufferVertexPos);
 };
 /** @private **/
-WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_VertexColor = function(arr) {
-	this.CLGL_bufferVertexColor = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "VERTEX");	
+WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_VertexColor = function(arr, splits) {
+	this.CLGL_bufferVertexColor = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "VERTEX", splits);	
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferVertexColor, arr);
 	
 	this.vfProgram.setVertexArg("nodeVertexCol", this.CLGL_bufferVertexColor);
 };
 /** @private **/
-WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Indices = function(arr) {
-	this.indicesCount = arr.length;
-	this.CLGL_bufferIndices = this.webCLGL.createBuffer(arr.length, "FLOAT", this.offset, false, "VERTEX_INDEX");	
+WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Indices = function(arr, splits) {
+	this.CLGL_bufferIndices = this.webCLGL.createBuffer(arr.length, "FLOAT", this.offset, false, "VERTEX_INDEX", splits);	
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferIndices, arr);
 };
 /** @private **/
-WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Dir = function(arr) {
-	this.CLGL_bufferDir = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "FRAGMENT");
-	this.CLGL_bufferDir_TEMP = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "FRAGMENT");	
+WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Dir = function(arr, splits) {
+	this.CLGL_bufferDir = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "FRAGMENT", splits);
+	this.CLGL_bufferDir_TEMP = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "FRAGMENT", splits);	
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferDir, arr);
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferDir_TEMP, arr);
 	
 	this.kernel_positionByDirection.setKernelArg("dir", this.CLGL_bufferDir);
 	this.kernel_direction.setKernelArg("dir", this.CLGL_bufferDir); 
 	
-	this.setBuffer_InitDir(arr);
+	this.setBuffer_InitDir(arr, splits);
 };
 /** @private **/
-WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Polaritys = function(arr) {
-	this.CLGL_bufferPolaritys = this.webCLGL.createBuffer(arr.length, "FLOAT", this.offset, false, "FRAGMENT");	
+WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Polaritys = function(arr, splits) {
+	this.CLGL_bufferPolaritys = this.webCLGL.createBuffer(arr.length, "FLOAT", this.offset, false, "FRAGMENT", splits);	
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferPolaritys, arr);
 	
 	this.kernel_direction.setKernelArg("particlePolarity", this.CLGL_bufferPolaritys); 
 };
 /** @private **/
-WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Destination = function(arr) {
-	this.CLGL_bufferDestination = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "FRAGMENT"); 		
+WebCLGLLayout_3DpositionByDirection.prototype.setBuffer_Destination = function(arr, splits) {
+	this.CLGL_bufferDestination = this.webCLGL.createBuffer(arr.length/4, "FLOAT4", this.offset, false, "FRAGMENT", splits); 		
 	this.webCLGL.enqueueWriteBuffer(this.CLGL_bufferDestination, arr);
 	
 	this.kernel_direction.setKernelArg("dest", this.CLGL_bufferDestination);
@@ -437,5 +432,8 @@ WebCLGLLayout_3DpositionByDirection.prototype.prerender = function() {
 WebCLGLLayout_3DpositionByDirection.prototype.render = function(beforerender, drawMode) {
 	beforerender();
 	
-	this.webCLGL.enqueueVertexFragmentProgram(this.vfProgram, this.CLGL_bufferIndices, this.indicesCount, drawMode);
+	if(this.CLGL_bufferIndices != undefined)
+		this.webCLGL.enqueueVertexFragmentProgram(this.vfProgram, this.CLGL_bufferIndices, drawMode); 
+	else
+		this.webCLGL.enqueueVertexFragmentProgram(this.vfProgram, this.CLGL_bufferId, drawMode);
 };

@@ -78,6 +78,7 @@ var includesF = [//'/StormMathMin.class.js',
 				/*'/WebCLGL_2.0.Min.class.js',*/
 				'/WebCLGLUtils.class.js',
 				'/WebCLGLBuffer.class.js',
+				'/WebCLGLBufferItem.class.js',
 				'/WebCLGLKernel.class.js',
 				'/WebCLGLKernelProgram.class.js',
 				'/WebCLGLVertexFragmentProgram.class.js',
