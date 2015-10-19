@@ -133,9 +133,9 @@ StormMaterial.prototype.writeFromMTLFile = function(materialName, mtlsFile, json
 					}
 					if(line.match(/^Kd/gi) != null) { // albedo
 						var array = line.split(" ");
-						req.material.textureObjectKd.inData[0] = array[1];
-						req.material.textureObjectKd.inData[1] = array[2];
-						req.material.textureObjectKd.inData[2] = array[3];
+						req.material.textureObjectKd.items[0].inData[0] = array[1];
+						req.material.textureObjectKd.items[0].inData[1] = array[2];
+						req.material.textureObjectKd.items[0].inData[2] = array[3];
 					}
 					if(line.match(/^map_Kd/gi) != null) { // map albedo
 						if(albedo) {

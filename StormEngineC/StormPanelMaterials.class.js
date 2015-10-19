@@ -71,13 +71,13 @@ StormEngineC_PanelMaterials.prototype.showListMaterials = function() {
 	for(var n=0, f = stormEngineC.materials.length; n < f; n++) {
 		if(stormEngineC.materials[n].textureObjectKd != undefined) {
 			if(!stormEngineC.materials[n].solid) {
-				var canvasBOtexture = stormEngineC.utils.getCanvasFromUint8Array(stormEngineC.materials[n].textureObjectKd.inData, stormEngineC.materials[n].textureObjectKd.W, stormEngineC.materials[n].textureObjectKd.H);
+				var canvasBOtexture = stormEngineC.utils.getCanvasFromUint8Array(stormEngineC.materials[n].textureObjectKd.items[0].inData, stormEngineC.materials[n].textureObjectKd.items[0].W, stormEngineC.materials[n].textureObjectKd.items[0].H);
 				canvasBOtexture.style.width = '16px';
 				canvasBOtexture.style.height = '16px';
 				$('#TDID_StormMaterial_thumb'+n).append(canvasBOtexture);
 			} else {
 				$('#TDID_StormMaterial_thumb'+n).html('');
-				$('#TDID_StormMaterial_thumb'+n).css('background-color','rgb('+stormEngineC.materials[n].textureObjectKd.inData[0]+','+stormEngineC.materials[n].textureObjectKd.inData[1]+','+stormEngineC.materials[n].textureObjectKd.inData[2]+')');
+				$('#TDID_StormMaterial_thumb'+n).css('background-color','rgb('+stormEngineC.materials[n].textureObjectKd.items[0].inData[0]+','+stormEngineC.materials[n].textureObjectKd.items[0].inData[1]+','+stormEngineC.materials[n].textureObjectKd.items[0].inData[2]+')');
 			}
 			$('#TDID_StormMaterial_'+n).append(stormEngineC.materials[n].name);
 		}
@@ -168,7 +168,7 @@ StormEngineC_PanelMaterials.prototype.showMaterial = function(idMaterial) {
 	if(!material.solid) {
 		$('#ID_STORMMATERIALS_COLOR_KD').css('background','rgb(0,0,0)');
 	} else {
-		$('#ID_STORMMATERIALS_COLOR_KD').css('background','rgb('+material.textureObjectKd.inData[0]+','+material.textureObjectKd.inData[1]+','+material.textureObjectKd.inData[2]+')');
+		$('#ID_STORMMATERIALS_COLOR_KD').css('background','rgb('+material.textureObjectKd.items[0].inData[0]+','+material.textureObjectKd.items[0].inData[1]+','+material.textureObjectKd.items[0].inData[2]+')');
 	}
 	$('#INPUTID_STORMMATERIALS_COLOR_KD').ColorPicker({'onChange':function(hsb, hex, rgb) {
 															stormEngineC.materials[idMaterial].write($V3([rgb.r/255, rgb.g/255, rgb.b/255]));
@@ -186,7 +186,7 @@ StormEngineC_PanelMaterials.prototype.showMaterial = function(idMaterial) {
 										});
 	// COLOR TEXTURE
 	if(!material.solid) {
-		var canvasBOtexture = stormEngineC.utils.getCanvasFromUint8Array(material.textureObjectKd.inData, material.textureObjectKd.W, material.textureObjectKd.H); 
+		var canvasBOtexture = stormEngineC.utils.getCanvasFromUint8Array(material.textureObjectKd.items[0].inData, material.textureObjectKd.items[0].W, material.textureObjectKd.items[0].H); 
 		canvasBOtexture.style.width = '16px';
 		canvasBOtexture.style.height = '16px';
 		$('#ID_STORMMATERIALS_MATERIAL_KD').append(canvasBOtexture);
@@ -217,7 +217,7 @@ StormEngineC_PanelMaterials.prototype.showMaterial = function(idMaterial) {
 	
 	// BUMP TEXTURE
 	if(material.textureObjectBump != undefined) {
-		var canvasBOtextureBump = stormEngineC.utils.getCanvasFromUint8Array(material.textureObjectBump.inData, material.textureObjectBump.W, material.textureObjectBump.H); 
+		var canvasBOtextureBump = stormEngineC.utils.getCanvasFromUint8Array(material.textureObjectBump.items[0].inData, material.textureObjectBump.W, material.textureObjectBump.H); 
 		canvasBOtextureBump.style.width = '16px';
 		canvasBOtextureBump.style.height = '16px';
 		$('#ID_STORMMATERIALS_MATERIAL_BUMP').append(canvasBOtextureBump);

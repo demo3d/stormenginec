@@ -244,23 +244,23 @@ StormGLContext.prototype.render_GIv2_AUX = function() {
 				this.gl.uniform3f(this.u_GIv2_nodeVScale, this.nodes[n].VSCALE.e[0], this.nodes[n].VSCALE.e[1], this.nodes[n].VSCALE.e[2]);   
 				
 				this.gl.activeTexture(this.gl.TEXTURE0);
-				this.gl.bindTexture(this.gl.TEXTURE_2D, this.stormVoxelizatorObject.clglBuff_VoxelsColor.textureData);
+				this.gl.bindTexture(this.gl.TEXTURE_2D, this.stormVoxelizatorObject.clglBuff_VoxelsColor.items[0].textureData);
 				this.gl.uniform1i(this.sampler_GIv2_voxelColor, 0);
 				
 				this.gl.activeTexture(this.gl.TEXTURE1);
-				this.gl.bindTexture(this.gl.TEXTURE_2D, this.stormVoxelizatorObject.clglBuff_VoxelsPositionX.textureData);
+				this.gl.bindTexture(this.gl.TEXTURE_2D, this.stormVoxelizatorObject.clglBuff_VoxelsPositionX.items[0].textureData);
 				this.gl.uniform1i(this.sampler_GIv2_voxelPosX, 1);
 				
 				this.gl.activeTexture(this.gl.TEXTURE2);
-				this.gl.bindTexture(this.gl.TEXTURE_2D, this.stormVoxelizatorObject.clglBuff_VoxelsPositionY.textureData);
+				this.gl.bindTexture(this.gl.TEXTURE_2D, this.stormVoxelizatorObject.clglBuff_VoxelsPositionY.items[0].textureData);
 				this.gl.uniform1i(this.sampler_GIv2_voxelPosY, 2);
 				
 				this.gl.activeTexture(this.gl.TEXTURE3);
-				this.gl.bindTexture(this.gl.TEXTURE_2D, this.stormVoxelizatorObject.clglBuff_VoxelsPositionZ.textureData);
+				this.gl.bindTexture(this.gl.TEXTURE_2D, this.stormVoxelizatorObject.clglBuff_VoxelsPositionZ.items[0].textureData);
 				this.gl.uniform1i(this.sampler_GIv2_voxelPosZ, 3);
 				
 				this.gl.activeTexture(this.gl.TEXTURE4);
-				this.gl.bindTexture(this.gl.TEXTURE_2D, this.stormVoxelizatorObject.clglBuff_VoxelsNormal.textureData);
+				this.gl.bindTexture(this.gl.TEXTURE_2D, this.stormVoxelizatorObject.clglBuff_VoxelsNormal.items[0].textureData);
 				this.gl.uniform1i(this.sampler_GIv2_voxelNormal, 4);
 				
 				this.gl.activeTexture(this.gl.TEXTURE5);

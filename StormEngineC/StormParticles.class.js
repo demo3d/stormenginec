@@ -345,7 +345,7 @@ StormParticles.prototype.setDestinationVolume = function(jsonIn, enable) {
 	var vo = jsonIn.voxelizator;
 	if(vo instanceof StormVoxelizator == false) { alert("You must select a voxelizator object with albedo fillmode enabled."); return false;}
 	if(vo.image3D_VoxelsColor == undefined) { alert("You must select a voxelizator object with albedo fillmode enabled."); return false;}
-	var data = vo.clglBuff_VoxelsColor.inData;
+	var data = vo.clglBuff_VoxelsColor.items[0].inData;
 	var numActCells = 0;
 	for(var n = 0, f = data.length/4; n < f; n++) { // num of active cells
 		var id = n*4;

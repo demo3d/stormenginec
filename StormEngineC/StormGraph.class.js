@@ -627,7 +627,7 @@ StormGraph.prototype.set_destinationVolume = function(voxelizator) {
 	var vo = voxelizator;
 	if(vo instanceof StormVoxelizator == false) { alert("You must select a voxelizator object with albedo fillmode enabled."); return false;}
 	if(vo.image3D_VoxelsColor == undefined) { alert("You must select a voxelizator object with albedo fillmode enabled."); return false;}
-	var data = vo.clglBuff_VoxelsColor.inData;
+	var data = vo.clglBuff_VoxelsColor.items[0].inData;
 	
 	this.arrayNodeDestination = [];	
 	var numActCells = 0;

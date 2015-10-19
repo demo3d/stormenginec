@@ -310,7 +310,7 @@ StormGLContext.prototype.renderFromLight = function(node, buffersObject, light) 
 		this.gl.uniform1i(this.u_LightDepth_lightType, (light.type == 'sun')?0:1); // sun 0 ; spot 1   (light.type == 'sun')?0:1
 					
 		this.gl.activeTexture(this.gl.TEXTURE0);
-		this.gl.bindTexture(this.gl.TEXTURE_2D, node.materialUnits[0].textureObjectKd.textureData);
+		this.gl.bindTexture(this.gl.TEXTURE_2D, node.materialUnits[0].textureObjectKd.items[0].textureData);
 		this.gl.uniform1i(this.sampler_LightDepth_kdTexture, 0);
 		 
 		this.gl.uniform1f(this.u_LightDepth_far, this.far);

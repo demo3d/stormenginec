@@ -1178,9 +1178,9 @@ StormRender.prototype.updateObjects = function() {
 					
 					numTRIS++;
 				}
-				this.arrayBuffersTextures[numNB] = clContext.createImage2D(WebCL.CL_MEM_READ_ONLY, format,this.nodes[n].materialUnits[0].textureObjectKd.W, this.nodes[n].materialUnits[0].textureObjectKd.H, 0);	
-				var ar = this.nodes[n].materialUnits[0].textureObjectKd.inData;
-				clCmdQueue.enqueueWriteImage(this.arrayBuffersTextures[numNB], true, [0,0,0], [this.nodes[n].materialUnits[0].textureObjectKd.W,this.nodes[n].materialUnits[0].textureObjectKd.H,1], 0, 0, new Uint8Array([ar[0],ar[1],ar[2],ar[3]]), []);
+				this.arrayBuffersTextures[numNB] = clContext.createImage2D(WebCL.CL_MEM_READ_ONLY, format,this.nodes[n].materialUnits[0].textureObjectKd.items[0].W, this.nodes[n].materialUnits[0].textureObjectKd.items[0].H, 0);	
+				var ar = this.nodes[n].materialUnits[0].textureObjectKd.items[0].inData;
+				clCmdQueue.enqueueWriteImage(this.arrayBuffersTextures[numNB], true, [0,0,0], [this.nodes[n].materialUnits[0].textureObjectKd.items[0].W,this.nodes[n].materialUnits[0].textureObjectKd.items[0].H,1], 0, 0, new Uint8Array([ar[0],ar[1],ar[2],ar[3]]), []);
 				numNB++;
 			}
 		}
@@ -1229,13 +1229,13 @@ StormRender.prototype.updateObjects = function() {
 					numTRIS++;
 				}
 				this.arrayBuffersTextures[numNB] = clContext.createImage2D(WebCL.CL_MEM_READ_ONLY, format,1, 1, 0);	
-				var ar = this.lights[n].materialUnits[0].textureObjectKd.inData;
+				var ar = this.lights[n].materialUnits[0].textureObjectKd.items[0].inData;
 				clCmdQueue.enqueueWriteImage(this.arrayBuffersTextures[numNB], true, [0,0,0], [1,1,1], 0, 0, new Uint8Array([ar[0],ar[1],ar[2],ar[3]]), []);
 				numNB++;
 			}
-			//this.arrayBuffersTexturesLightRay[n] = clContext.createImage2D(WebCL.CL_MEM_READ_ONLY, format,this.nodes[n].materialUnits[0].textureObjectKd.W, this.nodes[n].materialUnits[0].textureObjectKd.H, 0);
-			//var ar = this.lights[n].materialUnits[0].textureObjectKd.inData;
-			//clCmdQueue.enqueueWriteImage(this.arrayBuffersTexturesLightRay[n], true, [0,0,0], [this.lights[n].materialUnits[0].textureObjectKd.W,this.lights[n].materialUnits[0].textureObjectKd.H,1], 0, 0, new Uint8Array([ar[0],ar[1],ar[2],ar[3]]), []);
+			//this.arrayBuffersTexturesLightRay[n] = clContext.createImage2D(WebCL.CL_MEM_READ_ONLY, format,this.nodes[n].materialUnits[0].textureObjectKd.items[0].W, this.nodes[n].materialUnits[0].textureObjectKd.items[0].H, 0);
+			//var ar = this.lights[n].materialUnits[0].textureObjectKd.items[0].inData;
+			//clCmdQueue.enqueueWriteImage(this.arrayBuffersTexturesLightRay[n], true, [0,0,0], [this.lights[n].materialUnits[0].textureObjectKd.items[0].W,this.lights[n].materialUnits[0].textureObjectKd.items[0].H,1], 0, 0, new Uint8Array([ar[0],ar[1],ar[2],ar[3]]), []);
 			
 			this.buffShadowNearDistance[n] = clContext.createBuffer(WebCL.CL_MEM_READ_WRITE, this.bufferSize);
 			this.buffShadowNearNodeTypeLight[n] = clContext.createBuffer(WebCL.CL_MEM_READ_WRITE, this.bufferSize);
@@ -1281,8 +1281,8 @@ StormRender.prototype.setCam = function(nodeCam) {
 	for(var n = 0, f = this.nodes.length; n < f; n++) {
 		if(this.nodes[n].visibleOnRender == true) {
 			for(var nb = 0, fnb = this.nodes[n].buffersObjects.length; nb < fnb; nb++) {
-				this.clKernel_PrimaryRays.setKernelArg(21, this.nodes[n].materialUnits[0].textureObjectKd.W, WebCL.types.UINT);
-				this.clKernel_PrimaryRays.setKernelArg(22, this.nodes[n].materialUnits[0].textureObjectKd.H, WebCL.types.UINT);
+				this.clKernel_PrimaryRays.setKernelArg(21, this.nodes[n].materialUnits[0].textureObjectKd.items[0].W, WebCL.types.UINT);
+				this.clKernel_PrimaryRays.setKernelArg(22, this.nodes[n].materialUnits[0].textureObjectKd.items[0].H, WebCL.types.UINT);
 				this.clKernel_PrimaryRays.setKernelArg(24, this.nodes[n].buffersObjects[nb].material.Ns, WebCL.types.FLOAT);
 				this.clKernel_PrimaryRays.setKernelArg(46, this.arrayBuffersTextures[numbNB]);
 				for(var b = 0, fb = this.nodes[n].buffersObjects[nb].nodeMeshIndexArray.length/3; b < fb; b++) {
@@ -1427,8 +1427,8 @@ StormRender.prototype.makeRender = function() {
 			if(this.nodes[n].visibleOnRender == true) {
 			this.clKernel_SecundaryRays.setKernelArg(26, (this.nodes[n].type == 'sun')?0:1, WebCL.types.UINT);
 				for(var nb = 0, fnb = this.nodes[n].buffersObjects.length; nb < fnb; nb++) {
-					this.clKernel_SecundaryRays.setKernelArg(23, this.nodes[n].buffersObjects[nb].materialUnits[0].textureObjectKd.W, WebCL.types.UINT);
-					this.clKernel_SecundaryRays.setKernelArg(24, this.nodes[n].buffersObjects[nb].materialUnits[0].textureObjectKd.H, WebCL.types.UINT);
+					this.clKernel_SecundaryRays.setKernelArg(23, this.nodes[n].buffersObjects[nb].materialUnits[0].textureObjectKd.items[0].W, WebCL.types.UINT);
+					this.clKernel_SecundaryRays.setKernelArg(24, this.nodes[n].buffersObjects[nb].materialUnits[0].textureObjectKd.items[0].H, WebCL.types.UINT);
 					this.clKernel_SecundaryRays.setKernelArg(27, this.nodes[n].buffersObjects[nb].materialUnits[0].Ns, WebCL.types.FLOAT);
 					this.clKernel_SecundaryRays.setKernelArg(59, this.arrayBuffersTextures[numbNB]);
 					for(var b = 0, fb = this.nodes[n].buffersObjects[nb].nodeMeshIndexArray.length/3; b < fb; b++) {

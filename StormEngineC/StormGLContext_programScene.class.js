@@ -952,7 +952,7 @@ StormGLContext.prototype.renderSceneNow = function(node, buffersObject) {
 			this.gl.activeTexture(this.gl["TEXTURE16"]);
 		
 		if(node.materialUnits[n].textureObjectKd != undefined) {
-			this.gl.bindTexture(this.gl.TEXTURE_2D, node.materialUnits[n].textureObjectKd.textureData);    
+			this.gl.bindTexture(this.gl.TEXTURE_2D, node.materialUnits[n].textureObjectKd.items[0].textureData);    
 			this.gl.uniform1i(this.samplers_Scene_objectTexturesKd[n], next);
 		}
 		next++;
