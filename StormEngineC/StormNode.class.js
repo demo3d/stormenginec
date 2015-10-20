@@ -1221,17 +1221,14 @@ StormNode.prototype.setPosition = function(vec) {
 						selectedKernel.setKernelArg('pole'+p+'Y', oper.e[7]); 
 						selectedKernel.setKernelArg('pole'+p+'Z', oper.e[11]);
 					}
-					if(nproc.clglLayout_nodes != undefined) {
-						selectedKernel = nproc.clglLayout_nodes.kernel_direction;
-						selectedKernel.setKernelArg('pole'+p+'X', oper.e[3]); 
-						selectedKernel.setKernelArg('pole'+p+'Y', oper.e[7]); 
-						selectedKernel.setKernelArg('pole'+p+'Z', oper.e[11]);
-					}
-					if(nproc.clglLayout_nodes != undefined) {
-						selectedKernel = nproc.clglLayout_links.kernel_direction;
-						selectedKernel.setKernelArg('pole'+p+'X', oper.e[3]); 
-						selectedKernel.setKernelArg('pole'+p+'Y', oper.e[7]); 
-						selectedKernel.setKernelArg('pole'+p+'Z', oper.e[11]);
+					if(nproc.clglWork_nodes != undefined) {
+						nproc.clglWork_nodes.setArg('pole'+p+'X', oper.e[3]);
+						nproc.clglWork_nodes.setArg('pole'+p+'Y', oper.e[7]);
+						nproc.clglWork_nodes.setArg('pole'+p+'Z', oper.e[11]);
+						
+						nproc.clglWork_links.setArg('pole'+p+'X', oper.e[3]);
+						nproc.clglWork_links.setArg('pole'+p+'Y', oper.e[7]);
+						nproc.clglWork_links.setArg('pole'+p+'Z', oper.e[11]);
 					}
 				}
 			}
