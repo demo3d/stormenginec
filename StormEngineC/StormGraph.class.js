@@ -23,7 +23,7 @@ StormGraph = function(jsonIn) { StormNode.call(this);
 	var str_dir = this.source_direction();
 	
 	
-	// NODES
+	// NODES 
 	this.clglWork_nodes = this.webCLGL.createWork(this.offset);	
 	
 	// VERTEX AND FRAGMENT PROGRAMS	
@@ -587,17 +587,11 @@ StormGraph.prototype.addLink = function(jsonIn) {
  * @returns {Int}
  */
 StormGraph.prototype.addLinkNow = function(jsonIn) {
-	var arr4Uint8_XYZW = this.webCLGL.enqueueReadBuffer_Float4(this.clglWork_nodes.buffers_TEMP["posXYZW"]);
-	
-	
 	// (origin)
 	this.arrayLinkId.push(this.currentLinkId);
 	this.arrayLinkNodeName.push(jsonIn.origin_nodeName);
 	this.arrayLinkNodeId.push(jsonIn.origin_nodeId);
-	this.arrayLinkPosXYZW.push(	arr4Uint8_XYZW[0][(jsonIn.origin_itemStart)],
-								arr4Uint8_XYZW[1][(jsonIn.origin_itemStart)],
-								arr4Uint8_XYZW[2][(jsonIn.origin_itemStart)],
-								1.0);
+	this.arrayLinkPosXYZW.push(	0.0, 0.0, 0.0, 1.0);
 	this.arrayLinkVertexPos.push(0.0, 0.0, 0.0, 1.0);
 	this.arrayLinkVertexColor.push(1.0, 1.0, 1.0, 1.0);
 	
@@ -605,10 +599,7 @@ StormGraph.prototype.addLinkNow = function(jsonIn) {
 	this.arrayLinkId.push(this.currentLinkId+1);
 	this.arrayLinkNodeName.push(jsonIn.target_nodeName);
 	this.arrayLinkNodeId.push(jsonIn.target_nodeId);
-	this.arrayLinkPosXYZW.push(	arr4Uint8_XYZW[0][(jsonIn.target_itemStart)],
-								arr4Uint8_XYZW[1][(jsonIn.target_itemStart)],
-								arr4Uint8_XYZW[2][(jsonIn.target_itemStart)],
-								1.0);	
+	this.arrayLinkPosXYZW.push(	0.0, 0.0, 0.0, 1.0);	
 	this.arrayLinkVertexPos.push(0.0, 0.0, 0.0, 1.0);
 	this.arrayLinkVertexColor.push(1.0, 1.0, 1.0, 1.0);
 	
@@ -640,6 +631,24 @@ StormGraph.prototype.updateLinks = function() {
 	
 	this.clglWork_links.setArg("idx", this.arrayLinkId, this.splitLinks); 
 	this.clglWork_links.setArg("nodeId", this.arrayLinkNodeId, this.splitLinks);
+	
+	if(this.clglWork_nodes.buffers_TEMP["posXYZW"] != undefined) {
+		var arr4Uint8_XYZW = this.webCLGL.enqueueReadBuffer_Float4(this.clglWork_nodes.buffers_TEMP["posXYZW"]);
+		//var arr4Uint8_XYZW = this.clglLayout_nodes.CLGL_bufferPosXYZW.Float4;
+		for(var n = 0, f = this.links.length; n < f; n++) {
+			var idx = n*8;
+			this.arrayLinkPosXYZW[idx+0] = arr4Uint8_XYZW[0][this.links[n].origin_itemStart];
+			this.arrayLinkPosXYZW[idx+1] = arr4Uint8_XYZW[1][this.links[n].origin_itemStart];
+			this.arrayLinkPosXYZW[idx+2] = arr4Uint8_XYZW[2][this.links[n].origin_itemStart];
+			this.arrayLinkPosXYZW[idx+3] = arr4Uint8_XYZW[3][this.links[n].origin_itemStart];
+			
+			this.arrayLinkPosXYZW[idx+4] = arr4Uint8_XYZW[0][this.links[n].target_itemStart];
+			this.arrayLinkPosXYZW[idx+5] = arr4Uint8_XYZW[1][this.links[n].target_itemStart];
+			this.arrayLinkPosXYZW[idx+6] = arr4Uint8_XYZW[2][this.links[n].target_itemStart];
+			this.arrayLinkPosXYZW[idx+7] = arr4Uint8_XYZW[3][this.links[n].target_itemStart];
+		}
+	}
+	
 	this.clglWork_links.setArg("posXYZW", this.arrayLinkPosXYZW, this.splitLinks);	
 	this.clglWork_links.setArg("initPos", this.arrayLinkPosXYZW, this.splitLinks);
 	this.clglWork_links.setArg("nodeVertexPos", this.arrayLinkVertexPos, this.splitLinks);
@@ -819,25 +828,55 @@ StormGraph.prototype.set_polarity = function(arr) {
 	this.clglWork_nodes.setArg("particlePolarity", this.arrayNodePolaritys);
 	this.clglWork_links.setArg("particlePolarity", this.arrayLinkPolaritys);
 };
+
+/**
+* Destination by array XYZ
+* @type Void
+* @param {Array} arr 
+* @param {Float} spacing
+*/
+StormGraph.prototype.set_destinationArray = function(arr, spacing) {
+	this.set_enableDestination();
+	this.set_destinationForce(0.1);
+		
+	this.arrayNodeDestination = [];	
+	
+	var currentNodeId = -1;
+	var x = 0;
+	var y = 0;
+	var z = 0;
+	var spac = (spacing != undefined) ? spacing : 0.01; 
+	for(var n=0; n < this.arrayNodeId.length; n++) {
+		if(currentNodeId != this.arrayNodeId[n]) {
+			currentNodeId = this.arrayNodeId[n];
+		
+			x = parseFloat(arr[(currentNodeId*3)]);
+			y = parseFloat(arr[(currentNodeId*3)+1]);
+			z = parseFloat(arr[(currentNodeId*3)+2]);
+			
+			this.arrayNodeDestination.push(x*spac, y*spac, z*spac, 255);	
+		} else {
+			this.arrayNodeDestination.push(x*spac, y*spac, z*spac, 255);
+		}
+	}
+	this.clglWork_nodes.setArg("dest", this.arrayNodeDestination);
+	
+	this.setLinksDestinationToNodesDestination();	
+};
 /**
 * Destination by width and height
-* @param {Int} width
-* @param {Int} height
-* @type Void
-*/
-/**
-* Set position
-* @type Void
 * @param {Object} position For make a square or spherical disposal
-* 	@param {Float} position.width Width
-* 	@param {Float} position.height Height
+* 	@param {Float} position.width width
+* 	@param {Float} position.height height
 * 	@param {Float} position.spacing Spacing
+* @type Void
 */
 StormGraph.prototype.set_destinationWidthHeight = function(jsonIn) {
 	this.set_enableDestination();
 	this.set_destinationForce(0.5);
 		
 	this.arrayNodeDestination = [];	
+	
 	var totalNodes = this.currentNodeId-1;
 	var totalDestinations = jsonIn.width*jsonIn.height;
 	var nodesPerCell = totalNodes/totalDestinations;
@@ -878,12 +917,13 @@ StormGraph.prototype.set_destinationVolume = function(voxelizator) {
 	this.set_enableDestination();
 	this.set_destinationForce(0.5);
 		
+	this.arrayNodeDestination = [];	
+	
 	var vo = voxelizator;
 	if(vo instanceof StormVoxelizator == false) { alert("You must select a voxelizator object with albedo fillmode enabled."); return false;}
 	if(vo.image3D_VoxelsColor == undefined) { alert("You must select a voxelizator object with albedo fillmode enabled."); return false;}
 	var data = vo.clglBuff_VoxelsColor.items[0].inData;
 	
-	this.arrayNodeDestination = [];	
 	var numActCells = 0;
 	for(var n = 0, f = data.length/4; n < f; n++) { // num of active cells
 		var id = n*4;

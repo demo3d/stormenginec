@@ -1565,15 +1565,14 @@ StormEngineC.prototype.createVoxelizator = function() {
 /**
 * Create graph
 * @returns {StormGraph}
+* 	@param	{Object} jsonIn
+* 	@param {Float} [jsonIn.offset=100.0]
 */
-StormEngineC.prototype.createGraph = function() {   
-	var graph = new StormGraph();
+StormEngineC.prototype.createGraph = function(jsonIn) {   
+	var graph = new StormGraph(jsonIn);
 	graph.idNum = this.graphs.length;
 	graph.name = 'graph '+this.idxGraphs++; 
 	this.graphs.push(graph); 
-	return graph;
-	
-	var graph = new StormGraph();
 	return graph;
 };
 /**
