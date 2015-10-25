@@ -553,6 +553,8 @@ StormGraph.prototype.updateNodes = function() {
 * @param	{Object} jsonIn
 * 	@param {String} jsonIn.origin NodeName Origin for this link
 * 	@param {String} jsonIn.target NodeName Target for this link
+* 	@param {Array<Float>} jsonIn.origin_color Vector3F for the origin color
+* 	@param {Array<Float>} jsonIn.target_color Vector3F for the target color
  */
 StormGraph.prototype.addLink = function(jsonIn) {
 	var blId = this.addLinkNow({
@@ -561,7 +563,9 @@ StormGraph.prototype.addLink = function(jsonIn) {
 		"origin_nodeId": this.nodes[jsonIn.origin].nodeId,
 		"target_nodeId": this.nodes[jsonIn.target].nodeId,
 		"origin_itemStart": this.nodes[jsonIn.origin].itemStart,
-		"target_itemStart": this.nodes[jsonIn.target].itemStart
+		"target_itemStart": this.nodes[jsonIn.target].itemStart,
+		"origin_color": jsonIn.origin_color,
+		"target_color": jsonIn.target_color
 		});
 	
 	// ADD LINK TO ARRAY LINKS
@@ -571,11 +575,14 @@ StormGraph.prototype.addLink = function(jsonIn) {
 		"origin_nodeId": this.nodes[jsonIn.origin].nodeId,
 		"target_nodeId": this.nodes[jsonIn.target].nodeId,
 		"origin_itemStart": this.nodes[jsonIn.origin].itemStart,
-		"target_itemStart": this.nodes[jsonIn.target].itemStart
+		"target_itemStart": this.nodes[jsonIn.target].itemStart,
+		"origin_color": jsonIn.origin_color,
+		"target_color": jsonIn.target_color
 		});
 };
 /**
 * Create new link for the graph
+* @private
 * @param	{Object} jsonIn
 * 	@param {Int} jsonIn.origin_nodeName
 * 	@param {Int} jsonIn.target_nodeName
@@ -583,7 +590,8 @@ StormGraph.prototype.addLink = function(jsonIn) {
 * 	@param {Int} jsonIn.target_nodeId
 * 	@param {Int} jsonIn.origin_itemStart
 * 	@param {Int} jsonIn.target_itemStart
-* 	@param {Array<Float32Array>} jsonIn.arraysNodePositions
+* 	@param {Array<Float>} jsonIn.origin_color Vector3F for the origin color
+* 	@param {Array<Float>} jsonIn.target_color Vector3F for the target color
  * @returns {Int}
  */
 StormGraph.prototype.addLinkNow = function(jsonIn) {
@@ -593,7 +601,7 @@ StormGraph.prototype.addLinkNow = function(jsonIn) {
 	this.arrayLinkNodeId.push(jsonIn.origin_nodeId);
 	this.arrayLinkPosXYZW.push(	0.0, 0.0, 0.0, 1.0);
 	this.arrayLinkVertexPos.push(0.0, 0.0, 0.0, 1.0);
-	this.arrayLinkVertexColor.push(1.0, 1.0, 1.0, 1.0);
+	this.arrayLinkVertexColor.push(jsonIn.origin_color[0], jsonIn.origin_color[1], jsonIn.origin_color[2], 1.0);
 	
 	// (target)
 	this.arrayLinkId.push(this.currentLinkId+1);
@@ -601,7 +609,7 @@ StormGraph.prototype.addLinkNow = function(jsonIn) {
 	this.arrayLinkNodeId.push(jsonIn.target_nodeId);
 	this.arrayLinkPosXYZW.push(	0.0, 0.0, 0.0, 1.0);	
 	this.arrayLinkVertexPos.push(0.0, 0.0, 0.0, 1.0);
-	this.arrayLinkVertexColor.push(1.0, 1.0, 1.0, 1.0);
+	this.arrayLinkVertexColor.push(jsonIn.target_color[0], jsonIn.target_color[1], jsonIn.target_color[2], 1.0);
 	
 	
 	this.arrayLinkIndices.push(this.startIndexId_link, this.startIndexId_link+1);

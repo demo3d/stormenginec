@@ -323,6 +323,7 @@ StormEngineC.prototype.createWebGL = function(jsonIn) {
 		this.target.parentNode.removeChild(this.target);
 		e.appendChild(this.target);  
 		this.$ = $('#'+this.target.id);
+		this.target.style.marginLeft = "0px";
 		
 		this.editMode = (jsonIn != undefined && jsonIn.editMode != undefined) ? jsonIn.editMode : true;
 		this.resizable = (jsonIn != undefined && jsonIn.resizable != undefined) ? jsonIn.resizable : 2; 
