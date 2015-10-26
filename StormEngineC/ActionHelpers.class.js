@@ -21,14 +21,14 @@ ActionHelpers.prototype.add_btn = function(target, name, onClickCallback) {
 	}).bind(this, onClickCallback));
 };
 
-ActionHelpers.prototype.add_valuesAndBtn = function(target, name, arrayTexts, arrayDefaultValues, onClickCallback) {
+ActionHelpers.prototype.add_valuesAndBtn = function(target, name, type, arrayTexts, arrayDefaultValues, onClickCallback) {
 	var str = ''+
 	'<div style="display:inline-block;width:20%;vertical-align:top;">'+
 		"<button id='BUTTONID_"+name+"' style='width:100%'>"+name+"</button>"+
 	'</div>'+
 	'<div style="display:inline-block;width:80%;">';
 		for(var n=0; n < arrayTexts.length; n++) {
-			str += '<input type="number" id="INPUTID_'+name+'_'+arrayTexts[n]+'" step="'+(arrayDefaultValues[n]/20)+'" value="'+arrayDefaultValues[n]+'" title="'+arrayTexts[n]+'" style="width:'+((100/arrayTexts.length)-1)+'%"/>';			
+			str += '<input type="'+type+'" id="INPUTID_'+name+'_'+arrayTexts[n]+'" step="'+(arrayDefaultValues[n]/20)+'" value="'+arrayDefaultValues[n]+'" title="'+arrayTexts[n]+'" style="width:'+((100/arrayTexts.length)-1)+'%"/>';			
 		}	
 	str += "</div>";
 	target.appendChild(this.stringToDom(str));	

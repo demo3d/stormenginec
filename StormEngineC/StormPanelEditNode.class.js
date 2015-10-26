@@ -293,11 +293,11 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				stormEngineC.nearNode.setDirection('random');
 			});
 			
-			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DISPOSAL_WidthHeight", ["width", "height"], ["128", "128"], function(arrayValues) {				
+			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DISPOSAL_WidthHeight", "number", ["width", "height"], ["128", "128"], function(arrayValues) {				
 					stormEngineC.nearNode.setDisposal({width: arrayValues[0], height: arrayValues[1]});
 			});
 			
-			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DISPOSAL_RADIUS", ["radius"], ["0.5"], function(arrayValues) {				
+			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DISPOSAL_RADIUS", "number", ["radius"], ["0.5"], function(arrayValues) {				
 				stormEngineC.nearNode.setDisposal({width: arrayValues[0], height: arrayValues[1]});
 				stormEngineC.nearNode.setDisposal({radius: arrayValues[0]});
 			});
@@ -318,7 +318,7 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				stormEngineC.nearNode.setDestinationForce(value);
 			});
 			
-			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DESTINATION_WidthHeight", ["width", "height"], ["128", "128"], function(arrayValues) {				
+			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DESTINATION_WidthHeight", "number", ["width", "height"], ["128", "128"], function(arrayValues) {				
 				stormEngineC.nearNode.setDestinationWidthHeight(arrayValues[0], arrayValues[1]);
 			});
 			
@@ -410,11 +410,11 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				stormEngineC.nearNode.set_dir('random');
 			});
 			
-			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "POSITION_WidthHeight", ["width", "height", "spacing"], ["128", "128", "1.5"], function(arrayValues) {				
+			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "POSITION_WidthHeight", "number", ["width", "height", "spacing"], ["128", "128", "1.5"], function(arrayValues) {				
 				stormEngineC.nearNode.set_pos({"width": parseFloat(arrayValues[0]), "height": parseFloat(arrayValues[1]), "spacing": parseFloat(arrayValues[2])});
 			});
 			
-			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "POSITION_RADIUS", ["radius"], ["1.5"], function(arrayValues) {	
+			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "POSITION_RADIUS", "number", ["radius"], ["1.5"], function(arrayValues) {	
 				stormEngineC.nearNode.set_pos({"radius": arrayValues[0]});
 			});
 			
@@ -434,7 +434,7 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				stormEngineC.nearNode.set_destinationForce(value);
 			});
 			
-			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DESTINATION_WidthHeight", ["width", "height", "spacing"], ["128", "128", "1.5"], function(arrayValues) {				
+			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DESTINATION_WidthHeight", "number", ["width", "height", "spacing"], ["128", "128", "1.5"], function(arrayValues) {				
 				stormEngineC.nearNode.set_destinationWidthHeight({"width": arrayValues[0], "height": arrayValues[1], "spacing": arrayValues[2]});
 			});
 			
