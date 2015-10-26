@@ -3,7 +3,7 @@
 * @constructor
 */
 StormEngineC_PanelEditNode = function() {
-
+	this.actHelpers = new ActionHelpers();
 };
 
 /**
@@ -40,17 +40,16 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 		$('#DIVID_StormEditNode_edits').html('');
 		
 		
-		
-		
-		lines_rotation = function() {
-			var strMoves = 	'<div>'+
-								'ROTATE: '+
-								"<input type='text' id='StormEN_tlVal' value='90.0' style='width:30px' />"+
-								' X<input id="StormEN_spinnerRotX" name="value" value="0.0" style="color:#FFF;width:1px">'+
-								' Y<input id="StormEN_spinnerRotY" name="value" value="0.0" style="color:#FFF;width:1px">'+
-								' Z<input id="StormEN_spinnerRotZ" name="value" value="0.0" style="color:#FFF;width:1px">'+
-							'</div>';
-			$('#DIVID_StormEditNode_edits').append(strMoves);
+		lines_rotation = (function(target) {
+			var str = '<div>'+
+							'ROTATE: '+
+							"<input type='text' id='StormEN_tlVal' value='90.0' style='width:30px' />"+
+							' X<input id="StormEN_spinnerRotX" name="value" value="0.0" style="color:#FFF;width:1px">'+
+							' Y<input id="StormEN_spinnerRotY" name="value" value="0.0" style="color:#FFF;width:1px">'+
+							' Z<input id="StormEN_spinnerRotZ" name="value" value="0.0" style="color:#FFF;width:1px">'+
+						'</div>';
+			DGE('DIVID_StormEditNode_edits').appendChild(this.actHelpers.stringToDom(str));
+			
 			$("#StormEN_spinnerRotX").spinner({numberFormat:"n",
 												spin: function(event, ui) {
 													if(event.currentTarget.textContent == '▲') {
@@ -59,8 +58,8 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 														stormEngineC.nearNode.setRotationX(stormEngineC.utils.degToRad(-$('#StormEN_tlVal').val())); 
 													}
 												}
-												});
-				$("#StormEN_spinnerRotY").spinner({numberFormat:"n",
+											});
+			$("#StormEN_spinnerRotY").spinner({numberFormat:"n",
 												spin: function(event, ui) {
 													if(event.currentTarget.textContent == '▲') {
 														stormEngineC.nearNode.setRotationY(stormEngineC.utils.degToRad(+$('#StormEN_tlVal').val())); 
@@ -68,8 +67,8 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 														stormEngineC.nearNode.setRotationY(stormEngineC.utils.degToRad(-$('#StormEN_tlVal').val())); 
 													}
 												}
-												});
-				$("#StormEN_spinnerRotZ").spinner({numberFormat:"n",
+											});
+			$("#StormEN_spinnerRotZ").spinner({numberFormat:"n",
 												spin: function(event, ui) {
 													if(event.currentTarget.textContent == '▲') {
 														stormEngineC.nearNode.setRotationZ(stormEngineC.utils.degToRad(+$('#StormEN_tlVal').val())); 
@@ -77,11 +76,11 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 														stormEngineC.nearNode.setRotationZ(stormEngineC.utils.degToRad(-$('#StormEN_tlVal').val())); 
 													}
 												}
-												});
-		};
-		add_removeBtn = function(clickCallback) {
+											});
+		}).bind(this);
+		add_removeBtn = (function(clickCallback) {
 			var str = '<button id="BUTTONID_remove">REMOVE</button><br />';
-			$('#DIVID_StormEditNode_edits').append(str);
+			DGE('DIVID_StormEditNode_edits').appendChild(this.actHelpers.stringToDom(str));
 			
 			document.getElementById("BUTTONID_remove").addEventListener("click", function() {
 				clickCallback();
@@ -90,142 +89,8 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				stormEngineC.nearNode = undefined;
 				stormEngineC.PanelEditNode.updateNearNode();
 			});
-		};
-		add_checkbox = function(name, variable, checkCallback, uncheckCallback) {
-			var str = 	name+': <input type="checkbox" id="INPUTID_StormEditNode_'+name+'" /><br />';
-			$('#DIVID_StormEditNode_edits').append(str);
-			
-			if(variable === true || variable === 1) {
-				document.getElementById("INPUTID_StormEditNode_"+name).checked = true;
-			} else {
-				document.getElementById("INPUTID_StormEditNode_"+name).checked = false;
-			}
-			
-			$("#INPUTID_StormEditNode_"+name).on('click', function() {
-				if(document.getElementById("INPUTID_StormEditNode_"+name).checked == false) {
-					uncheckCallback();
-				} else {
-					checkCallback();
-				}
-			});
-		};		
-		add_radio = function(name, text1, text2, variable, check1Callback, check2Callback) {
-			var str = 	name+': '+
-						text1+' <input type="radio" name="INPUTNAME_StormEditNode_'+name+'"  id="INPUTID_StormEditNode_'+name+'_'+text1+'" /> '+
-						text2+' <input type="radio" name="INPUTNAME_StormEditNode_'+name+'"  id="INPUTID_StormEditNode_'+name+'_'+text2+'" /><br />';
-			$('#DIVID_StormEditNode_edits').append(str);
-			
-			if(variable === true || variable === 1) {
-				document.getElementById("INPUTID_StormEditNode_"+name+"_"+text1).checked = true;
-			} else {
-				document.getElementById("INPUTID_StormEditNode_"+name+"_"+text2).checked = true;
-			}
-			
-			$("#INPUTID_StormEditNode_"+name+"_"+text1).on('click', function() {
-				check1Callback();
-			});
-			$("#INPUTID_StormEditNode_"+name+"_"+text2).on('click', function() {
-				check2Callback();
-			});
-		};
-		add_spinner = function(name, variable, steps, onSpinCallback) {
-			var str = name+' <input id="INPUTID_StormEditNode_'+name+'" value="'+variable+'" style="color:#FFF;width:40px"><br />';
-			$('#DIVID_StormEditNode_edits').append(str);
-			$("#INPUTID_StormEditNode_"+name).spinner({numberFormat:"n", step: steps,
-															spin: function(event, ui) {
-																onSpinCallback(ui.value);
-															}
-														});
-		};
-		add_3dspinner = function(name, vectorVariable, steps, onSpinCallback) {
-			var str = '<div>'+
-						name+': '+
-						'<input id="StormEN_spinner'+name+'X" name="value" value="'+vectorVariable.e[0]+'" style="background:red;color:#FFF;width:40px">'+
-						'<input id="StormEN_spinner'+name+'Y" name="value" value="'+vectorVariable.e[1]+'" style="background:green;color:#FFF;width:40px">'+
-						'<input id="StormEN_spinner'+name+'Z" name="value" value="'+vectorVariable.e[2]+'" style="background:blue;color:#FFF;width:40px">'+
-					'</div>';
-					$('#DIVID_StormEditNode_edits').append(str);
-					$("#StormEN_spinner"+name+"X").spinner({numberFormat:"n", step: steps,
-										spin: function(event, ui) {
-											var vector = $V3([ui.value, $("#StormEN_spinner"+name+"Y").val(), $("#StormEN_spinner"+name+"Z").val()]);
-											onSpinCallback(vector);
-										},
-										change: function(event, ui) {
-											var vector = $V3([$(this).val(), $("#StormEN_spinner"+name+"Y").val(), $("#StormEN_spinner"+name+"Z").val()]);
-											onSpinCallback(vector);
-										}
-										});
-					$("#StormEN_spinner"+name+"Y").spinner({numberFormat:"n", step: steps,
-										spin: function(event, ui) {
-											var vector = $V3([$("#StormEN_spinner"+name+"X").val(), ui.value, $("#StormEN_spinner"+name+"Z").val()]);
-											onSpinCallback(vector);
-										},
-										change: function(event, ui) {
-											var vector = $V3([$("#StormEN_spinner"+name+"X").val(), $(this).val(), $("#StormEN_spinner"+name+"Z").val()]);
-											onSpinCallback(vector);
-										}
-										});
-					$("#StormEN_spinner"+name+"Z").spinner({numberFormat:"n", step: steps,
-										spin: function(event, ui) {
-											var vector = $V3([$("#StormEN_spinner"+name+"X").val(), $("#StormEN_spinner"+name+"Y").val(), ui.value]);
-											onSpinCallback(vector);
-										},
-										change: function(event, ui) {
-											var vector = $V3([$("#StormEN_spinner"+name+"X").val(), $("#StormEN_spinner"+name+"Y").val(), $(this).val()]);
-											onSpinCallback(vector);
-										}
-										}); 
-		};
-		add_slider = function(name, min, max, fvalue, steps, onSlideCallback) {
-			var str = 	name+': <span id="DIVID_StormEditNode_'+name+'">'+fvalue+'</span>'+
-						'<div id="DIVID_StormEditNode_'+name+'_SLIDER"></div>';
-			$("#DIVID_StormEditNode_edits").append(str);
-			$("#DIVID_StormEditNode_"+name+"_SLIDER").slider({	"max": max,
-																"min": min,
-																"value": fvalue,
-																"step": steps,
-																"slide":function(event,ui) {
-																		onSlideCallback(ui.value);
-																		$('#DIVID_StormEditNode_'+name).text(ui.value);
-																	}});
-		};
-		add_input = function(name, min, fvalue, onKeyupCallback) {
-			var str = 	name+': <input id="INPUTID_StormEditNode_'+name+'" type="text" value="'+fvalue+'" style="width:40px"/>m<br />';
-			$('#DIVID_StormEditNode_edits').append(str);
-			
-			$("#INPUTID_StormEditNode_"+name).on('keyup', function() {
-												if($(this).val() > min) {
-													onKeyupCallback();
-												} else {
-													$(this).val(min);
-													onKeyupCallback();
-												}
-											});
-		};
-		add_valuesAndBtn = function(name, arrayTexts, arrayDefaultValues, onClickCallback) {
-			var str = "<button id='BUTTONID_StormEditNode_"+name+"'>"+name+"</button>";
-			for(var n=0; n < arrayTexts.length; n++) {
-				str += arrayTexts[n]+' <input type="text" id="INPUTID_StormEditNode_'+name+'_'+arrayTexts[n]+'" value="'+arrayDefaultValues[n]+'" style="width:40px"/>';			
-			}
-			str += "<br />";
-			$('#DIVID_StormEditNode_edits').append(str);
-			
-			$("#BUTTONID_StormEditNode_"+name).on('click', function() {
-				var settedValues = [];
-				for(var n=0; n < arrayTexts.length; n++) {
-					settedValues.push($('#INPUTID_StormEditNode_'+name+'_'+arrayTexts[n]).val());
-				}
-				onClickCallback(settedValues);
-			});
-		};
-		add_btn = function(name, onClickCallback) {
-			var str = "<button id='BUTTONID_StormEditNode_"+name+"'>"+name+"</button><br />";
-			$('#DIVID_StormEditNode_edits').append(str);
-			
-			$("#BUTTONID_StormEditNode_"+name).on('click', function() {
-				onClickCallback();
-			});
-		};
+		}).bind(this);
+		
 		
 		
 		
@@ -235,7 +100,7 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				stormEngineC.nearNode.remove();
 			});
 			
-			add_checkbox("VISIBILITY", stormEngineC.nearNode.visibleOnContext,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "VISIBILITY", stormEngineC.nearNode.visibleOnContext,
 					function() {
 						stormEngineC.nearNode.visible(true);
 						stormEngineC.PanelListObjects.showListObjects();
@@ -246,22 +111,24 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 						stormEngineC.PanelEditNode.updateNearNode();
 					});	
 			
-			add_3dspinner("POSITION", stormEngineC.nearNode.getPosition(), 0.1, function(vector) {
-				stormEngineC.nearNode.setPosition(vector);
+			var pos = [stormEngineC.nearNode.getPosition().e[0], stormEngineC.nearNode.getPosition().e[1], stormEngineC.nearNode.getPosition().e[2]];
+			this.actHelpers.add_3dslider(DGE('DIVID_StormEditNode_edits'), "POSITION", pos, -100000.0, 100000.0, 0.1, function(vector) {
+				var pos = $V3([vector[0], vector[1], vector[2]]);
+				stormEngineC.nearNode.setPosition(pos);
 				stormEngineC.debugValues = [];
-				stormEngineC.setDebugValue(0, vector, stormEngineC.nearNode.name);
+				stormEngineC.setDebugValue(0, pos, stormEngineC.nearNode.name);
 			});
 			
 			lines_rotation();
 			
-			add_checkbox("EDITMODE", stormEngineC.nearNode.selectedNodeIsInEditionMode(),
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "EDITMODE", stormEngineC.nearNode.selectedNodeIsInEditionMode(),
 					function() {
 						stormEngineC.nearNode.editSelectedNode();
 					}, function() {
 						stormEngineC.nearNode.uneditSelectedNode();
 					});
 			
-			add_checkbox("DRAGGABLE", stormEngineC.nearNode.isDraggable,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "DRAGGABLE", stormEngineC.nearNode.isDraggable,
 					function() {
 						stormEngineC.nearNode.draggable(true);
 					}, function() {
@@ -273,7 +140,7 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				stormEngineC.nearNode.remove();
 			});
 			
-			add_checkbox("VISIBILITY", stormEngineC.nearNode.visibleOnContext,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "VISIBILITY", stormEngineC.nearNode.visibleOnContext,
 					function() {
 						stormEngineC.nearNode.visible(true);
 						stormEngineC.PanelListObjects.showListObjects();
@@ -284,38 +151,38 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 						stormEngineC.PanelEditNode.updateNearNode();
 					});
 			
-			add_3dspinner("POSITION", stormEngineC.nearNode.getPosition(), 0.1, function(vector) {
-				stormEngineC.nearNode.setPosition(vector);
+			var pos = [stormEngineC.nearNode.getPosition().e[0], stormEngineC.nearNode.getPosition().e[1], stormEngineC.nearNode.getPosition().e[2]];
+			this.actHelpers.add_3dslider(DGE('DIVID_StormEditNode_edits'), "POSITION", pos, -100000.0, 100000.0, 0.1, function(vector) {
+				var pos = $V3([vector[0], vector[1], vector[2]]);
+				stormEngineC.nearNode.setPosition(pos);
 				stormEngineC.debugValues = [];
-				stormEngineC.setDebugValue(0, vector, stormEngineC.nearNode.name);
+				stormEngineC.setDebugValue(0, pos, stormEngineC.nearNode.name);
 			});
 			
-			add_checkbox("DRAGGABLE", stormEngineC.nearNode.isDraggable,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "DRAGGABLE", stormEngineC.nearNode.isDraggable,
 					function() {
 						stormEngineC.nearNode.draggable(true);
 					}, function() {
 						stormEngineC.nearNode.draggable(false);
 					});	
 			
-			add_radio("POLARITY", "positive", "negative", stormEngineC.nearNode.polarity,
-					function() {
-						stormEngineC.nearNode.setPolarity(1);
-					}, function() {
-						stormEngineC.nearNode.setPolarity(0);
+			this.actHelpers.add_select(DGE('DIVID_StormEditNode_edits'), "POLARITY", [1,0], stormEngineC.nearNode.polarity,
+					function(value) {
+						stormEngineC.nearNode.setPolarity(parseFloat(value));
 					});	
 			
-			add_checkbox("ORBIT", stormEngineC.nearNode.orbit,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "ORBIT", stormEngineC.nearNode.orbit,
 					function() {
 						stormEngineC.nearNode.enableOrbit();
 					}, function() {
 						stormEngineC.nearNode.disableOrbit();
 					});
 			
-			add_spinner("FORCE", stormEngineC.nearNode.force, 0.05, function(value) {
+			this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "FORCE", stormEngineC.nearNode.force, 0.0, 1.0, 0.05, function(value) {
 				stormEngineC.nearNode.setForce(value);
 			});
 			
-			add_btn("GET_PARTICLES", function() {
+			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "GET_PARTICLES", function() {
 				stormEngineC.pickingCall='get({node:_selectedNode_});';  
 				stormEngineC.PanelListObjects.show();
 				$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
@@ -331,12 +198,14 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 			add_removeBtn(function() {
 				stormEngineC.nearNode.deleteForceField();
 			});
-						
-			add_3dspinner("DIRECTION", stormEngineC.nearNode.direction, 0.1, function(vector) {
-				stormEngineC.nearNode.setDirection(vector);
+					
+			var dir = [stormEngineC.nearNode.direction.e[0], stormEngineC.nearNode.direction.e[1], stormEngineC.nearNode.direction.e[2]];
+			this.actHelpers.add_3dslider(DGE('DIVID_StormEditNode_edits'), "DIRECTION", dir, -1.0, 1.0, 0.1, function(vector) {
+				var dir = $V3([vector[0], vector[1], vector[2]]);
+				stormEngineC.nearNode.setDirection(dir);
 			});
 			
-			add_btn("GET_PARTICLES", function() {
+			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "GET_PARTICLES", function() {
 				stormEngineC.pickingCall='get({node:_selectedNode_});';  
 				stormEngineC.PanelListObjects.show();
 				$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
@@ -352,37 +221,37 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				stormEngineC.nearNode.deleteParticles();
 			});
 			
-			add_3dspinner("POSITION", stormEngineC.nearNode.getPosition(), 0.1, function(vector) {
-				stormEngineC.nearNode.setPosition(vector);
+			var pos = [stormEngineC.nearNode.getPosition().e[0], stormEngineC.nearNode.getPosition().e[1], stormEngineC.nearNode.getPosition().e[2]];
+			this.actHelpers.add_3dslider(DGE('DIVID_StormEditNode_edits'), "POSITION", pos, -100000.0, 100000.0, 0.1, function(vector) {
+				var pos = $V3([vector[0], vector[1], vector[2]]);
+				stormEngineC.nearNode.setPosition(pos);
 				stormEngineC.debugValues = [];
-				stormEngineC.setDebugValue(0, vector, stormEngineC.nearNode.name);
+				stormEngineC.setDebugValue(0, pos, stormEngineC.nearNode.name);
 			});
 			
 			lines_rotation();
 			
-			add_checkbox("SELFSHADOWS", stormEngineC.nearNode.selfshadows,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "SELFSHADOWS", stormEngineC.nearNode.selfshadows,
 					function() {
 						stormEngineC.nearNode.setSelfshadows(true);
 					}, function() {
 						stormEngineC.nearNode.setSelfshadows(false);
 					});		
 			
-			add_checkbox("SHADOWS", stormEngineC.nearNode.shadows,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "SHADOWS", stormEngineC.nearNode.shadows,
 					function() {
 						stormEngineC.nearNode.setShadows(true);
 					}, function() {
 						stormEngineC.nearNode.setShadows(false);
 					});	
 			
-			add_spinner("POINTSIZE", stormEngineC.nearNode.pointSize, 0.1, function(value) {
+			this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "POINTSIZE", stormEngineC.nearNode.pointSize, 0.0, 50.0, 0.1, function(value) {
 				stormEngineC.nearNode.setPointSize(value);
 			});
 			
-			add_radio("POLARITY", "positive", "negative", stormEngineC.nearNode.polarity,
-					function() {
-						stormEngineC.nearNode.setPolarity(1);
-					}, function() {
-						stormEngineC.nearNode.setPolarity(0);
+			this.actHelpers.add_select(DGE('DIVID_StormEditNode_edits'), "POLARITY", [1,0], stormEngineC.nearNode.polarity,
+					function(value) {
+						stormEngineC.nearNode.setPolarity(parseFloat(value));
 					});	
 			
 			var str = "<table style='width:100%'><tr>"+
@@ -416,44 +285,44 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				filereader.readAsDataURL(this.files[0]);
 			};
 			
-			add_btn("DIRECTION_TO_0", function() {
+			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "DIRECTION_TO_0", function() {
 				stormEngineC.nearNode.setDirection();
 			});
 			
-			add_btn("DIRECTION_TO_RANDOM", function() {
+			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "DIRECTION_TO_RANDOM", function() {
 				stormEngineC.nearNode.setDirection('random');
 			});
 			
-			add_valuesAndBtn("DISPOSAL_WidthHeight", ["width", "height"], ["128", "128"], function(arrayValues) {				
+			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DISPOSAL_WidthHeight", ["width", "height"], ["128", "128"], function(arrayValues) {				
 					stormEngineC.nearNode.setDisposal({width: arrayValues[0], height: arrayValues[1]});
 			});
 			
-			add_valuesAndBtn("DISPOSAL_RADIUS", ["radius"], ["0.5"], function(arrayValues) {				
+			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DISPOSAL_RADIUS", ["radius"], ["0.5"], function(arrayValues) {				
 				stormEngineC.nearNode.setDisposal({width: arrayValues[0], height: arrayValues[1]});
 				stormEngineC.nearNode.setDisposal({radius: arrayValues[0]});
 			});
 			
-			add_spinner("LIFE_DISTANCE", stormEngineC.nearNode.lifeDistance, 0.1, function(value) {
+			this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "LIFE_DISTANCE", stormEngineC.nearNode.lifeDistance, 0.0, 1000.0, 0.1, function(value) {
 				stormEngineC.nearNode.setLifeDistance(value);
 			});
 			
 			
-			add_checkbox("DESTINATION", stormEngineC.nearNode.enDestination,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "DESTINATION", stormEngineC.nearNode.enDestination,
 					function() {
 						stormEngineC.nearNode.enableDestination();
 					}, function() {
 						stormEngineC.nearNode.disableDestination();
 					});	
 			
-			add_spinner("DESTINATION_FORCE", stormEngineC.nearNode.destinationForce, 0.1, function(value) {
+			this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "DESTINATION_FORCE", stormEngineC.nearNode.destinationForce, 0.0, 1.0, 0.05, function(value) {
 				stormEngineC.nearNode.setDestinationForce(value);
 			});
 			
-			add_valuesAndBtn("DESTINATION_WidthHeight", ["width", "height"], ["128", "128"], function(arrayValues) {				
+			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DESTINATION_WidthHeight", ["width", "height"], ["128", "128"], function(arrayValues) {				
 				stormEngineC.nearNode.setDestinationWidthHeight(arrayValues[0], arrayValues[1]);
 			});
 			
-			add_btn("DESTINATION_VOLUME", function() {
+			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "DESTINATION_VOLUME", function() {
 				stormEngineC.pickingCall='setDestinationVolume({voxelizator:_selectedNode_});';  
 				stormEngineC.PanelListObjects.show();
 				$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
@@ -469,37 +338,37 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 						"<div>"+(stormEngineC.nearNode.currentLinkId/2)+" links: [vertices: "+stormEngineC.nearNode.arrayLinkVertexPos.length+", indices: "+stormEngineC.nearNode.arrayLinkIndices.length+"]</div>";						
 			$('#DIVID_StormEditNode_edits').append(str);
 
-			add_3dspinner("POSITION", stormEngineC.nearNode.getPosition(), 0.1, function(vector) {
-				stormEngineC.nearNode.setPosition(vector);
+			var pos = [stormEngineC.nearNode.getPosition().e[0], stormEngineC.nearNode.getPosition().e[1], stormEngineC.nearNode.getPosition().e[2]];
+			this.actHelpers.add_3dslider(DGE('DIVID_StormEditNode_edits'), "POSITION", pos, -100000.0, 100000.0, 0.1, function(vector) {
+				var pos = $V3([vector[0], vector[1], vector[2]]);
+				stormEngineC.nearNode.setPosition(pos);
 				stormEngineC.debugValues = [];
-				stormEngineC.setDebugValue(0, vector, stormEngineC.nearNode.name);
+				stormEngineC.setDebugValue(0, pos, stormEngineC.nearNode.name);
 			});
 			
 			//lines_rotation();
 			
-			add_checkbox("SELFSHADOWS", stormEngineC.nearNode.selfshadows,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "SELFSHADOWS", stormEngineC.nearNode.selfshadows,
 					function() {
 						stormEngineC.nearNode.setSelfshadows(true);
 					}, function() {
 						stormEngineC.nearNode.setSelfshadows(false);
 					});		
 			
-			add_checkbox("SHADOWS", stormEngineC.nearNode.shadows,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "SHADOWS", stormEngineC.nearNode.shadows,
 					function() {
 						stormEngineC.nearNode.setShadows(true);
 					}, function() {
 						stormEngineC.nearNode.setShadows(false);
 					});	
 			
-			/*add_spinner("POINTSIZE", stormEngineC.nearNode.pointSize, 0.1, function(value) {
+			/*this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "POINTSIZE", stormEngineC.nearNode.pointSize, 0.0, 50.0, 0.1, function(value) {
 				stormEngineC.nearNode.setPointSize(value);
 			});*/
 			
-			add_radio("POLARITY", "positive", "negative", stormEngineC.nearNode.polarity,
-					function() {
-						stormEngineC.nearNode.set_polarity(1);
-					}, function() {
-						stormEngineC.nearNode.set_polarity(0);
+			this.actHelpers.add_select(DGE('DIVID_StormEditNode_edits'), "POLARITY", [1,0], stormEngineC.nearNode.polarity,
+					function(value) {
+						stormEngineC.nearNode.set_polarity(parseFloat(value));
 					});	
 			
 			var str = "<table style='width:100%'><tr>"+
@@ -533,43 +402,43 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				filereader.readAsDataURL(this.files[0]);
 			};
 			
-			add_btn("DIRECTION_TO_0", function() {
+			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "DIRECTION_TO_0", function() {
 				stormEngineC.nearNode.set_dir();
 			});
 			
-			add_btn("DIRECTION_TO_RANDOM", function() {
+			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "DIRECTION_TO_RANDOM", function() {
 				stormEngineC.nearNode.set_dir('random');
 			});
 			
-			add_valuesAndBtn("POSITION_WidthHeight", ["width", "height", "spacing"], ["128", "128", "1.5"], function(arrayValues) {				
+			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "POSITION_WidthHeight", ["width", "height", "spacing"], ["128", "128", "1.5"], function(arrayValues) {				
 				stormEngineC.nearNode.set_pos({"width": parseFloat(arrayValues[0]), "height": parseFloat(arrayValues[1]), "spacing": parseFloat(arrayValues[2])});
 			});
 			
-			add_valuesAndBtn("POSITION_RADIUS", ["radius"], ["1.5"], function(arrayValues) {	
+			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "POSITION_RADIUS", ["radius"], ["1.5"], function(arrayValues) {	
 				stormEngineC.nearNode.set_pos({"radius": arrayValues[0]});
 			});
 			
-			add_spinner("LIFE_DISTANCE", stormEngineC.nearNode.lifeDistance, 0.1, function(value) {
+			this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "LIFE_DISTANCE", stormEngineC.nearNode.lifeDistance, 0.0, 1000.0, 0.1, function(value) {
 				stormEngineC.nearNode.set_lifeDistance(value);
 			});
 			
 			
-			add_checkbox("DESTINATION", stormEngineC.nearNode.enDestination,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "ENABLE_DESTINATION", stormEngineC.nearNode.enDestination,
 					function() {
 						stormEngineC.nearNode.set_enableDestination();
 					}, function() {
 						stormEngineC.nearNode.set_disableDestination();
 					});	
 			
-			add_spinner("DESTINATION_FORCE", stormEngineC.nearNode.destinationForce, 0.1, function(value) {
+			this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "DESTINATION_FORCE", stormEngineC.nearNode.destinationForce, 0.0, 1.0, 0.05, function(value) {
 				stormEngineC.nearNode.set_destinationForce(value);
 			});
 			
-			add_valuesAndBtn("DESTINATION_WidthHeight", ["width", "height", "spacing"], ["128", "128", "1.5"], function(arrayValues) {				
+			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DESTINATION_WidthHeight", ["width", "height", "spacing"], ["128", "128", "1.5"], function(arrayValues) {				
 				stormEngineC.nearNode.set_destinationWidthHeight({"width": arrayValues[0], "height": arrayValues[1], "spacing": arrayValues[2]});
 			});
 			
-			add_btn("DESTINATION_VOLUME", function() {
+			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "DESTINATION_VOLUME", function() {
 				stormEngineC.pickingCall='setDestinationVolume({voxelizator:_selectedNode_});';  
 				stormEngineC.PanelListObjects.show();
 				$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
@@ -577,13 +446,17 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 			});
 		}
 		if(stormEngineC.nearNode.objectType == 'buffernodes') {
-			add_3dspinner("POSITION", stormEngineC.nearNode.getPosition(), 0.1, function(vector) {
-				stormEngineC.nearNode.setPosition(vector);
+			var pos = [stormEngineC.nearNode.getPosition().e[0], stormEngineC.nearNode.getPosition().e[1], stormEngineC.nearNode.getPosition().e[2]];
+			this.actHelpers.add_3dslider(DGE('DIVID_StormEditNode_edits'), "POSITION", pos, -100000.0, 100000.0, 0.1, function(vector) {
+				var pos = $V3([vector[0], vector[1], vector[2]]);
+				stormEngineC.nearNode.setPosition(pos);
 				stormEngineC.debugValues = [];
-				stormEngineC.setDebugValue(0, vector, stormEngineC.nearNode.name);
+				stormEngineC.setDebugValue(0, pos, stormEngineC.nearNode.name);
 			});
+			
 			lines_rotation();
-			add_checkbox("EDITMODE", stormEngineC.nearNode.selectedNodeIsInEditionMode(),
+			
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "EDITMODE", stormEngineC.nearNode.selectedNodeIsInEditionMode(),
 					function() {
 						stormEngineC.nearNode.editSelectedNode();
 					}, function() {
@@ -591,7 +464,7 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 					});
 		}	
 		if(stormEngineC.nearNode.objectType == 'camera') {
-			add_checkbox("SET_ACTIVE", (stormEngineC.nearNode.idNum == stormEngineC.defaultCamera.idNum),
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "SET_ACTIVE", (stormEngineC.nearNode.idNum == stormEngineC.defaultCamera.idNum),
 					function() {
 						stormEngineC.setWebGLCam(stormEngineC.nearNode);
 						stormEngineC.PanelEditNode.updateNearNode();
@@ -599,44 +472,44 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 						
 					});
 			
-			add_checkbox("LOCK_ROTATION_X", stormEngineC.nearNode.lockRotX,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "LOCK_ROTATION_X", stormEngineC.nearNode.lockRotX,
 					function() {
 						stormEngineC.nearNode.lockRotationX();
 					}, function() {
 						stormEngineC.nearNode.unlockRotationX();
 					});
 			
-			add_checkbox("LOCK_ROTATION_Y", stormEngineC.nearNode.lockRotY,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "LOCK_ROTATION_Y", stormEngineC.nearNode.lockRotY,
 					function() {
 						stormEngineC.nearNode.lockRotationY();
 					}, function() {
 						stormEngineC.nearNode.unlockRotationY();
 					});
 			
-			add_slider("FOV", 0.1, 180.0, stormEngineC.nearNode.fov, 0.1, function(fvalue) {
+			this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "FOV", stormEngineC.nearNode.fov, 0.1, 180.0, 0.1, function(fvalue) {
 						stormEngineC.nearNode.setFov(fvalue);
 					});
 							
-			add_input("FOCUS_DISTANCE", 0.55, stormEngineC.nearNode.focusExtern, function() {
+			this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "FOCUS_DISTANCE", stormEngineC.nearNode.focusExtern, 0.55, 1000.0, 0.1, function() {
 						stormEngineC.nearNode.focusExtern = $(this).val();
 						stormEngineC.nearNode.setFocusIntern();
 					});
 						
-			add_checkbox("VIEW_FOCUS", stormEngineC.nearNode.nodePivot.nodeFocus.visibleOnContext,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "VIEW_FOCUS", stormEngineC.nearNode.nodePivot.nodeFocus.visibleOnContext,
 					function() {
 						stormEngineC.nearNode.nodePivot.nodeFocus.visibleOnContext = true;
 					}, function() {
 						stormEngineC.nearNode.nodePivot.nodeFocus.visibleOnContext = false;
 					});
 			
-			add_checkbox("DOF", stormEngineC.defaultCamera.DOFenable,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "DOF", stormEngineC.defaultCamera.DOFenable,
 					function() {
 						stormEngineC.defaultCamera.DOFenable = true;
 					}, function() {
 						stormEngineC.defaultCamera.DOFenable = false;
 					});
 			
-			add_checkbox("AUTO_FOCUS", stormEngineC.defaultCamera.autofocus,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "AUTO_FOCUS", stormEngineC.defaultCamera.autofocus,
 					function() {
 						stormEngineC.defaultCamera.autofocus = true;
 					}, function() {
@@ -645,62 +518,58 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 		}
 		if(stormEngineC.nearNode.objectType == 'light') {
 			if(stormEngineC.nearNode.type != "sun") {
-				add_3dspinner("POSITION", stormEngineC.nearNode.getPosition(), 0.1, function(vector) {
-					stormEngineC.nearNode.setPosition(vector);
+				var pos = [stormEngineC.nearNode.getPosition().e[0], stormEngineC.nearNode.getPosition().e[1], stormEngineC.nearNode.getPosition().e[2]];
+				this.actHelpers.add_3dslider(DGE('DIVID_StormEditNode_edits'), "POSITION", pos, -100000.0, 100000.0, 0.1, function(vector) {
+					var pos = $V3([vector[0], vector[1], vector[2]]);
+					stormEngineC.nearNode.setPosition(pos);
 					stormEngineC.debugValues = [];
-					stormEngineC.setDebugValue(0, vector, stormEngineC.nearNode.name);
+					stormEngineC.setDebugValue(0, pos, stormEngineC.nearNode.name);
 				});
 			}
 			
-			add_slider("FOV", 0.1, 180.0, stormEngineC.nearNode.fov, 0.1, function(fvalue) {
+			this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "FOV", stormEngineC.nearNode.fov, 0.1, 180.0, 0.1, function(fvalue) {
 				stormEngineC.nearNode.setFov(fvalue);
 			});
 			
 			// COLOR
-			var str = 'Color: <div id="DIVID_StormEditNode_color_paramColor" style="width:16px;height:16px;border:1px solid #CCC;cursor:pointer;background:rgb('+parseInt(stormEngineC.nearNode.color.e[0]*255)+','+parseInt(stormEngineC.nearNode.color.e[1]*255)+','+parseInt(stormEngineC.nearNode.color.e[2]*255)+');" ></div>'+
-						'<input id="INPUTID_StormEditNode_color" type="text" style="display:none"/>'; 
-			$('#DIVID_StormEditNode_edits').append(str);
-			
-			$("#DIVID_StormEditNode_color_paramColor").on('click', function() {
-				$('#INPUTID_StormEditNode_color').css('display','block');
-				$('#INPUTID_StormEditNode_color').click();
-				$('#INPUTID_StormEditNode_color').css('display','none');
-				$('.colorpicker').css('zIndex',currentStormZIndex);
-			});
-			
-			$('#INPUTID_StormEditNode_color').ColorPicker({'onChange':function(hsb, hex, rgb) {
-																			stormEngineC.nearNode.setLightColor($V3([rgb.r/255, rgb.g/255, rgb.b/255]));
-																			$('#DIVID_StormEditNode_color_paramColor').css('background','rgb('+rgb.r+','+rgb.g+','+rgb.b+')');
-																		}
-															});
-			$('#INPUTID_StormEditNode_color').ColorPickerSetColor({'r':stormEngineC.nearNode.color.e[0], 'g': stormEngineC.nearNode.color.e[1], 'b':stormEngineC.nearNode.color.e[2]});//normalizado 0.0-1.0
+			var currentColor = stormEngineC.nearNode.color;
+		    var hexColor = stormEngineC.utils.rgbToHex([currentColor.e[0]*255, currentColor.e[1]*255, currentColor.e[2]*255]);
+		    this.actHelpers.add_colorpicker(DGE('DIVID_StormEditNode_edits'), "Color", hexColor, (function(colorValue) {
+				var rgb = stormEngineC.utils.hexToRgb(colorValue);
+		    	
+				stormEngineC.nearNode.setLightColor($V3([rgb.r/255, rgb.g/255, rgb.b/255]));
+			}).bind(this));
 			
 
-			add_slider("KELVINS", 1000, 15000, stormEngineC.nearNode.fov, 0.1, function(fvalue) {
+		    this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "KELVINS", stormEngineC.nearNode.fov, 1000, 15000, 0.1, function(fvalue) {
 				stormEngineC.nearNode.setLightColor(fvalue);
-				$('#DIVID_StormEditNode_color_paramColor').css('background','rgb('+parseInt(stormEngineC.nearNode.color.e[0]*255)+','+parseInt(stormEngineC.nearNode.color.e[1]*255)+','+parseInt(stormEngineC.nearNode.color.e[2]*255)+')');
+				//$('#DIVID_StormEditNode_color_paramColor').css('background','rgb('+parseInt(stormEngineC.nearNode.color.e[0]*255)+','+parseInt(stormEngineC.nearNode.color.e[1]*255)+','+parseInt(stormEngineC.nearNode.color.e[2]*255)+')');
 			});
 			
 			this.lightDirectionX = stormEngineC.nearNode.direction.e[0];
 			this.lightDirectionZ = stormEngineC.nearNode.direction.e[2];
-			add_slider("DIRECTION_X", -1.0, 1.0, this.lightDirectionX, 0.001, (function(fvalue) {
+			this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "DIRECTION_X", this.lightDirectionX, -1.0, 1.0, 0.001, (function(fvalue) {
 				stormEngineC.lights[0].setDirection($V3([fvalue, -0.5, this.lightDirectionZ])); 
 			}).bind(this));			
-			add_slider("DIRECTION_Y", -1.0, 1.0, this.lightDirectionZ, 0.001, (function(fvalue) {
+			this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "DIRECTION_Y", this.lightDirectionZ, -1.0, 1.0, 0.001, (function(fvalue) {
 				stormEngineC.lights[0].setDirection($V3([this.lightDirectionX, -0.5, fvalue])); 
 			}).bind(this));
 		}
 		
 		if(stormEngineC.nearNode.objectType == 'line') {
-			add_3dspinner("ORIGIN", stormEngineC.nearNode.origin, 0.1, function(vector) {
-				stormEngineC.nearNode.setOrigin(vector);
+			var pos = [stormEngineC.nearNode.origin.e[0], stormEngineC.nearNode.origin.e[1], stormEngineC.nearNode.origin.e[2]];
+			this.actHelpers.add_3dslider(DGE('DIVID_StormEditNode_edits'), "ORIGIN", pos, -100000.0, 100000.0, 0.1, function(vector) {
+				var pos = $V3([vector[0], vector[1], vector[2]]);
+				stormEngineC.nearNode.setOrigin(pos);
 				stormEngineC.debugValues = [];
-				stormEngineC.setDebugValue(0, vector, stormEngineC.nearNode.name+' origin');
+				stormEngineC.setDebugValue(0, pos, stormEngineC.nearNode.name+' origin');
 			});
-			add_3dspinner("END", stormEngineC.nearNode.end, 0.1, function(vector) {
-				stormEngineC.nearNode.setEnd(vector);
+			var pos = [stormEngineC.nearNode.end.e[0], stormEngineC.nearNode.end.e[1], stormEngineC.nearNode.end.e[2]];
+			this.actHelpers.add_3dslider(DGE('DIVID_StormEditNode_edits'), "END", pos, -100000.0, 100000.0, 0.1, function(vector) {
+				var pos = $V3([vector[0], vector[1], vector[2]]);
+				stormEngineC.nearNode.setEnd(pos);
 				stormEngineC.debugValues = [];
-				stormEngineC.setDebugValue(1, vector, stormEngineC.nearNode.name+' end');
+				stormEngineC.setDebugValue(1, pos, stormEngineC.nearNode.name+' end');
 			});
 		}
 		

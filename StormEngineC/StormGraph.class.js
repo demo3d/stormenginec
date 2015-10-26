@@ -557,6 +557,9 @@ StormGraph.prototype.updateNodes = function() {
 * 	@param {Array<Float>} jsonIn.target_color Vector3F for the target color
  */
 StormGraph.prototype.addLink = function(jsonIn) {
+	var orig_color = (jsonIn != undefined && jsonIn.origin_color != undefined) ? jsonIn.origin_color : [1.0, 1.0, 1.0];
+	var targ_color = (jsonIn != undefined && jsonIn.target_color != undefined) ? jsonIn.target_color : [1.0, 1.0, 1.0];
+	
 	var blId = this.addLinkNow({
 		"origin_nodeName": jsonIn.origin,
 		"target_nodeName": jsonIn.target,
@@ -564,8 +567,8 @@ StormGraph.prototype.addLink = function(jsonIn) {
 		"target_nodeId": this.nodes[jsonIn.target].nodeId,
 		"origin_itemStart": this.nodes[jsonIn.origin].itemStart,
 		"target_itemStart": this.nodes[jsonIn.target].itemStart,
-		"origin_color": jsonIn.origin_color,
-		"target_color": jsonIn.target_color
+		"origin_color": orig_color,
+		"target_color": targ_color
 		});
 	
 	// ADD LINK TO ARRAY LINKS
@@ -576,8 +579,8 @@ StormGraph.prototype.addLink = function(jsonIn) {
 		"target_nodeId": this.nodes[jsonIn.target].nodeId,
 		"origin_itemStart": this.nodes[jsonIn.origin].itemStart,
 		"target_itemStart": this.nodes[jsonIn.target].itemStart,
-		"origin_color": jsonIn.origin_color,
-		"target_color": jsonIn.target_color
+		"origin_color": orig_color,
+		"target_color": targ_color
 		});
 };
 /**

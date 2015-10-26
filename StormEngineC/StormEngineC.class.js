@@ -47,7 +47,6 @@ stormEngineCDirectory = stormEngineCDirectory.replace('/'+page,"");
 if(window.jQuery == undefined) {
 	document.write('<link rel="stylesheet" type="text/css" href="'+stormEngineCDirectory+'/JQuery/ui/jquery-ui-1.10.3.custom.min.css" />');
 }
-document.write('<link rel="stylesheet" type="text/css" href="'+stormEngineCDirectory+'/colorPicker/css/colorpicker.css" />');
 document.write('<link rel="stylesheet" type="text/css" href="'+stormEngineCDirectory+'/css/style.css" />');
 document.write('<link rel="stylesheet" type="text/css" href="'+stormEngineCDirectory+'/stormPanel/stormPanel.css" />');
 document.write('<link rel="stylesheet" type="text/css" href="'+stormEngineCDirectory+'/stormMenu/stormMenu.css" />');
@@ -57,10 +56,10 @@ if(window.jQuery == undefined) {
 	document.write('<script type="text/javascript" src="'+stormEngineCDirectory+'/JQuery/jquery-1.9.1.js"></script>');	
 	document.write('<script type="text/javascript" src="'+stormEngineCDirectory+'/JQuery/ui/jquery-ui-1.10.3.custom.min.js"></script>');
 }
-document.write('<script type="text/javascript" src="'+stormEngineCDirectory+'/colorPicker/colorpicker.js"></script>');
 
 
-var includesF = [//'/StormMathMin.class.js',
+var includesF = ['/ActionHelpers.class.js',
+                 //'/StormMathMin.class.js',
                  '/StormMath.class.js',
 				'/StormMaterial.class.js',
 				'/StormGLContext.class.js',
@@ -115,7 +114,7 @@ var includesF = [//'/StormMathMin.class.js',
 				'/StormPanelBottomMenu.class.js',
 				'/StormRenderCLv4_Timeline.class.js',
 				'/StormRenderCL_EMR_MaterialEditor.class.js',
-				'/StormPanelEMRMaterialsDatabase.class.js',
+				'/StormPanelEMRMaterialsDatabase.class.js', 
 				'/JigLibJS/geom/glMatrix.js',
 				'/JigLibJS/jiglib.js',
 				'/JigLibJS/geom/Vector3D.js',
@@ -2002,7 +2001,15 @@ StormEngineC.prototype.setWebGLResize = function(width,height) {
 };
 
 /**
-* Set the ambient color
+* Get the ambient color. (0.0 to 1.0 values)
+* @returns {Array<Float>} colors
+*/
+StormEngineC.prototype.getAmbientColor = function() {
+	return [this.stormGLContext.ambientColor.e[0], this.stormGLContext.ambientColor.e[1], this.stormGLContext.ambientColor.e[2]];
+};
+
+/**
+* Set the ambient color. (0.0 to 1.0 values)
 * @type Void
 * @param {StormV3} color Set the ambient color through a normalized vector
 */
