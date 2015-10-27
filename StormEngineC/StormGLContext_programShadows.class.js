@@ -99,98 +99,6 @@ StormGLContext.prototype.pointers_LightDepth = function() {
 /**
  * @private 
  */
-StormGLContext.prototype.initShader_LightDepthParticles = function() {
-	var sourceVertex = 	this.precision+
-		'uniform float uPointSize;\n'+
-		
-		'attribute vec4 aVertexPositionX;\n'+
-		'attribute vec4 aVertexPositionY;\n'+
-		'attribute vec4 aVertexPositionZ;\n'+
-		//'attribute vec4 aColorRGBA;\n'+
-		//'varying vec4 vColorRGBA;\n'+
-		
-		
-		'uniform mat4 u_nodeWMatrix;\n'+
-		'uniform mat4 u_lightWMatrix;\n'+
-		'uniform mat4 uPMatrix;\n'+
-		 
-		
-		'float unpack (vec4 colour) {'+
-			'const vec4 bitShifts = vec4(1.0,'+
-							'1.0 / 255.0,'+
-							'1.0 / (255.0 * 255.0),'+
-							'1.0 / (255.0 * 255.0 * 255.0));'+
-			'return dot(colour, bitShifts);'+
-		'}'+
-		'varying vec4 vposition;\n'+
-		
-		'void main(void) {\n'+
-			// normalized and no needed divide by 255 (unpack(aVertexPositionX/255.0))
-			'float texturePosX = ((aVertexPositionX.x)*'+(stormEngineC.particlesOffset*2).toFixed(2)+')-'+stormEngineC.particlesOffset.toFixed(2)+';\n'+  
-			'float texturePosY = ((aVertexPositionY.x)*'+(stormEngineC.particlesOffset*2).toFixed(2)+')-'+stormEngineC.particlesOffset.toFixed(2)+';\n'+  
-			'float texturePosZ = ((aVertexPositionZ.x)*'+(stormEngineC.particlesOffset*2).toFixed(2)+')-'+stormEngineC.particlesOffset.toFixed(2)+';\n'+  
-			
-			//'gl_Position = uPMatrix * u_lightWMatrix * u_nodeWMatrix * vec4(texturePosX,texturePosY,texturePosZ, 1.0);\n'+
-			//'gl_Position = uPMatrix * u_lightWMatrix * vec4(texturePosX,texturePosY,texturePosZ, 1.0);\n'+
-			
-			'vposition = u_lightWMatrix  * vec4(texturePosX,texturePosY,texturePosZ, 1.0);\n'+
-			'gl_Position = uPMatrix * vposition;\n'+
-			
-			
-			'gl_PointSize = uPointSize;\n'+ 
-			//'vColorRGBA = aColorRGBA;\n'+
-		'}';
-	var sourceFragment = this.precision+
-		'uniform float uFar;\n'+
-		'uniform sampler2D sampler_kdTexture;\n'+
-		'varying vec4 vposition;\n'+
-		//'varying vec4 vColorRGBA;\n'+
-		'vec4 pack (float depth) {'+
-			'const vec4 bias = vec4(1.0 / 255.0,'+
-						'1.0 / 255.0,'+
-						'1.0 / 255.0,'+
-						'0.0);'+
-
-			'float r = depth;'+
-			'float g = fract(r * 255.0);'+
-			'float b = fract(g * 255.0);'+
-			'float a = fract(b * 255.0);'+
-			'vec4 colour = vec4(r, g, b, a);'+
-			
-			'return colour - (colour.yzww * bias);'+
-		'}'+
-		'float LinearDepthConstant = 1.0/uFar;'+
-		
-		'void main(void) {\n'+
-			//'vec4 textureColor = texture2D(sampler_kdTexture, vec2(0.0, 0.0));\n'+
-			//'gl_FragColor = vec4(vec3(textureColor.r, textureColor.g, textureColor.b), 1.0);\n'+
-			'float depth = length(vposition)*LinearDepthConstant;'+
-			//'gl_FragColor = pack(depth);\n'+   
-			'gl_FragColor = vec4(depth,depth,depth,1.0);\n'+   
-		'}';
-	this.shader_LightDepthParticles = this.gl.createProgram();
-	this.createShader(this.gl, "LIGHT DEPTH PARTICLES", sourceVertex, sourceFragment, this.shader_LightDepthParticles, this.pointers_LightDepthParticles.bind(this));
-};
-/**
- * @private 
- */
-StormGLContext.prototype.pointers_LightDepthParticles = function() {
-	this.u_LightDepthParticles_far = this.gl.getUniformLocation(this.shader_LightDepthParticles, "uFar");
-	
-	this.u_LightDepthParticles_pointSize = this.gl.getUniformLocation(this.shader_LightDepthParticles, "uPointSize");
-	
-	this.attr_LightDepthParticles_posX = this.gl.getAttribLocation(this.shader_LightDepthParticles, "aVertexPositionX");
-	this.attr_LightDepthParticles_posY = this.gl.getAttribLocation(this.shader_LightDepthParticles, "aVertexPositionY");
-	this.attr_LightDepthParticles_posZ = this.gl.getAttribLocation(this.shader_LightDepthParticles, "aVertexPositionZ");
-	
-	this.u_LightDepthParticles_PMatrix = this.gl.getUniformLocation(this.shader_LightDepthParticles, "uPMatrix");
-	this.u_LightDepthParticles_lightWMatrix = this.gl.getUniformLocation(this.shader_LightDepthParticles, "u_lightWMatrix");
-	this.u_LightDepthParticles_nodeWMatrix = this.gl.getUniformLocation(this.shader_LightDepthParticles, "u_nodeWMatrix");
-	this.Shader_LightDepthParticles_READY = true;
-};
-/**
- * @private 
- */
 StormGLContext.prototype.render_LightDepth = function() {
 	//this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 	this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fBuffer); 
@@ -238,15 +146,6 @@ StormGLContext.prototype.render_LightDepth = function() {
 						}
 					}
 				}
-				for(var p = 0, f = this.particles.length; p < f; p++) {	
-					if(this.particles[p].visibleOnContext == true) {
-						if(this.particles[p].shadows == true) {
-							for(var nb = 0, fb = this.particles[p].buffersObjects.length; nb < fb; nb++) {
-								this.renderFromLight(this.particles[p],this.particles[p].buffersObjects[nb],light);
-							}
-						}
-					}
-				}
 			}
 			if(!this.view_LightDepth) {
 				this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
@@ -279,61 +178,35 @@ StormGLContext.prototype.render_LightDepth = function() {
  * @private 
  */
 StormGLContext.prototype.renderFromLight = function(node, buffersObject, light) {  
-	if(node.objectType == 'particles') {
-		this.gl.useProgram(this.shader_LightDepthParticles);
-		
-		this.gl.uniform1f(this.u_LightDepthParticles_far, this.far);
-		this.gl.uniformMatrix4fv(this.u_LightDepthParticles_PMatrix, false, light.mPMatrix.transpose().e);
-		this.gl.uniformMatrix4fv(this.u_LightDepthParticles_lightWMatrix, false, light.MPOS.transpose().e);
-		this.gl.uniformMatrix4fv(this.u_LightDepthParticles_nodeWMatrix, false, node.MPOS.transpose().e);
-		
-		this.gl.uniform1f(this.u_LightDepthParticles_pointSize, node.pointSize);
-		
-		this.gl.enableVertexAttribArray(this.attr_LightDepthParticles_posX);
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffersObject.nodeMeshVertexBufferX);
-		this.gl.vertexAttribPointer(this.attr_LightDepthParticles_posX, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!! 
-		
-		this.gl.enableVertexAttribArray(this.attr_LightDepthParticles_posY);
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffersObject.nodeMeshVertexBufferY);
-		this.gl.vertexAttribPointer(this.attr_LightDepthParticles_posY, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
-		
-		this.gl.enableVertexAttribArray(this.attr_LightDepthParticles_posZ);
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffersObject.nodeMeshVertexBufferZ);
-		this.gl.vertexAttribPointer(this.attr_LightDepthParticles_posZ, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
-		
-		
-		this.gl.drawArrays(this.gl.POINTS, 0, node.particlesLength); 
-	} else {
-		this.gl.useProgram(this.shader_LightDepth);
-		
-		this.gl.uniform1i(this.u_LightDepth_viewLightDepth, this.view_LightDepth);
-		this.gl.uniform1i(this.u_LightDepth_lightType, (light.type == 'sun')?0:1); // sun 0 ; spot 1   (light.type == 'sun')?0:1
-					
-		this.gl.activeTexture(this.gl.TEXTURE0);
-		this.gl.bindTexture(this.gl.TEXTURE_2D, node.materialUnits[0].textureObjectKd.items[0].textureData);
-		this.gl.uniform1i(this.sampler_LightDepth_kdTexture, 0);
-		 
-		this.gl.uniform1f(this.u_LightDepth_far, this.far);
-		this.gl.uniformMatrix4fv(this.u_LightDepth_PMatrix, false, light.mPMatrix.transpose().e);
-		this.gl.uniformMatrix4fv(this.u_LightDepth_lightWMatrix, false, light.MPOS.transpose().e);
-		this.gl.uniformMatrix4fv(this.u_LightDepth_nodeWMatrix, false, node.MPOSFrame.transpose().e);
-		this.gl.uniform3f(this.u_LightDepth_nodeVScale, node.VSCALE.e[0], node.VSCALE.e[1], node.VSCALE.e[2]);   
+	this.gl.useProgram(this.shader_LightDepth);
+	
+	this.gl.uniform1i(this.u_LightDepth_viewLightDepth, this.view_LightDepth);
+	this.gl.uniform1i(this.u_LightDepth_lightType, (light.type == 'sun')?0:1); // sun 0 ; spot 1   (light.type == 'sun')?0:1
+				
+	this.gl.activeTexture(this.gl.TEXTURE0);
+	this.gl.bindTexture(this.gl.TEXTURE_2D, node.materialUnits[0].textureObjectKd.items[0].textureData);
+	this.gl.uniform1i(this.sampler_LightDepth_kdTexture, 0);
+	 
+	this.gl.uniform1f(this.u_LightDepth_far, this.far);
+	this.gl.uniformMatrix4fv(this.u_LightDepth_PMatrix, false, light.mPMatrix.transpose().e);
+	this.gl.uniformMatrix4fv(this.u_LightDepth_lightWMatrix, false, light.MPOS.transpose().e);
+	this.gl.uniformMatrix4fv(this.u_LightDepth_nodeWMatrix, false, node.MPOSFrame.transpose().e);
+	this.gl.uniform3f(this.u_LightDepth_nodeVScale, node.VSCALE.e[0], node.VSCALE.e[1], node.VSCALE.e[2]);   
 
-		this.gl.enableVertexAttribArray(this.attr_LightDepth_pos);
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffersObject.nodeMeshVertexBuffer);
-		this.gl.vertexAttribPointer(this.attr_LightDepth_pos, 3, this.gl.FLOAT, false, 0, 0);
-		if(buffersObject.nodeMeshTextureArray != undefined) {
-			this.gl.enableVertexAttribArray(this.attr_LightDepth_UV);
-			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffersObject.nodeMeshTextureBuffer);
-			this.gl.vertexAttribPointer(this.attr_LightDepth_UV, 3, this.gl.FLOAT, false, 0, 0);
-		}
-		if(buffersObject.nodeMeshIndexArray != undefined) {
-			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, buffersObject.nodeMeshIndexBuffer);
-			this.gl.drawElements(this.gl.TRIANGLES, buffersObject.nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);
-		} else {
-			this.gl.drawArrays(this.gl.TRIANGLES, 0, buffersObject.nodeMeshVertexBufferNumItems);
-		} 
+	this.gl.enableVertexAttribArray(this.attr_LightDepth_pos);
+	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffersObject.nodeMeshVertexBuffer);
+	this.gl.vertexAttribPointer(this.attr_LightDepth_pos, 3, this.gl.FLOAT, false, 0, 0);
+	if(buffersObject.nodeMeshTextureArray != undefined) {
+		this.gl.enableVertexAttribArray(this.attr_LightDepth_UV);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffersObject.nodeMeshTextureBuffer);
+		this.gl.vertexAttribPointer(this.attr_LightDepth_UV, 3, this.gl.FLOAT, false, 0, 0);
 	}
+	if(buffersObject.nodeMeshIndexArray != undefined) {
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, buffersObject.nodeMeshIndexBuffer);
+		this.gl.drawElements(this.gl.TRIANGLES, buffersObject.nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);
+	} else {
+		this.gl.drawArrays(this.gl.TRIANGLES, 0, buffersObject.nodeMeshVertexBufferNumItems);
+	} 
 };
 
 
@@ -358,7 +231,6 @@ StormGLContext.prototype.initShader_Shadows = function() {
 		'uniform mat4 uPMatrixLight;\n'+
 		
 		'uniform int uLightType;\n'+
-		'uniform int uTypeParticles;\n'+
 		
 		'varying vec4 vpositionLightViewportRegion;\n'+
 		'varying vec4 vpositionLight;\n'+
@@ -379,25 +251,13 @@ StormGLContext.prototype.initShader_Shadows = function() {
 		
 		'void main(void) {\n'+
 			'vec3 vp = vec3(aVertexPosition.x*u_nodeVScale.x, aVertexPosition.y*u_nodeVScale.y, aVertexPosition.z*u_nodeVScale.z);\n'+
-			'if(uTypeParticles == 0) {'+
-				'vNodeWMatrix = u_nodeWMatrix * vec4(vp, 1.0);'+
-				
-				'vpositionLightViewportRegion = ScaleMatrix * uPMatrixLight * u_lightWMatrix * vNodeWMatrix;\n'+
-				'vpositionLight = u_lightWMatrix * vNodeWMatrix;\n'+
-				
-				'gl_Position = uPMatrix * u_cameraWMatrix * vNodeWMatrix;\n'+
-			'} else {'+
-				'float texturePosX = ((aVertexPositionX.x*u_nodeVScale.x)*'+(stormEngineC.particlesOffset*2).toFixed(2)+')-'+stormEngineC.particlesOffset.toFixed(2)+';\n'+  
-				'float texturePosY = ((aVertexPositionY.x*u_nodeVScale.y)*'+(stormEngineC.particlesOffset*2).toFixed(2)+')-'+stormEngineC.particlesOffset.toFixed(2)+';\n'+  
-				'float texturePosZ = ((aVertexPositionZ.x*u_nodeVScale.z)*'+(stormEngineC.particlesOffset*2).toFixed(2)+')-'+stormEngineC.particlesOffset.toFixed(2)+';\n'+  
 			
-				'vNodeWMatrix = vec4(texturePosX,texturePosY,texturePosZ, 1.0);'+
-				
-				'vpositionLightViewportRegion = ScaleMatrix * uPMatrixLight * u_lightWMatrix * vNodeWMatrix;\n'+
-				'vpositionLight = u_lightWMatrix * vNodeWMatrix;\n'+
-				
-				'gl_Position = uPMatrix * u_cameraWMatrix * vNodeWMatrix;\n'+
-			'}'+
+			'vNodeWMatrix = u_nodeWMatrix * vec4(vp, 1.0);'+
+			
+			'vpositionLightViewportRegion = ScaleMatrix * uPMatrixLight * u_lightWMatrix * vNodeWMatrix;\n'+
+			'vpositionLight = u_lightWMatrix * vNodeWMatrix;\n'+
+			
+			'gl_Position = uPMatrix * u_cameraWMatrix * vNodeWMatrix;\n'+
 		'}';
 	var sourceFragment = this.precision+
 		
@@ -464,7 +324,6 @@ StormGLContext.prototype.pointers_Shadows = function() {
 	this.u_Shadows_far = this.gl.getUniformLocation(this.shader_Shadows, "uFar");
 	
 	this.u_Shadows_textureFBLightDepth = this.gl.getUniformLocation(this.shader_Shadows, "sampler_textureFBLightDepth");// RT1 rgba zdepth light[0]
-	this.u_Shadows_typeParticles = this.gl.getUniformLocation(this.shader_Shadows, "uTypeParticles");
 	
 	this.u_Shadows_useLight = this.gl.getUniformLocation(this.shader_Shadows, "uUseLight");
 	this.u_Shadows_lightType = this.gl.getUniformLocation(this.shader_Shadows, "uLightType");
@@ -511,7 +370,6 @@ StormGLContext.prototype.render_Shadows = function(currentLight) {
 				}
 				
 				this.gl.uniform1i(this.u_Shadows_textureFBLightDepth, 0);
-				this.gl.uniform1i(this.u_Shadows_typeParticles, 0);
 
 				this.gl.uniformMatrix4fv(this.u_Shadows_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e); 
 				this.gl.uniformMatrix4fv(this.u_Shadows_PMatrixLight, false, light.mPMatrix.transpose().e); 
@@ -538,54 +396,6 @@ StormGLContext.prototype.render_Shadows = function(currentLight) {
 				
 				
 				
-			}
-		}
-	}
-	for(var n = 0, f = this.particles.length; n < f; n++) {
-		if(this.particles[n].visibleOnContext == true) {
-			if(this.particles[n].selfshadows == true) {
-				for(var nb = 0, fb = this.particles[n].buffersObjects.length; nb < fb; nb++) {			
-					this.gl.activeTexture(this.gl.TEXTURE0);
-					
-					if(light.type == 'sun') {
-						this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_LightSun); // texture framebuffer light sun
-					} else {
-						this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_LightSpot); // texture framebuffer light spot
-					}
-					
-					this.gl.uniform1i(this.u_Shadows_textureFBLightDepth, 0);
-					this.gl.uniform1i(this.u_Shadows_typeParticles, 1);
-				
-
-					this.gl.uniformMatrix4fv(this.u_Shadows_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e); 
-					this.gl.uniformMatrix4fv(this.u_Shadows_PMatrixLight, false, light.mPMatrix.transpose().e); 
-					this.gl.uniformMatrix4fv(this.u_Shadows_lightWMatrix, false, light.MPOS.transpose().e);
-					this.gl.uniformMatrix4fv(this.u_Shadows_nodeWMatrix, false, this.particles[n].MPOS.transpose().e);
-					this.gl.uniformMatrix4fv(this.u_Shadows_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
-					this.gl.uniform3f(this.u_Shadows_positionLight, false, light.getPosition().e[0], light.getPosition().e[1], light.getPosition().e[2]);
-					
-					var buffersObject = this.particles[n].buffersObjects[nb]; 
-					
-					this.gl.disableVertexAttribArray(this.attr_Shadows_pos);
-					
-					this.gl.enableVertexAttribArray(this.attr_Shadows_posX);
-					this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffersObject.nodeMeshVertexBufferX);
-					this.gl.vertexAttribPointer(this.attr_Shadows_posX, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!! 
-					
-					this.gl.enableVertexAttribArray(this.attr_Shadows_posY);
-					this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffersObject.nodeMeshVertexBufferY);
-					this.gl.vertexAttribPointer(this.attr_Shadows_posY, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
-					
-					this.gl.enableVertexAttribArray(this.attr_Shadows_posZ);
-					this.gl.bindBuffer(this.gl.ARRAY_BUFFER, buffersObject.nodeMeshVertexBufferZ);
-					this.gl.vertexAttribPointer(this.attr_Shadows_posZ, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
-					
-					
-					this.gl.drawArrays(this.gl.POINTS, 0, this.particles[n].particlesLength); 
-					
-					
-					
-				}
 			}
 		}
 	}

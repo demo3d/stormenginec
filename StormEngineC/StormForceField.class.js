@@ -58,14 +58,14 @@ StormForceField.prototype.deleteForceField = function() {
 };
 
 /**
-* Get a node of particles
+* Get a graph node
 * @type Void
 * @param {Object} jsonIn
 * 	@param {StormNode} jsonIn.node The node
 */
 StormForceField.prototype.get = function(jsonIn) {   
 	var push = true;
-	if(jsonIn.node.objectType != 'particles') {
+	if(jsonIn.node.objectType != 'graph') {
 		alert('No particle node');
 		return;
 	}
@@ -83,7 +83,7 @@ StormForceField.prototype.get = function(jsonIn) {
 };
 
 /**
-* Remove a node of particles
+* Remove a graph node
 * @type Void
 * @param {Object} jsonIn
 * 	@param {StormNode} jsonIn.node The node

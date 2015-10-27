@@ -76,13 +76,6 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.forceFields["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.forceFields[n].name+"</div>";
 		}
 	}
-	for(var n=0, f = stormEngineC.particles.length; n < f; n++) {
-		if(stormEngineC.particles[n].systemVisible == true) {
-			var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'particles' && stormEngineC.nearNode == stormEngineC.particles[n]) ? '#444' : '#000';
-			var colorText = (stormEngineC.particles[n].visibleOnContext == true) ? '#FFF': '#999';
-			str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.particles["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.particles[n].name+"</div>";
-		}
-	}
 	for(var n=0, f = stormEngineC.graphs.length; n < f; n++) {
 		if(stormEngineC.graphs[n].systemVisible == true) {
 			var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'buffernodes' && stormEngineC.nearNode == stormEngineC.graphs[n]) ? '#444' : '#000';

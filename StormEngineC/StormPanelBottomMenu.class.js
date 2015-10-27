@@ -80,7 +80,7 @@ StormEngineC_PanelBottomMenu.prototype.loadPanel = function() {
 				"<div><span style='color:#CCC'>OTHERS</span></div>"+
 				"<div><a id='STORMMENUBTN_C3_Camera'>Camera</a></div>"+
 				"<div><a id='STORMMENUBTN_C3_Line'>Line</a></div>"+
-				"<div><a id='STORMMENUBTN_C3_Particles'>Particles</a></div>"+
+				"<div><a id='STORMMENUBTN_C3_Graph'>Graph</a></div>"+
 				"<div><a id='STORMMENUBTN_C3_PolarityPoint'>Polarity point</a></div>"+
 				"<div><a id='STORMMENUBTN_C3_ForceField'>Force field</a></div>"+
 				"<div><a id='STORMMENUBTN_C3_GravityForce'>Gravity force</a></div>"+
@@ -327,16 +327,8 @@ StormEngineC_PanelBottomMenu.prototype.loadPanel = function() {
 		var node = stormEngineC.createLine($V3([0.0,0.0,0.0]), $V3([1.0,0.0,0.0]), $V3([1.0,1.0,1.0]), $V3([0.0,0.0,0.0])); // vecOrigin, vecEnd, vecOriginColor, vecEndColor
 		stormEngineC.selectNode(node);
 	});			
-	$("#STORMMENUBTN_C3_Particles").on('click', function() {
-		var tamW = prompt('width?','128'); if(tamW == '') tamW = 128;
-		var tamH = prompt('height?','128'); if(tamH == '') tamH = 128;
-		var node = stormEngineC.createParticles();
-		node.generateParticles({amount:parseInt(tamW)*parseInt(tamH),   
-								disposal:{radius:0.5}, 
-								color:$V3([1.0,1.0,1.0]),
-								pointSize:1.0,  
-								polarity:0,
-								direction:undefined}); 
+	$("#STORMMENUBTN_C3_Graph").on('click', function() {
+		var node = stormEngineC.createGraph();
 		stormEngineC.selectNode(node);
 	});		
 	$("#STORMMENUBTN_C3_PolarityPoint").on('click', function() {

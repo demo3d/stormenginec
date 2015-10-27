@@ -6,7 +6,7 @@ var numIdBullet = 0;
   
 * @property {Int} idNum
 * @property {String} name
-* @property {String} objectType 'node'|'camera'|'light'|'particles'|'polarityPoint'|'forceField'
+* @property {String} objectType 'node'|'camera'|'light'|'graph'|'polarityPoint'|'forceField'
 * @property {Array<StormBufferObject>} buffersObjects StormBufferObjects associated with the node
 * @property {StormM16} MPOS
 * @property {StormM16} MROTX 
@@ -1107,7 +1107,7 @@ StormNode.prototype.visible = function(visible) {
 			this.visibleOnRender = true;
 		}
 	}
-	if(this.objectType == 'particles') {
+	if(this.objectType == 'graph') {
 		if(visible == false) {
 			this.visibleOnContext = false;
 			this.visibleOnRender = false;

@@ -7,7 +7,7 @@ StormEngineC provides the following features:<br />
 ► Sun and spot lights.<br />
 ► Shadows, SSAO, DOF...<br />
 ► Load objects on .obj format or Collada (.DAE) and adding physics easy. (<a href="http://brokstuk.com/jiglibjs2/" target="_blank">JigLibJS2 integrated</a>)<br />
-► 3D text, SVG shapes, particles..<br />
+► 3D text, SVG shapes, particles, graphs..<br />
 ► Keyframe animations and animation layers.<br />
 ► Multiplayer using Websocket server with NODEJS.<br />
 ► HTML CanvasRenderingContext2D integrated.<br />

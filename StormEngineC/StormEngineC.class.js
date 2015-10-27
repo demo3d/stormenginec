@@ -69,7 +69,6 @@ var includesF = ['/ActionHelpers.class.js',
 				'/StormGLContext_programGIv2.class.js',
 				'/StormGLContext_programLines.class.js',
 				'/StormGLContext_programNormalsDepth.class.js',
-				'/StormGLContext_programParticles.class.js',
 				'/StormGLContext_programPick.class.js',
 				'/StormGLContext_programOverlay.class.js',
 				'/StormGLContext_programScene.class.js',
@@ -90,7 +89,6 @@ var includesF = ['/ActionHelpers.class.js',
 				'/StormLine.class.js',
 				'/StormCamera.class.js',
 				'/StormLight.class.js',
-				'/StormParticles.class.js',
 				'/StormPolarityPoint.class.js',
 				'/StormForceField.class.js',
 				'/StormGraph.class.js',
@@ -256,8 +254,6 @@ StormEngineC = function() {
 	this.nodesCam = [];this.idxNodesCam = 0;
 	this.lines = [];this.idxLines = 0;
 	this.lights = [];this.idxLights = 0;
-	this.particles = [];this.idxParticles = 0;
-	this.particlesOffset = 300.0;
 	this.graphs = [];this.idxGraphs = 0;
 	this.polarityPoints = [];this.idxPolarityPoint = 0;
 	this.forceFields = [];this.idxForceField = 0;
@@ -1490,19 +1486,6 @@ StormEngineC.prototype.createLight = function(jsonIn) {
 	return light;
 };
 
-/**
-* Create particles
-* @returns {StormParticles}
-*/
-StormEngineC.prototype.createParticles = function() {
-	var particle = new StormParticles();
-	particle.idNum = this.particles.length;
-	particle.name = 'particles '+this.idxParticles++;
-	var material = stormEngineC.createMaterial();
-	particle.materialUnits[0] = material; 
-	this.particles.push(particle); 
-	return particle;
-};
 /**
 * Create polarity point
 * @returns {StormPolarityPoint}

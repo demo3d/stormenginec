@@ -16,13 +16,11 @@ StormGLContext = function(stormCanvasObject, loadScene) {
 	this.nodes = stormEngineC.nodes;
 	this.nodesCam = stormEngineC.nodesCam;
 	this.lines = stormEngineC.lines;
-	this.particles = stormEngineC.particles;
 	this.polarityPoints = stormEngineC.polarityPoints;
 	this.lights = stormEngineC.lights;
 	this.bufferNodes = stormEngineC.bufferNodes;
 	
-	this.far = 500.0;
-	this.glowSize = 0.5;
+	this.far = 500.0; 
 	
 	// AMBIENT
 	this.ambientColor = $V3([0.7, 0.75, 0.8]);
@@ -429,7 +427,6 @@ StormGLContext.prototype.initShaders = function() {
 			this.initShader_Normals();
 			if(this._supportFormat == this.gl.FLOAT) { 
 				this.initShader_LightDepth();
-				this.initShader_LightDepthParticles();
 					this.initShader_Shadows();
 			}
 			
@@ -438,7 +435,6 @@ StormGLContext.prototype.initShaders = function() {
 			this.initShader_Scene();
 			
 			if(!this._typeMobile && this._supportFormat == this.gl.FLOAT) {
-				this.initShader_ParticlesAux();
 				this.initShader_Lines();
 				this.initShader_DOF();
 			} 
@@ -644,7 +640,6 @@ StormGLContext.prototype.renderGLContext = function() {
 		if(this.view_Normals) return;
 	}
 	if(	this.Shader_LightDepth_READY &&
-		this.Shader_LightDepthParticles_READY &&
 		this.Shader_Shadows_READY &&
 		this.shadowsEnable) {
 			this.render_LightDepth();
@@ -665,9 +660,6 @@ StormGLContext.prototype.renderGLContext = function() {
 		if(stormEngineC.editMode == true && stormEngineC.grid.gridEnabled == true) { 
 			stormEngineC.grid.render();
 		}
-	}
-	if(this.Shader_ParticlesAux_READY && this.particles.length > 0) {
-		this.render_ParticlesAux();
 	}
 		
 	for(var n=0; n < stormEngineC.graphs.length; n++) {
@@ -752,14 +744,6 @@ StormGLContext.prototype.hitRectRegion_onmouseout = function() {
 */
 StormGLContext.prototype.drawElementsMode = function(mode) {
 	for(var n = 0, f = this.nodes.length; n < f; n++) for(var nb = 0, fb = this.nodes[n].buffersObjects.length; nb < fb; nb++) this.nodes[n].buffersObjects[nb].drawElementsMode = mode;
-};
-
-//Change the glow size for particles
-//@type Void
-//@param {Float} [glowSize=0.5]
-/** @private  */
-StormGLContext.prototype.setGlowSize = function(glowSize) {
-	this.glowSize = glowSize;
 };
 
 /** @private  */

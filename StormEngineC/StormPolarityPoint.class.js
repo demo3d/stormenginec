@@ -45,13 +45,13 @@ StormPolarityPoint.prototype.remove = function() {
 };
 
 /**
-* Get a node of particles or webclgllayout
+* Get a graph node
 * @type Void
 * @param	{Object} jsonIn
 * 	@param {StormNode} jsonIn.node The node.
 */
 StormPolarityPoint.prototype.get = function(jsonIn) {   	
-	if(jsonIn.node.objectType != 'particles' && jsonIn.node.objectType != 'graph') {
+	if(jsonIn.node.objectType != 'graph') {
 		alert('you must select a particle or graph');
 		return;
 	}
@@ -81,7 +81,7 @@ StormPolarityPoint.prototype.get = function(jsonIn) {
 };
 
 /**
-* Remove a node of particles
+* Remove a graph node
 * @type Void
 * @param	{Object} jsonIn
 * 	@param {StormNode} jsonIn.node The node.

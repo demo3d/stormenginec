@@ -182,7 +182,7 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				stormEngineC.nearNode.setForce(value);
 			});
 			
-			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "GET_PARTICLES", function() {
+			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "GET_", function() {
 				stormEngineC.pickingCall='get({node:_selectedNode_});';  
 				stormEngineC.PanelListObjects.show();
 				$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
@@ -205,7 +205,7 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				stormEngineC.nearNode.setDirection(dir);
 			});
 			
-			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "GET_PARTICLES", function() {
+			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "GET_", function() {
 				stormEngineC.pickingCall='get({node:_selectedNode_});';  
 				stormEngineC.PanelListObjects.show();
 				$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
@@ -216,20 +216,14 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				str += '<br />'+stormEngineC.nearNode.nodesProc[n].name;
 			$('#DIVID_StormEditNode_edits').append(str);
 		}
-		if(stormEngineC.nearNode.objectType == 'particles') {		
+		if(stormEngineC.nearNode.objectType == 'graph') {		
 			add_removeBtn(function() {
-				stormEngineC.nearNode.deleteParticles();
+				stormEngineC.nearNode.remove();
 			});
 			
-			var pos = [stormEngineC.nearNode.getPosition().e[0], stormEngineC.nearNode.getPosition().e[1], stormEngineC.nearNode.getPosition().e[2]];
-			this.actHelpers.add_3dslider(DGE('DIVID_StormEditNode_edits'), "POSITION", pos, -100000.0, 100000.0, 0.1, function(vector) {
-				var pos = $V3([vector[0], vector[1], vector[2]]);
-				stormEngineC.nearNode.setPosition(pos);
-				stormEngineC.debugValues = [];
-				stormEngineC.setDebugValue(0, pos, stormEngineC.nearNode.name);
-			});
-			
-			lines_rotation();
+			var str = 	"<div>"+(stormEngineC.nearNode.currentNodeId)+" nodes: [vertices: "+stormEngineC.nearNode.arrayNodeVertexPos.length+", indices: "+stormEngineC.nearNode.arrayNodeIndices.length+"]</div>"+
+						"<div>"+(stormEngineC.nearNode.currentLinkId/2)+" links: [vertices: "+stormEngineC.nearNode.arrayLinkVertexPos.length+", indices: "+stormEngineC.nearNode.arrayLinkIndices.length+"]</div>";						
+			$('#DIVID_StormEditNode_edits').append(str);
 			
 			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "SELFSHADOWS", stormEngineC.nearNode.selfshadows,
 					function() {
@@ -246,125 +240,8 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 					});	
 			
 			this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "POINTSIZE", stormEngineC.nearNode.pointSize, 0.0, 50.0, 0.1, function(value) {
-				stormEngineC.nearNode.setPointSize(value);
+				stormEngineC.nearNode.set_pointSize(value);
 			});
-			
-			this.actHelpers.add_select(DGE('DIVID_StormEditNode_edits'), "POLARITY", [1,0], stormEngineC.nearNode.polarity,
-					function(value) {
-						stormEngineC.nearNode.setPolarity(parseFloat(value));
-					});	
-			
-			var str = "<table style='width:100%'><tr>"+
-						"<td style='width:18px;text-align:left'>setColor</td>"+
-						"<td style='text-align:left'>"+
-							"<input id='INPUTID_StormEditNode_particles_colorButton' type='file' style='display:none'/>"+
-							"<div id='DIVID_StormEditNode_particles_color' title='setColor' onclick='$(this).prev().click();' onmouseover='$(this).css(\"border\", \"1px solid #EEE\");' onmouseout='$(this).css(\"border\", \"1px solid #CCC\");' style='cursor:pointer;width:16px;height:16px;border:1px solid #CCC'></div>"+
-						"</td>"+
-					"</tr></table>";						
-			$('#DIVID_StormEditNode_edits').append(str);			
-			document.getElementById('INPUTID_StormEditNode_particles_colorButton').onchange=function() {
-				var filereader = new FileReader();
-				filereader.onload = function(event) {
-					var img = new Image();
-					img.onload = function() {
-						var splitName = $('#INPUTID_StormEditNode_particles_colorButton').val().split('/');
-						splitName = splitName[splitName.length-1];
-						
-						stormEngineC.nearNode.setColor(img);
-						$('#INPUTID_StormEditNode_setDisposal_width').val(img.width);
-						$('#INPUTID_StormEditNode_setDisposal_height').val(img.height);
-						$('#INPUTID_StormEditNode_particlesDestination_width').val(img.width);
-						$('#INPUTID_StormEditNode_particlesDestination_height').val(img.height);
-						img.style.width = '16px';
-						img.style.height = '16px';
-						$('#DIVID_StormEditNode_particles_color').html(img);
-						$('#DIVID_StormEditNode_particles_color').attr('title',splitName);
-					};
-					img.src = event.target.result; // Set src from upload, original byte sequence
-				};
-				filereader.readAsDataURL(this.files[0]);
-			};
-			
-			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "DIRECTION_TO_0", function() {
-				stormEngineC.nearNode.setDirection();
-			});
-			
-			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "DIRECTION_TO_RANDOM", function() {
-				stormEngineC.nearNode.setDirection('random');
-			});
-			
-			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DISPOSAL_WidthHeight", "number", ["width", "height"], ["128", "128"], function(arrayValues) {				
-					stormEngineC.nearNode.setDisposal({width: arrayValues[0], height: arrayValues[1]});
-			});
-			
-			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DISPOSAL_RADIUS", "number", ["radius"], ["0.5"], function(arrayValues) {				
-				stormEngineC.nearNode.setDisposal({width: arrayValues[0], height: arrayValues[1]});
-				stormEngineC.nearNode.setDisposal({radius: arrayValues[0]});
-			});
-			
-			this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "LIFE_DISTANCE", stormEngineC.nearNode.lifeDistance, 0.0, 1000.0, 0.1, function(value) {
-				stormEngineC.nearNode.setLifeDistance(value);
-			});
-			
-			
-			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "DESTINATION", stormEngineC.nearNode.enDestination,
-					function() {
-						stormEngineC.nearNode.enableDestination();
-					}, function() {
-						stormEngineC.nearNode.disableDestination();
-					});	
-			
-			this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "DESTINATION_FORCE", stormEngineC.nearNode.destinationForce, 0.0, 1.0, 0.05, function(value) {
-				stormEngineC.nearNode.setDestinationForce(value);
-			});
-			
-			this.actHelpers.add_valuesAndBtn(DGE('DIVID_StormEditNode_edits'), "DESTINATION_WidthHeight", "number", ["width", "height"], ["128", "128"], function(arrayValues) {				
-				stormEngineC.nearNode.setDestinationWidthHeight(arrayValues[0], arrayValues[1]);
-			});
-			
-			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "DESTINATION_VOLUME", function() {
-				stormEngineC.pickingCall='setDestinationVolume({voxelizator:_selectedNode_});';  
-				stormEngineC.PanelListObjects.show();
-				$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
-				document.body.style.cursor='pointer';
-			});
-		}
-		if(stormEngineC.nearNode.objectType == 'graph') {		
-			/*add_removeBtn(function() {
-				stormEngineC.nearNode.deleteParticles();
-			});*/
-			
-			var str = 	"<div>"+(stormEngineC.nearNode.currentNodeId)+" nodes: [vertices: "+stormEngineC.nearNode.arrayNodeVertexPos.length+", indices: "+stormEngineC.nearNode.arrayNodeIndices.length+"]</div>"+
-						"<div>"+(stormEngineC.nearNode.currentLinkId/2)+" links: [vertices: "+stormEngineC.nearNode.arrayLinkVertexPos.length+", indices: "+stormEngineC.nearNode.arrayLinkIndices.length+"]</div>";						
-			$('#DIVID_StormEditNode_edits').append(str);
-
-			var pos = [stormEngineC.nearNode.getPosition().e[0], stormEngineC.nearNode.getPosition().e[1], stormEngineC.nearNode.getPosition().e[2]];
-			this.actHelpers.add_3dslider(DGE('DIVID_StormEditNode_edits'), "POSITION", pos, -100000.0, 100000.0, 0.1, function(vector) {
-				var pos = $V3([vector[0], vector[1], vector[2]]);
-				stormEngineC.nearNode.setPosition(pos);
-				stormEngineC.debugValues = [];
-				stormEngineC.setDebugValue(0, pos, stormEngineC.nearNode.name);
-			});
-			
-			//lines_rotation();
-			
-			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "SELFSHADOWS", stormEngineC.nearNode.selfshadows,
-					function() {
-						stormEngineC.nearNode.setSelfshadows(true);
-					}, function() {
-						stormEngineC.nearNode.setSelfshadows(false);
-					});		
-			
-			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "SHADOWS", stormEngineC.nearNode.shadows,
-					function() {
-						stormEngineC.nearNode.setShadows(true);
-					}, function() {
-						stormEngineC.nearNode.setShadows(false);
-					});	
-			
-			/*this.actHelpers.add_slider(DGE('DIVID_StormEditNode_edits'), "POINTSIZE", stormEngineC.nearNode.pointSize, 0.0, 50.0, 0.1, function(value) {
-				stormEngineC.nearNode.setPointSize(value);
-			});*/
 			
 			this.actHelpers.add_select(DGE('DIVID_StormEditNode_edits'), "POLARITY", [1,0], stormEngineC.nearNode.polarity,
 					function(value) {
@@ -374,28 +251,24 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 			var str = "<table style='width:100%'><tr>"+
 						"<td style='width:18px;text-align:left'>setColor</td>"+
 						"<td style='text-align:left'>"+
-							"<input id='INPUTID_StormEditNode_particles_colorButton' type='file' style='display:none'/>"+
-							"<div id='DIVID_StormEditNode_particles_color' title='setColor' onclick='$(this).prev().click();' onmouseover='$(this).css(\"border\", \"1px solid #EEE\");' onmouseout='$(this).css(\"border\", \"1px solid #CCC\");' style='cursor:pointer;width:16px;height:16px;border:1px solid #CCC'></div>"+
+							"<input id='INPUTID_StormEditNode_graph_colorButton' type='file' style='display:none'/>"+
+							"<div id='DIVID_StormEditNode_graph_color' title='setColor' onclick='$(this).prev().click();' onmouseover='$(this).css(\"border\", \"1px solid #EEE\");' onmouseout='$(this).css(\"border\", \"1px solid #CCC\");' style='cursor:pointer;width:16px;height:16px;border:1px solid #CCC'></div>"+
 						"</td>"+
 					"</tr></table>";						
 			$('#DIVID_StormEditNode_edits').append(str);			
-			document.getElementById('INPUTID_StormEditNode_particles_colorButton').onchange=function() {
+			document.getElementById('INPUTID_StormEditNode_graph_colorButton').onchange=function() {
 				var filereader = new FileReader();
 				filereader.onload = function(event) {
 					var img = new Image();
 					img.onload = function() {
-						var splitName = $('#INPUTID_StormEditNode_particles_colorButton').val().split('/');
+						var splitName = $('#INPUTID_StormEditNode_graph_colorButton').val().split('/');
 						splitName = splitName[splitName.length-1];
 						
-						stormEngineC.nearNode.setColor(img);
-						$('#INPUTID_StormEditNode_setDisposal_width').val(img.width);
-						$('#INPUTID_StormEditNode_setDisposal_height').val(img.height);
-						$('#INPUTID_StormEditNode_particlesDestination_width').val(img.width);
-						$('#INPUTID_StormEditNode_particlesDestination_height').val(img.height);
+						stormEngineC.nearNode.set_color(img);
 						img.style.width = '16px';
 						img.style.height = '16px';
-						$('#DIVID_StormEditNode_particles_color').html(img);
-						$('#DIVID_StormEditNode_particles_color').attr('title',splitName);
+						$('#DIVID_StormEditNode_graph_color').html(img);
+						$('#DIVID_StormEditNode_graph_color').attr('title',splitName);
 					};
 					img.src = event.target.result; // Set src from upload, original byte sequence
 				};
