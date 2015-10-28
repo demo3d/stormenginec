@@ -6,7 +6,7 @@
  */
 StormGLContext.prototype.initShader_Pick = function() {
 	var sourceVertex = this.precision+
-		// for BufferNodes
+		// for graph
 		'attribute float aNodeId;\n'+
 		
 		'attribute vec4 aNodePosX;\n'+
@@ -60,7 +60,7 @@ StormGLContext.prototype.initShader_Pick = function() {
 				'}'+
 				
 				'gl_Position = uPMatrix * u_cameraWMatrix * u_nodeWMatrix * u_matrixNodeTranform * vec4(vec3(pos.x*scale,pos.y*scale,pos.z*scale), 1.0);\n'+
-			'} else if(uVertexType == 2) {'+ // editing bufferNodes
+			'} else if(uVertexType == 2) {'+ // editing graph
 				///////////////////////////////////////
 				// NodeId
 				///////////////////////////////////////
@@ -110,7 +110,7 @@ StormGLContext.prototype.initShader_Pick = function() {
 					'gl_FragColor = pack((uNodeId+1.0)/1000000.0);\n'+ 
 				'} else if(uFragType == 1) {'+ // overlay transforms
 					'gl_FragColor = vec4(0.0, uNodeId, 0.0, 1.0);\n'+ 
-				'} else if(uFragType == 2) {'+ // editing bufferNodes
+				'} else if(uFragType == 2) {'+ // editing graph
 					'gl_FragColor = pack(vNodeId/1000000.0);\n'+ 
 				'}'+
 			//'}\n'+
@@ -168,7 +168,7 @@ StormGLContext.prototype.pointers_Pick = function() {
 
 //**********************************************************************************************************************************
 //**********************************************************************************************************************************
-//										(NODE TYPE BUFFERNODES) || (NODE && TRANSFORM AXIS OF SELECTED NODE)
+//										(NODE TYPE graph) || (NODE && TRANSFORM AXIS OF SELECTED NODE)
 //**********************************************************************************************************************************
 //**********************************************************************************************************************************
 
@@ -193,7 +193,7 @@ StormGLContext.prototype.render_Pick = function() {
 			var pick = (function(nodes) {
 				if(	this.gettedPixel instanceof StormNode ||
 					this.gettedPixel instanceof StormPolarityPoint ||
-					this.gettedPixel instanceof WebCLGLLayout_3DpositionByDirection) { // selection is a node
+					this.gettedPixel instanceof StormGraph) { // selection is a node
 					stormEngineC.selectNode(this.gettedPixel);
 					
 					if(this.gettedPixel.isDraggable) {
@@ -214,13 +214,13 @@ StormGLContext.prototype.render_Pick = function() {
 			
 			var pickEditionMode = (function() {
 				if(stormEngineC.getSelectedNode() != undefined && stormEngineC.getSelectedNode().selectedNodeIsInEditionMode()) { // selection is in edit mode
-					// check if makeMouseDown over node type BufferNodes
+					// check if makeMouseDown over node type graph
 					console.log("- rendering selected node in edit mode...");				
 					this.render();
 					this.gettedPixel = this.readPixel(); 
 					
 					
-					if(stormEngineC.getSelectedNode() instanceof StormNode && stormEngineC.getSelectedNode().objectType == 'buffernodes') {
+					if(stormEngineC.getSelectedNode() instanceof StormNode && stormEngineC.getSelectedNode().objectType == 'graph') {
 						stormEngineC.dragging = true;
 					}
 				}
@@ -241,11 +241,11 @@ StormGLContext.prototype.render_Pick = function() {
 					pick(this.polarityPoints); 
 					pickEditionMode();
 				} else {
-					console.log("- rendering bufferNodes & transform axis...");
-					this.render(this.bufferNodes);
-					this.gettedPixel = this.readPixel(this.bufferNodes); 					
+					console.log("- rendering graph & transform axis...");
+					this.render(this.graphs);
+					this.gettedPixel = this.readPixel(this.graphs); 					
 					if(this.gettedPixel !== false) {
-						pick(this.bufferNodes); 
+						pick(this.graphs); 
 						pickEditionMode();
 					} else {
 						
@@ -283,15 +283,15 @@ StormGLContext.prototype.render = function(nodes) {
 	this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA); 
 	
 	if(nodes == undefined) { // selection is edit mode		
-		// draw ids of selected node (type BufferNodes) in grayscale (bufferNode and internal id of this)			
+		// draw ids of selected node (type graph) in grayscale (bufferNode and internal id of this)			
 		
 		var node = stormEngineC.getSelectedNode();
 		
-		if(node.objectType == 'buffernodes') {
-			this.gl.uniform1i(this.u_Pick_vertexType, 2); // bufferNodes
+		if(node.objectType == 'graph') {
+			this.gl.uniform1i(this.u_Pick_vertexType, 2); // graph
 			this.gl.uniform1i(this.u_Pick_fragType, 2); // id bufferModesnode
 			
-			this.render_buffernodes(node);
+			this.render_graphs(node);
 		}		
 	} else { // selection not in edit mode
 		// draw nodes according id (grayscale)		
@@ -301,11 +301,11 @@ StormGLContext.prototype.render = function(nodes) {
 				
 				this.gl.uniform1f(this.u_Pick_nodeId, parseFloat(node.idNum));
 				
-				if(node.objectType == 'buffernodes') {
-					this.gl.uniform1i(this.u_Pick_vertexType, 2); // bufferNodes
+				if(node.objectType == 'graph') {
+					this.gl.uniform1i(this.u_Pick_vertexType, 2); // graph
 					this.gl.uniform1i(this.u_Pick_fragType, 0); // id node
 					
-					this.render_buffernodes(node);
+					this.render_graphs(node);
 				} else {
 					this.gl.uniform1i(this.u_Pick_vertexType, 0); // nodes
 					this.gl.uniform1i(this.u_Pick_fragType, 0); // id node
@@ -334,7 +334,7 @@ StormGLContext.prototype.render = function(nodes) {
 	this.gl.disable(this.gl.BLEND);
 };
 /** @private */
-StormGLContext.prototype.render_buffernodes = function(node) {	
+StormGLContext.prototype.render_graphs = function(node) {	
 	if(node.arrayNodeId.length) {
 		this.gl.disableVertexAttribArray(this.attr_Pick_pos);
 		
@@ -344,38 +344,38 @@ StormGLContext.prototype.render_buffernodes = function(node) {
 		this.gl.enableVertexAttribArray(this.attr_Pick_NodePosZ);
 		this.gl.enableVertexAttribArray(this.attr_Pick_NodeVertexPos);
 		
-		this.gl.uniform1f(this.u_Pick_uWorkAreaSize, parseFloat(node.workAreaSize));						
+		this.gl.uniform1f(this.u_Pick_uWorkAreaSize, parseFloat(node.offset));						
 		this.gl.uniformMatrix4fv(this.u_Pick_nodeWMatrix, false, node.MPOS.transpose().e); 
 							
 		///////////////////////////////////////
 		// NodeId
 		///////////////////////////////////////					
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.GL_bufferNodeId);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["nodeId"].items[0].vertexData0);
 		this.gl.vertexAttribPointer(this.attr_BN_NodeId, 1, this.gl.FLOAT, false, 0, 0);
 							
 		///////////////////////////////////////
 		// NodePos
 		///////////////////////////////////////
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.GL_bufferNodePosX);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["posXYZW"].items[0].vertexData0);
 		this.gl.vertexAttribPointer(this.attr_Pick_NodePosX, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!! 
 		
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.GL_bufferNodePosY);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["posXYZW"].items[0].vertexData1);
 		this.gl.vertexAttribPointer(this.attr_Pick_NodePosY, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
 		
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.GL_bufferNodePosZ);  
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["posXYZW"].items[0].vertexData2);  
 		this.gl.vertexAttribPointer(this.attr_Pick_NodePosZ, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
 							
 		///////////////////////////////////////
 		// NodeVertexPos
 		///////////////////////////////////////
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.GL_bufferNodeVertexPos);
+		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["nodeVertexPos"].items[0].vertexData0);
 		this.gl.vertexAttribPointer(this.attr_Pick_NodeVertexPos, 4, this.gl.FLOAT, false, 0, 0);
 							
 		///////////////////////////////////////
 		// NodeIndices
 		///////////////////////////////////////
-		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, node.GL_bufferNodeIndices);
-		this.gl.drawElements(this.gl.TRIANGLES, node.arrayNodeIndices.length, this.gl.UNSIGNED_SHORT, 0);
+		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, node.clglWork_nodes.CLGL_bufferIndices.items[0].vertexData0);
+		this.gl.drawElements(this.gl.TRIANGLES, node.clglWork_nodes.CLGL_bufferIndices.items[0].length, this.gl.UNSIGNED_SHORT, 0);
 	}
 };
 /** @private */
@@ -525,11 +525,11 @@ StormGLContext.prototype.readPixel = function(nodes) {
 	console.log(arrayPick[0]+"	"+arrayPick[1]+"	"+arrayPick[2]+"	"+arrayPick[3]);
 	
 	if(nodes == undefined) { // selection is edit mode?
-		if(stormEngineC.getSelectedNode().objectType == 'buffernodes') { // selection is type buffernodes
+		if(stormEngineC.getSelectedNode().objectType == 'graph') { // selection is type graph
 			var unpackValue = stormEngineC.utils.unpack([arrayPick[0]/255, arrayPick[1]/255, arrayPick[2]/255, arrayPick[3]/255]); // value from 0.0 to 1.0
 			
 			var nodeIdNum = Math.ceil(unpackValue*1000000.0)-1.0;
-			console.log("buffernodes: "+nodeIdNum);
+			console.log("graph: "+nodeIdNum);
 			
 			return nodeIdNum;
 		}
@@ -578,7 +578,7 @@ StormGLContext.prototype.readPixel = function(nodes) {
 /** @private */
 StormGLContext.prototype.drag = function() {
 	if(stormEngineC.getSelectedNode() != undefined && stormEngineC.getSelectedNode().selectedNodeIsInEditionMode()) { // selection is edit mode?
-		if(stormEngineC.getSelectedNode() instanceof StormNode && stormEngineC.getSelectedNode().objectType == 'buffernodes') { // selection is type buffernodes
+		if(stormEngineC.getSelectedNode() instanceof StormNode && stormEngineC.getSelectedNode().objectType == 'graph') { // selection is type graph
 			var selNode = stormEngineC.getSelectedNode();
 			
 			selNode.enableDrag = 1.0;
@@ -588,23 +588,23 @@ StormGLContext.prototype.drag = function() {
 			selNode.MouseDragTranslationY = dir.e[1];
 			selNode.MouseDragTranslationZ = dir.e[2];
 			
-			selNode.kernelNodeDir.setKernelArg("enableDrag", parseFloat(selNode.enableDrag));
-			selNode.kernelNodeDir.setKernelArg("idToDrag", parseFloat(selNode.idToDrag));
-			selNode.kernelNodeDir.setKernelArg("MouseDragTranslationX", selNode.MouseDragTranslationX);
-			selNode.kernelNodeDir.setKernelArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
-			selNode.kernelNodeDir.setKernelArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
+			selNode.clglWork_nodes.setArg("enableDrag", parseFloat(selNode.enableDrag));
+			selNode.clglWork_nodes.setArg("idToDrag", parseFloat(selNode.idToDrag));
+			selNode.clglWork_nodes.setArg("MouseDragTranslationX", selNode.MouseDragTranslationX);
+			selNode.clglWork_nodes.setArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
+			selNode.clglWork_nodes.setArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
 			
 			
-			selNode.kernelLinkDir.setKernelArg("enableDrag", selNode.enableDrag);
-			selNode.kernelLinkDir.setKernelArg("idToDrag", selNode.idToDrag);	 		
-			selNode.kernelLinkDir.setKernelArg("MouseDragTranslationX", selNode.MouseDragTranslationX);
-			selNode.kernelLinkDir.setKernelArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
-			selNode.kernelLinkDir.setKernelArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
+			selNode.clglWork_links.setArg("enableDrag", selNode.enableDrag);
+			selNode.clglWork_links.setArg("idToDrag", selNode.idToDrag);	 		
+			selNode.clglWork_links.setArg("MouseDragTranslationX", selNode.MouseDragTranslationX);
+			selNode.clglWork_links.setArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
+			selNode.clglWork_links.setArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
 		}
 	} else { // selection not in edit mode
 		if(	this.gettedPixel instanceof StormNode ||
 			this.gettedPixel instanceof StormPolarityPoint ||
-			this.gettedPixel instanceof WebCLGLLayout_3DpositionByDirection) { // selection is a node?
+			this.gettedPixel instanceof StormGraph) { // selection is a node?
 			var dir = stormEngineC.utils.getDraggingScreenVector(); 
 			stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));
 		} else if(this.gettedPixel > 0) { // selection is transform axis of a selected node?
@@ -674,7 +674,7 @@ StormGLContext.prototype.drag = function() {
 /** @private */
 StormGLContext.prototype.unpick = function() {	
 	if(stormEngineC.getSelectedNode() != undefined && stormEngineC.getSelectedNode().selectedNodeIsInEditionMode()) { // selection is edit mode?
-		if(stormEngineC.getSelectedNode() instanceof StormNode && stormEngineC.getSelectedNode().objectType == 'buffernodes') { // selection is type buffernodes
+		if(stormEngineC.getSelectedNode() instanceof StormNode && stormEngineC.getSelectedNode().objectType == 'graph') { // selection is type graph
 			var selNode = stormEngineC.getSelectedNode();
 			
 			selNode.enableDrag = 0.0;
@@ -683,18 +683,18 @@ StormGLContext.prototype.unpick = function() {
 			selNode.MouseDragTranslationY = 0.0;
 			selNode.MouseDragTranslationZ = 0.0;
 			
-			selNode.kernelNodeDir.setKernelArg("enableDrag", parseFloat(selNode.enableDrag));
-			selNode.kernelNodeDir.setKernelArg("idToDrag", parseFloat(selNode.idToDrag));
-			selNode.kernelNodeDir.setKernelArg("MouseDragTranslationX", selNode.MouseDragTranslationX);
-			selNode.kernelNodeDir.setKernelArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
-			selNode.kernelNodeDir.setKernelArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
+			selNode.clglWork_nodes.setArg("enableDrag", parseFloat(selNode.enableDrag));
+			selNode.clglWork_nodes.setArg("idToDrag", parseFloat(selNode.idToDrag));
+			selNode.clglWork_nodes.setArg("MouseDragTranslationX", selNode.MouseDragTranslationX);
+			selNode.clglWork_nodes.setArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
+			selNode.clglWork_nodes.setArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
 			
 			
-			selNode.kernelLinkDir.setKernelArg("enableDrag", selNode.enableDrag);
-			selNode.kernelLinkDir.setKernelArg("idToDrag", selNode.idToDrag);			
-			selNode.kernelLinkDir.setKernelArg("MouseDragTranslationX", selNode.MouseDragTranslationX);
-			selNode.kernelLinkDir.setKernelArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
-			selNode.kernelLinkDir.setKernelArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
+			selNode.clglWork_links.setArg("enableDrag", selNode.enableDrag);
+			selNode.clglWork_links.setArg("idToDrag", selNode.idToDrag);			
+			selNode.clglWork_links.setArg("MouseDragTranslationX", selNode.MouseDragTranslationX);
+			selNode.clglWork_links.setArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
+			selNode.clglWork_links.setArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
 		}
 	} else { // selection not in edit mode
 		stormEngineC.getSelectedNode().bodyActive(true);

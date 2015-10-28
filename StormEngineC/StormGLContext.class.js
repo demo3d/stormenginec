@@ -18,7 +18,7 @@ StormGLContext = function(stormCanvasObject, loadScene) {
 	this.lines = stormEngineC.lines;
 	this.polarityPoints = stormEngineC.polarityPoints;
 	this.lights = stormEngineC.lights;
-	this.bufferNodes = stormEngineC.bufferNodes;
+	this.graphs = stormEngineC.graphs;
 	
 	this.far = 500.0; 
 	
