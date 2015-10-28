@@ -379,10 +379,6 @@ StormGLContext.prototype.render_Shadows = function(currentLight) {
 				this.gl.uniformMatrix4fv(this.u_Shadows_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
 				this.gl.uniform3f(this.u_Shadows_positionLight, false, light.getPosition().e[0], light.getPosition().e[1], light.getPosition().e[2]);
 				
-				this.gl.disableVertexAttribArray(this.attr_Shadows_posX);
-				this.gl.disableVertexAttribArray(this.attr_Shadows_posY);
-				this.gl.disableVertexAttribArray(this.attr_Shadows_posZ);
-				
 				this.gl.enableVertexAttribArray(this.attr_Shadows_pos);
 				this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodes[n].buffersObjects[nb].nodeMeshVertexBuffer);
 				this.gl.vertexAttribPointer(this.attr_Shadows_pos, 3, this.gl.FLOAT, false, 0, 0);
@@ -393,8 +389,6 @@ StormGLContext.prototype.render_Shadows = function(currentLight) {
 				} else {
 					this.gl.drawArrays(this.gl.TRIANGLES, 0, this.nodes[n].buffersObjects[nb].nodeMeshVertexBufferNumItems);
 				} 
-				
-				
 				
 			}
 		}

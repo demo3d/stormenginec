@@ -44,6 +44,7 @@ StormGraph = function(jsonIn) { StormNode.call(this);
 	this.clglWork_nodes.addKernel(this.kernel_positionByDirection_nodes, "posXYZW");
 	this.clglWork_nodes.addKernel(this.kernel_direction_nodes, "dir");
 		
+	this.nodeDrawMode = 4; // 4 TRIANGLES
 		
 	// LINKS
 	this.clglWork_links = this.webCLGL.createWork(this.offset);
@@ -66,7 +67,7 @@ StormGraph = function(jsonIn) { StormNode.call(this);
 	this.clglWork_links.addKernel(this.kernel_positionByDirection_links, "posXYZW");
 	this.clglWork_links.addKernel(this.kernel_direction_links, "dir");
 	
-	
+	this.linkDrawMode = 1; // 1 LINES
 	
 	
 	
@@ -250,14 +251,14 @@ StormGraph.prototype.source_direction = function() {
 		var str = 'float offset;vec3 polePos;vec3 vecN; float toDir; vec3 cc;float distanceToPole;\n';
 		for(var n = 0, f = this.arrPP.length; n < f; n++) {
 			str += 'polePos = vec3(pole'+n+'X,pole'+n+'Y,pole'+n+'Z);\n'+ 
-					'toDir = 1.0;\n'+  
-					'if(sign(particlePolarity[x]) == 0.0 && sign(pole'+n+'Polarity) == 1.0) toDir = -1.0;\n'+
-					'if(sign(particlePolarity[x]) == 1.0 && sign(pole'+n+'Polarity) == 0.0) toDir = -1.0;\n'+
+					'toDir = -1.0;\n'+  
+					'if(sign(particlePolarity[x]) == 0.0 && sign(pole'+n+'Polarity) == 1.0) toDir = 1.0;\n'+
+					'if(sign(particlePolarity[x]) == 1.0 && sign(pole'+n+'Polarity) == 0.0) toDir = 1.0;\n'+
 					'offset = '+this.offset.toFixed(20)+';'+
 					
 					'distanceToPole = 1.0-sqrt(length(vec3(polePos-currentPos)/offset));'+
 					
-					'vecN = ((vec3(polePos-currentPos)-(-1.0))/(1.0-(-1.0)) - 0.5 ) *2.0 * toDir;'+
+					'vecN = ((vec3(polePos-currentPos)-(-1.0))/(1.0-(-1.0)) - 0.5 ) *2.0 * pole'+n+'Force * toDir;'+
 					'cc = vecN*distanceToPole ;\n'+
 					
 					'currentDir = clamp(currentDir+(cc*0.001),-1.0,1.0);\n'+
@@ -524,7 +525,7 @@ StormGraph.prototype.updateNodes = function() {
 	
 	this.arrayNodePolaritys = [];	
 	for(var n=0; n < this.arrayNodeId.length; n++) {
-		this.arrayNodePolaritys.push(0);
+		this.arrayNodePolaritys.push(1);
 	}
 	this.clglWork_nodes.setArg("particlePolarity", this.arrayNodePolaritys, this.splitNodes);
 	
@@ -539,10 +540,10 @@ StormGraph.prototype.updateNodes = function() {
 	this.clglWork_nodes.setArg("nodeWMatrix", this.MPOS.transpose().e);
 	this.clglWork_nodes.setArg("nodesSize", parseFloat(this.currentNodeId-1));
 	
-	this.clglWork_nodes.setArg("enableDestination", 0);
-	this.clglWork_nodes.setArg("destinationForce", 0);
-	this.clglWork_nodes.setArg("lifeDistance", 0);
-	this.clglWork_nodes.setArg("pointSize", 1.0);
+	this.clglWork_nodes.setArg("enableDestination", this.enDestination);
+	this.clglWork_nodes.setArg("destinationForce", this.destinationForce);
+	this.clglWork_nodes.setArg("lifeDistance", this.lifeDistance);
+	this.clglWork_nodes.setArg("pointSize", this.pointSize);
 	this.clglWork_nodes.setArg("enableDrag", 0);
 	this.clglWork_nodes.setArg("idToDrag", 0);
 	this.clglWork_nodes.setArg("MouseDragTranslationX", 0);
@@ -691,7 +692,7 @@ StormGraph.prototype.updateLinks = function() {
 	
 	this.arrayLinkPolaritys = [];	
 	for(var n=0; n < this.arrayLinkId.length; n++) {
-		this.arrayLinkPolaritys.push(0);
+		this.arrayLinkPolaritys.push(1);
 	}
 	this.clglWork_links.setArg("particlePolarity", this.arrayLinkPolaritys, this.splitLinks);
 	
@@ -706,10 +707,10 @@ StormGraph.prototype.updateLinks = function() {
 	this.clglWork_links.setArg("nodeWMatrix", this.MPOS.transpose().e);
 	this.clglWork_links.setArg("nodesSize", this.currentLinkId-2);
 	
-	this.clglWork_links.setArg("enableDestination", 0);
-	this.clglWork_links.setArg("destinationForce", 0);
-	this.clglWork_links.setArg("lifeDistance", 0);
-	this.clglWork_links.setArg("pointSize", 1.0);
+	this.clglWork_links.setArg("enableDestination", this.enDestination);
+	this.clglWork_links.setArg("destinationForce", this.destinationForce);
+	this.clglWork_links.setArg("lifeDistance", this.lifeDistance);
+	this.clglWork_links.setArg("pointSize", this.pointSize);
 	this.clglWork_links.setArg("enableDrag", 0);
 	this.clglWork_links.setArg("idToDrag", 0);
 	this.clglWork_links.setArg("MouseDragTranslationX", 0);
@@ -750,7 +751,7 @@ StormGraph.prototype.render = function() {
 			this.clglWork_nodes.setArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
 			this.clglWork_nodes.setArg("nodeWMatrix", this.MPOS.transpose().e);
 			this.clglWork_nodes.setArg("nodesSize", parseFloat(this.currentNodeId-1));
-		}).bind(this), this.gl.TRIANGLES);
+		}).bind(this), this.nodeDrawMode);
 	}
 	if(this.arrayLinkId.length > 0) {
 		this.clglWork_links.enqueueVertexFragmentProgram("posXYZW", (function() {
@@ -758,8 +759,42 @@ StormGraph.prototype.render = function() {
 			this.clglWork_links.setArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
 			this.clglWork_links.setArg("nodeWMatrix", this.MPOS.transpose().e);
 			this.clglWork_links.setArg("nodesSize", parseFloat(this.currentNodeId-1));
-		}).bind(this), this.gl.LINES);
+		}).bind(this), this.linkDrawMode);
 	}
+};
+
+/**
+ * Set node draw mode
+ * @param {Int} [drawElementsMode=4] 0=POINTS, 3=LINE_STRIP, 2=LINE_LOOP, 1=LINES, 5=TRIANGLE_STRIP, 6=TRIANGLE_FAN and 4=TRIANGLES
+ */
+StormGraph.prototype.setNodeDrawMode = function(drawElementsMode) {
+	var drawMode = (drawElementsMode != undefined) ? drawElementsMode : 4;
+	this.nodeDrawMode = drawMode;
+};
+
+/**
+ * Set links draw mode
+ * @param {Int} [drawElementsMode=1] 0=POINTS, 3=LINE_STRIP, 2=LINE_LOOP, 1=LINES, 5=TRIANGLE_STRIP, 6=TRIANGLE_FAN and 4=TRIANGLES
+ */
+StormGraph.prototype.setLinkDrawMode = function(drawElementsMode) {
+	var drawMode = (drawElementsMode != undefined) ? drawElementsMode : 1;
+	this.linkDrawMode = drawMode;
+};
+
+/**
+ * Split nodes buffer every 
+ * @param {Int} value
+ */
+StormGraph.prototype.setNodesSplitEvery = function(value) {
+	this.splitNodesEvery = value;
+};
+
+/**
+ * Split links buffer every
+ * @param {Int} value
+ */
+StormGraph.prototype.setLinksSplitEvery = function(value) {
+	this.splitLinksEvery = value;
 };
 
 StormGraph.prototype.updateForcesAndPP = function(clglwork) {
@@ -1002,61 +1037,90 @@ StormGraph.prototype.set_destinationVolume = function(voxelizator) {
 	this.set_destinationForce(0.5);
 		
 	this.arrayNodeDestination = [];	
+	this.arrayNodeVertexColor = [];
 	
-	var vo = voxelizator;
-	if(vo instanceof StormVoxelizator == false) { alert("You must select a voxelizator object with albedo fillmode enabled."); return false;}
-	if(vo.image3D_VoxelsColor == undefined) { alert("You must select a voxelizator object with albedo fillmode enabled."); return false;}
-	var data = vo.clglBuff_VoxelsColor.items[0].inData;
+	this.vo = voxelizator;
+	if(this.vo instanceof StormVoxelizator == false) { alert("You must select a voxelizator object with albedo fillmode enabled."); return false;}
+	if(this.vo.image3D_VoxelsColor == undefined) { alert("You must select a voxelizator object with albedo fillmode enabled."); return false;}
+	this.data = this.vo.clglBuff_VoxelsColor.items[0].inData;
 	
 	var numActCells = 0;
-	for(var n = 0, f = data.length/4; n < f; n++) { // num of active cells
+	for(var n = 0, f = this.data.length/4; n < f; n++) { // num of active cells
 		var id = n*4;
 		//if(data[id] > 30 && data[id+1] > 30 && data[id+2] > 30)
-		if(data[id+3] > 0) numActCells++; 
+		if(this.data[id+3] > 0) {
+			numActCells++;
+		}
 	}
 	var totalNodes = this.currentNodeId-1;
 	var nodesPerCell = totalNodes/numActCells;
-	var nodesInCell = 0;	
+	
+	this.incremNodesCell = 0;	
 	var currentNodeId = -1;
-	var CCX=0,CCY=0,CCZ=0;
-	var CCXMAX=vo.resolution-1, CCYMAX=vo.resolution-1, CCZMAX=vo.resolution-1;
-	var separation = 1.0;	
+	
+	this.currentVoxelCell;
+	this.CCX=0,this.CCY=0,this.CCZ=0;
+	this.CCXMAX=this.vo.resolution-1, this.CCYMAX=this.vo.resolution-1, this.CCZMAX=this.vo.resolution-1;
+	var separation = 1.0;
+	var p;
+	var c;
+	var make = false;
+	
+	var next = (function() {
+		while(true) {
+			if(this.CCX == this.CCXMAX && this.CCZ == this.CCZMAX && this.CCY == this.CCYMAX) {
+				break;
+			} else {
+				if(this.CCX == this.CCXMAX && this.CCZ == this.CCZMAX) {
+					this.CCX=0;this.CCZ=0;this.CCY++;
+				} else {
+					if(this.CCX == this.CCXMAX) {
+						this.CCX=0;this.CCZ++;
+					} else {
+						this.CCX++;
+					}
+				}
+			}
+			
+			this.currentVoxelCell = (this.CCY*(this.vo.resolution*this.vo.resolution)) + (this.CCZ*(this.vo.resolution)) + this.CCX;
+			
+			if(this.data[(this.currentVoxelCell*4)+3] > 0) {
+				this.incremNodesCell += nodesPerCell;
+				if(this.incremNodesCell >= 1.0) {
+					this.incremNodesCell -= 1.0;
+					break;
+				}
+			}
+		}
+	}).bind(this);
+	
 	for(var n=0; n < this.arrayNodeId.length; n++) {
 		if(currentNodeId != this.arrayNodeId[n]) {
 			currentNodeId = this.arrayNodeId[n];
-			
-			if(nodesInCell > nodesPerCell) {
-				while(true) {
-					if(CCX == CCXMAX && CCZ == CCZMAX && CCY == CCYMAX) {
-						break;
-					} else {
-						if(CCX == CCXMAX && CCZ == CCZMAX) {
-							CCX=0;CCZ=0;CCY++;
-						} else {
-							if(CCX == CCXMAX) {
-								CCX=0;CCZ++;
-							} else {
-								CCX++;
-							}
-						}
-					}
-					
-					var currentVoxelCell = (CCY*(vo.resolution*vo.resolution)) + (CCZ*(vo.resolution)) + CCX;
-					//if(data[id] > 30 && data[id+1] > 30 && data[id+2] > 30)
-					if(data[(currentVoxelCell*4)+3] > 0) {
-						break;
-					}
-				}
-				nodesInCell -= nodesPerCell;
+								
+			if(this.incremNodesCell >= 1.0) {
+				this.incremNodesCell -= 1.0;
+			} else {
+				next();
 			}
-			nodesInCell++;
 			
-			this.arrayNodeDestination.push(CCX*separation, CCY*separation, CCZ*separation, 255);			
+			// position
+			p = $V3([0.0,0.0,0.0]).add($V3([-(this.vo.size/2.0), -(this.vo.size/2.0), -(this.vo.size/2.0)]));  
+			p = p.add($V3([ this.vo.cs*this.CCX*separation, this.vo.cs*this.CCY*separation, this.vo.cs*(this.CCZMAX-this.CCZ)*separation ])); 
+			p = p.add($V3([ this.vo.cs*Math.random(), this.vo.cs*Math.random(), this.vo.cs*Math.random() ]));
+			
+			// color
+			c = $V3([ this.data[(this.currentVoxelCell*4)]/255, this.data[(this.currentVoxelCell*4)+1]/255, this.data[(this.currentVoxelCell*4)+2]/255 ]);
+			
+			this.arrayNodeDestination.push(p.e[0], p.e[1], p.e[2], 1.0);	
+			this.arrayNodeVertexColor.push(c.e[0], c.e[1], c.e[2], 1.0);
 		} else {
-			this.arrayNodeDestination.push(CCX*separation, CCY*separation, CCZ*separation, 255);
+			this.arrayNodeDestination.push(p.e[0], p.e[1], p.e[2], 1.0);
+			this.arrayNodeVertexColor.push(c.e[0], c.e[1], c.e[2], 1.0);
 		}
 	}
 	this.clglWork_nodes.setArg("dest", this.arrayNodeDestination, this.splitNodes);
+	this.clglWork_nodes.setArg("nodeVertexCol", this.arrayNodeVertexColor, this.splitNodes);
 	
 	this.setLinksDestinationToNodesDestination();
 };

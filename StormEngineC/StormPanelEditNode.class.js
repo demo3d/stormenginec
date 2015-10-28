@@ -225,6 +225,13 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 						"<div>"+(stormEngineC.nearNode.currentLinkId/2)+" links: [vertices: "+stormEngineC.nearNode.arrayLinkVertexPos.length+", indices: "+stormEngineC.nearNode.arrayLinkIndices.length+"]</div>";						
 			$('#DIVID_StormEditNode_edits').append(str);
 			
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "EDITMODE", stormEngineC.nearNode.selectedNodeIsInEditionMode(),
+					function() {
+						stormEngineC.nearNode.editSelectedNode();
+					}, function() {
+						stormEngineC.nearNode.uneditSelectedNode();
+					});
+			
 			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "SELFSHADOWS", stormEngineC.nearNode.selfshadows,
 					function() {
 						stormEngineC.nearNode.setSelfshadows(true);
@@ -318,24 +325,6 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				document.body.style.cursor='pointer';
 			});
 		}
-		if(stormEngineC.nearNode.objectType == 'buffernodes') {
-			var pos = [stormEngineC.nearNode.getPosition().e[0], stormEngineC.nearNode.getPosition().e[1], stormEngineC.nearNode.getPosition().e[2]];
-			this.actHelpers.add_3dslider(DGE('DIVID_StormEditNode_edits'), "POSITION", pos, -100000.0, 100000.0, 0.1, function(vector) {
-				var pos = $V3([vector[0], vector[1], vector[2]]);
-				stormEngineC.nearNode.setPosition(pos);
-				stormEngineC.debugValues = [];
-				stormEngineC.setDebugValue(0, pos, stormEngineC.nearNode.name);
-			});
-			
-			lines_rotation();
-			
-			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "EDITMODE", stormEngineC.nearNode.selectedNodeIsInEditionMode(),
-					function() {
-						stormEngineC.nearNode.editSelectedNode();
-					}, function() {
-						stormEngineC.nearNode.uneditSelectedNode();
-					});
-		}	
 		if(stormEngineC.nearNode.objectType == 'camera') {
 			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "SET_ACTIVE", (stormEngineC.nearNode.idNum == stormEngineC.defaultCamera.idNum),
 					function() {

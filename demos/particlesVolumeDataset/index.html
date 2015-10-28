@@ -19,7 +19,7 @@
 		<canvas id="stormCanvas" width="512" height="512" style="background-color:#FF0000"></canvas> 
 		<script>
 			var URL_RESOURCES = "../_RESOURCES/";
-			var nodeParticles;
+			var graph;
 			 
 			stormEngineC.createWebGL({	target:	'stormCanvas', // ID canvas
 										resizable: 0,
@@ -63,14 +63,29 @@
 			
 			
 			// SCENE
-			nodeParticles = stormEngineC.createParticles();
-			nodeParticles.generateParticles({	amount:64*64*64,   
-												disposal:{radius:0.5}, 
-												color:$V3([1.0,1.0,1.0]), //document.getElementById('imgLena')
-												pointSize:1.0,  
-												polarity:0,
-												direction:undefined});    
-			nodeParticles.setPosition($V3([0.0,0.0,0.0]));
+			// graph
+	        graph = stormEngineC.createGraph({"offset": 1000.0});
+	        graph.setNodeDrawMode(0); // 0= POINTS
+	        graph.setNodesSplitEvery(parseInt((256*256)/1)); // 1 == number of vertexXYZW per node (loadPoint == 1vertexXYZW)
+	        graph.set_pointSize(4.0);
+	        
+	    	meshNode = new StormNode();
+	    	meshNode.loadPoint();
+	    	
+	    	var numNodes = ((256*256));
+	    	for(var n=0; n < numNodes; n++) {		
+	    		var offs = graph.offset/10;
+	    		var x = -(offs/2)+(Math.random()*offs);
+	    		var y = -(offs/2)+(Math.random()*offs);
+	    		var z = -(offs/2)+(Math.random()*offs);		
+	    		var node = graph.addNode({
+	    							"name": n.toString(),
+	    							"position": $V3([x, y, z]),
+	    							"node": meshNode,
+	    							"color": $V3([Math.random(), Math.random(), Math.random()])
+	    							});
+	    	}
+	    	graph.updateNodes();
 			
 		  
 		  
@@ -78,10 +93,10 @@
 			
 			var voxelA;
 			loopParticles = function(voxelizatorObject) {
-				//nodeParticles.setDisposal({radius:0.5});
-				//nodeParticles.disableDestination();
-				//nodeParticles.setDirection('random');
-				  nodeParticles.setDestinationVolume({voxelizator: voxelizatorObject});
+				//graph.setDisposal({radius:0.5});
+				//graph.disableDestination();
+				//graph.setDirection('random');
+				  graph.set_destinationVolume(voxelizatorObject);
 				  
 				  
 				  

@@ -78,7 +78,7 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 	}
 	for(var n=0, f = stormEngineC.graphs.length; n < f; n++) {
 		if(stormEngineC.graphs[n].systemVisible == true) {
-			var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'buffernodes' && stormEngineC.nearNode == stormEngineC.graphs[n]) ? '#444' : '#000';
+			var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'graphs' && stormEngineC.nearNode == stormEngineC.graphs[n]) ? '#444' : '#000';
 			var colorText = (stormEngineC.graphs[n].visibleOnContext == true) ? '#FFF': '#999';
 			str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.graphs["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.graphs[n].name+"</div>";
 		}

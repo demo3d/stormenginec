@@ -9,7 +9,7 @@
   <body>
       <canvas id="stormCanvas" width="512" height="512"></canvas>
     <img id="IMGID_particles" src="../_RESOURCES/lena_128x128.jpg" />
-    <button type="button" onclick="nodeParticles.setDestinationWidthHeight({width:128,height:128,spacing:0.5,force:0.5})">Set particles from texture</button>
+    <button type="button" onclick="graph.set_color(document.getElementById('IMGID_particles')); graph.set_destinationWidthHeight({width:128,height:128,spacing:1.0})">Set graph nodes position to texture</button>
     
     <script>
       var nodePole,nodeParticles;
@@ -35,24 +35,41 @@
         nodeCam.setFov(80);
     
         
-        nodeParticles = stormEngineC.createParticles();
-        nodeParticles.generateParticles({	amount:128*128,  
-                                          disposal:{radius:0.5}, 
-                                          color: document.getElementById('IMGID_particles'),
-                                          pointSize:2.0,  
-                                          polarity:0,
-                                          direction:undefined});    
-        //nodeParticles.setPosition($V3([0.0,1.0,0.0]));
+     // graph
+        graph = stormEngineC.createGraph({"offset": 1000.0});
+        graph.setNodeDrawMode(0); // 0= POINTS
+        graph.setNodesSplitEvery(parseInt((256*256)/1)); // 1 == number of vertexXYZW per node (loadPoint == 1vertexXYZW)
+        graph.set_pointSize(4.0);
         
-        nodePole = stormEngineC.createPolarityPoint({polarity:1,force:0.5}); 
-        nodePole.get({node:nodeParticles});
+    	meshNode = new StormNode();
+    	meshNode.loadPoint();
+    	
+    	var numNodes = (128*128);
+    	for(var n=0; n < numNodes; n++) {		
+    		var offs = graph.offset/10;
+    		var x = -(offs/2)+(Math.random()*offs);
+    		var y = -(offs/2)+(Math.random()*offs);
+    		var z = -(offs/2)+(Math.random()*offs);		
+    		var node = graph.addNode({
+    							"name": n.toString(),
+    							"position": $V3([x, y, z]),
+    							"node": meshNode,
+    							"color": $V3([Math.random(), Math.random(), Math.random()])
+    							});
+    	}
+    	graph.updateNodes();
+    	
+    	
+        // polarity points
+        nodePole = stormEngineC.createPolarityPoint({polarity:0,force:0.5}); 
+        nodePole.get({node: graph});
         nodePole.setPosition($V3([20.0, 0.0, 0.0]));
         nodePole.draggable(true);
-        
-        nodePoleA = stormEngineC.createPolarityPoint({polarity:1,force:0.5}); 
-        nodePoleA.get({node:nodeParticles});
+      
+		nodePoleA = stormEngineC.createPolarityPoint({polarity:0,force:0.5}); 
+        nodePoleA.get({node: graph});
         nodePoleA.setPosition($V3([-20.0, 0.0, 0.0]));
-        nodePoleA.draggable(true);
+      	nodePoleA.draggable(true);
       
       
       

@@ -73,7 +73,7 @@
 				////////////////////////////////////////////////
 				//	Graph
 				////////////////////////////////////////////////
-				var graph = stormEngineC.createGraph({"offset": 100.0});
+				var graph = stormEngineC.createGraph({"offset": 1000.0});
 				
 				//stormEngineC.editSelectedNode();
 				//stormEngineC.selectNode(graph.bufferNodes);
@@ -81,10 +81,10 @@
 				
 				// mesh to use
 				var meshNode = new StormNode();
-				meshNode.loadPoint();
+				meshNode.loadBox();
 				
 				
-				var numNodes = 256*256;
+				var numNodes = 64*64;
 				var numLinks = 100;
 				
 				var idx = 4001;
@@ -111,9 +111,10 @@
 				
 				
 				for(var n=0; n < numNodes; n++) {
-					var x = -(graph.offset/2)+(Math.random()*graph.offset);
-					var y = -(graph.offset/2)+(Math.random()*graph.offset);
-					var z = -(graph.offset/2)+(Math.random()*graph.offset);
+					var offs = this.graph.offset/10;
+					var x = -(offs/2)+(Math.random()*offs);
+					var y = -(offs/2)+(Math.random()*offs);
+					var z = -(offs/2)+(Math.random()*offs);
 					
 					var node = graph.addNode({
 										"name": n.toString(),
@@ -170,21 +171,8 @@
 				graph.updateNodes();
 				graph.updateLinks();*/
 				
-				
-				var voxelA = stormEngineC.createVoxelizator();
-			voxelA.generateFrom3DImageElement({size:2.1,
-											   resolution:128,
-											   image:["../_RESOURCES/3dtextures/bunny_3_128.png"],
-											   ongenerate:function(voxelizatorObject) {
-												   //voxelA = voxelizatorObject;
-													//loopParticles();
-													
-											   },
-											   fillmode:["albedo"]});
-				
 		</script>
 		<button onclick="ntt();">add Node</button>
-		<button onclick="graph.set_destinationVolume(voxelA);">toVoxel</button>
 		<br />
 		WASD keys: Move
 		<br /><br />

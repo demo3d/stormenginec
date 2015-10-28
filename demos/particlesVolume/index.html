@@ -18,7 +18,7 @@
 		
 		<canvas id="stormCanvas" width="512" height="512"></canvas> 
 		<script>
-			var nodePole,nodeParticles;
+			var nodePole,graph;
 			 
 			stormEngineC.createWebGL({	target:	'stormCanvas', // ID canvas
 										resizable: 0,
@@ -61,20 +61,35 @@
 			
 			
 			// SCENE
-			nodeParticles = stormEngineC.createParticles();
-			nodeParticles.generateParticles({	amount:128*128,  
-												disposal:{radius:0.5}, 
-												color:$V3([1.0,1.0,1.0]), //document.getElementById('imgLena')
-												pointSize:1.0,  
-												polarity:0,
-												direction:undefined});    
-			nodeParticles.setPosition($V3([0.0,0.0,0.0]));
+			// graph
+	        graph = stormEngineC.createGraph({"offset": 1000.0});
+	        graph.setNodeDrawMode(0); // 0= POINTS
+	        graph.setNodesSplitEvery(parseInt((256*256)/1)); // 1 == number of vertexXYZW per node (loadPoint == 1vertexXYZW)
+	        graph.set_pointSize(4.0);
+	        
+	    	meshNode = new StormNode();
+	    	meshNode.loadPoint();
+	    	
+	    	var numNodes = ((128*128));
+	    	for(var n=0; n < numNodes; n++) {		
+	    		var offs = graph.offset/10;
+	    		var x = -(offs/2)+(Math.random()*offs);
+	    		var y = -(offs/2)+(Math.random()*offs);
+	    		var z = -(offs/2)+(Math.random()*offs);		
+	    		var node = graph.addNode({
+	    							"name": n.toString(),
+	    							"position": $V3([x, y, z]),
+	    							"node": meshNode,
+	    							"color": $V3([Math.random(), Math.random(), Math.random()])
+	    							});
+	    	}
+	    	graph.updateNodes();
 			
 		  
 		  
 		  
 			nodePole = stormEngineC.createPolarityPoint({polarity:1,force:0.5}); 
-			nodePole.get({node:nodeParticles});
+			nodePole.get({node: graph});
 			nodePole.setPosition($V3([0.0, 0.0, 0.0]));
 			
 			nodePole.visible(false);
@@ -89,12 +104,12 @@
 				var current=1;
 				setInterval(function() {
 						nodePole.setForce(0.2);
-						nodeParticles.setDisposal({radius:0.5});
-						nodeParticles.disableDestination();
-						nodeParticles.setDirection('random');
+						graph.set_pos({radius:0.5});
+						graph.set_disableDestination();
+						graph.set_dir('random');
 						setTimeout(function(){
 						  nodePole.setForce(0.0);
-						  nodeParticles.setDestinationVolume({voxelizator:arrayVoxels[current]});
+						  graph.set_destinationVolume(arrayVoxels[current]);
 						},10000);
 						
 						current=(current==arrayVoxels.length-1)?0:(current+1);
@@ -151,7 +166,7 @@
 		  //nodePlane.setRotation(stormEngineC.utils.degToRad(90),$V3([1.0,0.0,0.0])); 
 			nodePlane.setPosition($V3([0.0, -1.5, 0.0]));
 		</script>
-		<button type="button" onclick="nodeParticles.setDestinationVolume({voxelizator:voxelA});">dest</button>
+		<button type="button" onclick="graph.set_destinationVolume(voxelD);">dest</button>
 		<br />
 		WASD keys: Move
 		<br /><br />
