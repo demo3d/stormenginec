@@ -75,8 +75,8 @@
 				////////////////////////////////////////////////
 				var graph = stormEngineC.createGraph({"offset": 1000.0});
 				
-				//stormEngineC.editSelectedNode();
-				//stormEngineC.selectNode(graph.bufferNodes);
+				stormEngineC.selectNode(graph);
+				graph.editSelectedNode();
 				
 				
 				// mesh to use
@@ -84,7 +84,7 @@
 				meshNode.loadBox();
 				
 				
-				var numNodes = 64*64;
+				var numNodes = 100;
 				var numLinks = 100;
 				
 				var idx = 4001;

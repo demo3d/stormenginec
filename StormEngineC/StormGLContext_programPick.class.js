@@ -279,11 +279,14 @@ StormGLContext.prototype.render = function(nodes) {
 	this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
 	this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 	
-	this.gl.enable(this.gl.BLEND);
-	this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA); 
+	//this.gl.enable(this.gl.BLEND);
+	//this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA); 
 	
 	if(nodes == undefined) { // selection is edit mode		
 		// draw ids of selected node (type graph) in grayscale (bufferNode and internal id of this)			
+		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);		
+		this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
+		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 		
 		var node = stormEngineC.getSelectedNode();
 		
@@ -294,7 +297,14 @@ StormGLContext.prototype.render = function(nodes) {
 			this.render_graphs(node);
 		}		
 	} else { // selection not in edit mode
-		// draw nodes according id (grayscale)		
+		// draw nodes according id (grayscale)	
+		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);		
+		this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
+		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+		
+		this.gl.enable(this.gl.BLEND);
+		this.gl.blendFunc(this.gl.ONE, this.gl.ONE_MINUS_SRC_ALPHA);
+		
 		for(var n = 0, f = nodes.length; n < f; n++) { 
 			if(	nodes[n].visibleOnContext && nodes[n].objectType != 'light') {
 				var node = nodes[n];
@@ -314,14 +324,13 @@ StormGLContext.prototype.render = function(nodes) {
 				}
 			}
 		}
-	
-		
+			
 		// draw overlay transforms (detectors) of selected node		
 		for(var n = 0, f = nodes.length; n < f; n++) { 
 			if(	nodes[n].visibleOnContext && nodes[n].objectType != 'light') {
 				var node = nodes[n];
 				
-				if(stormEngineC.editMode && stormEngineC.getSelectedNode() != undefined && stormEngineC.getSelectedNode().idNum == nodes[n].idNum) {
+				if(stormEngineC.editMode == true && stormEngineC.getSelectedNode() != undefined && stormEngineC.getSelectedNode().idNum == nodes[n].idNum) {
 					this.gl.uniform1i(this.u_Pick_vertexType, 1); // overlay transforms 
 					this.gl.uniform1i(this.u_Pick_fragType, 1); // overlay transforms 
 					
@@ -329,9 +338,9 @@ StormGLContext.prototype.render = function(nodes) {
 				}
 			}
 		}
+		
+		this.gl.disable(this.gl.BLEND);
 	}
-	
-	this.gl.disable(this.gl.BLEND);
 };
 /** @private */
 StormGLContext.prototype.render_graphs = function(node) {	
@@ -347,35 +356,37 @@ StormGLContext.prototype.render_graphs = function(node) {
 		this.gl.uniform1f(this.u_Pick_uWorkAreaSize, parseFloat(node.offset));						
 		this.gl.uniformMatrix4fv(this.u_Pick_nodeWMatrix, false, node.MPOS.transpose().e); 
 							
-		///////////////////////////////////////
-		// NodeId
-		///////////////////////////////////////					
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["nodeId"].items[0].vertexData0);
-		this.gl.vertexAttribPointer(this.attr_BN_NodeId, 1, this.gl.FLOAT, false, 0, 0);
-							
-		///////////////////////////////////////
-		// NodePos
-		///////////////////////////////////////
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["posXYZW"].items[0].vertexData0);
-		this.gl.vertexAttribPointer(this.attr_Pick_NodePosX, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!! 
-		
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["posXYZW"].items[0].vertexData1);
-		this.gl.vertexAttribPointer(this.attr_Pick_NodePosY, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
-		
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["posXYZW"].items[0].vertexData2);  
-		this.gl.vertexAttribPointer(this.attr_Pick_NodePosZ, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
-							
-		///////////////////////////////////////
-		// NodeVertexPos
-		///////////////////////////////////////
-		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["nodeVertexPos"].items[0].vertexData0);
-		this.gl.vertexAttribPointer(this.attr_Pick_NodeVertexPos, 4, this.gl.FLOAT, false, 0, 0);
-							
-		///////////////////////////////////////
-		// NodeIndices
-		///////////////////////////////////////
-		this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, node.clglWork_nodes.CLGL_bufferIndices.items[0].vertexData0);
-		this.gl.drawElements(this.gl.TRIANGLES, node.clglWork_nodes.CLGL_bufferIndices.items[0].length, this.gl.UNSIGNED_SHORT, 0);
+		for(var n=0; n < node.clglWork_nodes.buffers["nodeId"].items.length; n++) {
+			///////////////////////////////////////
+			// NodeId
+			///////////////////////////////////////					
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["nodeId"].items[n].vertexData0);
+			this.gl.vertexAttribPointer(this.attr_BN_NodeId, 1, this.gl.FLOAT, false, 0, 0);
+								
+			///////////////////////////////////////
+			// NodePos
+			///////////////////////////////////////
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["posXYZW"].items[n].vertexData0);
+			this.gl.vertexAttribPointer(this.attr_Pick_NodePosX, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!! 
+			
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["posXYZW"].items[n].vertexData1);
+			this.gl.vertexAttribPointer(this.attr_Pick_NodePosY, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
+			
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["posXYZW"].items[n].vertexData2);  
+			this.gl.vertexAttribPointer(this.attr_Pick_NodePosZ, 4, this.gl.UNSIGNED_BYTE, true, 0, 0); // NORMALIZE!!
+								
+			///////////////////////////////////////
+			// NodeVertexPos
+			///////////////////////////////////////
+			this.gl.bindBuffer(this.gl.ARRAY_BUFFER, node.clglWork_nodes.buffers["nodeVertexPos"].items[n].vertexData0);
+			this.gl.vertexAttribPointer(this.attr_Pick_NodeVertexPos, 4, this.gl.FLOAT, false, 0, 0);
+								
+			///////////////////////////////////////
+			// NodeIndices
+			///////////////////////////////////////
+			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, node.clglWork_nodes.CLGL_bufferIndices.items[n].vertexData0);
+			this.gl.drawElements(this.gl.TRIANGLES, node.clglWork_nodes.CLGL_bufferIndices.items[n].length, this.gl.UNSIGNED_SHORT, 0);
+		}		
 	}
 };
 /** @private */
@@ -528,7 +539,7 @@ StormGLContext.prototype.readPixel = function(nodes) {
 		if(stormEngineC.getSelectedNode().objectType == 'graph') { // selection is type graph
 			var unpackValue = stormEngineC.utils.unpack([arrayPick[0]/255, arrayPick[1]/255, arrayPick[2]/255, arrayPick[3]/255]); // value from 0.0 to 1.0
 			
-			var nodeIdNum = Math.ceil(unpackValue*1000000.0)-1.0;
+			var nodeIdNum = Math.round(unpackValue*1000000.0)-1.0;
 			console.log("graph: "+nodeIdNum);
 			
 			return nodeIdNum;
@@ -588,18 +599,28 @@ StormGLContext.prototype.drag = function() {
 			selNode.MouseDragTranslationY = dir.e[1];
 			selNode.MouseDragTranslationZ = dir.e[2];
 			
+			
 			selNode.clglWork_nodes.setArg("enableDrag", parseFloat(selNode.enableDrag));
 			selNode.clglWork_nodes.setArg("idToDrag", parseFloat(selNode.idToDrag));
 			selNode.clglWork_nodes.setArg("MouseDragTranslationX", selNode.MouseDragTranslationX);
 			selNode.clglWork_nodes.setArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
 			selNode.clglWork_nodes.setArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
-			
-			
+						
 			selNode.clglWork_links.setArg("enableDrag", selNode.enableDrag);
 			selNode.clglWork_links.setArg("idToDrag", selNode.idToDrag);	 		
 			selNode.clglWork_links.setArg("MouseDragTranslationX", selNode.MouseDragTranslationX);
 			selNode.clglWork_links.setArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
 			selNode.clglWork_links.setArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
+			
+			setTimeout(function() {
+				selNode.clglWork_nodes.setArg("MouseDragTranslationX", 0.0);
+				selNode.clglWork_nodes.setArg("MouseDragTranslationY", 0.0);
+				selNode.clglWork_nodes.setArg("MouseDragTranslationZ", 0.0);
+							 		
+				selNode.clglWork_links.setArg("MouseDragTranslationX", 0.0);
+				selNode.clglWork_links.setArg("MouseDragTranslationY", 0.0);
+				selNode.clglWork_links.setArg("MouseDragTranslationZ", 0.0);
+			}, 10);
 		}
 	} else { // selection not in edit mode
 		if(	this.gettedPixel instanceof StormNode ||
