@@ -28,11 +28,11 @@
 				stormEngineC.shadows(false);
 				
 				// LIGHTS
-				stormEngineC.setAmbientColor($V3([0.0,0.0,0.0]));
+				stormEngineC.setAmbientColor($V3([0.2,0.2,0.2]));
 				
 				var lightSun = stormEngineC.createLight({	'type':'sun',
 										'position':$V3([2.3,17.0,-20.0]),
-										'direction':$V3([0.01,-1.0,0.01]), // type sun only direction param
+										'direction':$V3([0.2,-0.5,0.4]), // type sun only direction param
 										'color':5770 // V3 color or int kelvins(1000K-15000K http://en.wikipedia.org/wiki/Color_temperature)
 										});
 				

@@ -9,6 +9,7 @@ StormGraph = function(jsonIn) { StormNode.call(this);
 	this.objectType = 'graph';
 	
 	this.gl = stormEngineC.stormGLContext.gl;
+	this.selfShadows = true;
 	
 	this.offset = (jsonIn != undefined && jsonIn.offset != undefined) ? jsonIn.offset : 100.0;
 	
@@ -94,6 +95,7 @@ StormGraph = function(jsonIn) { StormNode.call(this);
 	this.arrayNodeId = [];
 	this.arrayNodePosXYZW = [];
 	this.arrayNodeVertexPos = [];
+	this.arrayNodeVertexNormal = [];
 	this.arrayNodeVertexColor = [];
 	this.startIndexId = 0;
 	this.arrayNodeIndices = [];
@@ -120,6 +122,7 @@ StormGraph = function(jsonIn) { StormNode.call(this);
 	this.arrayLinkNodeId = [];
 	this.arrayLinkPosXYZW = [];
 	this.arrayLinkVertexPos = [];
+	this.arrayLinkVertexNormal = [];
 	this.arrayLinkVertexColor = [];
 	this.startIndexId_link = 0;
 	this.arrayLinkIndices = [];
@@ -164,12 +167,36 @@ StormGraph.prototype.remove = function() {
 /** @private **/
 StormGraph.prototype.source_vertexFragmentProgram = function() {
 	var str_vfp = [// vertex head
-		['varying vec4 vVertexColor; '],
+		['varying vec4 vVertexColor;\n'+
+		 'varying vec4 vWNMatrix;\n'+
+		 
+		'float determinant(mat2 m) {'+
+		 	'return m[0][0]*m[1][1] - m[1][0]*m[0][1];'+
+		'}'+
+		'mat2 inverse(mat2 m) {'+
+			  'float d = 1.0 / determinant(m);'+
+			  'return d * mat2( m[1][1], -m[0][1], -m[1][0], m[0][0]);'+
+		'}'+
+		'mat4 inverse(mat4 m) {'+
+			  'mat2 a = inverse(mat2(m));'+
+			  'mat2 b = mat2(m[2].xy,m[3].xy);'+
+			  'mat2 c = mat2(m[0].zw,m[1].zw);'+
+			  'mat2 d = mat2(m[2].zw,m[3].zw);'+
+
+			  'mat2 t = c*a;'+
+			  'mat2 h = inverse(d - t*b);'+
+			  'mat2 g = - h*t;'+
+			  'mat2 f = - a*b*h;'+
+			  'mat2 e = a - f*t;'+
+
+			  'return mat4( vec4(e[0],g[0]), vec4(e[1],g[1]), vec4(f[0],h[0]), vec4(f[1],f[1]) );'+
+		'}'],
 		
 		// vertex source
 		['void main(float* nodeId,'+
 			'float4*kernel posXYZW,'+
 			'float4* nodeVertexPos,'+
+			'float4* nodeVertexNormal,'+
 			'float4* nodeVertexCol,'+
 			'mat4 PMatrix,'+
 			'mat4 cameraWMatrix,'+
@@ -188,17 +215,37 @@ StormGraph.prototype.source_vertexFragmentProgram = function() {
 				'nodepos[3][1] = nodePosition.y;'+
 				'nodepos[3][2] = nodePosition.z;'+
 				
+				'mat4 nodeposG = nodeWMatrix;'+
+				'nodepos[3][0] = nodePosition.x;'+
+				'nodepos[3][1] = nodePosition.y;'+
+				'nodepos[3][2] = nodePosition.z;'+
+				
+				'vWNMatrix = inverse(nodeposG) * nodeVertexNormal[x];\n'+
+				
 				'vVertexColor = nodeVertexColor;'+
+								
 				'gl_Position = PMatrix * cameraWMatrix * nodepos * nodeVertexPosition;\n'+
 				'gl_PointSize = pointSize;\n'+
 		'}'],
 		
 		// fragment head
-		['varying vec4 vVertexColor;'],
+		['varying vec4 vVertexColor;\n'+
+		 'varying vec4 vWNMatrix;\n'],
+		 
 		[// fragment source
-		 'void main(float nodesSize) {'+
+		 'void main(float nodesSize,'+
+					'float4 sunPos,'+
+					'float selfShadows,'+
+					'float4 ambientColor) {'+
 		 	'vec2 x = get_global_id();'+
-		 	'gl_FragColor = vVertexColor;\n'+
+		 	
+		 	// difusa
+			'vec3 lightDirection = normalize(sunPos.xyz * -1.0);\n'+ // direccion hacia arriba
+			'float lightWeighting = max(dot(normalize(vWNMatrix.xyz), -lightDirection)*-1.0, 0.0);\n'+
+			'vec3 weightDiffuse = min(vec3(1.0,1.0,1.0),vec3(lightWeighting,lightWeighting,lightWeighting));\n'+
+			
+			'if(selfShadows == 1.0) gl_FragColor = (vVertexColor*vec4(weightDiffuse,1.0))+(ambientColor*vVertexColor);\n'+
+			'else gl_FragColor = vVertexColor;\n'+
 		 '}']];
 	
 	return str_vfp;
@@ -447,6 +494,7 @@ StormGraph.prototype.addNodeNow = function(jsonIn) {
 			this.arrayNodeId.push(this.currentNodeId);
 			this.arrayNodePosXYZW.push(nodePosX, nodePosY, nodePosZ, 1.0);
 			this.arrayNodeVertexPos.push(bo.nodeMeshVertexArray[idxVertex], bo.nodeMeshVertexArray[idxVertex+1], bo.nodeMeshVertexArray[idxVertex+2], 1.0);
+			this.arrayNodeVertexNormal.push(bo.nodeMeshNormalArray[idxVertex], bo.nodeMeshNormalArray[idxVertex+1], bo.nodeMeshNormalArray[idxVertex+2], 1.0);
 			//console.log(bo.nodeMeshVertexArray[idxVertex]);
 			this.arrayNodeVertexColor.push(color.e[0], color.e[1], color.e[2], 1.0);
 			
@@ -513,6 +561,7 @@ StormGraph.prototype.updateNodes = function() {
 	this.clglWork_nodes.setArg("initPos", this.arrayNodePosXYZW, this.splitNodes);
 	
 	this.clglWork_nodes.setArg("nodeVertexPos", this.arrayNodeVertexPos, this.splitNodes);
+	this.clglWork_nodes.setArg("nodeVertexNormal", this.arrayNodeVertexNormal, this.splitNodes);
 	this.clglWork_nodes.setArg("nodeVertexCol", this.arrayNodeVertexColor, this.splitNodes);
 	this.clglWork_nodes.setIndices(this.arrayNodeIndices, this.splitNodesIndices);
 	
@@ -539,6 +588,9 @@ StormGraph.prototype.updateNodes = function() {
 	this.clglWork_nodes.setArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
 	this.clglWork_nodes.setArg("nodeWMatrix", this.MPOS.transpose().e);
 	this.clglWork_nodes.setArg("nodesSize", parseFloat(this.currentNodeId-1));
+	this.clglWork_nodes.setArg("sunPos", [stormEngineC.lights[0].direction.e[0], stormEngineC.lights[0].direction.e[1], stormEngineC.lights[0].direction.e[2], 1.0]);
+	this.clglWork_nodes.setArg("selfShadows", ((this.selfShadows == true)?1.0:0.0));
+	this.clglWork_nodes.setArg("ambientColor", [stormEngineC.getAmbientColor()[0], stormEngineC.getAmbientColor()[1], stormEngineC.getAmbientColor()[2], 1.0]);
 	
 	this.clglWork_nodes.setArg("enableDestination", this.enDestination);
 	this.clglWork_nodes.setArg("destinationForce", this.destinationForce);
@@ -621,6 +673,7 @@ StormGraph.prototype.addLinkNow = function(jsonIn) {
 	this.arrayLinkNodeId.push(jsonIn.origin_nodeId);
 	this.arrayLinkPosXYZW.push(	0.0, 0.0, 0.0, 1.0);
 	this.arrayLinkVertexPos.push(0.0, 0.0, 0.0, 1.0);
+	this.arrayLinkVertexNormal.push(0.0, 1.0, 0.0, 1.0);
 	this.arrayLinkVertexColor.push(jsonIn.origin_color[0], jsonIn.origin_color[1], jsonIn.origin_color[2], 1.0);
 	
 	// (target)
@@ -629,6 +682,7 @@ StormGraph.prototype.addLinkNow = function(jsonIn) {
 	this.arrayLinkNodeId.push(jsonIn.target_nodeId);
 	this.arrayLinkPosXYZW.push(	0.0, 0.0, 0.0, 1.0);	
 	this.arrayLinkVertexPos.push(0.0, 0.0, 0.0, 1.0);
+	this.arrayLinkVertexNormal.push(0.0, 1.0, 0.0, 1.0);
 	this.arrayLinkVertexColor.push(jsonIn.target_color[0], jsonIn.target_color[1], jsonIn.target_color[2], 1.0);
 	
 	
@@ -680,6 +734,7 @@ StormGraph.prototype.updateLinks = function() {
 	this.clglWork_links.setArg("posXYZW", this.arrayLinkPosXYZW, this.splitLinks);	
 	this.clglWork_links.setArg("initPos", this.arrayLinkPosXYZW, this.splitLinks);
 	this.clglWork_links.setArg("nodeVertexPos", this.arrayLinkVertexPos, this.splitLinks);
+	this.clglWork_links.setArg("nodeVertexNormal", this.arrayLinkVertexNormal, this.splitLinks);
 	this.clglWork_links.setArg("nodeVertexCol", this.arrayLinkVertexColor, this.splitLinks);
 	this.clglWork_links.setIndices(this.arrayLinkIndices, this.splitLinksIndices);
 	
@@ -706,6 +761,9 @@ StormGraph.prototype.updateLinks = function() {
 	this.clglWork_links.setArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
 	this.clglWork_links.setArg("nodeWMatrix", this.MPOS.transpose().e);
 	this.clglWork_links.setArg("nodesSize", this.currentLinkId-2);
+	this.clglWork_links.setArg("sunPos", [stormEngineC.lights[0].direction.e[0], stormEngineC.lights[0].direction.e[1], stormEngineC.lights[0].direction.e[2], 1.0]);
+	this.clglWork_links.setArg("selfShadows", ((this.selfShadows == true)?1.0:0.0));
+	this.clglWork_links.setArg("ambientColor", [stormEngineC.getAmbientColor()[0], stormEngineC.getAmbientColor()[1], stormEngineC.getAmbientColor()[2], 1.0]);
 	
 	this.clglWork_links.setArg("enableDestination", this.enDestination);
 	this.clglWork_links.setArg("destinationForce", this.destinationForce);
@@ -761,6 +819,18 @@ StormGraph.prototype.render = function() {
 			this.clglWork_links.setArg("nodesSize", parseFloat(this.currentNodeId-1));
 		}).bind(this), this.linkDrawMode);
 	}
+};
+
+/**
+ * Set self shadows
+ * @param {Bool} [bselfShadows=true]
+ */
+StormGraph.prototype.setSelfShadows = function(bselfShadows) {
+	var ss = (bselfShadows != undefined) ? bselfShadows : true;
+	this.selfShadows = ss;
+	
+	this.clglWork_nodes.setArg("selfShadows", ((this.selfShadows == true)?1.0:0.0));
+	this.clglWork_links.setArg("selfShadows", ((this.selfShadows == true)?1.0:0.0));
 };
 
 /**

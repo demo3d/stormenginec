@@ -232,11 +232,11 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 						stormEngineC.nearNode.uneditSelectedNode();
 					});
 			
-			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "SELFSHADOWS", stormEngineC.nearNode.selfshadows,
+			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "SELFSHADOWS", stormEngineC.nearNode.selfShadows,
 					function() {
-						stormEngineC.nearNode.setSelfshadows(true);
+						stormEngineC.nearNode.setSelfShadows(true);
 					}, function() {
-						stormEngineC.nearNode.setSelfshadows(false);
+						stormEngineC.nearNode.setSelfShadows(false);
 					});		
 			
 			this.actHelpers.add_checkbox(DGE('DIVID_StormEditNode_edits'), "SHADOWS", stormEngineC.nearNode.shadows,
