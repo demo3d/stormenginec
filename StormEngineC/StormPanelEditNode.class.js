@@ -250,37 +250,29 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 				stormEngineC.nearNode.set_pointSize(value);
 			});
 			
-			this.actHelpers.add_select(DGE('DIVID_StormEditNode_edits'), "POLARITY", [1,0], stormEngineC.nearNode.polarity,
-					function(value) {
-						stormEngineC.nearNode.set_polarity(parseFloat(value));
-					});	
+			this.actHelpers.add_select(DGE('DIVID_StormEditNode_edits'), "POLARITY", [1,0], stormEngineC.nearNode.polarity,	function(value) {
+				stormEngineC.nearNode.set_polarity(parseFloat(value));
+			});
 			
-			var str = "<table style='width:100%'><tr>"+
-						"<td style='width:18px;text-align:left'>setColor</td>"+
-						"<td style='text-align:left'>"+
-							"<input id='INPUTID_StormEditNode_graph_colorButton' type='file' style='display:none'/>"+
-							"<div id='DIVID_StormEditNode_graph_color' title='setColor' onclick='$(this).prev().click();' onmouseover='$(this).css(\"border\", \"1px solid #EEE\");' onmouseout='$(this).css(\"border\", \"1px solid #CCC\");' style='cursor:pointer;width:16px;height:16px;border:1px solid #CCC'></div>"+
-						"</td>"+
-					"</tr></table>";						
-			$('#DIVID_StormEditNode_edits').append(str);			
-			document.getElementById('INPUTID_StormEditNode_graph_colorButton').onchange=function() {
-				var filereader = new FileReader();
-				filereader.onload = function(event) {
-					var img = new Image();
-					img.onload = function() {
-						var splitName = $('#INPUTID_StormEditNode_graph_colorButton').val().split('/');
-						splitName = splitName[splitName.length-1];
-						
-						stormEngineC.nearNode.set_color(img);
-						img.style.width = '16px';
-						img.style.height = '16px';
-						$('#DIVID_StormEditNode_graph_color').html(img);
-						$('#DIVID_StormEditNode_graph_color').attr('title',splitName);
-					};
-					img.src = event.target.result; // Set src from upload, original byte sequence
-				};
-				filereader.readAsDataURL(this.files[0]);
-			};
+			this.actHelpers.add_colorpicker(DGE('DIVID_StormEditNode_edits'), "NODE_COLOR", "#000", (function(colorValue) {
+				var rgb = stormEngineC.utils.hexToRgb(colorValue);
+				
+				stormEngineC.nearNode.set_color($V3([rgb.r/255, rgb.g/255, rgb.b/255]));
+			}).bind(this));
+			
+			this.actHelpers.add_imageSelection(DGE('DIVID_StormEditNode_edits'), "NODE_COLOR_BY_IMG", function(img) {
+				stormEngineC.nearNode.set_color(img);
+			});
+			
+			this.actHelpers.add_colorpicker(DGE('DIVID_StormEditNode_edits'), "LINK_COLOR", "#000", (function(colorValue) {
+				var rgb = stormEngineC.utils.hexToRgb(colorValue);
+				
+				stormEngineC.nearNode.set_linkColor($V3([rgb.r/255, rgb.g/255, rgb.b/255]));
+			}).bind(this));
+			
+			this.actHelpers.add_imageSelection(DGE('DIVID_StormEditNode_edits'), "LINK_COLOR_BY_IMG", function(img) {
+				stormEngineC.nearNode.set_linkColor(img);
+			});
 			
 			this.actHelpers.add_btn(DGE('DIVID_StormEditNode_edits'), "DIRECTION_TO_0", function() {
 				stormEngineC.nearNode.set_dir();

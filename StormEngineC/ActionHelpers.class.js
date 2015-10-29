@@ -23,7 +23,7 @@ ActionHelpers.prototype.add_btn = function(target, name, onClickCallback) {
 
 ActionHelpers.prototype.add_valuesAndBtn = function(target, name, type, arrayTexts, arrayDefaultValues, onClickCallback) {
 	var str = ''+
-	'<div style="display:inline-block;width:20%;vertical-align:top;">'+
+	'<div style="display:inline-block;width:20%;vertical-align:top;overflow:hidden;">'+
 		"<button id='BUTTONID_"+name+"' style='width:100%'>"+name+"</button>"+
 	'</div>'+
 	'<div style="display:inline-block;width:80%;">';
@@ -45,7 +45,7 @@ ActionHelpers.prototype.add_valuesAndBtn = function(target, name, type, arrayTex
 
 ActionHelpers.prototype.add_checkbox = function(target, name, variable, checkCallback, uncheckCallback) {
 	var str = ''+
-	'<div style="display:inline-block;width:20%;vertical-align:top;">'+
+	'<div style="display:inline-block;width:20%;vertical-align:top;overflow:hidden;">'+
 		name+
 	'</div>'+
 	'<div style="display:inline-block;width:80%;">'+
@@ -71,7 +71,7 @@ ActionHelpers.prototype.add_checkbox = function(target, name, variable, checkCal
 
 ActionHelpers.prototype.add_select = function(target, name, valuesArray, variable, selectCallback) {
 	var str = ''+
-	'<div style="display:inline-block;width:20%;vertical-align:top;">'+
+	'<div style="display:inline-block;width:20%;vertical-align:top;overflow:hidden;">'+
 		name+
 	'</div>'+
 	'<div style="display:inline-block;width:80%;">'+
@@ -95,7 +95,7 @@ ActionHelpers.prototype.add_select = function(target, name, valuesArray, variabl
 
 ActionHelpers.prototype.add_slider = function(target, name, fvalue, min, max, steps, onChangeCallback) {
 	var str = ''+
-	'<div style="display:inline-block;width:20%;vertical-align:top;">'+
+	'<div style="display:inline-block;width:20%;vertical-align:top;overflow:hidden;">'+
 		name+
 	'</div>'+
 	'<div style="display:inline-block;width:80%;">'+
@@ -136,7 +136,7 @@ ActionHelpers.prototype.add_slider = function(target, name, fvalue, min, max, st
 
 ActionHelpers.prototype.add_3dslider = function(target, name, array3f, min, max, steps, onChangeCallback) {
 	var str = ''+
-	'<div style="display:inline-block;width:20%;vertical-align:top;">'+
+	'<div style="display:inline-block;width:20%;vertical-align:top;overflow:hidden;">'+
 		name+
 	'</div>'+
 	'<div style="display:inline-block;width:80%;">'+
@@ -197,9 +197,9 @@ ActionHelpers.prototype.add_3dslider = function(target, name, array3f, min, max,
 	e.addEventListener("change", set_range.bind(this, onChangeCallback, e));
 };
 
-ActionHelpers.prototype.add_colorpicker = function(target, name, hexVariable, selectCallback) {
+ActionHelpers.prototype.add_colorpicker = function(target, name, hexVariable, onChangeCallback) {
 	var str = ''+
-	'<div style="display:inline-block;width:20%;">'+
+	'<div style="display:inline-block;width:20%;overflow:hidden;">'+
 		name+
 	'</div>'+
 	'<div style="display:inline-block;width:80%;">'+
@@ -210,6 +210,36 @@ ActionHelpers.prototype.add_colorpicker = function(target, name, hexVariable, se
 	var e = document.getElementById("INPUTID_"+name);
 	e.addEventListener("change", (function(callback, e) {			
 		callback(e.value);
-	}).bind(this, selectCallback, e));
+	}).bind(this, onChangeCallback, e));
 }; 
 
+ActionHelpers.prototype.add_imageSelection = function(target, name, onChangeCallback) {
+	var str = ''+
+	'<div style="display:inline-block;width:20%;overflow:hidden;">'+
+		name+
+	'</div>'+
+	'<div style="display:inline-block;width:80%;">'+
+		"<input id='INPUTID_"+name+"' type='file' style='display:none'/>"+
+		"<div id='DIVID_"+name+"' onclick='$(this).prev().click();' style='cursor:pointer;width:16px;height:16px;border:1px solid #FFF'></div>"+
+	"</div>";						
+	target.appendChild(this.stringToDom(str));
+	
+	document.getElementById('INPUTID_'+name).onchange=function() {
+		var filereader = new FileReader();
+		filereader.onload = function(event) {
+			var img = new Image();
+			img.onload = function() {
+				var splitName = $('#INPUTID_'+name).val().split('/');
+				splitName = splitName[splitName.length-1];								
+				img.style.width = '16px';
+				img.style.height = '16px';
+				$('#DIVID_'+name).html(img);
+				$('#DIVID_'+name).attr('title',splitName);
+				
+				onChangeCallback(img);
+			};
+			img.src = event.target.result; // Set src from upload, original byte sequence
+		};
+		filereader.readAsDataURL(this.files[0]);
+	};
+}; 

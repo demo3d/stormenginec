@@ -949,6 +949,52 @@ StormGraph.prototype.set_color = function(color) {
 };
 
 /**
+* Set link color
+* @type Void
+* @param {StormV3|HTMLImageElement} color Vector3 or HTMLImageElement
+*/
+StormGraph.prototype.set_linkColor = function(color) {
+	var arr;
+	if(color != undefined && color instanceof HTMLImageElement) {
+		arr = stormEngineC.utils.getUint8ArrayFromHTMLImageElement(color);
+	} else if(color != undefined && color instanceof StormV3) {
+		arr = new Uint8Array([color.e[0]*255, color.e[1]*255, color.e[2]*255, 255]);
+	} else {
+		arr = new Uint8Array([255, 255, 255, 255]);
+	}
+	
+	this.arrayLinkVertexColor = []; 
+	
+	var currentLinkId = -1;
+	var x = 0;
+	var y = 0;
+	var z = 0;
+	for(var n = 0, f = this.arrayLinkId.length; n < f; n++) {
+		if(currentLinkId != this.arrayLinkId[n]) {
+			currentLinkId = this.arrayLinkId[n];
+			
+			if(arr.length > 4) {
+				x = parseFloat(arr[(currentLinkId*4)]/255);
+				y = parseFloat(arr[(currentLinkId*4)+1]/255);
+				z = parseFloat(arr[(currentLinkId*4)+2]/255);
+				w = parseFloat(arr[(currentLinkId*4)+3]/255);
+			} else {
+				x = parseFloat(arr[0]/255);
+				y = parseFloat(arr[1]/255);
+				z = parseFloat(arr[2]/255);
+				w = parseFloat(arr[3]/255);
+			}
+			
+			this.arrayLinkVertexColor.push(x, y, z, w);
+		} else {
+			this.arrayLinkVertexColor.push(x, y, z, w);
+		}
+	}	
+	
+	this.clglWork_links.setArg("nodeVertexCol", this.arrayLinkVertexColor, this.splitLinks);
+};
+
+/**
 * Destination by array XYZ
 * @type Void
 * @param {Array} arr 
