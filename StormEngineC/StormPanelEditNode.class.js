@@ -505,10 +505,10 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 																this._sec.nearNode.resolution = res;
 																$('#DIVID_StormEditNode_GImake_resolution').text(res);
 															}).bind(this)});
-			$("#DIVID_StormEditNode_GImake").on('click', function() { 
+			$("#DIVID_StormEditNode_GImake").on('click', (function() { 
 					$('#DIVID_StormEditNode_GImakeOUTPUT').text('Performing voxelization...');
 					
-					setTimeout(function() { 
+					setTimeout((function() { 
 									var arraFillmodes = [];
 									if(document.getElementById('CHECKBOX_StormEditNode_GImake_albedo').checked == true) arraFillmodes.push("albedo");
 									if(document.getElementById('CHECKBOX_StormEditNode_GImake_position').checked == true) arraFillmodes.push("position");
@@ -518,7 +518,7 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 										voxelizator.generateFromScene({size: this._sec.nearNode.size,
 																		resolution: this._sec.nearNode.resolution,
 																		fillmode: arraFillmodes,
-																		ongenerate:function() {
+																		ongenerate: (function() {
 																			$('#DIVID_StormEditNode_GImakeOUTPUT').html('');
 																			var image = voxelizator.get3DImageElement("albedo");
 																			if(image) {
@@ -560,13 +560,13 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 																				$('#DIVID_StormEditNode_GImakeOUTPUT').append(image);
 																				$('#DIVID_StormEditNode_GImakeOUTPUT').append('('+image.width+'*'+image.height+')');
 																			}
-																		}});      
+																		}).bind(this)});      
 									} else {
 										alert("Check at least one fillmode");
 										$('#DIVID_StormEditNode_GImakeOUTPUT').text('');
 									}
-								},10);
-				});	
+								}).bind(this),10);
+				}).bind(this));	
 		}
 	
 	}

@@ -32,7 +32,7 @@ StormMaterial.prototype.writeNow = function(arr, arrDimensions) {
 		this._sec.clgl.enqueueWriteBuffer(this.textureObjectKd, arr, true);
 	} else if(this.typeTexture == 'bump') {
 		this.textureObjectBump = this._sec.clgl.createBuffer(arrDimensions, "FLOAT4", 0, true);  
-		this._sec.clgl.enqueueWriteBuffer(this.textureObjectKd, arr, true); 
+		this._sec.clgl.enqueueWriteBuffer(this.textureObjectBump, arr, true); 
 	}
 	
 	if(this.typeTexture == 'albedo')
@@ -81,6 +81,8 @@ StormMaterial.prototype.write = function(color, typeTexture) {
 								str:'Loading texture...'+color,
 								req:req});
 		req.send(null);
+	} else if(color instanceof HTMLImageElement) {
+		this.writeNow(color, color.width*color.height);
 	} else {
 		this.writeNow(color, color.length);
 	}

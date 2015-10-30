@@ -52,6 +52,14 @@ StormEngineC_PanelEnvironment.prototype.update = function() {
 		}
 	}).bind(this));
 	
+    this._sec.actHelpers.add_btn(DGE('DIVID_StormPanelEnvironment_CONTENT'), "SET_GLOBAL_ILLUMINATION_VOXELIZATOR", (function() {
+    	this._sec.selectNode(stormEngineC.giv2);
+    	this._sec.pickingCall='setVoxelizator(_selectedNode_); this._sec.PanelEnvironment.show();';  
+    	this._sec.PanelListObjects.show();
+		$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
+		document.body.style.cursor='pointer';
+	}).bind(this));	
+    
     this._sec.actHelpers.add_checkbox(DGE('DIVID_StormPanelEnvironment_CONTENT'), "ENABLE_GI", this._sec.stormGLContext.GIv2enable,
 			(function() {
     			this._sec.stormGLContext.GIv2enable = true;

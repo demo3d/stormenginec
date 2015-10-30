@@ -59,16 +59,16 @@ StormEngineC_PanelMaterials.prototype.showListMaterials = function() {
 					"</div>";
 			$('#DIVID_STORMMATERIALS_LIST').append(str);
 			
-			var _n = n;
-			$('#TDID_StormMaterial_'+n).on('click', (function() {
-					this._sec.PanelMaterials.showMaterial($(this).attr('data-matnum'));
+			var e = $('#TDID_StormMaterial_'+n);
+			e.on('click', (function(e) {
+					this._sec.PanelMaterials.showMaterial(e.attr('data-matnum'));
 					$("#DIVID_STORMMATERIALS_LIST .boxMat").css("background-color","#000");
 					$(this).css("background-color","#444");
-				}).bind(this));
-			$('#TDID_StormMaterial_'+n).on('mouseover', function() {
+				}).bind(this, e));
+			e.on('mouseover', function() {
 					$(this).css({"border-color":"#CCC"});
 				});
-			$('#TDID_StormMaterial_'+n).on('mouseout', function() {
+			e.on('mouseout', function() {
 					$(this).css({"border-color":"#444"});
 				});
 		}
@@ -111,164 +111,61 @@ StormEngineC_PanelMaterials.prototype.showMaterial = function(idMaterial) {
 	
 	
 	var str = 	'<div style="border-top:1px solid #CCC"></div>'+
-				'<span style="font-weight:bold">'+material.name+'</span>'+
-				'<table>'+
-					'<tr>'+
-						'<td>'+
-							'Albedo:'+
-						'</td>'+
-						'<td>'+
-							'<table>'+
-								'<tr>'+
-									'<td style="text-align:left;vertical-align:top">'+
-										'Solid'+
-									'</td>'+
-									'<td style="text-align:left;vertical-align:top">'+
-										"<div id='ID_STORMMATERIALS_COLOR_KD' onmouseover='$(this).css(\"border\", \"1px solid #EEE\");' onmouseout='$(this).css(\"border\", \"1px solid #CCC\");' style='cursor:pointer;width:16px;height:16px;border:1px solid #CCC'></div>"+
-										'<input id="INPUTID_STORMMATERIALS_COLOR_KD" type="text" style="display:none"/>'+
-									'</td>'+
-									'<td style="text-align:left;vertical-align:top">'+
-										'Map'+
-									'</td>'+
-									'<td style="text-align:left;vertical-align:top">'+
-										"<input id='INPUT_STORMMATERIALS_KD' type='file' style='display:none'/>"+
-										"<div id='ID_STORMMATERIALS_MATERIAL_KD' title='"+material.textureKdName+"' onclick='$(this).prev().click();' onmouseover='$(this).css(\"border\", \"1px solid #EEE\");' onmouseout='$(this).css(\"border\", \"1px solid #CCC\");' style='cursor:pointer;width:16px;height:16px;border:1px solid #CCC'></div>"+
-									'</td>'+
-								'</tr>'+
-							'</table>'+
-						'</td>'+
-					'</tr>'+
-					'<tr>'+
-						'<td>'+
-							'Bump:'+
-						'</td>'+
-						'<td>'+
-							'<table>'+
-								'<tr>'+
-									'<td style="text-align:left;vertical-align:top">'+
-										'Map'+
-									'</td>'+
-									'<td style="text-align:left;vertical-align:top">'+
-										"<input id='INPUT_STORMMATERIALS_BUMP' type='file' style='display:none'/>"+
-										"<div id='ID_STORMMATERIALS_MATERIAL_BUMP' title='"+material.textureBumpName+"' onclick='$(this).prev().click();' onmouseover='$(this).css(\"border\", \"1px solid #EEE\");' onmouseout='$(this).css(\"border\", \"1px solid #CCC\");' style='cursor:pointer;width:16px;height:16px;border:1px solid #CCC'></div>"+
-									'</td>'+
-								'</tr>'+
-							'</table>'+
-						'</td>'+
-					'</tr>'+
-					'<tr>'+
-						'<td>'+
-							'Roughness:'+
-						'</td>'+
-						'<td>'+
-							'<input id="INPUT_STORMMATERIALS_NS" type="text" /> '+
-						'</td>'+
-					'</tr>'+
-				'</table>'+
-				'<button type="button" id="BTN_STORMMATERIALS_APPLY">Apply material to selected object</button><br />'+
-				'<button type="button" id="BUTTONID_deletematerial">Delete material</button>'+
-				'';
+				'<span style="font-weight:bold">'+material.name+'</span>';
 	$('#DIVID_STORMMATERIALS_MATERIAL').html(str);
 	
-	document.getElementById("BUTTONID_deletematerial").addEventListener("click", (function() {
-		this._sec.PanelMaterials.deleteMaterial();
-	}).bind(this));
+	var currentColor = material.textureObjectKd.items[0].inData;
+	var hexColor = this._sec.utils.rgbToHex([currentColor[0], currentColor[1], currentColor[2]]);
+	this._sec.actHelpers.add_colorpicker(DGE('DIVID_STORMMATERIALS_MATERIAL'), "ALBEDO_COLOR", hexColor, (function(idMaterial, colorValue) {
+    	var rgb = this._sec.utils.hexToRgb(colorValue);
+    	
+    	this._sec.materials[idMaterial].write($V3([rgb.r/255, rgb.g/255, rgb.b/255]));
+    	//$('#ID_STORMMATERIALS_MATERIAL_KD').html('');
+    	$('#TDID_StormMaterial_thumb'+idMaterial).html('');
+		$('#TDID_StormMaterial_thumb'+idMaterial).css('background-color','rgb('+rgb.r+','+rgb.g+','+rgb.b+')');
+	}).bind(this, idMaterial));
+		
+	this._sec.actHelpers.add_imageSelection(DGE('DIVID_STORMMATERIALS_MATERIAL'), "ALBEDO_IMAGE", (function(idMaterial, img) {
+		var material = this._sec.materials[this._sec.PanelMaterials.selectedMaterial];
+		material.write(img);
+		this._sec.PanelMaterials.showListMaterials();
+		this._sec.PanelMaterials.showMaterial(this._sec.PanelMaterials.selectedMaterial);
+		
+		//this._sec.nearNode.setAlbedo(img);
+	}).bind(this, idMaterial));
+	var canvasBOtexture = this._sec.utils.getCanvasFromUint8Array(material.textureObjectKd.items[0].inData, material.textureObjectKd.items[0].W, material.textureObjectKd.items[0].H); 
+	canvasBOtexture.style.width = '16px';
+	canvasBOtexture.style.height = '16px';
+	$('#DIVID_STORMMATERIALS_MATERIAL').append(canvasBOtexture);
 	
-	// COLOR SOLID
-	if(!material.solid) {
-		$('#ID_STORMMATERIALS_COLOR_KD').css('background','rgb(0,0,0)');
-	} else {
-		$('#ID_STORMMATERIALS_COLOR_KD').css('background','rgb('+material.textureObjectKd.items[0].inData[0]+','+material.textureObjectKd.items[0].inData[1]+','+material.textureObjectKd.items[0].inData[2]+')');
-	}
-	$('#INPUTID_STORMMATERIALS_COLOR_KD').ColorPicker({'onChange':(function(hsb, hex, rgb) {
-															this._sec.materials[idMaterial].write($V3([rgb.r/255, rgb.g/255, rgb.b/255]));
-															$('#ID_STORMMATERIALS_COLOR_KD').css('background-color','rgb('+rgb.r+','+rgb.g+','+rgb.b+')');
-															$('#ID_STORMMATERIALS_MATERIAL_KD').html('');
-															
-															$('#TDID_StormMaterial_thumb'+idMaterial).html('');
-															$('#TDID_StormMaterial_thumb'+idMaterial).css('background-color','rgb('+rgb.r+','+rgb.g+','+rgb.b+')');
-														}).bind(this)});
-	$("#ID_STORMMATERIALS_COLOR_KD").on('click', (function() {
-											$('#INPUTID_STORMMATERIALS_COLOR_KD').css('display','block');
-											$('#INPUTID_STORMMATERIALS_COLOR_KD').click();
-											$('#INPUTID_STORMMATERIALS_COLOR_KD').css('display','none');
-											$('.colorpicker').css('zIndex',currentStormZIndex);
-										}).bind(this));
-	// COLOR TEXTURE
-	if(!material.solid) {
-		var canvasBOtexture = this._sec.utils.getCanvasFromUint8Array(material.textureObjectKd.items[0].inData, material.textureObjectKd.items[0].W, material.textureObjectKd.items[0].H); 
-		canvasBOtexture.style.width = '16px';
-		canvasBOtexture.style.height = '16px';
-		$('#ID_STORMMATERIALS_MATERIAL_KD').append(canvasBOtexture);
-	} else {
-		$('#ID_STORMMATERIALS_MATERIAL_KD').html('');
-		$('#ID_STORMMATERIALS_MATERIAL_KD').css('background','rgb(0,0,0)');
-	}
-	document.getElementById('INPUT_STORMMATERIALS_KD').onchange=(function() {
-		var filereader = new FileReader();
-		filereader.onload = (function(event) {
-			var img = new Image();
-			img.onload = (function() {
-			
-				var material = this._sec.materials[this._sec.PanelMaterials.selectedMaterial];
-				
-				var splitName = $('#INPUT_STORMMATERIALS_KD').val().split('/');
-				material.textureKdName = splitName[splitName.length-1];
-				
-				material.write(img);
-				this._sec.PanelMaterials.showListMaterials();
-				this._sec.PanelMaterials.showMaterial(this._sec.PanelMaterials.selectedMaterial);
-				
-			}).bind(this);
-			img.src = event.target.result; // Set src from upload, original byte sequence
-		}).bind(this);
-		filereader.readAsDataURL(this.files[0]);
-	}).bind(this);
-	
-	// BUMP TEXTURE
-	if(material.textureObjectBump != undefined) {
-		var canvasBOtextureBump = this._sec.utils.getCanvasFromUint8Array(material.textureObjectBump.items[0].inData, material.textureObjectBump.W, material.textureObjectBump.H); 
+	this._sec.actHelpers.add_imageSelection(DGE('DIVID_STORMMATERIALS_MATERIAL'), "BUMP_IMAGE", (function(idMaterial, img) {
+		var material = this._sec.materials[this._sec.PanelMaterials.selectedMaterial];
+		material.write(img, 'bump');
+		this._sec.PanelMaterials.showListMaterials();
+		this._sec.PanelMaterials.showMaterial(this._sec.PanelMaterials.selectedMaterial);
+		
+		//this._sec.nearNode.setAlbedo(img);
+	}).bind(this, idMaterial));
+	if(material.textureObjectBump != undefined && material.textureObjectBump.items[0].inData != undefined) {
+		var canvasBOtextureBump = this._sec.utils.getCanvasFromUint8Array(material.textureObjectBump.items[0].inData, material.textureObjectBump.items[0].W, material.textureObjectBump.items[0].H); 
 		canvasBOtextureBump.style.width = '16px';
 		canvasBOtextureBump.style.height = '16px';
-		$('#ID_STORMMATERIALS_MATERIAL_BUMP').append(canvasBOtextureBump);
-	} else {
-		$('#ID_STORMMATERIALS_MATERIAL_BUMP').html('');
-		$('#ID_STORMMATERIALS_MATERIAL_BUMP').css('background','rgb(0,0,0)');
+		$('#DIVID_STORMMATERIALS_MATERIAL').append(canvasBOtextureBump);	
 	}
-	document.getElementById('INPUT_STORMMATERIALS_BUMP').onchange=(function() {
-		var filereader = new FileReader();
-		filereader.onload = (function(event) {
-			var img = new Image();
-			img.onload = (function() {
-			
-				var material = this._sec.materials[this._sec.PanelMaterials.selectedMaterial];
-				
-				var splitName = $('#INPUT_STORMMATERIALS_BUMP').val().split('/');
-				material.textureBumpName = splitName[splitName.length-1];
-				
-				material.write(img, 'bump');
-				this._sec.PanelMaterials.showListMaterials();
-				this._sec.PanelMaterials.showMaterial(this._sec.PanelMaterials.selectedMaterial);
-						
-			}).bind(this);
-			img.src = event.target.result; // Set src from upload, original byte sequence
-		}).bind(this);
-		filereader.readAsDataURL(this.files[0]);
-	}).bind(this);
 	
+	this._sec.actHelpers.add_slider(DGE('DIVID_STORMMATERIALS_MATERIAL'), "ROUGHNESS", material.Ns*112, 0.0, 100.0, 5.0, (function(value) {
+		var material = this._sec.materials[this._sec.PanelMaterials.selectedMaterial];
+		
+		material.Ns = value/112.0;
+	}).bind(this));											
 	
+	this._sec.actHelpers.add_btn(DGE('DIVID_STORMMATERIALS_MATERIAL'), "APPLY_TO_SELECTION", (function() {
+		this._sec.PanelMaterials.applyMaterial();
+	}).bind(this));
 	
-	$('#INPUT_STORMMATERIALS_NS').val(material.Ns*112);
-	$('#INPUT_STORMMATERIALS_NS').on('keyup', (function() {
-												var material = this._sec.materials[this._sec.PanelMaterials.selectedMaterial];
-												
-												material.Ns = $('#INPUT_STORMMATERIALS_NS').val()/112.0;
-											}).bind(this));
-											
-											
-	$('#BTN_STORMMATERIALS_APPLY').on('click', (function() {
-												this._sec.PanelMaterials.applyMaterial();
-											}).bind(this));
+	this._sec.actHelpers.add_btn(DGE('DIVID_STORMMATERIALS_MATERIAL'), "DELETE_MATERIAL", (function() {
+		this._sec.PanelMaterials.deleteMaterial();
+	}).bind(this));
 };
 
 /**

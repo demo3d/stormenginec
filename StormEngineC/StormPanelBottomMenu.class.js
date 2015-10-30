@@ -202,28 +202,30 @@ StormEngineC_PanelBottomMenu.prototype.loadPanel = function() {
 
 
 	// SUBBTN ACTIONS
-	$("#STORMMENUBTN_C0_01").on('click', function() {
-		$('#INPUTID_StormFileImport').click();
-		$('#INPUTID_StormFileImport').on('change', (function() {
+	$("#STORMMENUBTN_C0_01").on('click', (function() {
+		var e = $('#INPUTID_StormFileImport');
+		e.click();
+		e.on('change', (function(e) {
 			var filereader = new FileReader();
 			filereader.onload = (function(event) {
 				var nodeF = this._sec.createNode();
 				this._sec.stormMesh.loadObjFromSourceText(nodeF, event.target.result);
 			}).bind(this);
-			filereader.readAsText(this.files[0]);
-		}).bind(this));
-	});
-	$("#STORMMENUBTN_C0_02").on('click', function() {
-		$('#INPUTID_StormFileImportCollada').click();
-		$('#INPUTID_StormFileImportCollada').on('change', (function() {
+			filereader.readAsText(e[0].files[0]);
+		}).bind(this, e));
+	}).bind(this));
+	$("#STORMMENUBTN_C0_02").on('click', (function() {
+		var e = $('#INPUTID_StormFileImportCollada');
+		e.click();
+		e.on('change', (function(e) {
 			var filereader = new FileReader();
 			filereader.onload = (function(event) {
 				var nodeF = this._sec.createNode();
 				this._sec.stormMesh.loadColladaFromSourceText(nodeF, event.target.result);
 			}).bind(this);
-			filereader.readAsText(this.files[0]);
-		}).bind(this));
-	});
+			filereader.readAsText(e[0].files[0]);
+		}).bind(this, e));
+	}).bind(this));
 	$("#STORMMENUBTN_C1_01").on('click', (function() {
 		this._sec.PanelListObjects.show();
 	}).bind(this));
