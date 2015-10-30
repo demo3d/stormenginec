@@ -2,8 +2,8 @@
 * @class
 * @constructor
 */
-StormEngineC_PanelRenderSettings = function() {
-	
+StormEngineC_PanelRenderSettings = function(sec) {
+	this._sec = sec;
 };
 
 /**
@@ -30,7 +30,7 @@ StormEngineC_PanelRenderSettings.prototype.loadPanel = function() {
 				
 				'<button id="BTNID_StormRenderBtn" type="button">Render</button>'+
 				'<br />'+
-				'<button id="BTNID_StormRenderTimelineBtn" type="button" onclick="stormEngineC.timelinePathTracing.show();">Frames..</button>'+
+				'<button id="BTNID_StormRenderTimelineBtn" type="button">Frames..</button>'+
 				
 				'<div style="background-color:#FFF;padding:5px;">'+
 					'<div id="DIVID_StormRenderTypeNet"></div>'+
@@ -39,12 +39,15 @@ StormEngineC_PanelRenderSettings.prototype.loadPanel = function() {
 				'<div id="DIVID_aboutEMRvsPATHTRACING" style="display:none;"><img src="'+stormEngineCDirectory+'/resources/EMRvsPATHTRACING.jpg" /></div>';
 	
 	var _this = this;
-	stormEngineC.makePanel(_this, 'DIVID_StormRenderSettings', 'RENDER SETTINGS', html);	
+	this._sec.makePanel(_this, 'DIVID_StormRenderSettings', 'RENDER SETTINGS', html);	
 	
+	document.getElementById("BTNID_StormRenderTimelineBtn").addEventListener("click", (function() {
+		this._sec.timelinePathTracing.show();
+	}).bind(this));
 	
-	$("#BTNID_StormRenderBtn").bind('click', function() {
-												stormEngineC.PanelRenderSettings.pushRender();
-											});
+	$("#BTNID_StormRenderBtn").bind('click', (function() {
+												this._sec.PanelRenderSettings.pushRender();
+											}).bind(this));
 };
 
 /**
@@ -67,9 +70,9 @@ StormEngineC_PanelRenderSettings.prototype.render = function(width, height) {
 	var w = (width != undefined) ? width : $('#INPUTID_StormRenderSettings_width').val();
 	var h = (height != undefined) ? height : $('#INPUTID_StormRenderSettings_height').val();
 	
-	stormEngineC.PanelCanvas.show(); 
-	stormEngineC.PanelCanvas.setDimensions(w, h); 
-	stormEngineC.renderFrame({	'target':'CANVASID_STORM',
+	this._sec.PanelCanvas.show(); 
+	this._sec.PanelCanvas.setDimensions(w, h); 
+	this._sec.renderFrame({	'target':'CANVASID_STORM',
 								'mode':$('#INPUTVALUE_StormRenderMode').val(),
 								'width':w,
 								'height':h,
@@ -83,14 +86,14 @@ StormEngineC_PanelRenderSettings.prototype.render = function(width, height) {
 */
 StormEngineC_PanelRenderSettings.prototype.pushRender = function() {
 	if(wsPathTracing != undefined && (wsPathTracing.socket.connected == true || wsPathTracing.socket.connecting == true)) {
-		if(stormEngineC.netID != 0) {
+		if(this._sec.netID != 0) {
 			wsPathTracing.emit('getRenderDimensions', {
-				netID: stormEngineC.netID
+				netID: this._sec.netID
 			});
 		} else {
-			stormEngineC.PanelRenderSettings.render();
+			this._sec.PanelRenderSettings.render();
 		}
 	} else {
-		stormEngineC.PanelRenderSettings.render();
+		this._sec.PanelRenderSettings.render();
 	}
 };

@@ -5,7 +5,9 @@
 * @property {StormV3} origin 
 * @property {StormV3} end 
 */
-StormLine = function() {
+StormLine = function(sec) {
+	this._sec = sec;
+	
 	this.idNum;
 	this.name = '';
 	this.objectType = 'line';
@@ -21,7 +23,7 @@ StormLine = function() {
 	
 	this.vertexBuffer;this.vertexLocBuffer;this.indexBuffer;
 	
-	this.gl = stormEngineC.stormGLContext.gl;
+	this.gl = this._sec.stormGLContext.gl;
 };
 
 /**

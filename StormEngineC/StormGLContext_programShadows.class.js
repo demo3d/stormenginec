@@ -371,12 +371,12 @@ StormGLContext.prototype.render_Shadows = function(currentLight) {
 				
 				this.gl.uniform1i(this.u_Shadows_textureFBLightDepth, 0);
 
-				this.gl.uniformMatrix4fv(this.u_Shadows_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e); 
+				this.gl.uniformMatrix4fv(this.u_Shadows_PMatrix, false, this._sec.defaultCamera.mPMatrix.transpose().e); 
 				this.gl.uniformMatrix4fv(this.u_Shadows_PMatrixLight, false, light.mPMatrix.transpose().e); 
 				this.gl.uniformMatrix4fv(this.u_Shadows_lightWMatrix, false, light.MPOS.transpose().e);
 				this.gl.uniformMatrix4fv(this.u_Shadows_nodeWMatrix, false, this.nodes[n].MPOSFrame.transpose().e);
 				this.gl.uniform3f(this.u_Shadows_nodeVScale, this.nodes[n].VSCALE.e[0], this.nodes[n].VSCALE.e[1], this.nodes[n].VSCALE.e[2]); 
-				this.gl.uniformMatrix4fv(this.u_Shadows_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
+				this.gl.uniformMatrix4fv(this.u_Shadows_cameraWMatrix, false, this._sec.defaultCamera.MPOS.transpose().e);
 				this.gl.uniform3f(this.u_Shadows_positionLight, false, light.getPosition().e[0], light.getPosition().e[1], light.getPosition().e[2]);
 				
 				this.gl.enableVertexAttribArray(this.attr_Shadows_pos);

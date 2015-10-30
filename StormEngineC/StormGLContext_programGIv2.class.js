@@ -68,7 +68,7 @@ StormGLContext.prototype.initShader_GIv2 = function() {
 			//'return vecNormal;\n'+ 
 		'}\n'+	
 	
-		stormEngineC.utils.unpackGLSLFunctionString()+
+		this._sec.utils.unpackGLSLFunctionString()+
 		 
 		this.stormVoxelizatorObject.rayTraversalInitSTR()+
 		'vec4 getVoxel_Color(vec3 voxel, vec3 RayOrigin) {\n'+
@@ -226,20 +226,20 @@ StormGLContext.prototype.pointers_GIv2 = function() {
 	this.u_GIv2_nodeWMatrix = this.gl.getUniformLocation(this.shader_GIv2, "u_nodeWMatrix");
 	this.u_GIv2_nodeVScale = this.gl.getUniformLocation(this.shader_GIv2, "u_nodeVScale");
 	this.Shader_GIv2_READY = true;
-	stormEngineC.setZeroSamplesGIVoxels();
+	this._sec.setZeroSamplesGIVoxels();
 };
 /** @private  */
 StormGLContext.prototype.render_GIv2 = function() { 
 	this.render_GIv2_AUX();
-	this.gl.uniform1i(this.u_GIv2_maxBounds, stormEngineC.giv2.maxBounds);
+	this.gl.uniform1i(this.u_GIv2_maxBounds, this._sec.giv2.maxBounds);
 };
 /** @private  */
 StormGLContext.prototype.render_GIv2_AUX = function() { 
 	for(var n = 0, f = this.nodes.length; n < f; n++) {
 		if(this.nodes[n].visibleOnContext == true && this.nodes[n].objectType != 'light') { // this.nodes[n].objectType != 'light' por malla nodeCtxWebGL de luces
 			for(var nb = 0, fb = this.nodes[n].buffersObjects.length; nb < fb; nb++) {	
-				this.gl.uniformMatrix4fv(this.u_GIv2_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
-				this.gl.uniformMatrix4fv(this.u_GIv2_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
+				this.gl.uniformMatrix4fv(this.u_GIv2_PMatrix, false, this._sec.defaultCamera.mPMatrix.transpose().e);
+				this.gl.uniformMatrix4fv(this.u_GIv2_cameraWMatrix, false, this._sec.defaultCamera.MPOS.transpose().e);
 				this.gl.uniformMatrix4fv(this.u_GIv2_nodeWMatrix, false, this.nodes[n].MPOSFrame.transpose().e); 
 				this.gl.uniform3f(this.u_GIv2_nodeVScale, this.nodes[n].VSCALE.e[0], this.nodes[n].VSCALE.e[1], this.nodes[n].VSCALE.e[2]);   
 				
@@ -372,7 +372,7 @@ StormGLContext.prototype.pointers_GIv2Exec = function() {
 };
 /** @private  */
 StormGLContext.prototype.render_GIv2Exec = function() { 	
-	this.gl.uniform1i(this.u_GIv2EXEC_maxBounds, stormEngineC.giv2.maxBounds); 
+	this.gl.uniform1i(this.u_GIv2EXEC_maxBounds, this._sec.giv2.maxBounds); 
 	
 	this.gl.activeTexture(this.gl.TEXTURE0);
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIVoxel);

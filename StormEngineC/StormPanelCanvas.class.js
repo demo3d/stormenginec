@@ -2,8 +2,8 @@
 * @class
 * @constructor
 */
-StormEngineC_PanelCanvas = function() {
-
+StormEngineC_PanelCanvas = function(sec) {
+	this._sec = sec;
 };
 
 /**
@@ -14,16 +14,19 @@ StormEngineC_PanelCanvas.prototype.loadPanel = function() {
 	var html = '<canvas id="CANVASID_STORM" ></canvas><br />'+
 				'<div id="DIVID_StormPanelCanvas_proc"></div>'+
 				'<button type="button" id="BTNID_StormPanelCanvas_renderBtn" >Render</button>'+
-				'<button type="button" onclick="stormEngineC.renderFrameStop();" ><div style="width:14px;height:14px;background:#FF0000;"></div></button>';
+				'<button type="button" id="BTNID_StormPanelCanvas_renderstopBtn" onclick="" ><div style="width:14px;height:14px;background:#FF0000;"></div></button>';
 	
 	var _this = this;
-	stormEngineC.makePanel(_this, 'DIVID_StormPanelCanvas', 'RENDER', html);
+	this._sec.makePanel(_this, 'DIVID_StormPanelCanvas', 'RENDER', html);
 	
 	
 										
-	$("#DIVID_StormPanelCanvas #BTNID_StormPanelCanvas_renderBtn").bind('click', function() {
-												stormEngineC.PanelRenderSettings.pushRender();
-											});
+	$("#DIVID_StormPanelCanvas #BTNID_StormPanelCanvas_renderBtn").bind('click', (function() {
+		this._sec.PanelRenderSettings.pushRender();
+	}).bind(this));
+	$("#DIVID_StormPanelCanvas #BTNID_StormPanelCanvas_renderstopBtn").bind('click', (function() {
+		this._sec.renderFrameStop();
+	}).bind(this));
 };
 
 /**

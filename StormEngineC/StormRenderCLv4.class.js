@@ -2,7 +2,9 @@
 * @class
 * @constructor
 */
-StormRender = function(jsonin) {
+StormRender = function(sec, jsonin) {
+	this._sec = sec;
+	
 	this.canvasRenderObject = document.getElementById(jsonin.target);
 	this.callback = (jsonin.callback != undefined) ? jsonin.callback : undefined;
 	this.viewportWidth = (jsonin.width != undefined) ? jsonin.width : 256;
@@ -11,7 +13,7 @@ StormRender = function(jsonin) {
 	this.ctx2Drender = this.canvasRenderObject.getContext("2d");
 	this.canvasData = this.ctx2Drender.getImageData(0, 0, this.viewportWidth, this.viewportHeight);
 	
-	this.canvasDataNoise = stormEngineC.stormGLContext.arrayTEX_noise;
+	this.canvasDataNoise = this._sec.stormGLContext.arrayTEX_noise;
 	
 	
 	this.sample = 1;
@@ -22,12 +24,12 @@ StormRender = function(jsonin) {
 	this.sendFrameToHost = 1;
 	this.receiveFromClient = 0;
 	
-	this.nodes = stormEngineC.nodes;
-	this.lights = stormEngineC.lights;
-	this.REALLIGHTLENGTH = stormEngineC.lights.length;
+	this.nodes = this._sec.nodes;
+	this.lights = this._sec.lights;
+	this.REALLIGHTLENGTH = this._sec.lights.length;
 	
 	this.MAXBOUNCES = 3; 
-	this.ambientColor = stormEngineC.stormGLContext.ambientColor;
+	this.ambientColor = this._sec.stormGLContext.ambientColor;
 	var kernelSrc_X = ''+
 	'__constant float3 ambientColor = (float3)('+this.ambientColor.e[0].toFixed(4)+'f,'+this.ambientColor.e[1].toFixed(4)+'f,'+this.ambientColor.e[2].toFixed(4)+'f);\n'+
 	//'__constant float points[3] = {0.0000,1.0000,-0.0000};\n'+
@@ -1539,7 +1541,7 @@ StormRender.prototype.makeRender = function() {
 	clCmdQueue.enqueueReadBuffer(this.buffSample, false, 0, (this.bufferSize), this.arraySample, []);
 	var makeFrame = false;
 	if(wsPathTracing != undefined && (wsPathTracing.socket.connected == true || wsPathTracing.socket.connecting == true)) {
-		if(stormEngineC.netID != 0) { // no es host
+		if(this._sec.netID != 0) { // no es host
 			if(wsPathTracing.socket.connected == true && this.sendFrameToHost == 1) {
 				//alert('');
 				this.sendFrameToHost = 0;
@@ -1558,7 +1560,7 @@ StormRender.prototype.makeRender = function() {
 					if(cont == netPacketSize) {
 						cont = 0;
 						wsPathTracing.emit('setFrameTotalColorX', {
-							netID: stormEngineC.netID,
+							netID: this._sec.netID,
 							frameNumber: this.currentFrameNumber,
 							arrayTotalColorX: tempArrX,
 							width: this.viewportWidth,
@@ -1566,19 +1568,19 @@ StormRender.prototype.makeRender = function() {
 							offset: (n-netPacketSize)
 						});
 						wsPathTracing.emit('setFrameTotalColorY', {
-							netID: stormEngineC.netID,
+							netID: this._sec.netID,
 							frameNumber: this.currentFrameNumber,
 							arrayTotalColorY: tempArrY,
 							offset: (n-netPacketSize)
 						});
 						wsPathTracing.emit('setFrameTotalColorZ', {
-							netID: stormEngineC.netID,
+							netID: this._sec.netID,
 							frameNumber: this.currentFrameNumber,
 							arrayTotalColorZ: tempArrZ,
 							offset: (n-netPacketSize)
 						});
 						wsPathTracing.emit('setFrameTotalShadow', {
-							netID: stormEngineC.netID,
+							netID: this._sec.netID,
 							frameNumber: this.currentFrameNumber,
 							arrayTotalShadow: tempArrShad,
 							offset: (n-netPacketSize)
@@ -1588,7 +1590,7 @@ StormRender.prototype.makeRender = function() {
 				}
 				
 				wsPathTracing.emit('setFrameSample', {
-					netID: stormEngineC.netID,
+					netID: this._sec.netID,
 					frameNumber: this.currentFrameNumber,
 					arraySample: this.arraySample[0]
 				});
@@ -1629,8 +1631,8 @@ StormRender.prototype.makeRender = function() {
 	
     this.sample++;
 	
-    if(!stormEngineC.pauseRender){
-		this.timerRender = setTimeout("stormEngineC.stormRender.makeRender();",2);
+    if(!this._sec.pauseRender){
+		this.timerRender = setTimeout(this._sec.stormRender.makeRender,2);
 	}
 	
 	
@@ -1651,13 +1653,13 @@ StormRender.prototype.makeRender = function() {
 StormRender.prototype.SF = function() {
 	
 	
-	stormEngineC.timelinePathTracing.setFrameTotalColorX(this.currentFrameNumber, this.arrayTotalColorX, this.viewportWidth, this.viewportHeight); 
-	stormEngineC.timelinePathTracing.setFrameTotalColorY(this.currentFrameNumber, this.arrayTotalColorY);
-	stormEngineC.timelinePathTracing.setFrameTotalColorZ(this.currentFrameNumber, this.arrayTotalColorZ);
-	stormEngineC.timelinePathTracing.setFrameTotalShadow(this.currentFrameNumber, this.arrayTotalShadow);
-	stormEngineC.timelinePathTracing.setFrameSample(this.currentFrameNumber, this.arraySample[0]);
+	this._sec.timelinePathTracing.setFrameTotalColorX(this.currentFrameNumber, this.arrayTotalColorX, this.viewportWidth, this.viewportHeight); 
+	this._sec.timelinePathTracing.setFrameTotalColorY(this.currentFrameNumber, this.arrayTotalColorY);
+	this._sec.timelinePathTracing.setFrameTotalColorZ(this.currentFrameNumber, this.arrayTotalColorZ);
+	this._sec.timelinePathTracing.setFrameTotalShadow(this.currentFrameNumber, this.arrayTotalShadow);
+	this._sec.timelinePathTracing.setFrameSample(this.currentFrameNumber, this.arraySample[0]);
 	
-	var frame = stormEngineC.timelinePathTracing.getFrame(this.currentFrameNumber);
+	var frame = this._sec.timelinePathTracing.getFrame(this.currentFrameNumber);
 				
 	clCmdQueue.enqueueWriteBuffer(this.buffTotalColorX, false, 0, (this.bufferSize), frame.arrayTotalColorX, []);
 	clCmdQueue.enqueueWriteBuffer(this.buffTotalColorY, false, 0, (this.bufferSize), frame.arrayTotalColorY, []);
@@ -1665,21 +1667,21 @@ StormRender.prototype.SF = function() {
 	clCmdQueue.enqueueWriteBuffer(this.buffTotalShadow, false, 0, (this.bufferSize), frame.arrayTotalShadow, []);
 	clCmdQueue.enqueueWriteBuffer(this.buffSample, false, 0, (this.bufferSize), frame.arraySample, []);
 	
-	if(stormEngineC.runningAnim && stormEngineC.timelinePathTracing.frames[this.currentFrameNumber].arraySample[0] >= $('#INPUTID_StormRenderSettings_maxSamples').val()) {
+	if(this._sec.runningAnim && this._sec.timelinePathTracing.frames[this.currentFrameNumber].arraySample[0] >= $('#INPUTID_StormRenderSettings_maxSamples').val()) {
 		this.nextFrame();
 	}
 };
 /** @private */
 StormRender.prototype.nextFrame = function() {
 	if((this.currentFrameNumber+1) > this.frameEnd) {
-		stormEngineC.renderFrameStop();
+		this._sec.renderFrameStop();
 	} else {
 		this.currentFrameNumber++;
-		stormEngineC.setWebGLpause(false);
-		stormEngineC.PanelAnimationTimeline.setFrame(this.currentFrameNumber);
-		this.setCam(stormEngineC.defaultCamera);
+		this._sec.setWebGLpause(false);
+		this._sec.PanelAnimationTimeline.setFrame(this.currentFrameNumber);
+		this.setCam(this._sec.defaultCamera);
 		//this.updateObjects();
-		stormEngineC.setWebGLpause(true);
+		this._sec.setWebGLpause(true);
 	}
 	
 };

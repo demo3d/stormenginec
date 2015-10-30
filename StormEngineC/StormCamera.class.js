@@ -8,7 +8,9 @@
 * @property {StomrNode} nodeGoal
 * @property {StormControllerTargetCam|StormControllerPlayer|StormControllerPlayerCar|StormControllerFollow} controller Camera controller
 */
-StormCamera = function() { StormNode.call(this); 
+StormCamera = function(sec) { StormNode.call(this);
+	this._sec = sec;
+	
 	this.objectType = 'camera';
 	
 	this.controller; // camera controller
@@ -48,10 +50,10 @@ StormCamera.prototype = Object.create(StormNode.prototype);
 */
 StormCamera.prototype.remove = function() {
 	var idToRemove = undefined;
-	for(var n = 0, f = stormEngineC.nodesCam.length; n < f; n++) {
-		if(stormEngineC.nodesCam[n].idNum == this.idNum) idToRemove = n;
+	for(var n = 0, f = this._sec.nodesCam.length; n < f; n++) {
+		if(this._sec.nodesCam[n].idNum == this.idNum) idToRemove = n;
 	}
-	stormEngineC.nodesCam.splice(idToRemove,1);
+	this._sec.nodesCam.splice(idToRemove,1);
 };
 /**
 * Look rotation x
@@ -93,22 +95,22 @@ StormCamera.prototype.setView = function(view) {
 	this.resetAxis();
 	switch(view) {
 		case 'LEFT':
-			this.nodePivot.setRotation(stormEngineC.utils.degToRad(-90),false,$V3([0.0,1.0,0.0]));
+			this.nodePivot.setRotation(this._sec.utils.degToRad(-90),false,$V3([0.0,1.0,0.0]));
 			break;
 		case 'RIGHT':			
-			this.nodePivot.setRotation(stormEngineC.utils.degToRad(-90-180),false,$V3([0.0,1.0,0.0]));
+			this.nodePivot.setRotation(this._sec.utils.degToRad(-90-180),false,$V3([0.0,1.0,0.0]));
 			break;
 		case 'FRONT':
-			this.nodePivot.setRotation(stormEngineC.utils.degToRad(0),false,$V3([0.0,1.0,0.0]));
+			this.nodePivot.setRotation(this._sec.utils.degToRad(0),false,$V3([0.0,1.0,0.0]));
 			break;
 		case 'BACK':			
-			this.nodePivot.setRotation(stormEngineC.utils.degToRad(180),false,$V3([0.0,1.0,0.0]));
+			this.nodePivot.setRotation(this._sec.utils.degToRad(180),false,$V3([0.0,1.0,0.0]));
 			break;
 		case 'TOP':
-			this.nodePivot.setRotation(stormEngineC.utils.degToRad(-90),false,$V3([1.0,0.0,0.0]));
+			this.nodePivot.setRotation(this._sec.utils.degToRad(-90),false,$V3([1.0,0.0,0.0]));
 			break;
 		case 'BOTTOM':			
-			this.nodePivot.setRotation(stormEngineC.utils.degToRad(90),false,$V3([1.0,0.0,0.0]));
+			this.nodePivot.setRotation(this._sec.utils.degToRad(90),false,$V3([1.0,0.0,0.0]));
 			break;
 	}
 };
@@ -127,7 +129,7 @@ StormCamera.prototype.setController = function(jsonIn) {
 	var view =(jsonIn.view != undefined) ? jsonIn.view : 'node';
 	
 	if(jsonIn.mode == 'targetcam') {
-		this.controller = new StormControllerTargetCam(jsonIn.distance);
+		this.controller = new StormControllerTargetCam(this._sec, jsonIn.distance);
 		
 		if(jsonIn.node != undefined) {
 			if(view == 'node') this.nodePivot.setPosition(jsonIn.node.getPosition());
@@ -137,7 +139,7 @@ StormCamera.prototype.setController = function(jsonIn) {
 		this.controller.cameraSetupFC(this, jsonIn.node); // cameraNode, meshNode
 	}
 	if(jsonIn.mode == 'player') {
-		this.controller = new StormControllerPlayer(jsonIn.distance);
+		this.controller = new StormControllerPlayer(this._sec, jsonIn.distance);
 		
 		if(jsonIn.node != undefined) {
 			if(view == 'node') this.nodePivot.setPosition(jsonIn.node.getPosition());
@@ -147,7 +149,7 @@ StormCamera.prototype.setController = function(jsonIn) {
 		this.controller.cameraSetupFC(this, jsonIn.node); // cameraNode, meshNode
 	}
 	if(jsonIn.mode == 'nodeCar') {
-		this.controller = new StormControllerPlayerCar(jsonIn.distance);
+		this.controller = new StormControllerPlayerCar(this._sec, jsonIn.distance);
 		
 		if(jsonIn.node != undefined) {
 			if(view == 'node') this.nodePivot.setPosition(jsonIn.node.getPosition());
@@ -157,7 +159,7 @@ StormCamera.prototype.setController = function(jsonIn) {
 		this.controller.cameraSetupFC(this, jsonIn.node, jsonIn.nodeCar); // cameraNode, meshNode, nodeCar
 	}
 	if(jsonIn.mode == 'follow') {
-		this.controller = new StormControllerFollow(jsonIn.distance); 
+		this.controller = new StormControllerFollow(this._sec, jsonIn.distance); 
 		
 		if(jsonIn.node != undefined) {
 			if(view == 'node') this.nodePivot.setPosition(jsonIn.node.getPosition());
@@ -178,14 +180,14 @@ StormCamera.prototype.setFocusIntern = function() {
 	var lineOrigin = this.posCameraPivot.add(this.vecView.x(this.focusExtern));
 	var lineEnd = this.posCameraPivot.add(this.vecYPlanoProyeccion.x(this.widthLens));
 	
-	var rayLens = new StormRayLens(); 
+	var rayLens = new StormRayLens(this._sec); 
 	var rl = rayLens.setRayLens(lineOrigin, lineEnd, etaAir, this.refIndex); 
 	if(rl[0] != -1.0) {
 		var outRay = $V3([rl[4], rl[5], rl[6]]);
 		
 		var angle = 1.0-(outRay.dot(this.vecYPlanoProyeccion.x(-1.0)));  
 		angle *= 90.0;
-		var distFocus = Math.tan(stormEngineC.utils.degToRad(angle));
+		var distFocus = Math.tan(this._sec.utils.degToRad(angle));
 		this.focusIntern = distFocus*0.786;
 		
 		
@@ -232,13 +234,12 @@ StormCamera.prototype.disableAutofocus = function() {
 * 	@param {Float} [jsonIn.fStop=90.0] Aperture (0.3 - 128.0).
  */
 StormCamera.prototype.focus = function(jsonIn) {
-	this.focusExtern = jsonIn.distance;
-	if(this.focusExtern <= 0.0) this.focusExtern = 0.1;
+	this.focusExtern = parseFloat(jsonIn.distance);
+	if(this.focusExtern < 0.1) this.focusExtern = 0.1; 
 	
 	if(jsonIn.fStop != undefined) {
 		if(jsonIn.fStop > 128.0) jsonIn.fStop = 128.0; if(jsonIn.fStop <= 0.0) jsonIn.fStop = 0.3;
 		this.fNumber = (128.0-jsonIn.fStop)/128.0;
 	}
-	if($('#DIVID_StormPanelEditNode').css('display') == 'block') $('#INPUTID_StormEditNode_focusExtern').val(this.focusExtern);
 };
 

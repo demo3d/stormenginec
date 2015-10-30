@@ -5,7 +5,9 @@
 * @property {Int} start 
 * @property {Int} end
 */
-StormEngineC_PanelAnimationTimeline = function() {
+StormEngineC_PanelAnimationTimeline = function(sec) {
+	this._sec = sec;
+	
 	this.current = 0;
 	this.start = 0;this.tempKeyFrameStart = 0;
 	this.end = 25;
@@ -46,19 +48,19 @@ StormEngineC_PanelAnimationTimeline.prototype.loadPanel = function() {
 				'</div>';
 	
 	var _this = this;
-	stormEngineC.makePanel(_this, 'DIVID_StormPanelAnimationTimeline', 'TIMELINE', html);	
+	this._sec.makePanel(_this, 'DIVID_StormPanelAnimationTimeline', 'TIMELINE', html);	
 	
 	
 	
 	
 	
 	
-	$("#DIVID_StormPanelAnimationTimeline #INPUTID_StormPanelAnimationTimeline_start").bind('keyup', function() {
-												stormEngineC.PanelAnimationTimeline.setStart($(this).val());
-											});
-	$("#DIVID_StormPanelAnimationTimeline #INPUTID_StormPanelAnimationTimeline_end").bind('keyup', function() {
-												stormEngineC.PanelAnimationTimeline.setEnd($(this).val());
-											});
+	$("#DIVID_StormPanelAnimationTimeline #INPUTID_StormPanelAnimationTimeline_start").bind('keyup', (function() {
+												this._sec.PanelAnimationTimeline.setStart($(this).val());
+											}).bind(this));
+	$("#DIVID_StormPanelAnimationTimeline #INPUTID_StormPanelAnimationTimeline_end").bind('keyup', (function() {
+												this._sec.PanelAnimationTimeline.setEnd($(this).val());
+											}).bind(this));
 											
 	$('#CANVASID_STORMANIMATIONTIMELINE').attr('width', ($(document).width()-100));
 	
@@ -69,9 +71,9 @@ StormEngineC_PanelAnimationTimeline.prototype.loadPanel = function() {
 														max: this.end,
 														value: this.current}); 
 	this.SL.slider({
-		slide: function( event, ui ) {
-			stormEngineC.PanelAnimationTimeline.setFrame(ui.value);
-		}
+		slide: (function( event, ui ) {
+			this._sec.PanelAnimationTimeline.setFrame(ui.value);
+		}).bind(this)
 	});
 	
 	
@@ -80,25 +82,25 @@ StormEngineC_PanelAnimationTimeline.prototype.loadPanel = function() {
 	
 	
 	
-	$("#BUTTONID_StormPanelAnimationTimeline_key").bind('click', function() {
-												if(stormEngineC.nearNode != undefined) {
-													stormEngineC.nearNode.setAnimKey(stormEngineC.PanelAnimationTimeline.current);
+	$("#BUTTONID_StormPanelAnimationTimeline_key").bind('click', (function() {
+												if(this._sec.nearNode != undefined) {
+													this._sec.nearNode.setAnimKey(this._sec.PanelAnimationTimeline.current);
 												} else {
 													alert('No object selected');
 												}
-											});
-	$("#BUTTONID_StormPanelAnimationTimeline_prev").bind('click', function() {
-												stormEngineC.PanelAnimationTimeline.prevFrame();
-											});
-	$("#BUTTONID_StormPanelAnimationTimeline_play").bind('click', function() {
-												stormEngineC.PanelAnimationTimeline.play();
-											});
-	$("#BUTTONID_StormPanelAnimationTimeline_stop").bind('click', function() {
-												stormEngineC.PanelAnimationTimeline.stop();
-											});
-	$("#BUTTONID_StormPanelAnimationTimeline_next").bind('click', function() {
-												stormEngineC.PanelAnimationTimeline.nextFrame();
-											});
+											}).bind(this));
+	$("#BUTTONID_StormPanelAnimationTimeline_prev").bind('click', (function() {
+												this._sec.PanelAnimationTimeline.prevFrame();
+											}).bind(this));
+	$("#BUTTONID_StormPanelAnimationTimeline_play").bind('click', (function() {
+												this._sec.PanelAnimationTimeline.play();
+											}).bind(this));
+	$("#BUTTONID_StormPanelAnimationTimeline_stop").bind('click', (function() {
+												this._sec.PanelAnimationTimeline.stop();
+											}).bind(this));
+	$("#BUTTONID_StormPanelAnimationTimeline_next").bind('click', (function() {
+												this._sec.PanelAnimationTimeline.nextFrame();
+											}).bind(this));
 };
 
 /**
@@ -117,12 +119,12 @@ StormEngineC_PanelAnimationTimeline.prototype.show = function() {
 */
 StormEngineC_PanelAnimationTimeline.prototype.setStart = function(frame) {
 	if(frame != '') {
-		stormEngineC.PanelAnimationTimeline.start = frame;
-		if(frame > stormEngineC.PanelAnimationTimeline.end) {
+		this._sec.PanelAnimationTimeline.start = frame;
+		if(frame > this._sec.PanelAnimationTimeline.end) {
 			$("#INPUTID_StormPanelAnimationTimeline_end").val(frame);
-			stormEngineC.PanelAnimationTimeline.end = frame;
+			this._sec.PanelAnimationTimeline.end = frame;
 		}
-		stormEngineC.PanelAnimationTimeline.drawTimelineGrid();
+		this._sec.PanelAnimationTimeline.drawTimelineGrid();
 		$("#DIVID_StormPanelAnimationTimeline #INPUTID_StormPanelAnimationTimeline_start").val(frame);
 	}
 };
@@ -134,12 +136,12 @@ StormEngineC_PanelAnimationTimeline.prototype.setStart = function(frame) {
 */
 StormEngineC_PanelAnimationTimeline.prototype.setEnd = function(frame) {
 	if(frame != '') {
-		stormEngineC.PanelAnimationTimeline.end = frame;
-		if(frame < stormEngineC.PanelAnimationTimeline.start) {
+		this._sec.PanelAnimationTimeline.end = frame;
+		if(frame < this._sec.PanelAnimationTimeline.start) {
 			$("#INPUTID_StormPanelAnimationTimeline_start").val(frame);
-			stormEngineC.PanelAnimationTimeline.start = frame;
+			this._sec.PanelAnimationTimeline.start = frame;
 		}
-		stormEngineC.PanelAnimationTimeline.drawTimelineGrid();
+		this._sec.PanelAnimationTimeline.drawTimelineGrid();
 		$("#DIVID_StormPanelAnimationTimeline #INPUTID_StormPanelAnimationTimeline_end").val(frame);
 	}
 };
@@ -181,7 +183,7 @@ StormEngineC_PanelAnimationTimeline.prototype.nextFrame = function() {
 */
 StormEngineC_PanelAnimationTimeline.prototype.play = function() {  
 	if(this.intervalPlay == undefined) {
-		this.intervalPlay = setInterval("stormEngineC.PanelAnimationTimeline.nextFrame();", 1000/25);
+		this.intervalPlay = setInterval(this._sec.PanelAnimationTimeline.nextFrame.bind(this), 1000/25);
 	}
 };
 
@@ -224,13 +226,13 @@ StormEngineC_PanelAnimationTimeline.prototype.drawTimelineGrid = function() {
 			
 			
 		} else if(makingLine == true) {
-			if(stormEngineC.nearNode != undefined) {
-				if(stormEngineC.nearNode.nodePivot == undefined) {
-					if(stormEngineC.nearNode.animWMatrix != undefined && stormEngineC.nearNode.animWMatrix[currentFrame] != undefined) {
+			if(this._sec.nearNode != undefined) {
+				if(this._sec.nearNode.nodePivot == undefined) {
+					if(this._sec.nearNode.animWMatrix != undefined && this._sec.nearNode.animWMatrix[currentFrame] != undefined) {
 						arrFrames.push(currentFrame);
 					}
 				} else {
-					if(stormEngineC.nearNode.animWMatrix != undefined && stormEngineC.nearNode.nodePivot.animWMatrix[currentFrame] != undefined) {
+					if(this._sec.nearNode.animWMatrix != undefined && this._sec.nearNode.nodePivot.animWMatrix[currentFrame] != undefined) {
 						arrFrames.push(currentFrame);
 					}
 				}
@@ -242,13 +244,13 @@ StormEngineC_PanelAnimationTimeline.prototype.drawTimelineGrid = function() {
 			aumentoDivisorPixel += divisorPixel;
 		}
 	}
-	if(stormEngineC.nearNode != undefined) {
-		if(stormEngineC.nearNode.nodePivot == undefined) {
-			if(stormEngineC.nearNode.animWMatrix != undefined && stormEngineC.nearNode.animWMatrix[currentFrame] != undefined) {
+	if(this._sec.nearNode != undefined) {
+		if(this._sec.nearNode.nodePivot == undefined) {
+			if(this._sec.nearNode.animWMatrix != undefined && this._sec.nearNode.animWMatrix[currentFrame] != undefined) {
 				arrFrames.push(currentFrame);
 			}
 		} else {
-			if(stormEngineC.nearNode.animWMatrix != undefined && stormEngineC.nearNode.nodePivot.animWMatrix[currentFrame] != undefined) {
+			if(this._sec.nearNode.animWMatrix != undefined && this._sec.nearNode.nodePivot.animWMatrix[currentFrame] != undefined) {
 				arrFrames.push(currentFrame);
 			}
 		}
@@ -279,17 +281,17 @@ StormEngineC_PanelAnimationTimeline.prototype.drawTimelineGrid = function() {
 																							'width':'10px',
 																							'background-color':'#FF0000'});
 		this.SLFrames.slider({
-			slide: function( event, ui ) {
+			slide: (function( event, ui ) {
 				$("#CANVASID_STORMANIMATIONTIMELINE_frames a").removeClass('ui-state-focus ui-state-active ui-state-hover').css({'background-color':'#FF0000'});
-			},
-			start: function( event, ui ) {
-				stormEngineC.PanelAnimationTimeline.tempKeyFrameStart = ui.value;
+			}).bind(this),
+			start: (function( event, ui ) {
+				this._sec.PanelAnimationTimeline.tempKeyFrameStart = ui.value;
 				$("#CANVASID_STORMANIMATIONTIMELINE_frames a").removeClass('ui-state-focus ui-state-active ui-state-hover').css({'background-color':'#FF0000'});
-			},
-			stop: function( event, ui ) {
-				stormEngineC.nearNode.changeAnimKey(stormEngineC.PanelAnimationTimeline.tempKeyFrameStart, ui.value);
+			}).bind(this),
+			stop: (function( event, ui ) {
+				this._sec.nearNode.changeAnimKey(this._sec.PanelAnimationTimeline.tempKeyFrameStart, ui.value);
 				$("#CANVASID_STORMANIMATIONTIMELINE_frames a").removeClass('ui-state-focus ui-state-active ui-state-hover').css({'background-color':'#FF0000'});
-			}
+			}).bind(this)
 		});
 		$("#CANVASID_STORMANIMATIONTIMELINE_frames a").bind('mouseover', function() {
 													$(this).removeClass('ui-state-focus ui-state-active ui-state-hover').css({'background-color':'#FF0000'});
@@ -307,33 +309,33 @@ StormEngineC_PanelAnimationTimeline.prototype.drawTimelineGrid = function() {
 StormEngineC_PanelAnimationTimeline.prototype.applyAnimFrame = function(frame) {
 	$('#INPUTID_StormPanelAnimationTimeline_current').html(frame);
 	this.current = frame;
-	stormEngineC.runningAnim = true;
+	this._sec.runningAnim = true;
 	// objetos
-	for(n = 0, f = stormEngineC.nodes.length; n < f; n++) {
-		if(stormEngineC.nodes[n].animMin != undefined) { // existe animación
-			if(stormEngineC.nodes[n].animController == 'GlobalTimeline') {
-				var jsonM = this.getNodeMatrixForFrame(stormEngineC.nodes[n], this.current);
-				stormEngineC.nodes[n].MPOS = jsonM.vec;
+	for(n = 0, f = this._sec.nodes.length; n < f; n++) {
+		if(this._sec.nodes[n].animMin != undefined) { // existe animación
+			if(this._sec.nodes[n].animController == 'GlobalTimeline') {
+				var jsonM = this.getNodeMatrixForFrame(this._sec.nodes[n], this.current);
+				this._sec.nodes[n].MPOS = jsonM.vec;
 			}
 		}
 	}
 	// lights
-	for(n = 0, f = stormEngineC.lights.length; n < f; n++) {
-		if(stormEngineC.lights[n].animMin != undefined) { // existe animación
-			if(stormEngineC.lights[n].animController == 'GlobalTimeline') {
-				var jsonM = this.getNodeMatrixForFrame(stormEngineC.lights[n], this.current);
-				stormEngineC.lights[n].MPOS = jsonM.vec;
-				stormEngineC.lights[n].nodeCtxWebGL.MPOS = jsonM.vec.inverse();
+	for(n = 0, f = this._sec.lights.length; n < f; n++) {
+		if(this._sec.lights[n].animMin != undefined) { // existe animación
+			if(this._sec.lights[n].animController == 'GlobalTimeline') {
+				var jsonM = this.getNodeMatrixForFrame(this._sec.lights[n], this.current);
+				this._sec.lights[n].MPOS = jsonM.vec;
+				this._sec.lights[n].nodeCtxWebGL.MPOS = jsonM.vec.inverse();
 			}
 		}
 	}
 	// cámaras
-	for(n = 0, f = stormEngineC.nodesCam.length; n < f; n++) {
-		if(stormEngineC.nodesCam[n].animMin != undefined) { // existe animación
-			if(stormEngineC.nodesCam[n].animController == 'GlobalTimeline') { 
-				var jsonM = this.getNodeMatrixForFrame(stormEngineC.nodesCam[n], this.current);
-				stormEngineC.nodesCam[n].nodePivot.MPOS = jsonM.vec;
-				stormEngineC.nodesCam[n].nodeGoal.MPOS = jsonM.vecb;
+	for(n = 0, f = this._sec.nodesCam.length; n < f; n++) {
+		if(this._sec.nodesCam[n].animMin != undefined) { // existe animación
+			if(this._sec.nodesCam[n].animController == 'GlobalTimeline') { 
+				var jsonM = this.getNodeMatrixForFrame(this._sec.nodesCam[n], this.current);
+				this._sec.nodesCam[n].nodePivot.MPOS = jsonM.vec;
+				this._sec.nodesCam[n].nodeGoal.MPOS = jsonM.vecb;
 			}
 		}
 	}

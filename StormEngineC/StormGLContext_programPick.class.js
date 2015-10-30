@@ -99,7 +99,7 @@ StormGLContext.prototype.initShader_Pick = function() {
 		
 		'varying float vNodeId;\n'+
 		
-		stormEngineC.utils.packGLSLFunctionString()+
+		this._sec.utils.packGLSLFunctionString()+
 		
 		'void main(void) {\n'+// gl_FragCoord.x muestra de 0.0 a width (Ej: 0 a 512.0)
 			//'if( (uCurrentMousePosX < (gl_FragCoord.x+1.0) && uCurrentMousePosX > (gl_FragCoord.x-1.0)) &&'+
@@ -178,50 +178,50 @@ StormGLContext.prototype.render_Pick = function() {
 	
 	this.gl.uniform1f(this.u_Pick_far, this.far);
 	
-	//alert((stormEngineC.mousePosX/this.viewportWidth)); 
-	this.gl.uniform1f(this.u_Pick_currentMousePosX, stormEngineC.mousePosX);  
-	this.gl.uniform1f(this.u_Pick_currentMousePosY, (stormEngineC.$.height()-(stormEngineC.mousePosY))); 
+	//alert((this._sec.mousePosX/this.viewportWidth)); 
+	this.gl.uniform1f(this.u_Pick_currentMousePosX, this._sec.mousePosX);  
+	this.gl.uniform1f(this.u_Pick_currentMousePosY, (this._sec.$.height()-(this._sec.mousePosY))); 
 	
-	this.gl.uniformMatrix4fv(this.u_Pick_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
-	this.gl.uniformMatrix4fv(this.u_Pick_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
+	this.gl.uniformMatrix4fv(this.u_Pick_PMatrix, false, this._sec.defaultCamera.mPMatrix.transpose().e);
+	this.gl.uniformMatrix4fv(this.u_Pick_cameraWMatrix, false, this._sec.defaultCamera.MPOS.transpose().e);
 	
 	
 	if(this.makeMouseDown == true) {
 		this.makeMouseDown = false;
 		
-		if(stormEngineC.dragging == false) {		
+		if(this._sec.dragging == false) {		
 			var pick = (function(nodes) {
 				if(	this.gettedPixel instanceof StormNode ||
 					this.gettedPixel instanceof StormPolarityPoint ||
 					this.gettedPixel instanceof StormGraph) { // selection is a node
-					stormEngineC.selectNode(this.gettedPixel);
+					this._sec.selectNode(this.gettedPixel);
 					
 					if(this.gettedPixel.isDraggable) {
 						this.gettedPixel.bodyActive(false);
 						this.gettedPixel.setPosition(this.gettedPixel.getPosition());  
 						
-						stormEngineC.dragging = true;
+						this._sec.dragging = true;
 					}
 					if(this.gettedPixel.onmousedownFunction != undefined) this.gettedPixel.onmousedownFunction();
 				} else if(this.gettedPixel > 0) { // selection is transform axis of a selected node
-					if(stormEngineC.getSelectedNode() != undefined) {
-						stormEngineC.getSelectedNode().bodyActive(false);
+					if(this._sec.getSelectedNode() != undefined) {
+						this._sec.getSelectedNode().bodyActive(false);
 					}
 					
-					stormEngineC.dragging = true;
+					this._sec.dragging = true;
 				}
 			}).bind(this);
 			
 			var pickEditionMode = (function() {
-				if(stormEngineC.getSelectedNode() != undefined && stormEngineC.getSelectedNode().selectedNodeIsInEditionMode()) { // selection is in edit mode
+				if(this._sec.getSelectedNode() != undefined && this._sec.getSelectedNode().selectedNodeIsInEditionMode()) { // selection is in edit mode
 					// check if makeMouseDown over node type graph
 					console.log("- rendering selected node in edit mode...");				
 					this.render();
 					this.gettedPixel = this.readPixel(); 
 					
 					
-					if(stormEngineC.getSelectedNode() instanceof StormNode && stormEngineC.getSelectedNode().objectType == 'graph') {
-						stormEngineC.dragging = true;
+					if(this._sec.getSelectedNode() instanceof StormNode && this._sec.getSelectedNode().objectType == 'graph') {
+						this._sec.dragging = true;
 					}
 				}
 			}).bind(this);
@@ -248,7 +248,7 @@ StormGLContext.prototype.render_Pick = function() {
 						pick(this.graphs); 
 						pickEditionMode();
 					} else {
-						
+						this._sec.selectNode(undefined);
 					}
 				}
 			}
@@ -258,16 +258,16 @@ StormGLContext.prototype.render_Pick = function() {
 	if(this.makeMouseMove == true) {
 		this.makeMouseMove = false;
 		
-		if(stormEngineC.dragging == true) {		
+		if(this._sec.dragging == true) {		
 			this.drag();  
 		}
 	}
 	if(this.makeMouseUp == true) {
 		this.makeMouseUp = false;
 		
-		if(stormEngineC.dragging == true) {
+		if(this._sec.dragging == true) {
 			this.unpick();  
-			stormEngineC.dragging = false;
+			this._sec.dragging = false;
 		}
 	}
 };
@@ -288,7 +288,7 @@ StormGLContext.prototype.render = function(nodes) {
 		this.gl.clearColor(0.0, 0.0, 0.0, 0.0);
 		this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 		
-		var node = stormEngineC.getSelectedNode();
+		var node = this._sec.getSelectedNode();
 		
 		if(node.objectType == 'graph') {
 			this.gl.uniform1i(this.u_Pick_vertexType, 2); // graph
@@ -330,7 +330,7 @@ StormGLContext.prototype.render = function(nodes) {
 			if(	nodes[n].visibleOnContext && nodes[n].objectType != 'light') {
 				var node = nodes[n];
 				
-				if(stormEngineC.editMode == true && stormEngineC.getSelectedNode() != undefined && stormEngineC.getSelectedNode().idNum == nodes[n].idNum) {
+				if(this._sec.editMode == true && this._sec.getSelectedNode() != undefined && this._sec.getSelectedNode().idNum == nodes[n].idNum) {
 					this.gl.uniform1i(this.u_Pick_vertexType, 1); // overlay transforms 
 					this.gl.uniform1i(this.u_Pick_fragType, 1); // overlay transforms 
 					
@@ -421,13 +421,13 @@ StormGLContext.prototype.render_transformsaxis = function(node) {
 	for(var nb = 0, fb = node.buffersObjects.length; nb < fb; nb++) {	
 		this.gl.clear(this.gl.DEPTH_BUFFER_BIT);
 		
-		if(stormEngineC.defaultTransformMode == 0) // world
+		if(this._sec.defaultTransformMode == 0) // world
 			this.gl.uniformMatrix4fv(this.u_Pick_nodeWMatrix, false, node.MPOS.transpose().e); 
 		else // local
 			this.gl.uniformMatrix4fv(this.u_Pick_nodeWMatrix, false, node.MPOSFrame.transpose().e); 
 			
 		// (detectors)
-		if(stormEngineC.defaultTransform == 0) {
+		if(this._sec.defaultTransform == 0) {
 			// overlay pos X
 			this.gl.uniform1f(this.u_Pick_nodeId, 0.1); 
 			this.gl.uniformMatrix4fv(this.u_Pick_matrixNodeTranform, false, this.nodeOverlayPosX.MPOS.x(this.nodeOverlayPosX.MROTXYZ).transpose().e);
@@ -460,7 +460,7 @@ StormGLContext.prototype.render_transformsaxis = function(node) {
 			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayPosZ.buffersObjects[0].nodeMeshIndexBuffer);
 			
 			this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayPosZ.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
-		} else if(stormEngineC.defaultTransform == 1) {
+		} else if(this._sec.defaultTransform == 1) {
 			// overlay rot X
 			this.gl.uniform1f(this.u_Pick_nodeId, 0.4); 
 			this.gl.uniformMatrix4fv(this.u_Pick_matrixNodeTranform, false, this.nodeOverlayRotDetX.MPOS.x(this.nodeOverlayRotDetX.MROTXYZ).transpose().e);
@@ -493,7 +493,7 @@ StormGLContext.prototype.render_transformsaxis = function(node) {
 			this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.nodeOverlayRotDetZ.buffersObjects[0].nodeMeshIndexBuffer);
 			
 			this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayRotDetZ.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
-		} else if(stormEngineC.defaultTransform == 2 && stormEngineC.defaultTransformMode == 1) {
+		} else if(this._sec.defaultTransform == 2 && this._sec.defaultTransformMode == 1) {
 			// overlay scale X
 			this.gl.uniform1f(this.u_Pick_nodeId, 0.7); 
 			this.gl.uniformMatrix4fv(this.u_Pick_matrixNodeTranform, false, this.nodeOverlayScaDetX.MPOS.x(this.nodeOverlayScaDetX.MROTXYZ).transpose().e);
@@ -532,12 +532,12 @@ StormGLContext.prototype.render_transformsaxis = function(node) {
 /** @private */
 StormGLContext.prototype.readPixel = function(nodes) {
 	var arrayPick = new Uint8Array(4);  
-	this.gl.readPixels(stormEngineC.mousePosX, (stormEngineC.$.height()-(stormEngineC.mousePosY)), 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, arrayPick);
+	this.gl.readPixels(this._sec.mousePosX, (this._sec.$.height()-(this._sec.mousePosY)), 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, arrayPick);
 	console.log(arrayPick[0]+"	"+arrayPick[1]+"	"+arrayPick[2]+"	"+arrayPick[3]);
 	
 	if(nodes == undefined) { // selection is edit mode?
-		if(stormEngineC.getSelectedNode().objectType == 'graph') { // selection is type graph
-			var unpackValue = stormEngineC.utils.unpack([arrayPick[0]/255, arrayPick[1]/255, arrayPick[2]/255, arrayPick[3]/255]); // value from 0.0 to 1.0
+		if(this._sec.getSelectedNode().objectType == 'graph') { // selection is type graph
+			var unpackValue = this._sec.utils.unpack([arrayPick[0]/255, arrayPick[1]/255, arrayPick[2]/255, arrayPick[3]/255]); // value from 0.0 to 1.0
 			
 			var nodeIdNum = Math.round(unpackValue*1000000.0)-1.0;
 			console.log("graph: "+nodeIdNum);
@@ -569,7 +569,7 @@ StormGLContext.prototype.readPixel = function(nodes) {
 				return 9;
 			}
 		} else if( !(arrayPick[0] == 0 && arrayPick[1] == 0 && arrayPick[2] == 0 && arrayPick[3] == 0) ) { // selection is a node?
-			var unpackValue = stormEngineC.utils.unpack([arrayPick[0]/255, arrayPick[1]/255, arrayPick[2]/255, arrayPick[3]/255]); // value from 0.0 to 1.0
+			var unpackValue = this._sec.utils.unpack([arrayPick[0]/255, arrayPick[1]/255, arrayPick[2]/255, arrayPick[3]/255]); // value from 0.0 to 1.0
 			
 			var nodeIdNum = Math.ceil(unpackValue*1000000.0)-1; 
 			var selectedNode = nodes[nodeIdNum];
@@ -588,13 +588,13 @@ StormGLContext.prototype.readPixel = function(nodes) {
 
 /** @private */
 StormGLContext.prototype.drag = function() {
-	if(stormEngineC.getSelectedNode() != undefined && stormEngineC.getSelectedNode().selectedNodeIsInEditionMode()) { // selection is edit mode?
-		if(stormEngineC.getSelectedNode() instanceof StormNode && stormEngineC.getSelectedNode().objectType == 'graph') { // selection is type graph
-			var selNode = stormEngineC.getSelectedNode();
+	if(this._sec.getSelectedNode() != undefined && this._sec.getSelectedNode().selectedNodeIsInEditionMode()) { // selection is edit mode?
+		if(this._sec.getSelectedNode() instanceof StormNode && this._sec.getSelectedNode().objectType == 'graph') { // selection is type graph
+			var selNode = this._sec.getSelectedNode();
 			
 			selNode.enableDrag = 1.0;
 			selNode.idToDrag = this.gettedPixel;
-			var dir = stormEngineC.utils.getDraggingScreenVector(); 
+			var dir = this._sec.utils.getDraggingScreenVector(); 
 			selNode.MouseDragTranslationX = dir.e[0];
 			selNode.MouseDragTranslationY = dir.e[1];
 			selNode.MouseDragTranslationZ = dir.e[2];
@@ -626,66 +626,66 @@ StormGLContext.prototype.drag = function() {
 		if(	this.gettedPixel instanceof StormNode ||
 			this.gettedPixel instanceof StormPolarityPoint ||
 			this.gettedPixel instanceof StormGraph) { // selection is a node?
-			var dir = stormEngineC.utils.getDraggingScreenVector(); 
-			stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));
+			var dir = this._sec.utils.getDraggingScreenVector(); 
+			this._sec.getSelectedNode().setPosition(this._sec.getSelectedNode().getPosition().add(dir));
 		} else if(this.gettedPixel > 0) { // selection is transform axis of a selected node?
 			var selOver = this.gettedPixel;
 			if(selOver == 1 || selOver == 2 || selOver == 3) {
 				var dir;
 				if(selOver == 1) {
-					if(stormEngineC.defaultTransformMode == 0)
-						dir = stormEngineC.utils.getDraggingPosXVector(); 
+					if(this._sec.defaultTransformMode == 0)
+						dir = this._sec.utils.getDraggingPosXVector(); 
 					else 
-						dir = stormEngineC.utils.getDraggingPosXVector(false); 
+						dir = this._sec.utils.getDraggingPosXVector(false); 
 				} else if(selOver == 2) {
-					if(stormEngineC.defaultTransformMode == 0)
-						dir = stormEngineC.utils.getDraggingPosYVector(); 
+					if(this._sec.defaultTransformMode == 0)
+						dir = this._sec.utils.getDraggingPosYVector(); 
 					else 
-						dir = stormEngineC.utils.getDraggingPosYVector(false); 
+						dir = this._sec.utils.getDraggingPosYVector(false); 
 				} else if(selOver == 3) {
-					if(stormEngineC.defaultTransformMode == 0)
-						dir = stormEngineC.utils.getDraggingPosZVector(); 
+					if(this._sec.defaultTransformMode == 0)
+						dir = this._sec.utils.getDraggingPosZVector(); 
 					else 
-						dir = stormEngineC.utils.getDraggingPosZVector(false); 
+						dir = this._sec.utils.getDraggingPosZVector(false); 
 				}
-				stormEngineC.getSelectedNode().setPosition(stormEngineC.getSelectedNode().getPosition().add(dir));
+				this._sec.getSelectedNode().setPosition(this._sec.getSelectedNode().getPosition().add(dir));
 			} else if(selOver == 4 || selOver == 5 || selOver == 6) {
 				if(selOver == 4) {
-					if(stormEngineC.defaultTransformMode == 0) {
-						var val = stormEngineC.utils.getDraggingScreenVector(); 
-						stormEngineC.getSelectedNode().setRotationX(val.e[0]+val.e[1]+val.e[2]);
+					if(this._sec.defaultTransformMode == 0) {
+						var val = this._sec.utils.getDraggingScreenVector(); 
+						this._sec.getSelectedNode().setRotationX(val.e[0]+val.e[1]+val.e[2]);
 					} else {
-						var val = stormEngineC.utils.getDraggingScreenVector(); 
-						stormEngineC.getSelectedNode().MROTXYZ = stormEngineC.getSelectedNode().MROTXYZ.setRotationX(val.e[0]+val.e[1]+val.e[2]);
+						var val = this._sec.utils.getDraggingScreenVector(); 
+						this._sec.getSelectedNode().MROTXYZ = this._sec.getSelectedNode().MROTXYZ.setRotationX(val.e[0]+val.e[1]+val.e[2]);
 					}
 				} else if(selOver == 5) {
-					if(stormEngineC.defaultTransformMode == 0) {
-						var val = stormEngineC.utils.getDraggingScreenVector(); 
-						stormEngineC.getSelectedNode().setRotationY(val.e[0]+val.e[1]+val.e[2]);
+					if(this._sec.defaultTransformMode == 0) {
+						var val = this._sec.utils.getDraggingScreenVector(); 
+						this._sec.getSelectedNode().setRotationY(val.e[0]+val.e[1]+val.e[2]);
 					} else {
-						var val = stormEngineC.utils.getDraggingScreenVector(); 
-						stormEngineC.getSelectedNode().MROTXYZ = stormEngineC.getSelectedNode().MROTXYZ.setRotationY(val.e[0]+val.e[1]+val.e[2]);
+						var val = this._sec.utils.getDraggingScreenVector(); 
+						this._sec.getSelectedNode().MROTXYZ = this._sec.getSelectedNode().MROTXYZ.setRotationY(val.e[0]+val.e[1]+val.e[2]);
 					}
 				} else if(selOver == 6) {
-					if(stormEngineC.defaultTransformMode == 0) {
-						var val = stormEngineC.utils.getDraggingScreenVector(); 
-						stormEngineC.getSelectedNode().setRotationZ(val.e[0]+val.e[1]+val.e[2]);
+					if(this._sec.defaultTransformMode == 0) {
+						var val = this._sec.utils.getDraggingScreenVector(); 
+						this._sec.getSelectedNode().setRotationZ(val.e[0]+val.e[1]+val.e[2]);
 					} else {
-						var val = stormEngineC.utils.getDraggingScreenVector(); 
-						stormEngineC.getSelectedNode().MROTXYZ = stormEngineC.getSelectedNode().MROTXYZ.setRotationZ(val.e[0]+val.e[1]+val.e[2]);
+						var val = this._sec.utils.getDraggingScreenVector(); 
+						this._sec.getSelectedNode().MROTXYZ = this._sec.getSelectedNode().MROTXYZ.setRotationZ(val.e[0]+val.e[1]+val.e[2]);
 					}
 				}
-			} else if(stormEngineC.defaultTransformMode == 1 && (selOver == 7 || selOver == 8 || selOver == 9)) {
+			} else if(this._sec.defaultTransformMode == 1 && (selOver == 7 || selOver == 8 || selOver == 9)) {
 				var val;
 				if(selOver == 7) {
-					val = stormEngineC.utils.getDraggingScreenVector();  
-					stormEngineC.getSelectedNode().setScaleX(val.e[0]+val.e[1]+val.e[2]);
+					val = this._sec.utils.getDraggingScreenVector();  
+					this._sec.getSelectedNode().setScaleX(val.e[0]+val.e[1]+val.e[2]);
 				} else if(selOver == 8) {
-					val = stormEngineC.utils.getDraggingScreenVector(); 
-					stormEngineC.getSelectedNode().setScaleY(val.e[0]+val.e[1]+val.e[2]);
+					val = this._sec.utils.getDraggingScreenVector(); 
+					this._sec.getSelectedNode().setScaleY(val.e[0]+val.e[1]+val.e[2]);
 				} else if(selOver == 9) {
-					val = stormEngineC.utils.getDraggingScreenVector(); 
-					stormEngineC.getSelectedNode().setScaleZ(val.e[0]+val.e[1]+val.e[2]);
+					val = this._sec.utils.getDraggingScreenVector(); 
+					this._sec.getSelectedNode().setScaleZ(val.e[0]+val.e[1]+val.e[2]);
 				}
 			}
 		}
@@ -694,9 +694,9 @@ StormGLContext.prototype.drag = function() {
 
 /** @private */
 StormGLContext.prototype.unpick = function() {	
-	if(stormEngineC.getSelectedNode() != undefined && stormEngineC.getSelectedNode().selectedNodeIsInEditionMode()) { // selection is edit mode?
-		if(stormEngineC.getSelectedNode() instanceof StormNode && stormEngineC.getSelectedNode().objectType == 'graph') { // selection is type graph
-			var selNode = stormEngineC.getSelectedNode();
+	if(this._sec.getSelectedNode() != undefined && this._sec.getSelectedNode().selectedNodeIsInEditionMode()) { // selection is edit mode?
+		if(this._sec.getSelectedNode() instanceof StormNode && this._sec.getSelectedNode().objectType == 'graph') { // selection is type graph
+			var selNode = this._sec.getSelectedNode();
 			
 			selNode.enableDrag = 0.0;
 			selNode.idToDrag = 0.0;
@@ -718,26 +718,26 @@ StormGLContext.prototype.unpick = function() {
 			selNode.clglWork_links.setArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
 		}
 	} else { // selection not in edit mode
-		stormEngineC.getSelectedNode().bodyActive(true);
-		var dir = stormEngineC.utils.getDraggingScreenVector();
-		stormEngineC.getSelectedNode().bodyApplyImpulse({vector: dir.x(100), milis: 10});
+		this._sec.getSelectedNode().bodyActive(true);
+		var dir = this._sec.utils.getDraggingScreenVector();
+		this._sec.getSelectedNode().bodyApplyImpulse({vector: dir.x(100), milis: 10});
 	}
 			
 			
 	/*this.gettedPixel = this.querySelect(this.nodes);
 	if(this.gettedPixel instanceof StormNode) {
-		if(	stormEngineC.mousePosX == stormEngineC.oldMousePosClickX &&
-			stormEngineC.mousePosY == stormEngineC.oldMousePosClickY) {
-				stormEngineC.selectNode(this.gettedPixel);
+		if(	this._sec.mousePosX == this._sec.oldMousePosClickX &&
+			this._sec.mousePosY == this._sec.oldMousePosClickY) {
+				this._sec.selectNode(this.gettedPixel);
 		}
 		if(this.gettedPixel.onmouseupFunction != undefined) this.gettedPixel.onmouseupFunction();
 	}
 
 	this.gettedPixel = this.querySelect(this.polarityPoints);
 	if(this.gettedPixel instanceof StormPolarityPoint) {
-		if(	stormEngineC.mousePosX == stormEngineC.oldMousePosClickX &&
-			stormEngineC.mousePosY == stormEngineC.oldMousePosClickY) {
-				stormEngineC.selectNode(this.gettedPixel);
+		if(	this._sec.mousePosX == this._sec.oldMousePosClickX &&
+			this._sec.mousePosY == this._sec.oldMousePosClickY) {
+				this._sec.selectNode(this.gettedPixel);
 		}
 		if(this.gettedPixel.onmouseupFunction != undefined) this.gettedPixel.onmouseupFunction();
 	}*/

@@ -335,83 +335,83 @@ StormEngineC.prototype.createWebGL = function(jsonIn) {
 
 /** @private */
 StormEngineC.prototype.loadManager = function() {	
-	this.stormGLContext = new StormGLContext(this.target);
+	this.stormGLContext = new StormGLContext(this, this.target);
 	
-	this.utils = new StormUtils();
+	this.utils = new StormUtils(this);
 	this.clgl = new WebCLGL(this.stormGLContext.gl);
 	
-	this.stormMesh = new StormMesh();
-	this.giv2 = new StormGI();
+	this.stormMesh = new StormMesh(this);
+	this.giv2 = new StormGI(this);
 	
-	this.grid = new StormGrid();
+	this.grid = new StormGrid(this);
 	this.grid.generate(100.0, 1.0);
 	
 	// OVERLAY TRANSFORMS  
 	this.defaultTransform = 0; // 0=position, 1=rotation, 2=scale
 	this.defaultTransformMode = 0; // 0=world, 1=local
 	// ►pos detector and display
-	this.stormGLContext.nodeOverlayPosX = new StormNode();
+	this.stormGLContext.nodeOverlayPosX = new StormNode(this);
 	this.stormGLContext.nodeOverlayPosX.loadBox($V3([0.1,1.0,0.1]));
-	this.stormGLContext.nodeOverlayPosX.setRotationZ(stormEngineC.utils.degToRad(90));
+	this.stormGLContext.nodeOverlayPosX.setRotationZ(this.utils.degToRad(90));
 	
-	this.stormGLContext.nodeOverlayPosY = new StormNode();
+	this.stormGLContext.nodeOverlayPosY = new StormNode(this);
 	this.stormGLContext.nodeOverlayPosY.loadBox($V3([0.1,1.0,0.1]));
-	this.stormGLContext.nodeOverlayPosY.setRotationZ(stormEngineC.utils.degToRad(180));
+	this.stormGLContext.nodeOverlayPosY.setRotationZ(this.utils.degToRad(180));
 	
-	this.stormGLContext.nodeOverlayPosZ = new StormNode();
+	this.stormGLContext.nodeOverlayPosZ = new StormNode(this);
 	this.stormGLContext.nodeOverlayPosZ.loadBox($V3([0.1,1.0,0.1]));
-	this.stormGLContext.nodeOverlayPosZ.setRotationX(stormEngineC.utils.degToRad(-90));
+	this.stormGLContext.nodeOverlayPosZ.setRotationX(this.utils.degToRad(-90));
 	
 	// ►rot detector
-	this.stormGLContext.nodeOverlayRotDetX = new StormNode();
+	this.stormGLContext.nodeOverlayRotDetX = new StormNode(this);
 	this.stormGLContext.nodeOverlayRotDetX.loadTube({height: 0.1, outerRadius: 1.0, innerRadius: 0.9, segments: 14}); 
-	this.stormGLContext.nodeOverlayRotDetX.setRotationZ(stormEngineC.utils.degToRad(90));
+	this.stormGLContext.nodeOverlayRotDetX.setRotationZ(this.utils.degToRad(90));
 	
-	this.stormGLContext.nodeOverlayRotDetY = new StormNode();
+	this.stormGLContext.nodeOverlayRotDetY = new StormNode(this);
 	this.stormGLContext.nodeOverlayRotDetY.loadTube({height: 0.1, outerRadius: 1.0, innerRadius: 0.9, segments: 14}); 
-	//this.stormGLContext.nodeOverlayRotDetY.setRotationZ(stormEngineC.utils.degToRad(90));
+	//this.stormGLContext.nodeOverlayRotDetY.setRotationZ(this.utils.degToRad(90));
 	
-	this.stormGLContext.nodeOverlayRotDetZ = new StormNode();
+	this.stormGLContext.nodeOverlayRotDetZ = new StormNode(this);
 	this.stormGLContext.nodeOverlayRotDetZ.loadTube({height: 0.1, outerRadius: 1.0, innerRadius: 0.9, segments: 14}); 
-	this.stormGLContext.nodeOverlayRotDetZ.setRotationX(stormEngineC.utils.degToRad(-90));
+	this.stormGLContext.nodeOverlayRotDetZ.setRotationX(this.utils.degToRad(-90));
 	// ►rot display
-	this.stormGLContext.nodeOverlayRotX = new StormNode();
+	this.stormGLContext.nodeOverlayRotX = new StormNode(this);
 	this.stormGLContext.nodeOverlayRotX.loadTube({height: 0.01, outerRadius: 1.0, innerRadius: 0.99, segments: 14}); 
-	this.stormGLContext.nodeOverlayRotX.setRotationZ(stormEngineC.utils.degToRad(90));
+	this.stormGLContext.nodeOverlayRotX.setRotationZ(this.utils.degToRad(90));
 	
-	this.stormGLContext.nodeOverlayRotY = new StormNode();
+	this.stormGLContext.nodeOverlayRotY = new StormNode(this);
 	this.stormGLContext.nodeOverlayRotY.loadTube({height: 0.01, outerRadius: 1.0, innerRadius: 0.99, segments: 14}); 
-	//this.stormGLContext.nodeOverlayRotY.setRotationZ(stormEngineC.utils.degToRad(90));
+	//this.stormGLContext.nodeOverlayRotY.setRotationZ(this.utils.degToRad(90));
 	
-	this.stormGLContext.nodeOverlayRotZ = new StormNode();
+	this.stormGLContext.nodeOverlayRotZ = new StormNode(this);
 	this.stormGLContext.nodeOverlayRotZ.loadTube({height: 0.01, outerRadius: 1.0, innerRadius: 0.99, segments: 14}); 
-	this.stormGLContext.nodeOverlayRotZ.setRotationX(stormEngineC.utils.degToRad(-90));
+	this.stormGLContext.nodeOverlayRotZ.setRotationX(this.utils.degToRad(-90));
 	
 	// ►scale detector
-	this.stormGLContext.nodeOverlayScaDetX = new StormNode();
+	this.stormGLContext.nodeOverlayScaDetX = new StormNode(this);
 	this.stormGLContext.nodeOverlayScaDetX.loadBox($V3([0.1,1.0,0.1]));
-	this.stormGLContext.nodeOverlayScaDetX.setRotationZ(stormEngineC.utils.degToRad(90));
+	this.stormGLContext.nodeOverlayScaDetX.setRotationZ(this.utils.degToRad(90));
 	
-	this.stormGLContext.nodeOverlayScaDetY = new StormNode();
+	this.stormGLContext.nodeOverlayScaDetY = new StormNode(this);
 	this.stormGLContext.nodeOverlayScaDetY.loadBox($V3([0.1,1.0,0.1]));
-	this.stormGLContext.nodeOverlayScaDetY.setRotationZ(stormEngineC.utils.degToRad(180));
+	this.stormGLContext.nodeOverlayScaDetY.setRotationZ(this.utils.degToRad(180));
 	
-	this.stormGLContext.nodeOverlayScaDetZ = new StormNode();
+	this.stormGLContext.nodeOverlayScaDetZ = new StormNode(this);
 	this.stormGLContext.nodeOverlayScaDetZ.loadBox($V3([0.1,1.0,0.1]));
-	this.stormGLContext.nodeOverlayScaDetZ.setRotationX(stormEngineC.utils.degToRad(-90));
+	this.stormGLContext.nodeOverlayScaDetZ.setRotationX(this.utils.degToRad(-90));
 	
 	// ►scale display
-	this.stormGLContext.nodeOverlayScaX = new StormNode();
+	this.stormGLContext.nodeOverlayScaX = new StormNode(this);
 	this.stormGLContext.nodeOverlayScaX.loadBox($V3([0.1,0.1,0.1]));
-	this.stormGLContext.nodeOverlayScaX.setRotationZ(stormEngineC.utils.degToRad(90));
+	this.stormGLContext.nodeOverlayScaX.setRotationZ(this.utils.degToRad(90));
 	
-	this.stormGLContext.nodeOverlayScaY = new StormNode();
+	this.stormGLContext.nodeOverlayScaY = new StormNode(this);
 	this.stormGLContext.nodeOverlayScaY.loadBox($V3([0.1,0.1,0.1]));
-	this.stormGLContext.nodeOverlayScaY.setRotationZ(stormEngineC.utils.degToRad(180));
+	this.stormGLContext.nodeOverlayScaY.setRotationZ(this.utils.degToRad(180));
 	
-	this.stormGLContext.nodeOverlayScaZ = new StormNode();
+	this.stormGLContext.nodeOverlayScaZ = new StormNode(this);
 	this.stormGLContext.nodeOverlayScaZ.loadBox($V3([0.1,0.1,0.1]));
-	this.stormGLContext.nodeOverlayScaZ.setRotationX(stormEngineC.utils.degToRad(-90));
+	this.stormGLContext.nodeOverlayScaZ.setRotationX(this.utils.degToRad(-90));
 	
 	// DEFAULT VIEWS
 	this.mainCamera = this.createCamera($V3([0.0, 0.0, 0.0]), 1.0);
@@ -442,34 +442,36 @@ StormEngineC.prototype.loadManager = function() {
 	light.nodeCtxWebGL.visibleOnContext = false;
 	
 	// PHYSICS
-	this.stormJigLibJS = new StormJigLibJS();
+	this.stormJigLibJS = new StormJigLibJS(this);
 	this.stormJigLibJS.createJigLibWorld();
 	
 	
 	// MENU & PANELS
-	this.PanelEnvironment = new StormEngineC_PanelEnvironment();
+	this.actHelpers = new ActionHelpers();
+	
+	this.PanelEnvironment = new StormEngineC_PanelEnvironment(this);
 	this.PanelEnvironment.loadPanel();
-	this.PanelListObjects = new StormEngineC_PanelListObjects();
+	this.PanelListObjects = new StormEngineC_PanelListObjects(this);
 	this.PanelListObjects.loadPanel();
-	this.PanelEditNode = new StormEngineC_PanelEditNode();
+	this.PanelEditNode = new StormEngineC_PanelEditNode(this);
 	this.PanelEditNode.loadPanel();
-	this.PanelMaterials = new StormEngineC_PanelMaterials();
+	this.PanelMaterials = new StormEngineC_PanelMaterials(this);
 	this.PanelMaterials.loadPanel();
-	this.PanelCanvas = new StormEngineC_PanelCanvas();
+	this.PanelCanvas = new StormEngineC_PanelCanvas(this);
 	this.PanelCanvas.loadPanel();
-	this.PanelRenderSettings = new StormEngineC_PanelRenderSettings();
+	this.PanelRenderSettings = new StormEngineC_PanelRenderSettings(this);
 	this.PanelRenderSettings.loadPanel();
-	this.PanelAnimationTimeline = new StormEngineC_PanelAnimationTimeline();
+	this.PanelAnimationTimeline = new StormEngineC_PanelAnimationTimeline(this);
 	this.PanelAnimationTimeline.loadPanel();  
 	//if(window.WebCL != undefined) {
-		this.timelinePathTracing = new StormRender_Timeline();
+		this.timelinePathTracing = new StormRender_Timeline(this);
 		this.timelinePathTracing.loadPanel();
 		
 		this.EMR_Materials = [];this.idxEMR_Materials = 0;
 		this.selectedEMRMaterial = undefined;
-		this.MaterialEditor = new StormRenderEMR_MaterialEditor();
+		this.MaterialEditor = new StormRenderEMR_MaterialEditor(this);
 		this.MaterialEditor.loadMaterialEditor();
-		this.PanelEMRMaterialsDatabase = new StormEngineC_PanelEMRMaterialsDatabase();
+		this.PanelEMRMaterialsDatabase = new StormEngineC_PanelEMRMaterialsDatabase(this);
 		this.PanelEMRMaterialsDatabase.loadPanel();
 	//}
 	
@@ -480,28 +482,28 @@ StormEngineC.prototype.loadManager = function() {
 	
 	
 	// WINDOW & DOCUMENT EVENTS
-	$(document).ready(stormEngineC.updateDivPosition);
-	window.addEventListener("resize", stormEngineC.updateDivPosition, false);
-	window.addEventListener("orientationchange", stormEngineC.updateDivPosition, false); 
+	$(document).ready(this.updateDivPosition.bind(this));
+	window.addEventListener("resize", this.updateDivPosition.bind(this), false);
+	window.addEventListener("orientationchange", this.updateDivPosition.bind(this), false); 
 	
 	this.orientation = {alpha:0.0, beta:0.0, gamma:0.0}
 	if(navigator.accelerometer) { // DEVICEORIENTATION FOR APACHE CORDOVA XYZ
-		navigator.accelerometer.watchAcceleration(stormEngineC.handleOrientationEvent, console.log('NO ACCELEROMETER FOR CORDOVA'), {frequency: 3000});	
+		navigator.accelerometer.watchAcceleration(this.handleOrientationEvent.bind(this), console.log('NO ACCELEROMETER FOR CORDOVA'), {frequency: 3000});	
 	}
 	if(window.DeviceOrientationEvent) { // DEVICEORIENTATION FOR DOM gamma beta alpha
-		window.addEventListener("MozOrientation", stormEngineC.handleOrientationEvent, true);
-		window.addEventListener("deviceorientation", stormEngineC.handleOrientationEvent, true);
+		window.addEventListener("MozOrientation", this.handleOrientationEvent.bind(this), true);
+		window.addEventListener("deviceorientation", this.handleOrientationEvent.bind(this), true);
 	} 	
 	if(window.DeviceMotionEvent) { // DEVICEMOTION FOR DOM event.accelerationIncludingGravity.x event.accelerationIncludingGravity.y event.accelerationIncludingGravity.z
-		window.addEventListener("devicemotion", stormEngineC.handleOrientationEvent, true);
+		window.addEventListener("devicemotion", this.handleOrientationEvent.bind(this), true);
 	}
 	
-	document.body.addEventListener("keydown", function(e) { 
+	document.body.addEventListener("keydown", (function(e) { 
 		//e.preventDefault();   
-		stormEngineC.setZeroSamplesGIVoxels();
+		this.setZeroSamplesGIVoxels();
 		
-		if(stormEngineC.preloads == 0) stormEngineC.defaultCamera.controller.keyDownFC(e);
-	},false);
+		if(this.preloads == 0) this.defaultCamera.controller.keyDownFC(e);
+	}).bind(this), false);
 	
 	document.body.addEventListener("keyup", (function(e) {
 		//e.preventDefault();
@@ -526,41 +528,41 @@ StormEngineC.prototype.loadManager = function() {
 	    		this.grid.show();
 	    	}
 	    } else if(String.fromCharCode(e.keyCode) == "1") {
-	    	stormEngineC.stormGLContext.drawElementsMode(4);
+	    	this.stormGLContext.drawElementsMode(4);
 	    } else if(String.fromCharCode(e.keyCode) == "2") {
-	    	stormEngineC.stormGLContext.drawElementsMode(1);
+	    	this.stormGLContext.drawElementsMode(1);
 	    }
 		
     	if(this.preloads == 0) this.defaultCamera.controller.keyUpFC(e);
     }).bind(this),false);
 	
-	document.body.addEventListener("mouseup", stormEngineC.mouseup, false);
-	document.body.addEventListener("touchend", stormEngineC.mouseup, false);
-	this.target.addEventListener("mousedown", stormEngineC.mousedown, false);
-	this.target.addEventListener("touchstart", stormEngineC.mousedown, false);
-	document.body.addEventListener("mousemove", stormEngineC.mousemove, false); 
-	document.body.addEventListener("touchmove", stormEngineC.mousemove, false); 
+	document.body.addEventListener("mouseup", this.mouseup.bind(this), false);
+	document.body.addEventListener("touchend", this.mouseup.bind(this), false);
+	this.target.addEventListener("mousedown", this.mousedown.bind(this), false);
+	this.target.addEventListener("touchstart", this.mousedown.bind(this), false);
+	document.body.addEventListener("mousemove", this.mousemove.bind(this), false); 
+	document.body.addEventListener("touchmove", this.mousemove.bind(this), false); 
 	
-	this.target.addEventListener("click", function(e) {
-		stormEngineC.runningAnim = false;
-		stormEngineC.defaultCamera.enableAnimFrames = false;
-    }, false);
+	this.target.addEventListener("click", (function(e) {
+		this.runningAnim = false;
+		this.defaultCamera.enableAnimFrames = false;
+    }).bind(this), false);
 	
-	this.target.addEventListener("mousewheel", function(e) {
+	this.target.addEventListener("mousewheel", (function(e) {
 		e.preventDefault();
-		stormEngineC.setZeroSamplesGIVoxels();
+		this.setZeroSamplesGIVoxels();
 		
-		if(stormEngineC.defaultCamera.controller.mouseWheel != undefined) stormEngineC.defaultCamera.controller.mouseWheel(e); 
-	}, false);
+		if(this.defaultCamera.controller.mouseWheel != undefined) this.defaultCamera.controller.mouseWheel(e);  
+	}).bind(this), false);
 	
 	
 	// CONFIG RESIZE
 	if(this.resizable == 1 || this.resizable == 2) {
 		var ar = (this.resizable == 1) ? true : false;
 		this.$.resizable({	aspectRatio: ar,
-							resize:function(event,ui) {
-								stormEngineC.setWebGLResize(ui.size.width, ui.size.height);  
-							}});
+							resize: (function(event,ui) {
+								this.setWebGLResize(ui.size.width, ui.size.height);  
+							}).bind(this)});
 	}
 	
 	if(this.resizable == 3) { // screen autoadjust(maintain the aspect ratio)
@@ -610,13 +612,13 @@ StormEngineC.prototype.handleOrientationEvent = function(event) {
 	else if(event.accelerationIncludingGravity != undefined && event.accelerationIncludingGravity.z != undefined) alpha = event.accelerationIncludingGravity.z;
 	
 	if(gamma != undefined && beta != undefined && alpha != undefined) {
-		stormEngineC.orientation.gamma = gamma;
-		stormEngineC.orientation.beta = beta;
-		stormEngineC.orientation.alpha = alpha;
+		this.orientation.gamma = gamma;
+		this.orientation.beta = beta;
+		this.orientation.alpha = alpha;
 	}
-	/*console.log('tiltLR GAMMA X: '+stormEngineC.orientation.gamma+'<br />'+
-				'tiltFB BETA Y: '+stormEngineC.orientation.beta+'<br />'+
-				'dir ALPHA Z: '+stormEngineC.orientation.alpha+'<br />');*/
+	/*console.log('tiltLR GAMMA X: '+this.orientation.gamma+'<br />'+
+				'tiltFB BETA Y: '+this.orientation.beta+'<br />'+
+				'dir ALPHA Z: '+this.orientation.alpha+'<br />');*/
 };
 /**
 * Get the device orientation tiltLeftRight (GAMMA X)
@@ -649,8 +651,8 @@ StormEngineC.prototype.transformMode = function(mode) {
 };
 /**  @private */
 StormEngineC.prototype.updateDivPosition = function(e) {
-	stormEngineC.divPositionX = stormEngineC.utils.getElementPosition(stormEngineC.target).x;
-	stormEngineC.divPositionY = stormEngineC.utils.getElementPosition(stormEngineC.target).y;
+	this.divPositionX = this.utils.getElementPosition(this.target).x;
+	this.divPositionY = this.utils.getElementPosition(this.target).y;
 };
 /**  @private */
 StormEngineC.prototype.makePanel = function(panelobj, strAttrID, paneltitle, html) {
@@ -660,69 +662,69 @@ StormEngineC.prototype.makePanel = function(panelobj, strAttrID, paneltitle, htm
 };
 /**  @private */
 StormEngineC.prototype.mouseup = function(e) {
-	stormEngineC.isMouseDown = false;
+	this.isMouseDown = false;
 	//e.preventDefault();
-	stormEngineC.stormGLContext.makeMouseUp = true;
+	this.stormGLContext.makeMouseUp = true;
 	
-	stormEngineC.setZeroSamplesGIVoxels();
+	this.setZeroSamplesGIVoxels();
 	
-	if(stormEngineC.preloads == 0) stormEngineC.defaultCamera.controller.mouseUpFC(e);
-	if(stormEngineC.stormRender != undefined && stormEngineC.renderStop == false) {
-		stormEngineC.pauseRender = false;
-		stormEngineC.stormRender.setCam(stormEngineC.defaultCamera);
-		stormEngineC.stormRender.makeRender();
+	if(this.preloads == 0) this.defaultCamera.controller.mouseUpFC(e);
+	if(this.stormRender != undefined && this.renderStop == false) {
+		this.pauseRender = false;
+		this.stormRender.setCam(this.defaultCamera);
+		this.stormRender.makeRender();
 		
-		stormEngineC.pause = true;
+		this.pause = true;
 	}
 };
 /**  @private */
 StormEngineC.prototype.mousedown = function(e) {
-	stormEngineC.isMouseDown = true;
+	this.isMouseDown = true;
 	
 	if(e.targetTouches != undefined) {
 		//console.log(e.targetTouches)
 		e = e.targetTouches[0];
 		e.button = 0;
-		stormEngineC.identifierTouchMoveOwner = e.identifier;
+		this.identifierTouchMoveOwner = e.identifier;
 		
-		stormEngineC.oldMousePosClickX = stormEngineC.mousePosX;
-		stormEngineC.oldMousePosClickY = stormEngineC.mousePosY; 
+		this.oldMousePosClickX = this.mousePosX;
+		this.oldMousePosClickY = this.mousePosY; 
 		
-		stormEngineC.mousePosX = (e.clientX - stormEngineC.divPositionX);
-		stormEngineC.mousePosY = (e.clientY - stormEngineC.divPositionY);
-		stormEngineC.mouseOldPosX = stormEngineC.mousePosX;   
-		stormEngineC.mouseOldPosY = stormEngineC.mousePosY;  
+		this.mousePosX = (e.clientX - this.divPositionX);
+		this.mousePosY = (e.clientY - this.divPositionY);
+		this.mouseOldPosX = this.mousePosX;   
+		this.mouseOldPosY = this.mousePosY;  
 	}
 	//e.preventDefault(); // si se habilita no funciona sobre un iframe
 	
 	if(e.button == 2) { // right button
-		if(stormEngineC.editMode) {
+		if(this.editMode) {
 			DGE('STORMMENU_MOUSE').style.display = "block";
-			DGE('STORMMENU_MOUSE').style.left = stormEngineC.mousePosX+"px";
-			DGE('STORMMENU_MOUSE').style.top = stormEngineC.mousePosY+"px";
+			DGE('STORMMENU_MOUSE').style.left = this.mousePosX+"px";
+			DGE('STORMMENU_MOUSE').style.top = this.mousePosY+"px";
 			return false;
 		}
 	} else {
-		stormEngineC.oldMousePosClickX = stormEngineC.mousePosX;
-		stormEngineC.oldMousePosClickY = stormEngineC.mousePosY; 
+		this.oldMousePosClickX = this.mousePosX;
+		this.oldMousePosClickY = this.mousePosY; 
 		
-		stormEngineC.stormGLContext.makeMouseDown = true;
+		this.stormGLContext.makeMouseDown = true;
 		
-		stormEngineC.setZeroSamplesGIVoxels();
+		this.setZeroSamplesGIVoxels();
 		
-		stormEngineC.PanelAnimationTimeline.stop();
-		stormEngineC.runningAnim = false;
-		stormEngineC.defaultCamera.enableAnimFrames = false;
-		if(stormEngineC.preloads == 0) {
-			stormEngineC.defaultCamera.controller.lastX = e.screenX;
-			stormEngineC.defaultCamera.controller.lastY = e.screenY;
-			stormEngineC.defaultCamera.controller.mouseDownFC(e);
+		this.PanelAnimationTimeline.stop();
+		this.runningAnim = false;
+		this.defaultCamera.enableAnimFrames = false;
+		if(this.preloads == 0) {
+			this.defaultCamera.controller.lastX = e.screenX;
+			this.defaultCamera.controller.lastY = e.screenY;
+			this.defaultCamera.controller.mouseDownFC(e);
 		}
-		if(stormEngineC.stormRender != undefined && stormEngineC.renderStop == false) {
-			stormEngineC.pauseRender = true;
-			clearTimeout(stormEngineC.stormRender.timerRender);
+		if(this.stormRender != undefined && this.renderStop == false) {
+			this.pauseRender = true;
+			clearTimeout(this.stormRender.timerRender);
 			
-			stormEngineC.pause = false;
+			this.pause = false;
 		}
 	}
 };
@@ -732,7 +734,7 @@ StormEngineC.prototype.mousemove = function(e) {
 	var isMoveOwner = false;
 	if(e.targetTouches != undefined) {
 		for(var n = 0, fn = e.targetTouches.length; n < fn; n++) {
-			if(e.targetTouches[n].identifier == stormEngineC.identifierTouchMoveOwner) {
+			if(e.targetTouches[n].identifier == this.identifierTouchMoveOwner) {
 				//console.log(e.targetTouches)
 				e = e.targetTouches[n];
 				e.button = 0;
@@ -741,17 +743,17 @@ StormEngineC.prototype.mousemove = function(e) {
 		}
 	}
 	if(e.targetTouches == undefined || (e.targetTouches != undefined && isMoveOwner)) {
-		stormEngineC.mouseOldPosX = stormEngineC.mousePosX;   
-		stormEngineC.mouseOldPosY = stormEngineC.mousePosY;
-		stormEngineC.mousePosX = (e.clientX - stormEngineC.divPositionX);
-		stormEngineC.mousePosY = (e.clientY - stormEngineC.divPositionY);
-		//console.log(stormEngineC.mousePosX+' '+stormEngineC.mousePosY);
+		this.mouseOldPosX = this.mousePosX;   
+		this.mouseOldPosY = this.mousePosY;
+		this.mousePosX = (e.clientX - this.divPositionX);
+		this.mousePosY = (e.clientY - this.divPositionY);
+		//console.log(this.mousePosX+' '+this.mousePosY);
 		
-		stormEngineC.stormGLContext.makeMouseMove = true;
+		this.stormGLContext.makeMouseMove = true;
 		
-		if(stormEngineC.defaultCamera.controller.leftButton == 1 || stormEngineC.defaultCamera.controller.middleButton == 1) {
-			stormEngineC.setZeroSamplesGIVoxels();
-			if(stormEngineC.preloads == 0) stormEngineC.defaultCamera.controller.mouseMoveFC(e);
+		if(this.defaultCamera.controller.leftButton == 1 || this.defaultCamera.controller.middleButton == 1) {
+			this.setZeroSamplesGIVoxels();
+			if(this.preloads == 0) this.defaultCamera.controller.mouseMoveFC(e);
 		}
 	}
 };
@@ -762,24 +764,24 @@ StormEngineC.prototype.setZeroSamplesGIVoxels = function() {
 		this.intervalCheckCameraGoalStaticStatus = undefined;
 	}
 	
-	this.intervalCheckCameraGoalStaticStatus = setInterval(function() {
-		stormEngineC.stormGLContext.sampleGiVoxels = 0;  
-		stormEngineC.stormGLContext.cameraIsStatic = 0;  
+	this.intervalCheckCameraGoalStaticStatus = setInterval((function() {
+		this.stormGLContext.sampleGiVoxels = 0;  
+		this.stormGLContext.cameraIsStatic = 0;  
 		//console.log('nostatic');
-		if((stormEngineC.defaultCamera.nodeGoal.getPosition().distance(stormEngineC.cameraGoalCurrentPos) < 0.0001)) {  
-			clearInterval(stormEngineC.intervalCheckCameraGoalStaticStatus);
-			stormEngineC.intervalCheckCameraGoalStaticStatus = undefined;
-			stormEngineC.stormGLContext.sampleGiVoxels = 0;  
-			stormEngineC.stormGLContext.cameraIsStatic = 1;  
+		if((this.defaultCamera.nodeGoal.getPosition().distance(this.cameraGoalCurrentPos) < 0.0001)) {  
+			clearInterval(this.intervalCheckCameraGoalStaticStatus);
+			this.intervalCheckCameraGoalStaticStatus = undefined;
+			this.stormGLContext.sampleGiVoxels = 0;  
+			this.stormGLContext.cameraIsStatic = 1;  
 		}
-		stormEngineC.cameraGoalCurrentPos = stormEngineC.defaultCamera.nodeGoal.getPosition();
-	}, 30);
+		this.cameraGoalCurrentPos = this.defaultCamera.nodeGoal.getPosition();
+	}).bind(this), 30);
 };
 /**  @private */
 StormEngineC.prototype.selectNode = function(node) {
 	this.nearNode = node;   
 	
-	if(this.editMode) {
+	if(this.editMode == true && this.nearNode != undefined) {
 		if(this.PanelAnimationTimeline.De.style.display == 'block')
 			this.PanelAnimationTimeline.drawTimelineGrid();
 			
@@ -794,21 +796,21 @@ StormEngineC.prototype.selectNode = function(node) {
 		
 		this.debugValues = [];
 		if(this.nearNode.objectType == 'line') {
-			var vecTranslation = stormEngineC.nearNode.origin;
-			var vecTranslationE = stormEngineC.nearNode.end; 
+			var vecTranslation = this.nearNode.origin;
+			var vecTranslationE = this.nearNode.end; 
 			this.debugValues = [];
-			stormEngineC.setDebugValue(0, vecTranslation, stormEngineC.nearNode.name+' origin');
-			stormEngineC.setDebugValue(1, vecTranslationE, stormEngineC.nearNode.name+' end');
+			this.setDebugValue(0, vecTranslation, this.nearNode.name+' origin');
+			this.setDebugValue(1, vecTranslationE, this.nearNode.name+' end');
 		} else if(this.nearNode.objectType == 'camera') {
-			var vecGoal = stormEngineC.nearNode.nodeGoal.getPosition();
-			var vecPivot = stormEngineC.nearNode.nodePivot.getPosition();
+			var vecGoal = this.nearNode.nodeGoal.getPosition();
+			var vecPivot = this.nearNode.nodePivot.getPosition();
 			this.debugValues = [];
-			stormEngineC.setDebugValue(0, vecGoal, stormEngineC.nearNode.name+' nodeGoal');
-			stormEngineC.setDebugValue(1, vecPivot, stormEngineC.nearNode.name+' nodePivot');
-		} else if(stormEngineC.nearNode.getPosition != undefined) {    
-			var vec = stormEngineC.nearNode.getPosition();
+			this.setDebugValue(0, vecGoal, this.nearNode.name+' nodeGoal');
+			this.setDebugValue(1, vecPivot, this.nearNode.name+' nodePivot');
+		} else if(this.nearNode.getPosition != undefined) {    
+			var vec = this.nearNode.getPosition();
 			this.debugValues = [];
-			stormEngineC.setDebugValue(0, vec, stormEngineC.nearNode.name); 
+			this.setDebugValue(0, vec, this.nearNode.name); 
 		} 
 	}
 };
@@ -825,9 +827,9 @@ StormEngineC.prototype.getSelectedNode = function() {
 StormEngineC.prototype.go = function() {};
 /** @private */
 StormEngineC.prototype.next = function() {
-	window.requestAnimFrame(stormEngineC.next);
-	stormEngineC.render();
-	stormEngineC.nextFrameLocalTimeline();
+	window.requestAnimFrame(this.next.bind(this));
+	this.render();
+	this.nextFrameLocalTimeline();
 };
 /** @private */
 StormEngineC.prototype.render = function() {
@@ -899,56 +901,56 @@ StormEngineC.prototype.render = function() {
 
 /** @private */
 StormEngineC.prototype.nextFrameLocalTimeline = function() { 
-	for(n = 0, f = stormEngineC.nodes.length; n < f; n++) {
-		if(stormEngineC.nodes[n].animController == 'LocalTimeline' && stormEngineC.nodes[n].playLocalTimeline == true) {  
-			var start = stormEngineC.nodes[n].animMinLayerLocalTimeline[stormEngineC.nodes[n].currLanimL];
-			var end = stormEngineC.nodes[n].animMaxLayerLocalTimeline[stormEngineC.nodes[n].currLanimL];
-			var curr = stormEngineC.nodes[n].animCurrentLayerLocalTimeline[stormEngineC.nodes[n].currLanimL];
+	for(n = 0, f = this.nodes.length; n < f; n++) {
+		if(this.nodes[n].animController == 'LocalTimeline' && this.nodes[n].playLocalTimeline == true) {  
+			var start = this.nodes[n].animMinLayerLocalTimeline[this.nodes[n].currLanimL];
+			var end = this.nodes[n].animMaxLayerLocalTimeline[this.nodes[n].currLanimL];
+			var curr = this.nodes[n].animCurrentLayerLocalTimeline[this.nodes[n].currLanimL];
 			
 			if(curr >= end) {
-				if(stormEngineC.nodes[n].animLoopLayerLocalTimeline[stormEngineC.nodes[n].currLanimL]) {
+				if(this.nodes[n].animLoopLayerLocalTimeline[this.nodes[n].currLanimL]) {
 					curr = start
-					stormEngineC.nodes[n].applyAnimFrame(curr); 
+					this.nodes[n].applyAnimFrame(curr); 
 				}
 			} else {
 				curr = curr+1;
-				stormEngineC.nodes[n].applyAnimFrame(curr); 
+				this.nodes[n].applyAnimFrame(curr); 
 			} 
 			//this.SL.slider("option", "value", parseInt(this.current));  
 		}
 	}
-	for(n = 0, f = stormEngineC.lights.length; n < f; n++) {
-		if(stormEngineC.lights[n].animController == 'LocalTimeline' && stormEngineC.lights[n].playLocalTimeline == true) {  
-			var start = stormEngineC.lights[n].animMinLayerLocalTimeline[stormEngineC.lights[n].currLanimL];
-			var end = stormEngineC.lights[n].animMaxLayerLocalTimeline[stormEngineC.lights[n].currLanimL];
-			var curr = stormEngineC.lights[n].animCurrentLayerLocalTimeline[stormEngineC.lights[n].currLanimL];
+	for(n = 0, f = this.lights.length; n < f; n++) {
+		if(this.lights[n].animController == 'LocalTimeline' && this.lights[n].playLocalTimeline == true) {  
+			var start = this.lights[n].animMinLayerLocalTimeline[this.lights[n].currLanimL];
+			var end = this.lights[n].animMaxLayerLocalTimeline[this.lights[n].currLanimL];
+			var curr = this.lights[n].animCurrentLayerLocalTimeline[this.lights[n].currLanimL];
 			
 			if(curr >= end) {
-				if(stormEngineC.lights[n].animLoopLayerLocalTimeline[stormEngineC.lights[n].currLanimL]) {
+				if(this.lights[n].animLoopLayerLocalTimeline[this.lights[n].currLanimL]) {
 					curr = start
-					stormEngineC.lights[n].applyAnimFrame(curr); 
+					this.lights[n].applyAnimFrame(curr); 
 				}
 			} else {
 				curr = curr+1;
-				stormEngineC.lights[n].applyAnimFrame(curr); 
+				this.lights[n].applyAnimFrame(curr); 
 			} 
 			//this.SL.slider("option", "value", parseInt(this.current));  
 		}
 	}
-	for(n = 0, f = stormEngineC.nodesCam.length; n < f; n++) {
-		if(stormEngineC.nodesCam[n].animController == 'LocalTimeline' && stormEngineC.nodesCam[n].playLocalTimeline == true) {  
-			var start = stormEngineC.nodesCam[n].animMinLayerLocalTimeline[stormEngineC.nodesCam[n].currLanimL];
-			var end = stormEngineC.nodesCam[n].animMaxLayerLocalTimeline[stormEngineC.nodesCam[n].currLanimL];
-			var curr = stormEngineC.nodesCam[n].animCurrentLayerLocalTimeline[stormEngineC.nodesCam[n].currLanimL];
+	for(n = 0, f = this.nodesCam.length; n < f; n++) {
+		if(this.nodesCam[n].animController == 'LocalTimeline' && this.nodesCam[n].playLocalTimeline == true) {  
+			var start = this.nodesCam[n].animMinLayerLocalTimeline[this.nodesCam[n].currLanimL];
+			var end = this.nodesCam[n].animMaxLayerLocalTimeline[this.nodesCam[n].currLanimL];
+			var curr = this.nodesCam[n].animCurrentLayerLocalTimeline[this.nodesCam[n].currLanimL];
 			
 			if(curr >= end) {
-				if(stormEngineC.nodesCam[n].animLoopLayerLocalTimeline[stormEngineC.nodesCam[n].currLanimL]) {
+				if(this.nodesCam[n].animLoopLayerLocalTimeline[this.nodesCam[n].currLanimL]) {
 					curr = start
-					stormEngineC.nodesCam[n].applyAnimFrame(curr); 
+					this.nodesCam[n].applyAnimFrame(curr); 
 				}
 			} else {
 				curr = curr+1;
-				stormEngineC.nodesCam[n].applyAnimFrame(curr);  
+				this.nodesCam[n].applyAnimFrame(curr);  
 			} 
 			//this.SL.slider("option", "value", parseInt(this.current));  
 		}
@@ -965,62 +967,62 @@ var ws = undefined;
 StormEngineC.prototype.upWebsocket = function(ip, port) {
 	ws = io.connect('ws://'+ip+':'+port+'/');
 	
-	ws.on('newconnection', function(data) {
-		if(data.netID != stormEngineC.netID ) {
+	ws.on('newconnection', (function(data) {
+		if(data.netID != this.netID ) {
 			console.log(data);
 			
-			var node = new StormNode();
-			node.idNum = stormEngineC.nodes.length;
-			node.name = 'node '+stormEngineC.idxNodes++;
-			stormEngineC.nodes.push(node);
+			var node = new StormNode(this);
+			node.idNum = this.nodes.length;
+			node.name = 'node '+this.idxNodes++;
+			this.nodes.push(node);
 			
 			node.netID = data.netID;
-			stormEngineC.arrNetUsers.push({	'netID':data.netID,
+			this.arrNetUsers.push({	'netID':data.netID,
 											'node':node});
-			var mesh = new StormMesh();
+			var mesh = new StormMesh(this);
 			//mesh.loadBox(node, $V3([1.0,1.0,1.0]));
 			//node.setAlbedo($V3([1.0,1.0,1.0])); 
 			mesh.loadBox($V3([1.0,1.0,1.0])); // the mesh to be used should be placed at the point 0,0,0 before exporting
 			node.setPosition($V3([-13.0, 2.0, -30.0]));
 		}
-	});
+	}).bind(this));
 	
 	ws.emit('getNetNodes', {
-		notinuse: stormEngineC.nodes.length
+		notinuse: this.nodes.length
 	});
-	ws.on('getNetNodesResponse', function(data) { // clientes que se encuentran conectados
-		var node = new StormNode();
-		node.idNum = stormEngineC.nodes.length;
-		node.name = 'node '+stormEngineC.idxNodes++;
-		stormEngineC.nodes.push(node);
+	ws.on('getNetNodesResponse', (function(data) { // clientes que se encuentran conectados
+		var node = new StormNode(this);
+		node.idNum = this.nodes.length;
+		node.name = 'node '+this.idxNodes++;
+		this.nodes.push(node);
 		
 		node.netID = data.netID;
-		stormEngineC.arrNetUsers.push({	'netID':data.netID,
+		this.arrNetUsers.push({	'netID':data.netID,
 										'node':node});
 		
-		var mesh = new StormMesh();
+		var mesh = new StormMesh(this);
 		//mesh.loadBox(node, $V3([1.0,1.0,1.0]));
 		//node.setAlbedo($V3([1.0,1.0,1.0])); 
 		mesh.loadBox($V3([1.0,1.0,1.0])); // the mesh to be used should be placed at the point 0,0,0 before exporting
 		node.setPosition($V3([-13.0, 2.0, -30.0]));
-	});
+	}).bind(this));
 	
 	
-	ws.on('newNetNodeConnectionResponse', function(data) { // data.netID = my net id
-		stormEngineC.netID = data.netID;
+	ws.on('newNetNodeConnectionResponse', (function(data) { // data.netID = my net id
+		this.netID = data.netID;
 		
-		stormEngineC.netNode = new StormNode();
-		stormEngineC.netNode.idNum = stormEngineC.nodes.length;
-		stormEngineC.netNode.name = 'node '+stormEngineC.idxNodes++;
-		stormEngineC.nodes.push(stormEngineC.netNode);
+		this.netNode = new StormNode(this);
+		this.netNode.idNum = this.nodes.length;
+		this.netNode.name = 'node '+this.idxNodes++;
+		this.nodes.push(this.netNode);
 		
-		stormEngineC.netNode.netID = data.netID;
-		stormEngineC.arrNetUsers.push({	'netID':data.netID,
-										'node':stormEngineC.netNode});
+		this.netNode.netID = data.netID;
+		this.arrNetUsers.push({	'netID':data.netID,
+										'node':this.netNode});
 										
-		stormEngineC.newNetNodeConnectionResponse(stormEngineC.netNode); 
+		this.newNetNodeConnectionResponse(this.netNode); 
 		//alert(data.netID);
-	});
+	}).bind(this));
 	
 	/*ws.onerror = function(error) {
 		alert(error); 
@@ -1029,25 +1031,25 @@ StormEngineC.prototype.upWebsocket = function(ip, port) {
 
 	};*/
 	
-	ws.on('serverNodeData', function(data) {
+	ws.on('serverNodeData', (function(data) {
 		//alert('serverNodeData '+data.netID);
-		if(data.netID != stormEngineC.netID ) {
+		if(data.netID != this.netID ) {
 			var nodeIdNum = 0;
-			for(var n = 0, f = stormEngineC.arrNetUsers.length; n < f; n++) {
-				if(stormEngineC.arrNetUsers[n].netID == data.netID) {
-					nodeIdNum = stormEngineC.arrNetUsers[n].node.idNum;
+			for(var n = 0, f = this.arrNetUsers.length; n < f; n++) {
+				if(this.arrNetUsers[n].netID == data.netID) {
+					nodeIdNum = this.arrNetUsers[n].node.idNum;
 					break;
 				}
 			}
-			for(var n = 0, f = stormEngineC.nodes.length; n < f; n++) {
-				if(stormEngineC.nodes[n].idNum == nodeIdNum) {
-					stormEngineC.nodes[n].MPOS = $M16([
+			for(var n = 0, f = this.nodes.length; n < f; n++) {
+				if(this.nodes[n].idNum == nodeIdNum) {
+					this.nodes[n].MPOS = $M16([
 									  data.WM0, data.WM1, data.WM2, data.WM3,
 									  data.WM4, data.WM5, data.WM6, data.WM7,
 									  data.WM8, data.WM9, data.WM10, data.WM11,
 									  data.WM12, data.WM13, data.WM14, data.WM15
 									]);
-					stormEngineC.nodes[n].MROTXYZ = $M16([
+					this.nodes[n].MROTXYZ = $M16([
 									  data.RM0, data.RM1, data.RM2, data.RM3,
 									  data.RM4, data.RM5, data.RM6, data.RM7,
 									  data.RM8, data.RM9, data.RM10, data.RM11,
@@ -1058,40 +1060,40 @@ StormEngineC.prototype.upWebsocket = function(ip, port) {
 			
 			
 		}
-	});	
-	ws.on('disconnectNetNode', function(data) {
+	}).bind(this));	
+	ws.on('disconnectNetNode', (function(data) {
 		//alert('disconnectNetNode '+data.netID);
 		var nodeIdNum = 0;
-		for(var n = 0, f = stormEngineC.arrNetUsers.length; n < f; n++) {
-			if(stormEngineC.arrNetUsers[n].netID == data.netID) {
-				nodeIdNum = stormEngineC.arrNetUsers[n].node.idNum;
+		for(var n = 0, f = this.arrNetUsers.length; n < f; n++) {
+			if(this.arrNetUsers[n].netID == data.netID) {
+				nodeIdNum = this.arrNetUsers[n].node.idNum;
 				break;
 			}
 		}
-		for(var n = 0, f = stormEngineC.nodes.length; n < f; n++) {
-			if(stormEngineC.nodes[n].idNum == nodeIdNum) {
-				stormEngineC.nodes[n].visibleOnContext = false; 
+		for(var n = 0, f = this.nodes.length; n < f; n++) {
+			if(this.nodes[n].idNum == nodeIdNum) {
+				this.nodes[n].visibleOnContext = false; 
 			}
 		}
-	});
+	}).bind(this));
 	
-	ws.on('setPrincipalNetNodeResponse', function(data) {
+	ws.on('setPrincipalNetNodeResponse', (function(data) {
 		//alert('setPrincipalNetNodeResponse '+data.netID);
 		var nodeIdNum = 0;
-		for(var n = 0, f = stormEngineC.arrNetUsers.length; n < f; n++) {
-			if(stormEngineC.arrNetUsers[n].netID == data.netID) {
-				nodeIdNum = stormEngineC.arrNetUsers[n].node.idNum;
+		for(var n = 0, f = this.arrNetUsers.length; n < f; n++) {
+			if(this.arrNetUsers[n].netID == data.netID) {
+				nodeIdNum = this.arrNetUsers[n].node.idNum;
 				break;
 			}
 		}
-		for(var n = 0, f = stormEngineC.nodes.length; n < f; n++) {
-			if(stormEngineC.nodes[n].idNum == nodeIdNum) {
-				if(data.netID != stormEngineC.netID) { 
-					stormEngineC.globalResponsePrincipalNetNode(stormEngineC.nodes[n]);
+		for(var n = 0, f = this.nodes.length; n < f; n++) {
+			if(this.nodes[n].idNum == nodeIdNum) {
+				if(data.netID != this.netID) { 
+					this.globalResponsePrincipalNetNode(this.nodes[n]);
 				}
 			}
 		}
-	});
+	}).bind(this));
 };
 
 /**
@@ -1099,10 +1101,10 @@ StormEngineC.prototype.upWebsocket = function(ip, port) {
 * @returns {StormNode}
 */
 StormEngineC.prototype.createNode = function() {
-	var node = new StormNode();
+	var node = new StormNode(this);
 	node.idNum = this.nodes.length;
 	node.name = 'node '+this.idxNodes++;
-	var material = stormEngineC.createMaterial();
+	var material = this.createMaterial();
 	node.materialUnits[0] = material; 
 	this.nodes.push(node);
 	return node;
@@ -1114,34 +1116,34 @@ StormEngineC.prototype.createNode = function() {
 */
 StormEngineC.prototype.createNetNode = function() { // llamar al final del código, después de cargar todos los nodos estáticos
 	if(this.GAESceneChannel != undefined) {
-		stormEngineC.netID = stormEngineC.netID; // my net id
+		this.netID = this.netID; // my net id
 		
-		stormEngineC.netNode = new StormNode();
-		stormEngineC.netNode.idNum = stormEngineC.nodes.length;
-		stormEngineC.netNode.name = 'node '+stormEngineC.idxNodes++;
-		var material = stormEngineC.createMaterial();
-		stormEngineC.netNode.materialUnits[0] = material; 
-		stormEngineC.nodes.push(stormEngineC.netNode);
+		this.netNode = new StormNode(this);
+		this.netNode.idNum = this.nodes.length;
+		this.netNode.name = 'node '+this.idxNodes++;
+		var material = this.createMaterial();
+		this.netNode.materialUnits[0] = material; 
+		this.nodes.push(this.netNode);
 		
-		stormEngineC.netNode.netID = stormEngineC.netID;
-		stormEngineC.arrNetUsers.push({	'netID':stormEngineC.netID,
-										'node':stormEngineC.netNode});
+		this.netNode.netID = this.netID;
+		this.arrNetUsers.push({	'netID':this.netID,
+								'node':this.netNode});
 										
-		stormEngineC.newNetNodeConnectionResponse(stormEngineC.netNode); 
+		this.newNetNodeConnectionResponse(this.netNode); 
 	} else {
 		if(ws != undefined && (ws.socket.connected == true || ws.socket.connecting == true)) {
 			ws.emit('newNetNode', {
-				notinuse: stormEngineC.nodes.length
+				notinuse: this.nodes.length
 			});
 		} else {
-			this.netNode = new StormNode();
-			this.netNode.idNum = stormEngineC.nodes.length;
-			this.netNode.name = 'node '+stormEngineC.idxNodes++;
-			var material = stormEngineC.createMaterial();
+			this.netNode = new StormNode(this);
+			this.netNode.idNum = this.nodes.length;
+			this.netNode.name = 'node '+this.idxNodes++;
+			var material = this.createMaterial();
 			this.netNode.materialUnits[0] = material; 
-			stormEngineC.nodes.push(this.netNode);
+			this.nodes.push(this.netNode);
 		
-			stormEngineC.newNetNodeConnectionResponse(this.netNode); 
+			this.newNetNodeConnectionResponse(this.netNode); 
 		}
 	}
 };
@@ -1152,8 +1154,8 @@ StormEngineC.prototype.createNetNode = function() { // llamar al final del códi
 */
 StormEngineC.prototype.getArrayNetNodes = function() {
 	var arrNetNodes = [];
-	for(var n = 0, f = stormEngineC.arrNetUsers.length; n < f; n++) {
-		arrNetNodes.push(stormEngineC.arrNetUsers[n].node);
+	for(var n = 0, f = this.arrNetUsers.length; n < f; n++) {
+		arrNetNodes.push(this.arrNetUsers[n].node);
 	}
 	return arrNetNodes;
 };
@@ -1163,9 +1165,9 @@ StormEngineC.prototype.getArrayNetNodes = function() {
 * @type Void
 */
 StormEngineC.prototype.setPrincipalNetNode = function() {
-	//alert(stormEngineC.netID);
+	//alert(this.netID);
 	ws.emit('setPrincipalNetNode', {
-		netID: stormEngineC.netID
+		netID: this.netID
 	});
 };
 
@@ -1191,11 +1193,11 @@ StormEngineC.prototype.upWebsocketPathTracing = function(ip, port) {
 	});
 	
 	wsPathTracing.emit('newNetNode', {
-		notinuse: stormEngineC.nodes.length
+		notinuse: this.nodes.length
 	});
 		
-	wsPathTracing.on('newNetNodeConnectionResponse', function(data) { // data.netID = my net id
-		stormEngineC.netID = data.netID;
+	wsPathTracing.on('newNetNodeConnectionResponse', (function(data) { // data.netID = my net id
+		this.netID = data.netID;
 		if(data.netID == 0) {
 			$('#DIVID_StormRenderTypeNet').html('<span style="font-weight:bold;color:green;">CLOUD RENDER DETECTED</span><br /><span style="font-weight:bold;color:#000;">HOST MACHINE</span>');
 		} else {
@@ -1204,83 +1206,83 @@ StormEngineC.prototype.upWebsocketPathTracing = function(ip, port) {
 			$('#BTNID_StormRenderBtn').html("Collaborate");
 			$('#BTNID_StormRenderTimelineBtn').css('display','none');
 		}
-		stormEngineC.arrNetUsers.push({	'netID':data.netID});
-	});
+		this.arrNetUsers.push({	'netID':data.netID});
+	}).bind(this));
 		
-	wsPathTracing.on('newconnection', function(data) {
-		if(data.netID != stormEngineC.netID ) {
+	wsPathTracing.on('newconnection', (function(data) {
+		if(data.netID != this.netID ) {
 			console.log(data);
 			
-			stormEngineC.arrNetUsers.push({	'netID':data.netID});
+			this.arrNetUsers.push({	'netID':data.netID});
 		}
-	});
+	}).bind(this));
 	
 	wsPathTracing.emit('getNetNodes', {
-		notinuse: stormEngineC.nodes.length
+		notinuse: this.nodes.length
 	});
-	wsPathTracing.on('getNetNodesResponse', function(data) { // clientes que se encuentran conectados
-		stormEngineC.arrNetUsers.push({	'netID':data.netID});
-	});
+	wsPathTracing.on('getNetNodesResponse', (function(data) { // clientes que se encuentran conectados
+		this.arrNetUsers.push({	'netID':data.netID});
+	}).bind(this));
 	
-	wsPathTracing.on('setFrameTotalColorXResponse', function(data) {
-		if(stormEngineC.netID == 0) {
-			if(stormEngineC.stormRender != undefined) stormEngineC.stormRender.receiveFromClient = 1;
+	wsPathTracing.on('setFrameTotalColorXResponse', (function(data) {
+		if(this.netID == 0) {
+			if(this.stormRender != undefined) this.stormRender.receiveFromClient = 1;
 			$('#DIVID_StormRenderNetReceive').html('<span style="color:blue;">- Receiving <span style="font-weight:bold;">FRAME '+data.frameNumber+'</span> from <span style="font-weight:bold;">CLIENT '+data.netID+'</span></span>');
-			stormEngineC.timelinePathTracing.setFrameTotalColorX(data.frameNumber, data.arrayTotalColorX, data.width, data.height, data.offset);
+			this.timelinePathTracing.setFrameTotalColorX(data.frameNumber, data.arrayTotalColorX, data.width, data.height, data.offset);
 		}
-	});	
-	wsPathTracing.on('setFrameTotalColorYResponse', function(data) {
-		if(stormEngineC.netID == 0) {
-			if(stormEngineC.stormRender != undefined) stormEngineC.stormRender.receiveFromClient = 1;
-			stormEngineC.timelinePathTracing.setFrameTotalColorY(data.frameNumber, data.arrayTotalColorY, data.offset);
+	}).bind(this));	
+	wsPathTracing.on('setFrameTotalColorYResponse', (function(data) {
+		if(this.netID == 0) {
+			if(this.stormRender != undefined) this.stormRender.receiveFromClient = 1;
+			this.timelinePathTracing.setFrameTotalColorY(data.frameNumber, data.arrayTotalColorY, data.offset);
 		}
-	});	
-	wsPathTracing.on('setFrameTotalColorZResponse', function(data) {
-		if(stormEngineC.netID == 0) {
-			if(stormEngineC.stormRender != undefined) stormEngineC.stormRender.receiveFromClient = 1;
-			stormEngineC.timelinePathTracing.setFrameTotalColorZ(data.frameNumber, data.arrayTotalColorZ, data.offset);
+	}).bind(this));	
+	wsPathTracing.on('setFrameTotalColorZResponse', (function(data) {
+		if(this.netID == 0) {
+			if(this.stormRender != undefined) this.stormRender.receiveFromClient = 1;
+			this.timelinePathTracing.setFrameTotalColorZ(data.frameNumber, data.arrayTotalColorZ, data.offset);
 		}
-	});	
-	wsPathTracing.on('setFrameTotalShadowResponse', function(data) {
-		if(stormEngineC.netID == 0) {
-			if(stormEngineC.stormRender != undefined) stormEngineC.stormRender.receiveFromClient = 1;
-			stormEngineC.timelinePathTracing.setFrameTotalShadow(data.frameNumber, data.arrayTotalShadow, data.offset);
+	}).bind(this));	
+	wsPathTracing.on('setFrameTotalShadowResponse', (function(data) {
+		if(this.netID == 0) {
+			if(this.stormRender != undefined) this.stormRender.receiveFromClient = 1;
+			this.timelinePathTracing.setFrameTotalShadow(data.frameNumber, data.arrayTotalShadow, data.offset);
 		}
-	});	
-	wsPathTracing.on('setFrameSampleResponse', function(data) {
-		if(stormEngineC.netID == 0) {
-			if(stormEngineC.stormRender != undefined) stormEngineC.stormRender.receiveFromClient = 0;
+	}).bind(this));	
+	wsPathTracing.on('setFrameSampleResponse', (function(data) {
+		if(this.netID == 0) {
+			if(this.stormRender != undefined) this.stormRender.receiveFromClient = 0;
 			$('#DIVID_StormRenderNetReceive').html('');
-			stormEngineC.timelinePathTracing.setFrameSample(data.frameNumber, data.arraySample, true);
+			this.timelinePathTracing.setFrameSample(data.frameNumber, data.arraySample, true);
 		}
-	});	
-	wsPathTracing.on('disconnectNetNode', function(data) {
+	}).bind(this));	
+	wsPathTracing.on('disconnectNetNode', (function(data) {
 		//alert('disconnectNetNode '+data.netID);
-	});
-	wsPathTracing.on('getFrame', function(data) {		
-		if(data.netID == stormEngineC.netID && stormEngineC.netID != 0) {
-			if(stormEngineC.pauseRender == false) {
-				stormEngineC.stormRender.sendFrameToHost = 1;
+	}).bind(this));
+	wsPathTracing.on('getFrame', (function(data) {		
+		if(data.netID == this.netID && this.netID != 0) {
+			if(this.pauseRender == false) {
+				this.stormRender.sendFrameToHost = 1;
 			} else {
 				wsPathTracing.emit('hostUnhold', {
-					notinuse: stormEngineC.nodes.length
+					notinuse: this.nodes.length
 				});
 			}
 		}
-	});
-	wsPathTracing.on('nextFrame', function(data) {		
-		if(data.netID == stormEngineC.netID && stormEngineC.netID != 0) {
-			stormEngineC.stormRender.nextFrame();
+	}).bind(this));
+	wsPathTracing.on('nextFrame', (function(data) {		
+		if(data.netID == this.netID && this.netID != 0) {
+			this.stormRender.nextFrame();
 		}
-	});
-	wsPathTracing.on('getRenderDimensionsResponse', function(data) {
-		if(stormEngineC.netID == 0) {
+	}).bind(this));
+	wsPathTracing.on('getRenderDimensionsResponse', (function(data) {
+		if(this.netID == 0) {
 			var jsonS = [];
-			for(var n = stormEngineC.defaultCamera.animMin, f = stormEngineC.defaultCamera.animMax; n <= f; n++) {
-				if(stormEngineC.defaultCamera.nodePivot.animWMatrix[n] != undefined) {
+			for(var n = this.defaultCamera.animMin, f = this.defaultCamera.animMax; n <= f; n++) {
+				if(this.defaultCamera.nodePivot.animWMatrix[n] != undefined) {
 					jsonS.push({'frame':n,
-								'WMatrixPivot':stormEngineC.defaultCamera.nodePivot.animWMatrix[n].e,
-								'WMatrixGoal':stormEngineC.defaultCamera.nodeGoal.animWMatrix[n].e});
+								'WMatrixPivot':this.defaultCamera.nodePivot.animWMatrix[n].e,
+								'WMatrixGoal':this.defaultCamera.nodeGoal.animWMatrix[n].e});
 				}
 			}
 			wsPathTracing.emit('sendRenderDimensions', {
@@ -1290,9 +1292,9 @@ StormEngineC.prototype.upWebsocketPathTracing = function(ip, port) {
 				camMatrixFrames: jsonS
 			}); 
 		}
-	});
-	wsPathTracing.on('sendRenderDimensionsResponse', function(data) {	
-		if(data.netID == stormEngineC.netID && stormEngineC.netID != 0) {
+	}).bind(this));
+	wsPathTracing.on('sendRenderDimensionsResponse', (function(data) {	
+		if(data.netID == this.netID && this.netID != 0) {
 			//console.log(data.camMatrixFrames);
 			for(var n = 0, f = data.camMatrixFrames.length; n < f; n++) {
 				var arrPivot = [];
@@ -1303,11 +1305,11 @@ StormEngineC.prototype.upWebsocketPathTracing = function(ip, port) {
 				$.each(data.camMatrixFrames[n].WMatrixGoal, function(k,v){
 					arrGoal.push(v);
 				});
-				stormEngineC.defaultCamera.setAnimKey(data.camMatrixFrames[n].frame, $M16(arrPivot), $M16(arrGoal));
+				this.defaultCamera.setAnimKey(data.camMatrixFrames[n].frame, $M16(arrPivot), $M16(arrGoal));
 			}
-			stormEngineC.PanelRenderSettings.render(data.width, data.height);
+			this.PanelRenderSettings.render(data.width, data.height);
 		}
-	});
+	}).bind(this));
 };
 
 /**
@@ -1315,7 +1317,7 @@ StormEngineC.prototype.upWebsocketPathTracing = function(ip, port) {
 * @returns {StormMaterial}
 */
 StormEngineC.prototype.createMaterial = function() {
-	var material = new StormMaterial();
+	var material = new StormMaterial(this);
 	material.idNum = this.materials.length;
 	material.name = 'material '+this.idxMaterials++;
 	this.materials.push(material);
@@ -1327,7 +1329,7 @@ StormEngineC.prototype.createMaterial = function() {
 * @returns {StormGroupNodes}
 */
 StormEngineC.prototype.createGroup = function() {
-	var group = new StormGroupNodes();
+	var group = new StormGroupNodes(this);
 	group.idNum = this.groups.length;
 	group.name = 'group '+this.idxGroups++;
 	this.groups.push(group);
@@ -1343,16 +1345,16 @@ StormEngineC.prototype.createGroup = function() {
 StormEngineC.prototype.createCamera = function(vec, distance) {
 	var dist = (distance != undefined) ? distance : 1.0;
 	
-	var nodeCam = new StormCamera();
+	var nodeCam = new StormCamera(this);
 	nodeCam.idNum = this.nodesCam.length;
 	nodeCam.name = 'camera '+this.idxNodesCam++;
 	this.nodesCam.push(nodeCam);
 	
-	nodeCam.nodePivot = new StormNode();
+	nodeCam.nodePivot = new StormNode(this);
 	nodeCam.nodePivot.setPosition((vec == undefined)?$V3([0.0, 0.0, 0.0]):vec);
-	nodeCam.nodeGoal = new StormNode();	 
+	nodeCam.nodeGoal = new StormNode(this);	 
 	
-	nodeCam.nodePivot.nodeFocus = stormEngineC.createNode();
+	nodeCam.nodePivot.nodeFocus = this.createNode();
 	nodeCam.nodePivot.nodeFocus.systemVisible = false; 
 	nodeCam.nodePivot.nodeFocus.name = nodeCam.name+' focus';
 	nodeCam.nodePivot.nodeFocus.visibleOnContext = false; 
@@ -1379,10 +1381,10 @@ StormEngineC.prototype.createCamera = function(vec, distance) {
 * @param {StormV3} [vecEndColor=$V3([0.0,0.0,0.0])] Color of end point
 */
 StormEngineC.prototype.createLine = function(vecOrigin, vecEnd, vecOriginColor, vecEndColor) {
-	var cutLine = new StormLine();
+	var cutLine = new StormLine(this);
 	cutLine.idNum = this.lines.length;
 	cutLine.name = 'line '+this.idxLines++;
-	//var material = stormEngineC.createMaterial();
+	//var material = this.createMaterial();
 	//cutLine.materialUnits[0] = material; 
 	this.lines.push(cutLine);
 	
@@ -1442,20 +1444,20 @@ StormEngineC.prototype.createLight = function(jsonIn) {
 	}
 	
 	if(create) {
-		var light = new StormLight();
+		var light = new StormLight(this);
 		light.idNum = this.lights.length;
 		light.name = 'light '+jsonIn.type+' '+this.idxLights++;
-		var material = stormEngineC.createMaterial();
+		var material = this.createMaterial();
 		light.materialUnits[0] = material; 
 		this.lights.push(light); 
 		
-		light.nodeCtxWebGL = stormEngineC.createNode();//malla nodeCtxWebGL para luz 
+		light.nodeCtxWebGL = this.createNode();//malla nodeCtxWebGL para luz 
 		light.nodeCtxWebGL.visibleOnContext = true; 
 		light.nodeCtxWebGL.visibleOnRender = false; 
-		var meshCtxWebGL = new StormMesh();
+		var meshCtxWebGL = new StormMesh(this);
 		meshCtxWebGL.loadBox(light.nodeCtxWebGL, $V3([0.1,0.1,0.1])); 
 		
-		var mesh = new StormMesh();
+		var mesh = new StormMesh(this);
 		mesh.loadBox(light, $V3([0.03,0.03,0.03])); 
 		
 		light.type = jsonIn.type; // sun | spot
@@ -1493,10 +1495,10 @@ StormEngineC.prototype.createLight = function(jsonIn) {
 * 	@param {Float} [jsonIn.force=0.5] The force.
 */
 StormEngineC.prototype.createPolarityPoint = function(jsonIn) {
-	var polarityPoint = new StormPolarityPoint(jsonIn);
+	var polarityPoint = new StormPolarityPoint(this, jsonIn);
 	polarityPoint.idNum = this.polarityPoints.length;
 	polarityPoint.name = 'polarityPoint '+this.idxPolarityPoint++;
-	var material = stormEngineC.createMaterial();  
+	var material = this.createMaterial();  
 	polarityPoint.materialUnits[0] = material; 
 	polarityPoint.loadSphere({color: polarityPoint.color, radius: 0.5});   
 	this.polarityPoints.push(polarityPoint); 
@@ -1509,10 +1511,10 @@ StormEngineC.prototype.createPolarityPoint = function(jsonIn) {
 * 	@param {StormV3} [jsonIn.direction=$V3([0.0,-9.8,0.0])] The direction.
 */
 StormEngineC.prototype.createForceField = function(jsonIn) {
-	var forceField = new StormForceField(jsonIn);
+	var forceField = new StormForceField(this, jsonIn);
 	forceField.idNum = this.forceFields.length;
 	forceField.name = 'forceField '+this.idxForceField++;
-	var material = stormEngineC.createMaterial();
+	var material = this.createMaterial();
 	forceField.materialUnits[0] = material; 
 	this.forceFields.push(forceField); 
 	return forceField;
@@ -1522,10 +1524,10 @@ StormEngineC.prototype.createForceField = function(jsonIn) {
 * @returns {StormForceField}
 */
 StormEngineC.prototype.createGravityForce = function() {   
-	var forceField = new StormForceField();
+	var forceField = new StormForceField(this);
 	forceField.idNum = this.forceFields.length;
 	forceField.name = 'gravityForce '+this.idxForceField++;  
-	var material = stormEngineC.createMaterial();
+	var material = this.createMaterial();
 	forceField.materialUnits[0] = material; 
 	forceField.forceFieldType = 'gravity';
 	forceField.updateJigLib();
@@ -1537,7 +1539,7 @@ StormEngineC.prototype.createGravityForce = function() {
 * @returns {StormVoxelizator}
 */
 StormEngineC.prototype.createVoxelizator = function() {   
-	var vox = new StormVoxelizator();
+	var vox = new StormVoxelizator(this);
 	vox.idNum = this.voxelizators.length;
 	vox.name = 'voxelizator '+this.idxVoxelizators++; 
 	this.voxelizators.push(vox); 
@@ -1550,7 +1552,7 @@ StormEngineC.prototype.createVoxelizator = function() {
 * 	@param {Float} [jsonIn.offset=100.0]
 */
 StormEngineC.prototype.createGraph = function(jsonIn) {   
-	var graph = new StormGraph(jsonIn);
+	var graph = new StormGraph(this, jsonIn);
 	graph.idNum = this.graphs.length;
 	graph.name = 'graph '+this.idxGraphs++; 
 	this.graphs.push(graph); 
@@ -1564,30 +1566,30 @@ StormEngineC.prototype.createGraph = function(jsonIn) {
 StormEngineC.prototype.setView = function(view) {	
 	switch(view) {
 		case 'MAIN_CAMERA':
-			stormEngineC.setWebGLCam(this.mainCamera); 
+			this.setWebGLCam(this.mainCamera); 
 			break;
 		case 'LEFT':
-			stormEngineC.setWebGLCam(this.leftView); 
+			this.setWebGLCam(this.leftView); 
 			this.defaultCamera.setView(view);
 			break;
 		case 'RIGHT':
-			stormEngineC.setWebGLCam(this.rightView);  
+			this.setWebGLCam(this.rightView);  
 			this.defaultCamera.setView(view);
 			break;
 		case 'FRONT':
-			stormEngineC.setWebGLCam(this.frontView); 
+			this.setWebGLCam(this.frontView); 
 			this.defaultCamera.setView(view);
 			break;
 		case 'BACK':
-			stormEngineC.setWebGLCam(this.backView);
+			this.setWebGLCam(this.backView);
 			this.defaultCamera.setView(view);
 			break;
 		case 'TOP':
-			stormEngineC.setWebGLCam(this.topView);
+			this.setWebGLCam(this.topView);
 			this.defaultCamera.setView(view);
 			break;
 		case 'BOTTOM':
-			stormEngineC.setWebGLCam(this.bottomView);
+			this.setWebGLCam(this.bottomView);
 			this.defaultCamera.setView(view);
 			break;
 	}	
@@ -1621,11 +1623,11 @@ StormEngineC.prototype.setStatus = function(jsonIn) {
 	}
 	
 	var bars = 0, barsAcum = 0; 
-	var ctx = stormEngineC.stormGLContext.ctx2DStatus; 
+	var ctx = this.stormGLContext.ctx2DStatus; 
 	ctx.clearRect(0, 0, this.stormGLContext.viewportWidth, this.stormGLContext.viewportHeight);
 	for(var n = 0, f = this.statusValues.length; n < f; n++) { // messages
 		ctx.fillStyle="#333";
-		ctx.fillRect(0,0,stormEngineC.stormGLContext.viewportWidth,20);
+		ctx.fillRect(0,0,this.stormGLContext.viewportWidth,20);
 		ctx.fillStyle = "#CCC";
 		ctx.strokeStyle = "#FFF";
 		ctx.font = 'italic bold 12px sans-serif';
@@ -1642,16 +1644,16 @@ StormEngineC.prototype.setStatus = function(jsonIn) {
 			barsAcum += (this.statusValues[n].reqProgress/bars);
 	}
 	ctx.fillStyle="#22ACAC";
-	ctx.fillRect(0,0,barsAcum*stormEngineC.stormGLContext.viewportWidth,2);
+	ctx.fillRect(0,0,barsAcum*this.stormGLContext.viewportWidth,2);
 	
 	
 	if(jsonIn.req != undefined) {
-		jsonIn.req.onprogress = function(evt) {
+		jsonIn.req.onprogress = (function(evt) {
 			if(evt.lengthComputable) {
 				var current = evt.loaded/evt.total;
-				stormEngineC.setStatus({id:jsonIn.id, str: jsonIn.str, reqProgress:current});
+				this.setStatus({id:jsonIn.id, str: jsonIn.str, reqProgress:current});
 			}
-		};
+		}).bind(this);
 	}
 };
 
@@ -1716,17 +1718,17 @@ StormEngineC.prototype.showDebugValues = function() {
 * @type Void
 */
 StormEngineC.prototype.clearScene = function() {
-	stormEngineC.setWebGLpause(true);
+	this.setWebGLpause(true);
 	this.nodes = [];
 	this.nodesCam = [];
 	this.lines = [];
 	this.lights = [];
 	
-	this.stormGLContext = new StormGLContext(this.target);
+	this.stormGLContext = new StormGLContext(this, this.target);
 	this.loadManager();
 	
 	//this.go();
-	stormEngineC.setWebGLpause(false);
+	this.setWebGLpause(false);
 };
 
 /**
@@ -1754,7 +1756,7 @@ StormEngineC.prototype.renderFrame = function(jsonIn) {
 		alert('Your browser does not support experimental-nokia-webcl. See http://webcl.nokiaresearch.com/');
 	} else {
 		if(modeRender == 0) {nelAnimationTimeline.setFrame(jsonIn.frameStart);			
-			this.stormRender = new StormRender({'target':jsonIn.target,
+			this.stormRender = new StormRender(this, {'target':jsonIn.target,
 												'callback':jsonIn.callback,
 												'width':jsonIn.width,
 												'height':jsonIn.height,
@@ -1762,7 +1764,7 @@ StormEngineC.prototype.renderFrame = function(jsonIn) {
 												'frameEnd':jsonIn.frameEnd});
 		} else if(modeRender == 1) {
 			this.PanelAnimationTimeline.setFrame(jsonIn.frameStart);
-			this.stormRender = new StormRenderEMR({	'target':jsonIn.target,
+			this.stormRender = new StormRenderEMR(this, {	'target':jsonIn.target,
 													'callback':jsonIn.callback,
 													'width':jsonIn.width,
 													'height':jsonIn.height,
@@ -1893,13 +1895,13 @@ StormEngineC.prototype.shadows = function(active) {
 * @param {Bool} pause Pause or unpause
 */
 StormEngineC.prototype.setWebGLpause = function(pau) {
-	if(stormEngineC.pause == false || (pau != undefined && pau == true)) {
-		stormEngineC.pause = true;
-		stormEngineC.setStatus({id:'paused', str:'PAUSED'});
-	} else if(stormEngineC.pause == true || (pau != undefined && pau == false)) {
-		stormEngineC.pause = false;
-		stormEngineC.setStatus({id:'paused', str:''});
-		//stormEngineC.stormRender.makeRender();
+	if(this.pause == false || (pau != undefined && pau == true)) {
+		this.pause = true;
+		this.setStatus({id:'paused', str:'PAUSED'});
+	} else if(this.pause == true || (pau != undefined && pau == false)) {
+		this.pause = false;
+		this.setStatus({id:'paused', str:''});
+		//this.stormRender.makeRender();
 	}
 };
 
@@ -1925,8 +1927,8 @@ StormEngineC.prototype.setWebGLSSAO = function(enable, level) {
 StormEngineC.prototype.setWebGLGI = function(gi) {
 	this.giv2 = gi;
 	this.stormGLContext.stormVoxelizatorObject = this.giv2.svo;
-	stormEngineC.stormGLContext.initShader_GIv2();
-	stormEngineC.stormGLContext.initShader_GIv2Exec();  
+	this.stormGLContext.initShader_GIv2();
+	this.stormGLContext.initShader_GIv2Exec();  
 }; 
 
 /**
@@ -2004,7 +2006,7 @@ StormEngineC.prototype.setAmbientColor = function(vec) {
 * @param {StormCamera} cameraNode
 */
 StormEngineC.prototype.setWebGLCam = function(nodeCam) {
-	if(stormEngineC.defaultCamera != undefined) stormEngineC.defaultCamera.usedByGLContext = false;
+	if(this.defaultCamera != undefined) this.defaultCamera.usedByGLContext = false;
 	
 	this.defaultCamera = nodeCam;
 	this.defaultCamera.usedByGLContext = true;
@@ -2018,8 +2020,7 @@ StormEngineC.prototype.getWebGLCam = function() {
 	return this.defaultCamera;
 };
 
-var stormEngineC = new StormEngineC();
-var $SEC = stormEngineC;
+
 
 } else alert('Your browser does not support WebGL. Download <a href="http://www.mozilla.com/">Firefox</a> o <a href="http://www.google.es/chrome">Chrome</a>');
 

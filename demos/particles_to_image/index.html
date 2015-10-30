@@ -13,7 +13,7 @@
     
     <script>
       var nodePole,nodeParticles;
-        
+      	var stormEngineC = new StormEngineC();
         stormEngineC.createWebGL({'target':	'stormCanvas', // ID canvas
                                   'callback':	function(){},
                                   'editMode':	true,
@@ -41,7 +41,7 @@
         graph.setNodesSplitEvery(parseInt((256*256)/1)); // 1 == number of vertexXYZW per node (loadPoint == 1vertexXYZW)
         graph.set_pointSize(4.0);
         
-    	meshNode = new StormNode();
+    	meshNode = stormEngineC.createNode();
     	meshNode.loadPoint();
     	
     	var numNodes = (128*128);

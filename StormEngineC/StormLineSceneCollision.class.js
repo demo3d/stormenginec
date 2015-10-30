@@ -2,9 +2,11 @@
 * @class
 * @constructor
 */
-StormLineSceneCollision = function() {
-	this.nodes = stormEngineC.nodes;
-	this.lines = stormEngineC.lines;
+StormLineSceneCollision = function(sec) {
+	this._sec = sec;
+	
+	this.nodes = this._sec.nodes;
+	this.lines = this._sec.lines;
 };
 
 /**

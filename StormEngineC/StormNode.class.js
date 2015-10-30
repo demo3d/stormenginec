@@ -14,7 +14,9 @@ var numIdBullet = 0;
 * @property {StormM16} MROTZ
 * @property {StormM16} MROTXYZ 
 */
-StormNode = function() {
+StormNode = function(sec) {
+	this._sec = sec;
+	
 	this.childNodes = [];
 	this.buffersObjects = [];
 	this.onloadFunction = undefined; 
@@ -159,7 +161,7 @@ StormNode.prototype.onmouseup = function(func) {
 * 	@param {Array<Int>|Uint16Array} jsonIn.indexArray Indices
 */
 StormNode.prototype.attachMesh = function(stormMeshObject) {
-	var bObject = new StormBufferObject();
+	var bObject = new StormBufferObject(this._sec);
 	this.buffersObjects.push(bObject);
 	bObject.attachBuffers(stormMeshObject);
 	bObject.node = this;
@@ -193,7 +195,7 @@ StormNode.prototype.attachMesh = function(stormMeshObject) {
 * @private
 */
 StormNode.prototype.attachMeshSeparateXYZ = function(arrayX,arrayY,arrayZ) { 
-	var bObject = new StormBufferObject();
+	var bObject = new StormBufferObject(this._sec);
 	this.buffersObjects.push(bObject);
 	bObject.attachBuffersSeparateXYZ(arrayX,arrayY,arrayZ);
 	bObject.node = this;
@@ -213,10 +215,10 @@ StormNode.prototype.removeMeshes = function() {
 */
 StormNode.prototype.remove = function() {
 	var idToRemove = undefined;
-	for(var n = 0, f = stormEngineC.nodes.length; n < f; n++) {
-		if(stormEngineC.nodes[n].idNum == this.idNum) idToRemove = n;
+	for(var n = 0, f = this._sec.nodes.length; n < f; n++) {
+		if(this._sec.nodes[n].idNum == this.idNum) idToRemove = n;
 	}
-	stormEngineC.nodes.splice(idToRemove,1);
+	this._sec.nodes.splice(idToRemove,1);
 };
 /**
 * Load a object on this node from url of obj file
@@ -230,7 +232,7 @@ StormNode.prototype.remove = function() {
 * 	@param {Bool} [jsonIn.roughness=true] Use roughness values
 */
 StormNode.prototype.loadObj = function(jsonIn) {		
-	var mesh = new StormMesh();
+	var mesh = new StormMesh(this._sec);
 	mesh.loadObj({	node: this,
 					objUrl: jsonIn.objUrl,
 					textureUniqueUrl: jsonIn.textureUniqueUrl,
@@ -251,7 +253,7 @@ StormNode.prototype.loadObj = function(jsonIn) {
 * 	@param {Bool} [jsonIn.roughness=true] Use roughness values
 */
 StormNode.prototype.loadObjFromSourceText = function(jsonIn) {
-	var mesh = new StormMesh();
+	var mesh = new StormMesh(this._sec);
 	mesh.loadObjFromSourceText({	node: this,
 									sourceText: jsonIn.sourceText,
 									objDirectory: jsonIn.objDirectory,
@@ -266,7 +268,7 @@ StormNode.prototype.loadObjFromSourceText = function(jsonIn) {
 * 	@param {Float} [jsonIn.pointSize=2.0] The point size
 */
 StormNode.prototype.loadPoint = function(jsonIn) {
-	var mesh = new StormMesh();
+	var mesh = new StormMesh(this._sec);
 	mesh.loadPoint(this);
 };
 /**
@@ -274,7 +276,7 @@ StormNode.prototype.loadPoint = function(jsonIn) {
 * @type Void
 */
 StormNode.prototype.loadTriangle = function() {
-	var mesh = new StormMesh();
+	var mesh = new StormMesh(this._sec);
 	mesh.loadTriangle(this);
 };
 /**
@@ -283,7 +285,7 @@ StormNode.prototype.loadTriangle = function() {
 * @param {StormV3} dimensions
 */
 StormNode.prototype.loadBox = function(vecDim) {
-	var mesh = new StormMesh();
+	var mesh = new StormMesh(this._sec);
 	mesh.loadBox(this, vecDim);
 };
 /**
@@ -297,7 +299,7 @@ StormNode.prototype.loadBox = function(vecDim) {
 * 	@param {StormV3} [jsonIn.color] Color
 */
 StormNode.prototype.loadTube = function(jsonIn) {
-	var mesh = new StormMesh();
+	var mesh = new StormMesh(this._sec);
 	
 	var hei = (jsonIn != undefined && jsonIn.height != undefined) ? jsonIn.height : 1.0;  
 	var segments = (jsonIn != undefined && jsonIn.segments != undefined) ? jsonIn.segments : 6;  
@@ -322,7 +324,7 @@ StormNode.prototype.loadQuad = function(length, height) {
 	var l=(length==undefined)?0.5:length;
 	var h=(height==undefined)?0.5:height;
 	
-	var mesh = new StormMesh();
+	var mesh = new StormMesh(this._sec);
 	mesh.loadQuad(this, l, h);
 };
 /**
@@ -338,7 +340,7 @@ StormNode.prototype.loadSphere = function(jsonIn) {
 	var radius = (jsonIn != undefined && jsonIn.radius != undefined) ? jsonIn.radius : 1.0;	
 	var color = (jsonIn != undefined && jsonIn.color != undefined) ? jsonIn.color : $V3([Math.random(), Math.random(), Math.random()]);
 		
-	var mesh = new StormMesh();
+	var mesh = new StormMesh(this._sec);
 	mesh.loadSphere({	node: this,
 						radius: radius,
 						color: color,
@@ -363,9 +365,9 @@ StormNode.prototype.loadSphere = function(jsonIn) {
 */ 
 StormNode.prototype.loadText = function(jsonIn) {
 	var font;
-	for(var n = 0, f = stormEngineC.arrFonts.length; n < f; n++) {
-		if(stormEngineC.arrFonts[n].fontId == jsonIn.svgFontUrl) {
-			font = stormEngineC.arrFonts[n];
+	for(var n = 0, f = this._sec.arrFonts.length; n < f; n++) {
+		if(this._sec.arrFonts[n].fontId == jsonIn.svgFontUrl) {
+			font = this._sec.arrFonts[n];
 		}
 	}
 
@@ -373,7 +375,7 @@ StormNode.prototype.loadText = function(jsonIn) {
 		newFont = {fontId:jsonIn.svgFontUrl, glyphs:{}};
 		var req = new XMLHttpRequest();
 		req.node = this;
-		req.onreadystatechange = function () {
+		req.onreadystatechange = (function () {
 			if (req.readyState == 4) {
 				var parser = new DOMParser();
 				var xmlDoc = parser.parseFromString(req.responseText, "application/xml");
@@ -401,7 +403,7 @@ StormNode.prototype.loadText = function(jsonIn) {
 					}
 				}					
 				
-				stormEngineC.arrFonts.push(newFont);
+				this._sec.arrFonts.push(newFont);
 				req.node.loadTextNow({	fontObject:newFont,
 										text:jsonIn.text,
 										color:jsonIn.color,
@@ -415,7 +417,7 @@ StormNode.prototype.loadText = function(jsonIn) {
 										bevelAngle:jsonIn.bevelAngle,
 										textureUniqueUrl:jsonIn.textureUniqueUrl});
 			}
-		};
+		}).bind(this);
 		req.open("GET", jsonIn.svgFontUrl, true);
 		req.send(null);
 	} else this.loadTextNow({	fontObject:font,
@@ -514,7 +516,7 @@ StormNode.prototype.loadTextNow = function(jsonIn) {
 			meshObject.indexItemSize = 1;
 			meshObject.indexNumItems = BO.nodeMeshIndexArray.length;
 		}
-		var bObject = new StormBufferObject();
+		var bObject = new StormBufferObject(this._sec);
 		bObject.attachBuffers(meshObject);
 		
 		//var materialUnits = BO.materialUnits;
@@ -1020,7 +1022,7 @@ StormNode.prototype.extrudeThisTriangles = function(jsonIn) {
 			meshObject.indexItemSize = 1;
 			meshObject.indexNumItems = arrIndex.length;
 		}
-		var bObject = new StormBufferObject();
+		var bObject = new StormBufferObject(this._sec);
 		bObject.attachBuffers(meshObject);
 		
 		//var materialUnits = BO.materialUnits;
@@ -1164,9 +1166,9 @@ StormNode.prototype.getFov = function() {
  */
 StormNode.prototype.updateProjectionMatrix = function() {
 	var fovy =(this.proy == 1) ? this.fov : this.fovOrtho;
-	var aspect = stormEngineC.stormGLContext.viewportWidth / stormEngineC.stormGLContext.viewportHeight;
+	var aspect = this._sec.stormGLContext.viewportWidth / this._sec.stormGLContext.viewportHeight;
 	var znear = 0.1;
-	var zfar = stormEngineC.stormGLContext.far;
+	var zfar = this._sec.stormGLContext.far;
 	
 	if(this.proy == 1) this.mPMatrix = $M16().setPerspectiveProjection(fovy, aspect, znear, zfar);
 	else this.mPMatrix = $M16().setOrthographicProjection(-fovy, fovy, -fovy, fovy, -1000.0, 1000.0);
@@ -1205,9 +1207,9 @@ StormNode.prototype.setPosition = function(vec) {
 	} else if(this.objectType == 'polarityPoint') {
 		this.MPOS = this.MPOS.setPosition(vec);
 		
-		for(var p = 0, fp = stormEngineC.polarityPoints.length; p < fp; p++) {
-			if(stormEngineC.polarityPoints[p] == this) {
-				var pp = stormEngineC.polarityPoints[p];
+		for(var p = 0, fp = this._sec.polarityPoints.length; p < fp; p++) {
+			if(this._sec.polarityPoints[p] == this) {
+				var pp = this._sec.polarityPoints[p];
 				
 				for(var n = 0, fn = pp.nodesProc.length; n < fn; n++) {
 					var nproc = pp.nodesProc[n];
@@ -1287,7 +1289,7 @@ StormNode.prototype.setRotation = function(radians, relative, axis) {
 			this.MROTX = this.MROTX.setRotationX(radians,false);  
 			this.rotX = radians;
 		}
-		if(this.body != undefined) this.body.set_rotationX(stormEngineC.utils.radToDeg(this.rotX));
+		if(this.body != undefined) this.body.set_rotationX(this._sec.utils.radToDeg(this.rotX));
 	}
 	if(axis == undefined || axis.e[1]) {
 		if(relative == undefined || relative == true) {
@@ -1297,7 +1299,7 @@ StormNode.prototype.setRotation = function(radians, relative, axis) {
 			this.MROTY = this.MROTY.setRotationY(radians,false);
 			this.rotY = radians;
 		}
-		if(this.body != undefined) this.body.set_rotationY(stormEngineC.utils.radToDeg(this.rotY));
+		if(this.body != undefined) this.body.set_rotationY(this._sec.utils.radToDeg(this.rotY));
 	}
 	if(axis != undefined && axis.e[2]) {  
 		if(relative == undefined || relative == true) {
@@ -1307,7 +1309,7 @@ StormNode.prototype.setRotation = function(radians, relative, axis) {
 			this.MROTZ = this.MROTZ.setRotationZ(radians,false); 
 			this.rotZ = radians;
 		} 
-		if(this.body != undefined) this.body.set_rotationZ(stormEngineC.utils.radToDeg(this.rotZ));
+		if(this.body != undefined) this.body.set_rotationZ(this._sec.utils.radToDeg(this.rotZ));
 	}
 	
 	this.MROTXYZ = this.MROTZ.x(this.MROTY.x(this.MROTX));
@@ -1465,7 +1467,7 @@ StormNode.prototype.resetAxis = function() {
 * @returns {StormNode}
 */
 StormNode.prototype.createChildNode = function() {
-	var node = new StormNode();
+	var node = new StormNode(this._sec);
 	this.childNodes.push(node);
 	return node;
 };
@@ -1536,7 +1538,8 @@ StormNode.prototype.bodyEnable = function(jsonIn) {
 		this.body.set_mass(jsonIn.mass);
 		this.shadows = false;
 		
-		stormEngineC.stormJigLibJS.dynamicsWorld.addBody(this.body);
+		this._sec.stormJigLibJS.dynamicsWorld.addBody(this.body);
+		this.car._sec = this._sec;
 		
 		this.body.moveTo(new Vector3D(this.MPOS.e[3],this.MPOS.e[7],this.MPOS.e[11],0));
 	}
@@ -1642,8 +1645,8 @@ StormNode.prototype.setCollisionBody = function(shape) {
 														
 	this.body.moveTo(new Vector3D(this.MPOS.e[3],this.MPOS.e[7],this.MPOS.e[11],0));
 	
-	stormEngineC.stormJigLibJS.dynamicsWorld.addBody(this.body);
-	stormEngineC.stormJigLibJS.colSystem.addCollisionBody(this.body);
+	this._sec.stormJigLibJS.dynamicsWorld.addBody(this.body);
+	this._sec.stormJigLibJS.colSystem.addCollisionBody(this.body);
 };
 
 /**
@@ -1827,7 +1830,7 @@ StormNode.prototype.applyTorqueNow = function(jsonIn) {
 StormNode.prototype.bodyAddConstraint = function(jsonIn) {
 	this.setPosition(jsonIn.parentNode.getPosition().add(jsonIn.parentOffset));
 	this.constraint = new jiglib.JConstraintWorldPoint(this.body, new Vector3D(jsonIn.parentOffset.e[0]*-1.0, jsonIn.parentOffset.e[1]*-1.0, jsonIn.parentOffset.e[2]*-1.0, 0), new Vector3D(jsonIn.parentNode.getPosition().e[0], jsonIn.parentNode.getPosition().e[1], jsonIn.parentNode.getPosition().e[2], 0));
-	stormEngineC.stormJigLibJS.dynamicsWorld.addConstraint(this.constraint);
+	this._sec.stormJigLibJS.dynamicsWorld.addConstraint(this.constraint);
 	this.body.setActive();
 	this.constraintParentNode = jsonIn.parentNode;
 };
@@ -1840,7 +1843,7 @@ StormNode.prototype.addConstraint = function(jsonIn) {this.bodyAddConstraint(jso
 * @requires Enable collisions with setCollision function
 */
 StormNode.prototype.bodyRemoveConstraint = function() {
-	stormEngineC.stormJigLibJS.dynamicsWorld.removeConstraint(this.constraint);
+	this._sec.stormJigLibJS.dynamicsWorld.removeConstraint(this.constraint);
 	this.constraint = undefined;
 	this.constraintParentNode = undefined;
 	this.body.setActive();
@@ -1918,7 +1921,7 @@ StormNode.prototype.setAnimKey = function(frame, matrix1, matrix2) {
 				}
 			}
 		}
-		stormEngineC.PanelAnimationTimeline.drawTimelineGrid();
+		this._sec.PanelAnimationTimeline.drawTimelineGrid();
 	} else if(this.animController == 'LocalTimeline') {
 		if(this.animCurrentLayerLocalTimeline[this.currLanimL] == undefined) this.animCurrentLayerLocalTimeline[this.currLanimL] = 0;
 		if(this.animLoopLayerLocalTimeline[this.currLanimL] == undefined) this.animLoopLayerLocalTimeline[this.currLanimL] = false;

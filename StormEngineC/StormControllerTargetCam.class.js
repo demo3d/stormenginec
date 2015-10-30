@@ -4,8 +4,10 @@
 * @constructor
 * @param {Float} camDistance Distance to target
 */
-StormControllerTargetCam = function(camDistance) {
-	this.controllerType = stormEngineC.ControllerTypes["TARGETCAM"];
+StormControllerTargetCam = function(sec, camDistance) {
+	this._sec= sec;
+	
+	this.controllerType = this._sec.ControllerTypes["TARGETCAM"];
 	this.g_forwardFC = 0;
 	this.g_backwardFC = 0;
 	this.g_strafeLeftFC = 0;
@@ -104,37 +106,37 @@ StormControllerTargetCam.prototype.mouseUpFC = function(event) {
 * @param event event
 */
 StormControllerTargetCam.prototype.mouseWheel = function(event) {
-	var currFov =(stormEngineC.defaultCamera.proy == 1) ? stormEngineC.defaultCamera.fov : stormEngineC.defaultCamera.fovOrtho;
-	var weightX;
-	var weightY;	
+	var currFov =(this._sec.defaultCamera.proy == 1) ? this._sec.defaultCamera.fov : this._sec.defaultCamera.fovOrtho;
+	var weightX = 0;
+	var weightY = 0;	
 	
-	if(stormEngineC.defaultCamera.proy == 1) { // perspective
-		if(stormEngineC.defaultCamera.autofocus == false) {// then changing the focus
+	if(this._sec.defaultCamera.proy == 1) { // perspective
+		if(this._sec.defaultCamera.autofocus == false) {// then changing the focus
 			if(event.wheelDeltaY >= 0) {
-				stormEngineC.defaultCamera.focus({distance:stormEngineC.defaultCamera.focusExtern+1.0});// FRONT
+				this._sec.defaultCamera.focus({distance:this._sec.defaultCamera.focusExtern+0.5});// FRONT
 			} else {
-				stormEngineC.defaultCamera.focus({distance:stormEngineC.defaultCamera.focusExtern-1.0});// BACK
+				this._sec.defaultCamera.focus({distance:this._sec.defaultCamera.focusExtern-0.5});// BACK
 			}			
 		} else { // perspective fov
 			if(event.wheelDeltaY >= 0) {
-				weightX = (stormEngineC.mousePosX-(stormEngineC.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*-0.0004);
-				weightY = (stormEngineC.mousePosY-(stormEngineC.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*-0.0004);				
-				stormEngineC.defaultCamera.setFov(currFov/1.1);// FRONT
+				weightX = (this._sec.mousePosX-(this._sec.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*-0.0004);
+				weightY = (this._sec.mousePosY-(this._sec.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*-0.0004);				
+				this._sec.defaultCamera.setFov(currFov/1.1);// FRONT
 			} else {
-				weightX = (stormEngineC.mousePosX-(stormEngineC.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*0.0004);
-				weightY = (stormEngineC.mousePosY-(stormEngineC.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*0.0004);
-				stormEngineC.defaultCamera.setFov(currFov*1.1);// BACK    
+				weightX = (this._sec.mousePosX-(this._sec.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*0.0004);
+				weightY = (this._sec.mousePosY-(this._sec.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*0.0004);
+				this._sec.defaultCamera.setFov(currFov*1.1);// BACK    
 			}
 		}
 	} else { // ortho fov
 		if(event.wheelDeltaY >= 0) { // zoom in
-			weightX = (stormEngineC.mousePosX-(stormEngineC.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*-0.0004);
-			weightY = (stormEngineC.mousePosY-(stormEngineC.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*-0.0004);
-			stormEngineC.defaultCamera.setFov(currFov/1.1);// FRONT
+			weightX = (this._sec.mousePosX-(this._sec.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*-0.0004);
+			weightY = (this._sec.mousePosY-(this._sec.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*-0.0004);
+			this._sec.defaultCamera.setFov(currFov/1.1);// FRONT
 		} else { // zoom out
-			weightX = (stormEngineC.mousePosX-(stormEngineC.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*0.0004);
-			weightY = (stormEngineC.mousePosY-(stormEngineC.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*0.0004);
-			stormEngineC.defaultCamera.setFov(currFov*1.1);// BACK   
+			weightX = (this._sec.mousePosX-(this._sec.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*0.0004);
+			weightY = (this._sec.mousePosY-(this._sec.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*0.0004);
+			this._sec.defaultCamera.setFov(currFov*1.1);// BACK   
 		} 
 		
 	}
@@ -151,7 +153,7 @@ StormControllerTargetCam.prototype.mouseWheel = function(event) {
 */
 StormControllerTargetCam.prototype.cameraSetupFC = function(cameraNode, meshNode) {
 	this.cameraNode = cameraNode;
-	this.meshNode = (meshNode == undefined) ? new StormNode() : meshNode;
+	this.meshNode = (meshNode == undefined) ? new StormNode(this._sec) : meshNode;
 	this.meshNode.shadows = false;
 	
 	if(this.meshNode != undefined) {
@@ -162,8 +164,8 @@ StormControllerTargetCam.prototype.cameraSetupFC = function(cameraNode, meshNode
 		
 		if(this.meshNode.body != undefined) {
 			this.meshNode.body.setInactive();
-			stormEngineC.stormJigLibJS.dynamicsWorld.removeBody(this.meshNode.body);
-			stormEngineC.stormJigLibJS.colSystem.removeCollisionBody(this.meshNode.body);
+			this._sec.stormJigLibJS.dynamicsWorld.removeBody(this.meshNode.body);
+			this._sec.stormJigLibJS.colSystem.removeCollisionBody(this.meshNode.body);
 		}
 	}  
 		
@@ -210,7 +212,7 @@ StormControllerTargetCam.prototype.updateFC = function(elapsed) {
 		this.lastTime = timeNow;
 		if(ws != undefined) {
 			ws.emit('dataclient', {
-				netID: stormEngineC.netID,
+				netID: this._sec.netID,
 				WM0: this.meshNode.MPOS.e[0],
 				WM1: this.meshNode.MPOS.e[1],
 				WM2: this.meshNode.MPOS.e[2],
@@ -253,7 +255,7 @@ StormControllerTargetCam.prototype.updateFC = function(elapsed) {
 * @private 
 */
 StormControllerTargetCam.prototype.updateCameraGoalFC = function(event) {
-	if(stormEngineC.dragging != false) {
+	if(this._sec.dragging != false) {
 		event.preventDefault(); 
 	} else {
 		if(this.middleButton == 1) {
@@ -264,7 +266,7 @@ StormControllerTargetCam.prototype.updateCameraGoalFC = function(event) {
 			this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(Y));
 		} else {
 			var factorRot = 0.01;
-			if(stormEngineC.defaultCamera.lockRotY == false) {
+			if(this._sec.defaultCamera.lockRotY == false) {
 				if(this.lastX > event.screenX) {
 					this.cameraNode.nodePivot.setRotationY((this.lastX - event.screenX)*factorRot);
 					
@@ -275,7 +277,7 @@ StormControllerTargetCam.prototype.updateCameraGoalFC = function(event) {
 					if(this.meshNode != undefined) this.meshNode.setRotationY(-(event.screenX - this.lastX)*factorRot);
 				}
 			}
-			if(stormEngineC.defaultCamera.lockRotX == false) {
+			if(this._sec.defaultCamera.lockRotX == false) {
 				if(this.lastY > event.screenY) {
 					this.cameraNode.nodePivot.setRotationX((this.lastY - event.screenY)*factorRot);
 				} else {

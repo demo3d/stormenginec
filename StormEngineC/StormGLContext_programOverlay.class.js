@@ -91,18 +91,18 @@ StormGLContext.prototype.pointers_Overlay = function() {
 
 /** @private */
 StormGLContext.prototype.render_Overlay = function() {	
-	if(stormEngineC.editMode &&	stormEngineC.getSelectedNode() != undefined) {
+	if(this._sec.editMode &&	this._sec.getSelectedNode() != undefined) {
 		for(var n = 0, f = this.nodes.length; n < f; n++) { 			
 			if(	this.nodes[n].visibleOnContext &&
 				this.nodes[n].objectType != 'light' &&
-				this.nodes[n] == stormEngineC.getSelectedNode()) {
+				this.nodes[n] == this._sec.getSelectedNode()) {
 					this.render_OverlayAux(this.nodes[n]);
 					return;
 			}
 		}
 		for(var n = 0, f = this.polarityPoints.length; n < f; n++) { 
 			if(	this.polarityPoints[n].visibleOnContext &&
-				this.polarityPoints[n] == stormEngineC.getSelectedNode()) { 
+				this.polarityPoints[n] == this._sec.getSelectedNode()) { 
 					this.render_OverlayAux(this.polarityPoints[n]);
 					return;
 			}
@@ -119,18 +119,18 @@ StormGLContext.prototype.render_OverlayAux = function(node) {
 	this.gl.disable(this.gl.DEPTH_TEST);
 	
 	this.gl.uniform1f(this.u_Overlay_far, this.far);
-	this.gl.uniform1i(this.u_Overlay_overlaySelected, stormEngineC.stormGLContext.transformOverlaySelected);
-	this.gl.uniformMatrix4fv(this.u_Overlay_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
-	this.gl.uniformMatrix4fv(this.u_Overlay_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
+	this.gl.uniform1i(this.u_Overlay_overlaySelected, this._sec.stormGLContext.transformOverlaySelected);
+	this.gl.uniformMatrix4fv(this.u_Overlay_PMatrix, false, this._sec.defaultCamera.mPMatrix.transpose().e);
+	this.gl.uniformMatrix4fv(this.u_Overlay_cameraWMatrix, false, this._sec.defaultCamera.MPOS.transpose().e);
 	
 	this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
 	
-	if(stormEngineC.defaultTransformMode == 0) // world
+	if(this._sec.defaultTransformMode == 0) // world
 		this.gl.uniformMatrix4fv(this.u_Overlay_nodeWMatrix, false, node.MPOS.transpose().e); 
 	else // local
 		this.gl.uniformMatrix4fv(this.u_Overlay_nodeWMatrix, false, node.MPOSFrame.transpose().e); 
 		
-	if(stormEngineC.defaultTransform == 0 || (stormEngineC.defaultTransform == 2 && stormEngineC.defaultTransformMode == 1)) {
+	if(this._sec.defaultTransform == 0 || (this._sec.defaultTransform == 2 && this._sec.defaultTransformMode == 1)) {
 		// overlay pos X
 		this.gl.uniform1f(this.u_Overlay_nodeId, 0.1); 
 			
@@ -165,7 +165,7 @@ StormGLContext.prototype.render_OverlayAux = function(node) {
 		
 		this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayPosZ.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
 	}
-	if(stormEngineC.defaultTransform == 1) {
+	if(this._sec.defaultTransform == 1) {
 		// overlay rot X
 		this.gl.uniform1f(this.u_Overlay_nodeId, 0.4); 
 		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayRotX.MPOS.x(this.nodeOverlayRotX.MROTXYZ).transpose().e);
@@ -199,7 +199,7 @@ StormGLContext.prototype.render_OverlayAux = function(node) {
 		
 		this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayRotZ.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
 	}
-	if(stormEngineC.defaultTransform == 2 && stormEngineC.defaultTransformMode == 1) {
+	if(this._sec.defaultTransform == 2 && this._sec.defaultTransformMode == 1) {
 		// overlay scale X
 		this.gl.uniform1f(this.u_Overlay_nodeId, 0.7); 
 		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayScaX.MPOS.x(this.nodeOverlayScaX.MROTXYZ).transpose().e);

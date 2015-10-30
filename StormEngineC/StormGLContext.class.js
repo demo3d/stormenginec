@@ -4,21 +4,23 @@
 
 * @property {WebGLRenderingContext} gl WebGLRenderingContext
 */
-StormGLContext = function(stormCanvasObject, loadScene) {
-	this.utils = new StormUtils();
+StormGLContext = function(sec, stormCanvasObject, loadScene) {
+	this._sec = sec;
+	
+	this.utils = new StormUtils(this._sec);
 	this.stormCanvasObject = stormCanvasObject; 
-	var dim = (stormEngineC.$.width() > stormEngineC.$.height()) ? stormEngineC.$.width() : stormEngineC.$.height();
+	var dim = (this._sec.$.width() > this._sec.$.height()) ? this._sec.$.width() : this._sec.$.height();
 	this.viewportWidth = dim;
 	this.viewportHeight = dim;
 	this.maxViewportWidth = 2048;
 	this.maxViewportHeight = 2048;
 	
-	this.nodes = stormEngineC.nodes;
-	this.nodesCam = stormEngineC.nodesCam;
-	this.lines = stormEngineC.lines;
-	this.polarityPoints = stormEngineC.polarityPoints;
-	this.lights = stormEngineC.lights;
-	this.graphs = stormEngineC.graphs;
+	this.nodes = this._sec.nodes;
+	this.nodesCam = this._sec.nodesCam;
+	this.lines = this._sec.lines;
+	this.polarityPoints = this._sec.polarityPoints;
+	this.lights = this._sec.lights;
+	this.graphs = this._sec.graphs;
 	
 	this.far = 500.0; 
 	
@@ -124,7 +126,7 @@ StormGLContext.prototype.initContext = function() {
 	
 	
 	// SCREEN QUAD BUFFER
-	var mesh = new StormMesh();
+	var mesh = new StormMesh(this._sec);
 	mesh.loadQuad(undefined,1.0,1.0);
 	this.vertexBuffer_QUAD = this.gl.createBuffer();
 	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer_QUAD);
@@ -421,7 +423,7 @@ StormGLContext.prototype.initShaders = function() {
 			
 			if(!this._typeMobile && this._supportFormat == this.gl.FLOAT) {
 				this.initShader_Ctx2D();
-				stormEngineC.update2DContext();
+				this._sec.update2DContext();
 			}
 			
 			this.initShader_Normals();
@@ -566,8 +568,8 @@ StormGLContext.prototype.createShader = function(gl, name, sourceVertex, sourceF
  * @private 
  */
 StormGLContext.prototype.renderGLContext = function() {
-	for(var n=0; n < stormEngineC.graphs.length; n++) {
-		stormEngineC.graphs[n].prerender();
+	for(var n=0; n < this._sec.graphs.length; n++) {
+		this._sec.graphs[n].prerender();
 	}
 	
 	this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
@@ -617,9 +619,9 @@ StormGLContext.prototype.renderGLContext = function() {
 			this.gl.uniform1i(this.u_GIv2_typePass, 2);// normal
 			this.render_GIv2(); 
 			
-			stormEngineC.clgl.copy(this.textureFB_GIv2_screenColorTEMP, this.textureFB_GIv2_screenColor);
-			stormEngineC.clgl.copy(this.textureFB_GIv2_screenPosTEMP, this.textureFB_GIv2_screenPos);  
-			stormEngineC.clgl.copy(this.textureFB_GIv2_screenNormalTEMP, this.textureFB_GIv2_screenNormal);  
+			this._sec.clgl.copy(this.textureFB_GIv2_screenColorTEMP, this.textureFB_GIv2_screenColor);
+			this._sec.clgl.copy(this.textureFB_GIv2_screenPosTEMP, this.textureFB_GIv2_screenPos);  
+			this._sec.clgl.copy(this.textureFB_GIv2_screenNormalTEMP, this.textureFB_GIv2_screenNormal);  
 			this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenColorTEMP, 0);
 			this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 			this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenPosTEMP, 0);
@@ -632,7 +634,7 @@ StormGLContext.prototype.renderGLContext = function() {
 			this.gl.useProgram(this.shader_GIv2Exec); 
 			this.render_GIv2Exec();  
 			
-			stormEngineC.clgl.copy(this.textureFB_GIVoxel_TEMP, this.textureFB_GIVoxel);  
+			this._sec.clgl.copy(this.textureFB_GIVoxel_TEMP, this.textureFB_GIVoxel);  
 		}
 	}
 	if(this.Shader_Normals_READY) {
@@ -657,21 +659,21 @@ StormGLContext.prototype.renderGLContext = function() {
 			this.render_Lines();
 		}
 		
-		if(stormEngineC.editMode == true && stormEngineC.grid.gridEnabled == true) { 
-			stormEngineC.grid.render();
+		if(this._sec.editMode == true && this._sec.grid.gridEnabled == true) { 
+			this._sec.grid.render();
 		}
 	}
 		
-	for(var n=0; n < stormEngineC.graphs.length; n++) {
-		stormEngineC.graphs[n].render();
+	for(var n=0; n < this._sec.graphs.length; n++) {
+		this._sec.graphs[n].render();
 	}	
 	
     
 	this.hitRectRegion_onclick(); 
-	if(this.Shader_DOF_READY && stormEngineC.defaultCamera.DOFenable) {
+	if(this.Shader_DOF_READY && this._sec.defaultCamera.DOFenable) {
 		this.render_DOF(); 
 	}
-	if(this.Shader_Overlay_READY && stormEngineC.editMode) {  
+	if(this.Shader_Overlay_READY && this._sec.editMode) {  
 		this.render_Overlay();
 	}   
 	this.hitRectRegion_onmouseover();
@@ -689,15 +691,15 @@ StormGLContext.prototype.renderGLContext = function() {
 
 /** @private  */
 StormGLContext.prototype.hitRectRegion_onclick = function() {
-	if(stormEngineC.arrHitsRectRegions.length > 0) {
-		this.arrHitsRectRegions = stormEngineC.arrHitsRectRegions;
+	if(this._sec.arrHitsRectRegions.length > 0) {
+		this.arrHitsRectRegions = this._sec.arrHitsRectRegions;
 		for(var n = 0, f = this.arrHitsRectRegions.length; n < f; n++) {
 			if(this.arrHitsRectRegions[n].onclick != undefined) {
-				if(	stormEngineC.mousePosX > (this.arrHitsRectRegions[n].x) &&
-					stormEngineC.mousePosX < (this.arrHitsRectRegions[n].x+this.arrHitsRectRegions[n].width) &&
-					stormEngineC.mousePosY > (this.arrHitsRectRegions[n].y) &&
-					stormEngineC.mousePosY < (this.arrHitsRectRegions[n].y+this.arrHitsRectRegions[n].height) &&
-					stormEngineC.isMouseDown	) {
+				if(	this._sec.mousePosX > (this.arrHitsRectRegions[n].x) &&
+					this._sec.mousePosX < (this.arrHitsRectRegions[n].x+this.arrHitsRectRegions[n].width) &&
+					this._sec.mousePosY > (this.arrHitsRectRegions[n].y) &&
+					this._sec.mousePosY < (this.arrHitsRectRegions[n].y+this.arrHitsRectRegions[n].height) &&
+					this._sec.isMouseDown	) {
 					this.arrHitsRectRegions[n].onclick();
 				}
 			}
@@ -706,13 +708,13 @@ StormGLContext.prototype.hitRectRegion_onclick = function() {
 };
 /** @private  */
 StormGLContext.prototype.hitRectRegion_onmouseover = function() {
-	if(stormEngineC.arrHitsRectRegions.length > 0) {
-		this.arrHitsRectRegions = stormEngineC.arrHitsRectRegions;
+	if(this._sec.arrHitsRectRegions.length > 0) {
+		this.arrHitsRectRegions = this._sec.arrHitsRectRegions;
 		for(var n = 0, f = this.arrHitsRectRegions.length; n < f; n++) {
-			if(	(stormEngineC.mousePosX > (this.arrHitsRectRegions[n].x) &&
-				stormEngineC.mousePosX < (this.arrHitsRectRegions[n].x+this.arrHitsRectRegions[n].width) &&
-				stormEngineC.mousePosY > (this.arrHitsRectRegions[n].y) &&
-				stormEngineC.mousePosY < (this.arrHitsRectRegions[n].y+this.arrHitsRectRegions[n].height)) &&
+			if(	(this._sec.mousePosX > (this.arrHitsRectRegions[n].x) &&
+				this._sec.mousePosX < (this.arrHitsRectRegions[n].x+this.arrHitsRectRegions[n].width) &&
+				this._sec.mousePosY > (this.arrHitsRectRegions[n].y) &&
+				this._sec.mousePosY < (this.arrHitsRectRegions[n].y+this.arrHitsRectRegions[n].height)) &&
 				this.arrHitsRectRegions[n]._over == false) {
 					this.arrHitsRectRegions[n]._over = true;
 					if(this.arrHitsRectRegions[n].onmouseover != undefined)	this.arrHitsRectRegions[n].onmouseover();
@@ -722,13 +724,13 @@ StormGLContext.prototype.hitRectRegion_onmouseover = function() {
 };
 /** @private  */
 StormGLContext.prototype.hitRectRegion_onmouseout = function() {
-	if(stormEngineC.arrHitsRectRegions.length > 0) {
-		this.arrHitsRectRegions = stormEngineC.arrHitsRectRegions;
+	if(this._sec.arrHitsRectRegions.length > 0) {
+		this.arrHitsRectRegions = this._sec.arrHitsRectRegions;
 		for(var n = 0, f = this.arrHitsRectRegions.length; n < f; n++) {
-			if(	(stormEngineC.mousePosX < (this.arrHitsRectRegions[n].x) ||
-				stormEngineC.mousePosX > (this.arrHitsRectRegions[n].x+this.arrHitsRectRegions[n].width) ||
-				stormEngineC.mousePosY < (this.arrHitsRectRegions[n].y) ||
-				stormEngineC.mousePosY > (this.arrHitsRectRegions[n].y+this.arrHitsRectRegions[n].height)) &&
+			if(	(this._sec.mousePosX < (this.arrHitsRectRegions[n].x) ||
+				this._sec.mousePosX > (this.arrHitsRectRegions[n].x+this.arrHitsRectRegions[n].width) ||
+				this._sec.mousePosY < (this.arrHitsRectRegions[n].y) ||
+				this._sec.mousePosY > (this.arrHitsRectRegions[n].y+this.arrHitsRectRegions[n].height)) &&
 				this.arrHitsRectRegions[n]._over == true) {
 					this.arrHitsRectRegions[n]._over = false;
 					if(this.arrHitsRectRegions[n].onmouseout != undefined) this.arrHitsRectRegions[n].onmouseout();

@@ -5,10 +5,12 @@
 
 * @property {String} objectType
 */
-StormGraph = function(jsonIn) { StormNode.call(this); 
+StormGraph = function(sec, jsonIn) { StormNode.call(this);
+	this._sec = sec;
+	
 	this.objectType = 'graph';
 	
-	this.gl = stormEngineC.stormGLContext.gl;
+	this.gl = this._sec.stormGLContext.gl;
 	this.selfShadows = true;
 	
 	this.offset = (jsonIn != undefined && jsonIn.offset != undefined) ? jsonIn.offset : 100.0;
@@ -150,18 +152,18 @@ StormGraph.prototype = Object.create(StormNode.prototype);
 * @type Void
 */
 StormGraph.prototype.remove = function() {  	
-	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
-		stormEngineC.polarityPoints[n].removeParticles({node:this});
+	for(var n = 0, f = this._sec.polarityPoints.length; n < f; n++) {
+		this._sec.polarityPoints[n].removeParticles({node:this});
 	}
-	for(var n = 0, f = stormEngineC.forceFields.length; n < f; n++) {
-		stormEngineC.forceFields[n].removeParticles({node:this});
+	for(var n = 0, f = this._sec.forceFields.length; n < f; n++) {
+		this._sec.forceFields[n].removeParticles({node:this});
 	}
 
 	var idToRemove = undefined;
-	for(var n = 0, f = stormEngineC.graphs.length; n < f; n++) {
-		if(stormEngineC.graphs[n].idNum == this.idNum) idToRemove = n;
+	for(var n = 0, f = this._sec.graphs.length; n < f; n++) {
+		if(this._sec.graphs[n].idNum == this.idNum) idToRemove = n;
 	}
-	stormEngineC.graphs.splice(idToRemove,1);
+	this._sec.graphs.splice(idToRemove,1);
 };
 
 /** @private **/
@@ -584,13 +586,13 @@ StormGraph.prototype.updateNodes = function() {
 	}
 	this.clglWork_nodes.setArg("dest", this.arrayNodeDestination, this.splitNodes);
 	
-	this.clglWork_nodes.setArg("PMatrix", stormEngineC.defaultCamera.mPMatrix.transpose().e);
-	this.clglWork_nodes.setArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
+	this.clglWork_nodes.setArg("PMatrix", this._sec.defaultCamera.mPMatrix.transpose().e);
+	this.clglWork_nodes.setArg("cameraWMatrix", this._sec.defaultCamera.MPOS.transpose().e);
 	this.clglWork_nodes.setArg("nodeWMatrix", this.MPOS.transpose().e);
 	this.clglWork_nodes.setArg("nodesSize", parseFloat(this.currentNodeId-1));
-	this.clglWork_nodes.setArg("sunPos", [stormEngineC.lights[0].direction.e[0], stormEngineC.lights[0].direction.e[1], stormEngineC.lights[0].direction.e[2], 1.0]);
+	this.clglWork_nodes.setArg("sunPos", [this._sec.lights[0].direction.e[0], this._sec.lights[0].direction.e[1], this._sec.lights[0].direction.e[2], 1.0]);
 	this.clglWork_nodes.setArg("selfShadows", ((this.selfShadows == true)?1.0:0.0));
-	this.clglWork_nodes.setArg("ambientColor", [stormEngineC.getAmbientColor()[0], stormEngineC.getAmbientColor()[1], stormEngineC.getAmbientColor()[2], 1.0]);
+	this.clglWork_nodes.setArg("ambientColor", [this._sec.getAmbientColor()[0], this._sec.getAmbientColor()[1], this._sec.getAmbientColor()[2], 1.0]);
 	
 	this.clglWork_nodes.setArg("enableDestination", this.enDestination);
 	this.clglWork_nodes.setArg("destinationForce", this.destinationForce);
@@ -757,13 +759,13 @@ StormGraph.prototype.updateLinks = function() {
 	}
 	this.clglWork_links.setArg("dest", this.arrayLinkDestination, this.splitLinks);
 	
-	this.clglWork_links.setArg("PMatrix", stormEngineC.defaultCamera.mPMatrix.transpose().e);
-	this.clglWork_links.setArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
+	this.clglWork_links.setArg("PMatrix", this._sec.defaultCamera.mPMatrix.transpose().e);
+	this.clglWork_links.setArg("cameraWMatrix", this._sec.defaultCamera.MPOS.transpose().e);
 	this.clglWork_links.setArg("nodeWMatrix", this.MPOS.transpose().e);
 	this.clglWork_links.setArg("nodesSize", this.currentLinkId-2);
-	this.clglWork_links.setArg("sunPos", [stormEngineC.lights[0].direction.e[0], stormEngineC.lights[0].direction.e[1], stormEngineC.lights[0].direction.e[2], 1.0]);
+	this.clglWork_links.setArg("sunPos", [this._sec.lights[0].direction.e[0], this._sec.lights[0].direction.e[1], this._sec.lights[0].direction.e[2], 1.0]);
 	this.clglWork_links.setArg("selfShadows", ((this.selfShadows == true)?1.0:0.0));
-	this.clglWork_links.setArg("ambientColor", [stormEngineC.getAmbientColor()[0], stormEngineC.getAmbientColor()[1], stormEngineC.getAmbientColor()[2], 1.0]);
+	this.clglWork_links.setArg("ambientColor", [this._sec.getAmbientColor()[0], this._sec.getAmbientColor()[1], this._sec.getAmbientColor()[2], 1.0]);
 	
 	this.clglWork_links.setArg("enableDestination", this.enDestination);
 	this.clglWork_links.setArg("destinationForce", this.destinationForce);
@@ -805,16 +807,36 @@ StormGraph.prototype.prerender = function() {
 StormGraph.prototype.render = function() {
 	if(this.arrayNodeId.length > 0) {
 		this.clglWork_nodes.enqueueVertexFragmentProgram("posXYZW", (function() {
-			this.clglWork_nodes.setArg("PMatrix", stormEngineC.defaultCamera.mPMatrix.transpose().e);
-			this.clglWork_nodes.setArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
+			//this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+			if(this._sec.stormGLContext.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) { 
+				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+			} else {
+				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this._sec.stormGLContext.fBuffer); 
+				this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this._sec.stormGLContext.textureObject_DOF, 0);
+				//this.gl.enable(this.gl.BLEND);
+				//this.gl.blendFunc(this.gl.ONE_MINUS_DST_COLOR, this.gl.ONE);
+			}
+			
+			this.clglWork_nodes.setArg("PMatrix", this._sec.defaultCamera.mPMatrix.transpose().e);
+			this.clglWork_nodes.setArg("cameraWMatrix", this._sec.defaultCamera.MPOS.transpose().e);
 			this.clglWork_nodes.setArg("nodeWMatrix", this.MPOS.transpose().e);
 			this.clglWork_nodes.setArg("nodesSize", parseFloat(this.currentNodeId-1));
 		}).bind(this), this.nodeDrawMode);
 	}
 	if(this.arrayLinkId.length > 0) {
 		this.clglWork_links.enqueueVertexFragmentProgram("posXYZW", (function() {
-			this.clglWork_links.setArg("PMatrix", stormEngineC.defaultCamera.mPMatrix.transpose().e);
-			this.clglWork_links.setArg("cameraWMatrix", stormEngineC.defaultCamera.MPOS.transpose().e);
+			//this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+			if(this._sec.stormGLContext.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) {
+				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+			} else {
+				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this._sec.stormGLContext.fBuffer); 
+				this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this._sec.stormGLContext.textureObject_DOF, 0);
+				//this.gl.enable(this.gl.BLEND);
+				//this.gl.blendFunc(this.gl.ONE_MINUS_DST_COLOR, this.gl.ONE);
+			}
+			
+			this.clglWork_links.setArg("PMatrix", this._sec.defaultCamera.mPMatrix.transpose().e);
+			this.clglWork_links.setArg("cameraWMatrix", this._sec.defaultCamera.MPOS.transpose().e);
 			this.clglWork_links.setArg("nodeWMatrix", this.MPOS.transpose().e);
 			this.clglWork_links.setArg("nodesSize", parseFloat(this.currentNodeId-1));
 		}).bind(this), this.linkDrawMode);
@@ -870,24 +892,24 @@ StormGraph.prototype.setLinksSplitEvery = function(value) {
 StormGraph.prototype.updateForcesAndPP = function(clglwork) {
 	// POLARITY POINTS
 	this.arrPP = [];
-	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
-		for(var nb = 0, fb = stormEngineC.polarityPoints[n].nodesProc.length; nb < fb; nb++) {
-			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.polarityPoints[n].nodesProc[nb].idNum) {
-				var oper = this.MPOS.x(stormEngineC.polarityPoints[n].getPosition());
+	for(var n = 0, f = this._sec.polarityPoints.length; n < f; n++) {
+		for(var nb = 0, fb = this._sec.polarityPoints[n].nodesProc.length; nb < fb; nb++) {
+			if(this.objectType == this._sec.polarityPoints[n].nodesProc[nb].objectType && this.idNum == this._sec.polarityPoints[n].nodesProc[nb].idNum) {
+				var oper = this.MPOS.x(this._sec.polarityPoints[n].getPosition());
 				
 				this.arrPP.push({"x": oper.e[3], "y": oper.e[7], "z": oper.e[11],
-							"polarity": stormEngineC.polarityPoints[n].polarity,
-							"orbit": stormEngineC.polarityPoints[n].orbit,
-							"force": stormEngineC.polarityPoints[n].force});
+							"polarity": this._sec.polarityPoints[n].polarity,
+							"orbit": this._sec.polarityPoints[n].orbit,
+							"force": this._sec.polarityPoints[n].force});
 			}
 		}
 	}
 	// FORCES
 	this.arrF = [];
-	for(var n = 0, f = stormEngineC.forceFields.length; n < f; n++) {
-		for(var nb = 0, fb = stormEngineC.forceFields[n].nodesProc.length; nb < fb; nb++) {
-			if(this.objectType == stormEngineC.polarityPoints[n].nodesProc[nb].objectType && this.idNum == stormEngineC.forceFields[n].nodesProc[nb].idNum) {
-				var oper = stormEngineC.forceFields[n].direction;
+	for(var n = 0, f = this._sec.forceFields.length; n < f; n++) {
+		for(var nb = 0, fb = this._sec.forceFields[n].nodesProc.length; nb < fb; nb++) {
+			if(this.objectType == this._sec.polarityPoints[n].nodesProc[nb].objectType && this.idNum == this._sec.forceFields[n].nodesProc[nb].idNum) {
+				var oper = this._sec.forceFields[n].direction;
 				
 				this.arrF.push({"x": oper.e[3], "y": oper.e[7], "z": oper.e[11]});
 			}
@@ -980,7 +1002,7 @@ StormGraph.prototype.set_polarity = function(arr) {
 StormGraph.prototype.set_color = function(color) {
 	var arr;
 	if(color != undefined && color instanceof HTMLImageElement) {
-		arr = stormEngineC.utils.getUint8ArrayFromHTMLImageElement(color);
+		arr = this._sec.utils.getUint8ArrayFromHTMLImageElement(color);
 	} else if(color != undefined && color instanceof StormV3) {
 		arr = new Uint8Array([color.e[0]*255, color.e[1]*255, color.e[2]*255, 255]);
 	} else {
@@ -1026,7 +1048,7 @@ StormGraph.prototype.set_color = function(color) {
 StormGraph.prototype.set_linkColor = function(color) {
 	var arr;
 	if(color != undefined && color instanceof HTMLImageElement) {
-		arr = stormEngineC.utils.getUint8ArrayFromHTMLImageElement(color);
+		arr = this._sec.utils.getUint8ArrayFromHTMLImageElement(color);
 	} else if(color != undefined && color instanceof StormV3) {
 		arr = new Uint8Array([color.e[0]*255, color.e[1]*255, color.e[2]*255, 255]);
 	} else {

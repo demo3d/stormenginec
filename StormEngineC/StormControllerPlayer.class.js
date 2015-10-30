@@ -4,8 +4,10 @@
 * @constructor
 * @param {Float} camDistance Distance to target
 */
-StormControllerPlayer = function(camDistance) {
-	this.controllerType = stormEngineC.ControllerTypes["PLAYER"];
+StormControllerPlayer = function(sec, camDistance) {
+	this._sec = sec;
+	
+	this.controllerType = this._sec.ControllerTypes["PLAYER"];
 	this.g_forwardFC = 0;
 	this.g_backwardFC = 0;
 	this.g_strafeLeftFC = 0;
@@ -113,7 +115,7 @@ StormControllerPlayer.prototype.mouseUpFC = function(event) {
 */
 StormControllerPlayer.prototype.cameraSetupFC = function(cameraNode, meshNode) {
 	this.cameraNode = cameraNode;
-	this.meshNode = (meshNode == undefined) ? new StormNode() : meshNode;
+	this.meshNode = (meshNode == undefined) ? new StormNode(this._sec) : meshNode;
 	this.meshNode.shadows = false;
 	
 	if(this.meshNode != undefined) {
@@ -125,8 +127,8 @@ StormControllerPlayer.prototype.cameraSetupFC = function(cameraNode, meshNode) {
 		if(this.meshNode.body != undefined) {
 			this.meshNode.body.setActive();
 			this.meshNode.body.moveTo(new Vector3D(this.cameraNode.nodePivot.MPOS.e[3],this.cameraNode.nodePivot.MPOS.e[7],this.cameraNode.nodePivot.MPOS.e[11],0));
-			stormEngineC.stormJigLibJS.dynamicsWorld.addBody(this.meshNode.body);
-			stormEngineC.stormJigLibJS.colSystem.addCollisionBody(this.meshNode.body);
+			this._sec.stormJigLibJS.dynamicsWorld.addBody(this.meshNode.body);
+			this._sec.stormJigLibJS.colSystem.addCollisionBody(this.meshNode.body);
 		}
 	} 
 	
@@ -179,7 +181,7 @@ StormControllerPlayer.prototype.updateFC = function(elapsed) {
 		this.lastTime = timeNow;
 		if(ws != undefined) {
 			ws.emit('dataclient', {
-				netID: stormEngineC.netID,
+				netID: this._sec.netID,
 				WM0: this.meshNode.MPOS.e[0],
 				WM1: this.meshNode.MPOS.e[1],
 				WM2: this.meshNode.MPOS.e[2],

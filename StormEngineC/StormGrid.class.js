@@ -5,7 +5,9 @@
   
 * @property {String} objectType
 */
-StormGrid = function() { StormNode.call(this); 
+StormGrid = function(sec) { StormNode.call(this); 
+	this._sec = sec;
+	
 	this.objectType = 'grid';
 	
 	this.gridEnabled = true;
@@ -16,7 +18,7 @@ StormGrid = function() { StormNode.call(this);
 	this.arrayLines = [];
 	
 	
-	this.stormGL = stormEngineC.stormGLContext;
+	this.stormGL = this._sec.stormGLContext;
 	this.gl = this.stormGL.gl;
 	
 	this.vertexBuffer = this.gl.createBuffer();	
@@ -143,7 +145,7 @@ StormGrid.prototype.isEnabled = function() {
 * @type Void
 */
 StormGrid.prototype.render = function() {  
-	if(this.stormGL.view_SceneNoDOF || stormEngineC.defaultCamera.DOFenable == false) {
+	if(this.stormGL.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 	} else {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.stormGL.fBuffer); 
@@ -153,8 +155,8 @@ StormGrid.prototype.render = function() {
 	}
 	this.gl.useProgram(this.stormGL.shader_Lines);
 	
-	this.gl.uniformMatrix4fv(this.stormGL.u_Lines_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
-	this.gl.uniformMatrix4fv(this.stormGL.u_Lines_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
+	this.gl.uniformMatrix4fv(this.stormGL.u_Lines_PMatrix, false, this._sec.defaultCamera.mPMatrix.transpose().e);
+	this.gl.uniformMatrix4fv(this.stormGL.u_Lines_cameraWMatrix, false, this._sec.defaultCamera.MPOS.transpose().e);
 	
 	
 	this.gl.enableVertexAttribArray(this.stormGL.attr_Lines_pos);
@@ -172,7 +174,7 @@ StormGrid.prototype.render = function() {
 	this.gl.drawElements(this.gl.LINES, (this.countLines*2)+(3*2), this.gl.UNSIGNED_SHORT, 0);
 	
 	
-	if(this.stormGL.view_SceneNoDOF || stormEngineC.defaultCamera.DOFenable == false) {
+	if(this.stormGL.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) {
 	} else {
 		//this.gl.disable(this.gl.BLEND);
 	}

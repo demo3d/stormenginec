@@ -3,7 +3,9 @@
 * @constructor
 * @property {StormVoxelizator} svo
 */
-StormGI = function() {
+StormGI = function(sec) {
+	this._sec = sec;
+	
 	this.svo;
 	this.maxBounds = 5;    
 };
@@ -22,10 +24,10 @@ StormGI.prototype.setVoxelizator = function(svo) {
 			alert("You must select a voxelizator object with albedo,position and normal fillmodes enabled.");
 			return false;
 	}
-	stormEngineC.setStatus({id:'gi', str:'PROCESSING GI'});
+	this._sec.setStatus({id:'gi', str:'PROCESSING GI'});
 	this.svo = svo;
-	stormEngineC.setWebGLGI(this);
-	stormEngineC.setStatus({id:'gi', str:''});
+	this._sec.setWebGLGI(this);
+	this._sec.setStatus({id:'gi', str:''});
 };
 
 /**
@@ -34,7 +36,7 @@ StormGI.prototype.setVoxelizator = function(svo) {
 * @param {Bool} [stop=true]
 */
 StormGI.prototype.stopOncameramove = function(stop) {
-	stormEngineC.stormGLContext.GIstopOncameramove = stop;
+	this._sec.stormGLContext.GIstopOncameramove = stop;
 };
 
 /**
@@ -42,7 +44,7 @@ StormGI.prototype.stopOncameramove = function(stop) {
 * @type Void
 */
 StormGI.prototype.enable = function() {
-	stormEngineC.stormGLContext.GIv2enable = true;
+	this._sec.stormGLContext.GIv2enable = true;
 };
 
 /**
@@ -50,7 +52,7 @@ StormGI.prototype.enable = function() {
 * @type Void
 */
 StormGI.prototype.disable = function() {
-	stormEngineC.stormGLContext.GIv2enable = false;
+	this._sec.stormGLContext.GIv2enable = false;
 };
 
 /**

@@ -17,7 +17,7 @@
 		<canvas id="stormCanvas" width="512" height="512"></canvas> 
 		<script>
 			
-			 
+			var stormEngineC = new StormEngineC();
 			stormEngineC.createWebGL({	target:	'stormCanvas', // ID canvas
 										resizable: 0,
 										editMode: true,  
@@ -71,7 +71,7 @@
 												fillmode:["albedo","position","normal"],
 												ongenerate:function() {												
 													// enable WebGL GI  
-													var gi = new StormGI();
+													var gi = new StormGI(stormEngineC);
 													gi.setVoxelizator(voxelizator);
 													//gi.setMaxBounds(1);
 													

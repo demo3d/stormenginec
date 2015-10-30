@@ -6,7 +6,9 @@
 * @property {String} objectType
 * @property {StormV3} direction
 */
-StormLight = function() { StormNode.call(this); 
+StormLight = function(sec) { StormNode.call(this); 
+	this._sec = sec;
+	
 	this.objectType = 'light';
 	
 	this.type; // sun | spot
@@ -46,7 +48,7 @@ StormLight.prototype.setLightColor = function(color) {
 	
 	this.color = vecColor;
 	for(var n = 0, f = this.buffersObjects.length; n < f; n++) {
-		stormEngineC.clgl.enqueueWriteBuffer(this.materialUnits[0].textureObjectKd, [vecColor.e[0], vecColor.e[1], vecColor.e[2], 255]);	
+		this._sec.clgl.enqueueWriteBuffer(this.materialUnits[0].textureObjectKd, [vecColor.e[0], vecColor.e[1], vecColor.e[2], 255]);	
 	}
 	this.nodeCtxWebGL.setAlbedo(vecColor);
 };
@@ -65,8 +67,8 @@ StormLight.prototype.setDirection = function(direction) {
 			this.mrealWMatrix.e[11] = vecEyeLight.e[2];
 			
 			
-			var vecEyeLight = stormEngineC.defaultCamera.getPosition().add(this.direction.x(-100.0));
-			var vecPosLight = stormEngineC.defaultCamera.getPosition();
+			var vecEyeLight = this._sec.defaultCamera.getPosition().add(this.direction.x(-100.0));
+			var vecPosLight = this._sec.defaultCamera.getPosition();
 			this.MPOS = $M16().makeLookAt(	vecEyeLight.e[0], vecEyeLight.e[1], vecEyeLight.e[2],
 												vecPosLight.e[0], vecPosLight.e[1], vecPosLight.e[2],
 												0.0,1.0,0.0);

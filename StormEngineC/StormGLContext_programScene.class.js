@@ -765,7 +765,7 @@ StormGLContext.prototype.pointers_Scene = function() {
  */
 StormGLContext.prototype.render_Scene = function() {
 	this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
-	if(this.view_SceneNoDOF || stormEngineC.defaultCamera.DOFenable == false) {
+	if(this.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 	} else {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fBuffer); 
@@ -868,9 +868,9 @@ StormGLContext.prototype.render_Scene = function() {
 	this.gl.uniform1f(this.u_Scene_viewportWidth, this.viewportWidth);
 	this.gl.uniform1f(this.u_Scene_viewportHeight, this.viewportHeight);
 	
-	this.gl.uniformMatrix4fv(this.u_Scene_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
-	this.gl.uniformMatrix4fv(this.u_Scene_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
-	this.gl.uniform3f(this.u_Scene_cameraPos, stormEngineC.defaultCamera.MPOS.e[3], stormEngineC.defaultCamera.MPOS.e[7], stormEngineC.defaultCamera.MPOS.e[11]);
+	this.gl.uniformMatrix4fv(this.u_Scene_PMatrix, false, this._sec.defaultCamera.mPMatrix.transpose().e);
+	this.gl.uniformMatrix4fv(this.u_Scene_cameraWMatrix, false, this._sec.defaultCamera.MPOS.transpose().e);
+	this.gl.uniform3f(this.u_Scene_cameraPos, this._sec.defaultCamera.MPOS.e[3], this._sec.defaultCamera.MPOS.e[7], this._sec.defaultCamera.MPOS.e[11]);
 	
 	var kdName;
 	for(var n = 0, f = this.nodes.length; n < f; n++) {
@@ -896,7 +896,7 @@ StormGLContext.prototype.render_Scene = function() {
 		}
 	}
 	
-	var polPoints = stormEngineC.polarityPoints;
+	var polPoints = this._sec.polarityPoints;
 	for(var n = 0, f = polPoints.length; n < f; n++) {
 		if(polPoints[n].visibleOnContext == true) {
 			for(var nb = 0, fb = polPoints[n].buffersObjects.length; nb < fb; nb++) {
@@ -965,7 +965,7 @@ StormGLContext.prototype.renderSceneNow = function(node, buffersObject) {
 	//if(node.materialUnits[0].textureObjectBump != undefined) this.gl.uniform1i(this.u_Scene_useBump, 1);
 	
 	this.gl.uniform1i(this.u_Scene_selectedNode, 0);
-	if(stormEngineC.editMode == true && stormEngineC.nearNode != null && node == stormEngineC.nearNode)
+	if(this._sec.editMode == true && this._sec.nearNode != null && node == this._sec.nearNode)
 		this.gl.uniform1i(this.u_Scene_selectedNode, 1);
 	
 	

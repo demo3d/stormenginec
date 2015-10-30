@@ -5,7 +5,9 @@
 
 * @property {String} objectType
 */
-StormForceField = function(jsonIn) { StormNode.call(this); 
+StormForceField = function(sec, jsonIn) { StormNode.call(this); 
+	this._sec = sec;
+	
 	this.objectType = 'forceField';
 	this.forceFieldType = 'direction'; // direction or gravity
 	
@@ -17,7 +19,7 @@ StormForceField.prototype = Object.create(StormNode.prototype);
 /** @private */
 StormForceField.prototype.updateJigLib = function() {  
 	if(this.forceFieldType == 'gravity') {  
-		stormEngineC.stormJigLibJS.dynamicsWorld.setGravity(new Vector3D( this.direction.e[0], this.direction.e[1], this.direction.e[2], 0 ));
+		this._sec.stormJigLibJS.dynamicsWorld.setGravity(new Vector3D( this.direction.e[0], this.direction.e[1], this.direction.e[2], 0 ));
 	} else {
 	
 	} 
@@ -40,10 +42,10 @@ StormForceField.prototype.setDirection = function(direction) {
 */
 StormForceField.prototype.deleteForceField = function() {
 	var idToRemove = undefined;
-	for(var n = 0, f = stormEngineC.forceFields.length; n < f; n++) {
-		if(stormEngineC.forceFields[n].idNum == this.idNum) idToRemove = n;
+	for(var n = 0, f = this._sec.forceFields.length; n < f; n++) {
+		if(this._sec.forceFields[n].idNum == this.idNum) idToRemove = n;
 	}
-	stormEngineC.forceFields.splice(idToRemove,1);
+	this._sec.forceFields.splice(idToRemove,1);
 	
 	for(var n = 0, f = this.nodesProc.length; n < f; n++) {
 		var kernelDir_Source = this.nodesProc[n].generatekernelDir_Source(); 

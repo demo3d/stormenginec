@@ -5,8 +5,7 @@
  * @private 
  */
 StormGLContext.prototype.initShader_BG = function() {
-	_this = stormEngineC.stormGLContext;
-	var sourceVertex = 	_this.precision+
+	var sourceVertex = 	this.precision+
 		'attribute vec3 aVertexPosition;\n'+
 		'attribute vec3 aTextureCoord;\n'+
 		
@@ -22,7 +21,7 @@ StormGLContext.prototype.initShader_BG = function() {
 			'vTextureCoord = aTextureCoord;\n'+
 			
 		'}';
-	var sourceFragment = _this.precision+
+	var sourceFragment = this.precision+
 		
 		'varying vec3 vTextureCoord;\n'+
 		
@@ -34,46 +33,45 @@ StormGLContext.prototype.initShader_BG = function() {
 			
 			'gl_FragColor = vec4(texture.r, texture.g, texture.b, texture.a);\n'+
 		'}';
-	_this.shader_BG = _this.gl.createProgram();
-	_this.createShader(_this.gl, "BG", sourceVertex, sourceFragment, _this.shader_BG, _this.pointers_BG);
+	this.shader_BG = this.gl.createProgram();
+	this.createShader(this.gl, "BG", sourceVertex, sourceFragment, this.shader_BG, this.pointers_BG.bind(this));
 };
 /**
  * @private 
  */
 StormGLContext.prototype.pointers_BG = function() {
-	_this = stormEngineC.stormGLContext;
-	_this.u_BG_PMatrix = _this.gl.getUniformLocation(_this.shader_BG, "uPMatrix");
-	_this.u_BG_cameraWMatrix = _this.gl.getUniformLocation(_this.shader_BG, "u_cameraWMatrix");
-	_this.u_BG_node = _this.gl.getUniformLocation(_this.shader_BG, "u_node");
+	this.u_BG_PMatrix = this.gl.getUniformLocation(this.shader_BG, "uPMatrix");
+	this.u_BG_cameraWMatrix = this.gl.getUniformLocation(this.shader_BG, "u_cameraWMatrix");
+	this.u_BG_node = this.gl.getUniformLocation(this.shader_BG, "u_node");
 	
-	_this.nodeEnvironment = new StormNode(); 
-	var mesh = new StormMesh();
+	this.nodeEnvironment = new StormNode(this._sec); 
+	var mesh = new StormMesh(this._sec);
 	mesh.loadSphere({radius:300,segments:4});
 
-	_this.vertexBuffer_BG = _this.gl.createBuffer();
-	_this.gl.bindBuffer(_this.gl.ARRAY_BUFFER, _this.vertexBuffer_BG);
-	_this.gl.bufferData(_this.gl.ARRAY_BUFFER, new Float32Array(mesh.vertexArray), _this.gl.STATIC_DRAW);
+	this.vertexBuffer_BG = this.gl.createBuffer();
+	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer_BG);
+	this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(mesh.vertexArray), this.gl.STATIC_DRAW);
 	
-	_this.textureBuffer_BG = _this.gl.createBuffer();
-	_this.gl.bindBuffer(_this.gl.ARRAY_BUFFER, _this.textureBuffer_BG);
-	_this.gl.bufferData(_this.gl.ARRAY_BUFFER, new Float32Array(mesh.textureArray), _this.gl.STATIC_DRAW);
+	this.textureBuffer_BG = this.gl.createBuffer();
+	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.textureBuffer_BG);
+	this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(mesh.textureArray), this.gl.STATIC_DRAW);
 	
-	_this.indexBuffer_BGLength = mesh.indexArray.length;
-	_this.indexBuffer_BG = _this.gl.createBuffer();
-	_this.gl.bindBuffer(_this.gl.ELEMENT_ARRAY_BUFFER, _this.indexBuffer_BG);
-	_this.gl.bufferData(_this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.indexArray), _this.gl.STATIC_DRAW);
+	this.indexBuffer_BGLength = mesh.indexArray.length;
+	this.indexBuffer_BG = this.gl.createBuffer();
+	this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer_BG);
+	this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(mesh.indexArray), this.gl.STATIC_DRAW);
 	
-	_this.attr_BG_pos = _this.gl.getAttribLocation(_this.shader_BG, "aVertexPosition");
-	_this.attr_BG_tex = _this.gl.getAttribLocation(_this.shader_BG, "aTextureCoord");
-	_this.sampler_BG_2D = _this.gl.getUniformLocation(_this.shader_BG, "sampler_2D");
-	_this.Shader_BG_READY = true;
+	this.attr_BG_pos = this.gl.getAttribLocation(this.shader_BG, "aVertexPosition");
+	this.attr_BG_tex = this.gl.getAttribLocation(this.shader_BG, "aTextureCoord");
+	this.sampler_BG_2D = this.gl.getUniformLocation(this.shader_BG, "sampler_2D");
+	this.Shader_BG_READY = true;
 };
 /**
  * @private 
  */
 StormGLContext.prototype.render_BG = function() {
 	this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
-	if(this.view_SceneNoDOF || stormEngineC.defaultCamera.DOFenable == false) {
+	if(this.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 	} else {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fBuffer); 
@@ -84,9 +82,9 @@ StormGLContext.prototype.render_BG = function() {
 	
 	this.gl.useProgram(this.shader_BG);
 
-	this.gl.uniformMatrix4fv(this.u_BG_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
-	this.gl.uniformMatrix4fv(this.u_BG_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
-	//this.nodeEnvironment.setPosition(stormEngineC.defaultCamera.nodePivot.getPosition());  
+	this.gl.uniformMatrix4fv(this.u_BG_PMatrix, false, this._sec.defaultCamera.mPMatrix.transpose().e);
+	this.gl.uniformMatrix4fv(this.u_BG_cameraWMatrix, false, this._sec.defaultCamera.MPOS.transpose().e);
+	//this.nodeEnvironment.setPosition(this._sec.defaultCamera.nodePivot.getPosition());  
 	this.gl.uniformMatrix4fv(this.u_BG_node, false, this.nodeEnvironment.MPOS.transpose().e);
 	
 	this.gl.activeTexture(this.gl.TEXTURE0);

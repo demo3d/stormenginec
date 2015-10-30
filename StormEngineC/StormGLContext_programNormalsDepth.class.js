@@ -37,7 +37,7 @@ StormGLContext.prototype.initShader_Normals = function() {
 			'gl_FragColor = vec4((vNormal.r+1.0)/2.0,(vNormal.g+1.0)/2.0,(vNormal.b+1.0)/2.0, linearDepth);\n'+
 		'}';
 	this.shader_Normals = this.gl.createProgram();
-	this.createShader(this.gl, "NORMALS", sourceVertex, sourceFragment, this.shader_Normals, stormEngineC.stormGLContext.pointers_Normals.bind(this));
+	this.createShader(this.gl, "NORMALS", sourceVertex, sourceFragment, this.shader_Normals, this._sec.stormGLContext.pointers_Normals.bind(this));
 };
 /**
  * @private 
@@ -70,8 +70,8 @@ StormGLContext.prototype.render_Normals = function() {
 	for(var n = 0, f = this.nodes.length; n < f; n++) { 
 		if(this.nodes[n].visibleOnContext == true && this.nodes[n].objectType != 'light') { // this.nodes[n].objectType != 'light' por malla nodeCtxWebGL de luces
 			for(var nb = 0, fb = this.nodes[n].buffersObjects.length; nb < fb; nb++) {	
-				this.gl.uniformMatrix4fv(this.u_Normals_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
-				this.gl.uniformMatrix4fv(this.u_Normals_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
+				this.gl.uniformMatrix4fv(this.u_Normals_PMatrix, false, this._sec.defaultCamera.mPMatrix.transpose().e);
+				this.gl.uniformMatrix4fv(this.u_Normals_cameraWMatrix, false, this._sec.defaultCamera.MPOS.transpose().e);
 				this.gl.uniformMatrix4fv(this.u_Normals_nodeWMatrix, false, this.nodes[n].MPOSFrame.transpose().e); 
 				this.gl.uniform3f(this.u_Normals_nodeVScale, this.nodes[n].VSCALE.e[0], this.nodes[n].VSCALE.e[1], this.nodes[n].VSCALE.e[2]);   
 				

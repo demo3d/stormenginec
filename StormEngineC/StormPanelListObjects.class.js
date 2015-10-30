@@ -2,8 +2,8 @@
 * @class
 * @constructor
 */
-StormEngineC_PanelListObjects = function() {
-	
+StormEngineC_PanelListObjects = function(sec) {
+	this._sec = sec;
 };
 
 /**
@@ -14,7 +14,7 @@ StormEngineC_PanelListObjects.prototype.loadPanel = function() {
 	var html = '<div id="DIVID_STORMOBJECTS_LIST"></div>';
 	
 	var _this = this;
-	stormEngineC.makePanel(_this, 'DIVID_StormPanelListObjects', 'LIST OBJECTS', html);
+	this._sec.makePanel(_this, 'DIVID_StormPanelListObjects', 'LIST OBJECTS', html);
 };
 
 /**
@@ -33,63 +33,103 @@ StormEngineC_PanelListObjects.prototype.show = function() {
 * @private
 */
 StormEngineC_PanelListObjects.prototype.showListObjects = function() {
+	$('#DIVID_STORMOBJECTS_LIST').html("");
 	var str = '';
-	for(var n=0, f = stormEngineC.nodes.length; n < f; n++) {
-		if(stormEngineC.nodes[n].objectType != 'light' && stormEngineC.nodes[n].systemVisible == true) {
-			var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'node' && stormEngineC.nearNode == stormEngineC.nodes[n]) ? '#444' : '#000';
-			var colorText = (stormEngineC.nodes[n].visibleOnContext == true) ? '#FFF': '#999';
-			str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.nodes["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.nodes[n].name+"</div>";
+	for(var n=0, f = this._sec.nodes.length; n < f; n++) {
+		if(this._sec.nodes[n].objectType != 'light' && this._sec.nodes[n].systemVisible == true) {
+			var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'node' && this._sec.nearNode == this._sec.nodes[n]) ? '#444' : '#000';
+			var colorText = (this._sec.nodes[n].visibleOnContext == true) ? '#FFF': '#999';
+			str = "<div id='TDID_StormObjectNum_nodes"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.nodes[n].name+"</div>";
+			$('#DIVID_STORMOBJECTS_LIST').append(str);
+			
+			document.getElementById("TDID_StormObjectNum_nodes"+n).addEventListener("click", (function() {
+				this._sec.PanelListObjects.select($(this), this._sec.nodes[n]);
+			}).bind(this));
 		}
 	}
-	for(var n=0, f = stormEngineC.nodesCam.length; n < f; n++) {
-		if(stormEngineC.nodesCam[n].systemVisible == true) {
-			var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'camera' && stormEngineC.nearNode == stormEngineC.nodesCam[n]) ? '#444' : '#000';
-			var colorText = (stormEngineC.nodesCam[n].visibleOnContext == true) ? '#FFF': '#999';
-			str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.nodesCam["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.nodesCam[n].name+"</div>";
+	for(var n=0, f = this._sec.nodesCam.length; n < f; n++) {
+		if(this._sec.nodesCam[n].systemVisible == true) {
+			var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'camera' && this._sec.nearNode == this._sec.nodesCam[n]) ? '#444' : '#000';
+			var colorText = (this._sec.nodesCam[n].visibleOnContext == true) ? '#FFF': '#999';
+			str = "<div id='TDID_StormObjectNum_nodesCam"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.nodesCam[n].name+"</div>";
+			$('#DIVID_STORMOBJECTS_LIST').append(str);
+			
+			document.getElementById("TDID_StormObjectNum_nodesCam"+n).addEventListener("click", (function() {
+				this._sec.PanelListObjects.select($(this), this._sec.nodesCam[n]);
+			}).bind(this));
 		}
 	}
-	for(var n=0, f = stormEngineC.lines.length; n < f; n++) {
-		if(stormEngineC.lines[n].systemVisible == true) {
-			var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'line' && stormEngineC.nearNode == stormEngineC.lines[n]) ? '#444' : '#000';
-			var colorText = (stormEngineC.lines[n].visibleOnContext == true) ? '#FFF': '#999';
-			str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.lines["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.lines[n].name+"</div>";
+	for(var n=0, f = this._sec.lines.length; n < f; n++) {
+		if(this._sec.lines[n].systemVisible == true) {
+			var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'line' && this._sec.nearNode == this._sec.lines[n]) ? '#444' : '#000';
+			var colorText = (this._sec.lines[n].visibleOnContext == true) ? '#FFF': '#999';
+			str = "<div id='TDID_StormObjectNum_lines"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.lines[n].name+"</div>";
+			$('#DIVID_STORMOBJECTS_LIST').append(str);
+			
+			document.getElementById("TDID_StormObjectNum_lines"+n).addEventListener("click", (function() {
+				this._sec.PanelListObjects.select($(this), this._sec.lines[n]);
+			}).bind(this));
 		}
 	}
-	for(var n=0, f = stormEngineC.lights.length; n < f; n++) {
-		if(stormEngineC.lights[n].systemVisible == true) {
-			var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'light' && stormEngineC.nearNode == stormEngineC.lights[n]) ? '#444' : '#000';
-			var colorText = (stormEngineC.lights[n].visibleOnContext == true) ? '#FFF': '#999';
-			str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.lights["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.lights[n].name+"</div>";
+	for(var n=0, f = this._sec.lights.length; n < f; n++) {
+		if(this._sec.lights[n].systemVisible == true) {
+			var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'light' && this._sec.nearNode == this._sec.lights[n]) ? '#444' : '#000';
+			var colorText = (this._sec.lights[n].visibleOnContext == true) ? '#FFF': '#999';
+			str = "<div id='TDID_StormObjectNum_lights"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.lights[n].name+"</div>";
+			$('#DIVID_STORMOBJECTS_LIST').append(str);
+			
+			document.getElementById("TDID_StormObjectNum_lights"+n).addEventListener("click", (function() {
+				this._sec.PanelListObjects.select($(this), this._sec.lights[n]);
+			}).bind(this));
 		}
 	}
-	for(var n=0, f = stormEngineC.polarityPoints.length; n < f; n++) {
-		if(stormEngineC.polarityPoints[n].systemVisible == true) {
-			var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'polarityPoint' && stormEngineC.nearNode == stormEngineC.polarityPoints[n]) ? '#444' : '#000';
-			var colorText = (stormEngineC.polarityPoints[n].visibleOnContext == true) ? '#FFF': '#999';
-			str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.polarityPoints["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.polarityPoints[n].name+"</div>";
+	for(var n=0, f = this._sec.polarityPoints.length; n < f; n++) {
+		if(this._sec.polarityPoints[n].systemVisible == true) {
+			var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'polarityPoint' && this._sec.nearNode == this._sec.polarityPoints[n]) ? '#444' : '#000';
+			var colorText = (this._sec.polarityPoints[n].visibleOnContext == true) ? '#FFF': '#999';
+			str = "<div id='TDID_StormObjectNum_polarityPoints"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.polarityPoints[n].name+"</div>";
+			$('#DIVID_STORMOBJECTS_LIST').append(str);
+			
+			document.getElementById("TDID_StormObjectNum_polarityPoints"+n).addEventListener("click", (function() {
+				this._sec.PanelListObjects.select($(this), this._sec.polarityPoints[n]);
+			}).bind(this));
 		}
 	}
-	for(var n=0, f = stormEngineC.forceFields.length; n < f; n++) {
-		if(stormEngineC.forceFields[n].systemVisible == true) {
-			var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'forceField' && stormEngineC.nearNode == stormEngineC.forceFields[n]) ? '#444' : '#000';
-			var colorText = (stormEngineC.forceFields[n].visibleOnContext == true) ? '#FFF': '#999';
-			str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.forceFields["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.forceFields[n].name+"</div>";
+	for(var n=0, f = this._sec.forceFields.length; n < f; n++) {
+		if(this._sec.forceFields[n].systemVisible == true) {
+			var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'forceField' && this._sec.nearNode == this._sec.forceFields[n]) ? '#444' : '#000';
+			var colorText = (this._sec.forceFields[n].visibleOnContext == true) ? '#FFF': '#999';
+			str = "<div id='TDID_StormObjectNum_forceFields"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.forceFields[n].name+"</div>";
+			$('#DIVID_STORMOBJECTS_LIST').append(str);
+			
+			document.getElementById("TDID_StormObjectNum_forceFields"+n).addEventListener("click", (function() {
+				this._sec.PanelListObjects.select($(this), this._sec.forceFields[n]);
+			}).bind(this));
 		}
 	}
-	for(var n=0, f = stormEngineC.graphs.length; n < f; n++) {
-		if(stormEngineC.graphs[n].systemVisible == true) {
-			var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'graphs' && stormEngineC.nearNode == stormEngineC.graphs[n]) ? '#444' : '#000';
-			var colorText = (stormEngineC.graphs[n].visibleOnContext == true) ? '#FFF': '#999';
-			str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.graphs["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.graphs[n].name+"</div>";
+	for(var n=0, f = this._sec.graphs.length; n < f; n++) {
+		if(this._sec.graphs[n].systemVisible == true) {
+			var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'graphs' && this._sec.nearNode == this._sec.graphs[n]) ? '#444' : '#000';
+			var colorText = (this._sec.graphs[n].visibleOnContext == true) ? '#FFF': '#999';
+			str = "<div id='TDID_StormObjectNum_graphs"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.graphs[n].name+"</div>";
+			$('#DIVID_STORMOBJECTS_LIST').append(str);
+			
+			document.getElementById("TDID_StormObjectNum_graphs"+n).addEventListener("click", (function() {
+				this._sec.PanelListObjects.select($(this), this._sec.graphs[n]);
+			}).bind(this));
 		}
 	}
-	for(var n=0, f = stormEngineC.voxelizators.length; n < f; n++) {
-		var colorBg = (stormEngineC.nearNode != undefined && stormEngineC.nearNode.objectType == 'voxelizator' && stormEngineC.nearNode == stormEngineC.voxelizators[n]) ? '#444' : '#000';
+	for(var n=0, f = this._sec.voxelizators.length; n < f; n++) {
+		var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'voxelizator' && this._sec.nearNode == this._sec.voxelizators[n]) ? '#444' : '#000';
 		var colorText = '#FFF';
-		str += "<div id='TDID_StormObjectNum_"+n+"' onclick='stormEngineC.PanelListObjects.select($(this),stormEngineC.voxelizators["+n+"]);' style='background-color:"+colorBg+";color:"+colorText+";'>"+stormEngineC.voxelizators[n].name+"</div>";
-	} 
-	str += '';
-	$('#DIVID_STORMOBJECTS_LIST').html(str);
+		str = "<div id='TDID_StormObjectNum_voxelizators"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.voxelizators[n].name+"</div>";
+		$('#DIVID_STORMOBJECTS_LIST').append(str);
+		
+		document.getElementById("TDID_StormObjectNum_voxelizators"+n).addEventListener("click", (function() {
+			this._sec.PanelListObjects.select($(this), this._sec.voxelizators[n]);
+		}).bind(this));
+	}
+	
 	
 	
 	$("#DIVID_STORMOBJECTS_LIST div").css({	'cursor':'pointer',
@@ -107,21 +147,21 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 */
 StormEngineC_PanelListObjects.prototype.select = function(element, node) {
 	var selectedNode = node; 
-	if(stormEngineC.pickingCall != undefined) {
+	if(this._sec.pickingCall != undefined) {
 		if(element != undefined) element.css("background-color","#444");
-		var strEv = "stormEngineC.nearNode."+stormEngineC.pickingCall.replace(/_selectedNode_/g,"selectedNode"); 
+		var strEv = "this._sec.nearNode."+this._sec.pickingCall.replace(/_selectedNode_/g,"selectedNode"); 
 		try {
 			eval(strEv);
 		}catch(e) {
 		}
-		stormEngineC.pickingCall = undefined;
+		this._sec.pickingCall = undefined;
 		document.body.style.cursor='default'; 
 		if(element != undefined) element.css("background-color","#000");
-		stormEngineC.PanelEditNode.updateNearNode(); 
+		this._sec.PanelEditNode.updateNearNode(); 
 	} else {
 		$("#DIVID_STORMOBJECTS_LIST div").css("background-color","#000");
 		if(element != undefined) element.css("background-color","#444");  
-		stormEngineC.selectNode(node);
+		this._sec.selectNode(node);
 	}
 };
 

@@ -2,8 +2,10 @@
 * @class
 * @constructor
 */
-StormMaterial = function() {
-	this.gl = stormEngineC.stormGLContext.gl;
+StormMaterial = function(sec) {
+	this._sec = sec;
+	
+	this.gl = this._sec.stormGLContext.gl;
 	
 	this.idNum;
 	this.Ns = 0.8928571428571429; // roughness 0.0-100.0 ->/112=(0.0 - 0.8928571428571429) 
@@ -15,8 +17,8 @@ StormMaterial = function() {
 	this.typeTexture = 'albedo'; // temporal variable. albedo|bump
 	
 	this.textureKdName = undefined; // string name map albedo
-	this.textureObjectKd = stormEngineC.clgl.createBuffer([1,1], "FLOAT4", 0, false); // WebGL texture albedo
-	stormEngineC.clgl.enqueueWriteBuffer(this.textureObjectKd, [1,1,1,1]);	
+	this.textureObjectKd = this._sec.clgl.createBuffer([1,1], "FLOAT4", 0, false); // WebGL texture albedo
+	this._sec.clgl.enqueueWriteBuffer(this.textureObjectKd, [1,1,1,1]);	
 	
 	this.textureBumpName = undefined; // string name map bump
 	this.textureObjectBump = undefined; // WebGL texture map bump
@@ -26,11 +28,11 @@ StormMaterial = function() {
 StormMaterial.prototype.writeNow = function(arr, arrDimensions) {
 	this.solid = false;
 	if(this.typeTexture == 'albedo') {
-		this.textureObjectKd = stormEngineC.clgl.createBuffer(arrDimensions, "FLOAT4", 0, true); 
-		stormEngineC.clgl.enqueueWriteBuffer(this.textureObjectKd, arr, true);
+		this.textureObjectKd = this._sec.clgl.createBuffer(arrDimensions, "FLOAT4", 0, true); 
+		this._sec.clgl.enqueueWriteBuffer(this.textureObjectKd, arr, true);
 	} else if(this.typeTexture == 'bump') {
-		this.textureObjectBump = stormEngineC.clgl.createBuffer(arrDimensions, "FLOAT4", 0, true);  
-		stormEngineC.clgl.enqueueWriteBuffer(this.textureObjectKd, arr, true); 
+		this.textureObjectBump = this._sec.clgl.createBuffer(arrDimensions, "FLOAT4", 0, true);  
+		this._sec.clgl.enqueueWriteBuffer(this.textureObjectKd, arr, true); 
 	}
 	
 	if(this.typeTexture == 'albedo')
@@ -58,22 +60,24 @@ StormMaterial.prototype.write = function(color, typeTexture) {
 		req.open("GET", color, true);
 		req.responseType = "blob";
 		
-		req.onload = function() {
+		req.onload = (function() {
 			var filereader = new FileReader();
-			filereader.onload = function(event) {
+			filereader.onload = (function(event) {
 				var dataUrl = event.target.result;
 				
 				var image = new Image();
-				image.onload = function() {
-					stormEngineC.setStatus({id:'texture'+color,
+				image.onload = (function() {
+					this._sec.setStatus({id:'texture'+color,
 											str:''});
 					req.material.writeNow(image, [image.width, image.height]);
-				};
+				}).bind(this);
 				image.src = dataUrl;
-			};
+				
+			}).bind(this);
 			filereader.readAsDataURL(req.response);
-		};
-		stormEngineC.setStatus({id:'texture'+color,
+		}).bind(this);
+		
+		this._sec.setStatus({id:'texture'+color,
 								str:'Loading texture...'+color,
 								req:req});
 		req.send(null);
@@ -100,12 +104,12 @@ StormMaterial.prototype.writeFromMTLFile = function(materialName, mtlsFile, json
 	req.open("GET", mtlsFile, true);
 	req.responseType = "blob";
 	
-	req.onload = function () {
+	req.onload = (function () {
 		var filereader = new FileReader();
-		filereader.onload = function(event) {
+		filereader.onload = (function(event) {
 			var text = event.target.result;
 			
-			stormEngineC.setStatus({id:'material'+mtlsFile,
+			this._sec.setStatus({id:'material'+mtlsFile,
 									str:''});
 								
 			var stringObjDirectory = '';
@@ -159,10 +163,10 @@ StormMaterial.prototype.writeFromMTLFile = function(materialName, mtlsFile, json
 					encontradoMaterial = true;
 				}
 			}
-		}; 
+		}).bind(this); 
 		filereader.readAsText(req.response);
-	}; 
-	stormEngineC.setStatus({id:'material'+mtlsFile,
+	}).bind(this); 
+	this._sec.setStatus({id:'material'+mtlsFile,
 							str:'Loading material...'+mtlsFile,
 							req:req});
 	req.send(null);

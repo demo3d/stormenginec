@@ -11,7 +11,7 @@
     <canvas id="stormCanvas" width="512" height="512"></canvas>
     <script>
       var nodePole,nodeParticles;
-        
+      	var stormEngineC = new StormEngineC();
         stormEngineC.createWebGL({'target':	'stormCanvas', // ID canvas
                                   'callback':	function(){},
                                   'editMode':	true,
@@ -40,7 +40,7 @@
         graph.setNodeDrawMode(4); // 4=TRIANGLES
         graph.setNodesSplitEvery(parseInt((256*256)/36)); // 36 == number of vertexindices per node (loadBox == 36vertexindices)
                 
-    	meshNode = new StormNode();
+    	meshNode = stormEngineC.createNode();
     	meshNode.loadBox();
     	
     	var numNodes = (64*64);

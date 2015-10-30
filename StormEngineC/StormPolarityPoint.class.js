@@ -5,7 +5,9 @@
 
 * @property {String} objectType
 */
-StormPolarityPoint = function(jsonIn) {	StormNode.call(this); 
+StormPolarityPoint = function(sec, jsonIn) {	StormNode.call(this); 
+	this._sec = sec;
+	
 	this.objectType = 'polarityPoint';
 	
 	this.pointSize = 2.0;
@@ -25,10 +27,10 @@ StormPolarityPoint.prototype = Object.create(StormNode.prototype);
 */
 StormPolarityPoint.prototype.remove = function() {
 	var idToRemove = undefined;
-	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
-		if(stormEngineC.polarityPoints[n].idNum == this.idNum) idToRemove = n;
+	for(var n = 0, f = this._sec.polarityPoints.length; n < f; n++) {
+		if(this._sec.polarityPoints[n].idNum == this.idNum) idToRemove = n;
 	}
-	stormEngineC.polarityPoints.splice(idToRemove,1);
+	this._sec.polarityPoints.splice(idToRemove,1);
 	
 	for(var n = 0, f = this.nodesProc.length; n < f; n++) {
 		if(this.nodesProc[n].kernelDir != undefined) {
@@ -105,8 +107,8 @@ StormPolarityPoint.prototype.setPolarity = function(polarity) {
 	else this.color = $V3([0.0,0.0,1.0]);
 	this.setAlbedo(this.color);
 	
-	for(var p = 0, fp = stormEngineC.polarityPoints.length; p < fp; p++) {
-		if(stormEngineC.polarityPoints[p] == this) {
+	for(var p = 0, fp = this._sec.polarityPoints.length; p < fp; p++) {
+		if(this._sec.polarityPoints[p] == this) {
 			for(var n = 0, fn = this.nodesProc.length; n < fn; n++) {				
 				var selectedKernel;
 				if(this.nodesProc[n].kernelDir != undefined) {
@@ -130,8 +132,8 @@ StormPolarityPoint.prototype.setPolarity = function(polarity) {
 StormPolarityPoint.prototype.setForce = function(force) {  
 	this.force = force;
 	
-	for(var p = 0, fp = stormEngineC.polarityPoints.length; p < fp; p++) {
-		if(stormEngineC.polarityPoints[p] == this) {
+	for(var p = 0, fp = this._sec.polarityPoints.length; p < fp; p++) {
+		if(this._sec.polarityPoints[p] == this) {
 			for(var n = 0, fn = this.nodesProc.length; n < fn; n++) {				
 				var selectedKernel;
 				if(this.nodesProc[n].kernelDir != undefined) {
@@ -154,8 +156,8 @@ StormPolarityPoint.prototype.setForce = function(force) {
 StormPolarityPoint.prototype.enableOrbit = function() {  
 	this.orbit = 1;
 	
-	for(var p = 0, fp = stormEngineC.polarityPoints.length; p < fp; p++) {
-		if(stormEngineC.polarityPoints[p] == this) {
+	for(var p = 0, fp = this._sec.polarityPoints.length; p < fp; p++) {
+		if(this._sec.polarityPoints[p] == this) {
 			for(var n = 0, fn = this.nodesProc.length; n < fn; n++) {				
 				var selectedKernel;
 				if(this.nodesProc[n].kernelDir != undefined) {
@@ -178,8 +180,8 @@ StormPolarityPoint.prototype.enableOrbit = function() {
 StormPolarityPoint.prototype.disableOrbit = function(force) {  
 	this.orbit = 0;
 	
-	for(var p = 0, fp = stormEngineC.polarityPoints.length; p < fp; p++) {
-		if(stormEngineC.polarityPoints[p] == this) {
+	for(var p = 0, fp = this._sec.polarityPoints.length; p < fp; p++) {
+		if(this._sec.polarityPoints[p] == this) {
 			for(var n = 0, fn = this.nodesProc.length; n < fn; n++) {				
 				var selectedKernel;
 				if(this.nodesProc[n].kernelDir != undefined) {
