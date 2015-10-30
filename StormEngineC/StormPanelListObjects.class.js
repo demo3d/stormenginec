@@ -42,9 +42,10 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			str = "<div id='TDID_StormObjectNum_nodes"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.nodes[n].name+"</div>";
 			$('#DIVID_STORMOBJECTS_LIST').append(str);
 			
-			document.getElementById("TDID_StormObjectNum_nodes"+n).addEventListener("click", (function() {
-				this._sec.PanelListObjects.select($(this), this._sec.nodes[n]);
-			}).bind(this));
+			var e = document.getElementById("TDID_StormObjectNum_nodes"+n);
+			e.addEventListener("click", (function(e, n) {
+				this._sec.PanelListObjects.select($(e), this._sec.nodes[n]);
+			}).bind(this, e, n));
 		}
 	}
 	for(var n=0, f = this._sec.nodesCam.length; n < f; n++) {
@@ -54,9 +55,10 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			str = "<div id='TDID_StormObjectNum_nodesCam"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.nodesCam[n].name+"</div>";
 			$('#DIVID_STORMOBJECTS_LIST').append(str);
 			
-			document.getElementById("TDID_StormObjectNum_nodesCam"+n).addEventListener("click", (function() {
-				this._sec.PanelListObjects.select($(this), this._sec.nodesCam[n]);
-			}).bind(this));
+			var e = document.getElementById("TDID_StormObjectNum_nodesCam"+n);
+			e.addEventListener("click", (function(e, n) {
+				this._sec.PanelListObjects.select($(e), this._sec.nodesCam[n]);
+			}).bind(this, e, n));
 		}
 	}
 	for(var n=0, f = this._sec.lines.length; n < f; n++) {
@@ -66,9 +68,10 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			str = "<div id='TDID_StormObjectNum_lines"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.lines[n].name+"</div>";
 			$('#DIVID_STORMOBJECTS_LIST').append(str);
 			
-			document.getElementById("TDID_StormObjectNum_lines"+n).addEventListener("click", (function() {
-				this._sec.PanelListObjects.select($(this), this._sec.lines[n]);
-			}).bind(this));
+			var e = document.getElementById("TDID_StormObjectNum_lines"+n);
+			e.addEventListener("click", (function(e, n) {
+				this._sec.PanelListObjects.select($(e), this._sec.lines[n]);
+			}).bind(this, e, n));
 		}
 	}
 	for(var n=0, f = this._sec.lights.length; n < f; n++) {
@@ -78,9 +81,10 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			str = "<div id='TDID_StormObjectNum_lights"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.lights[n].name+"</div>";
 			$('#DIVID_STORMOBJECTS_LIST').append(str);
 			
-			document.getElementById("TDID_StormObjectNum_lights"+n).addEventListener("click", (function() {
-				this._sec.PanelListObjects.select($(this), this._sec.lights[n]);
-			}).bind(this));
+			var e = document.getElementById("TDID_StormObjectNum_lights"+n);
+			e.addEventListener("click", (function(e, n) {
+				this._sec.PanelListObjects.select($(e), this._sec.lights[n]);
+			}).bind(this, e, n));
 		}
 	}
 	for(var n=0, f = this._sec.polarityPoints.length; n < f; n++) {
@@ -90,9 +94,10 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			str = "<div id='TDID_StormObjectNum_polarityPoints"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.polarityPoints[n].name+"</div>";
 			$('#DIVID_STORMOBJECTS_LIST').append(str);
 			
-			document.getElementById("TDID_StormObjectNum_polarityPoints"+n).addEventListener("click", (function() {
-				this._sec.PanelListObjects.select($(this), this._sec.polarityPoints[n]);
-			}).bind(this));
+			var e = document.getElementById("TDID_StormObjectNum_polarityPoints"+n);
+			e.addEventListener("click", (function(e, n) {
+				this._sec.PanelListObjects.select($(e), this._sec.polarityPoints[n]);
+			}).bind(this, e, n));
 		}
 	}
 	for(var n=0, f = this._sec.forceFields.length; n < f; n++) {
@@ -102,9 +107,10 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			str = "<div id='TDID_StormObjectNum_forceFields"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.forceFields[n].name+"</div>";
 			$('#DIVID_STORMOBJECTS_LIST').append(str);
 			
-			document.getElementById("TDID_StormObjectNum_forceFields"+n).addEventListener("click", (function() {
-				this._sec.PanelListObjects.select($(this), this._sec.forceFields[n]);
-			}).bind(this));
+			var e = document.getElementById("TDID_StormObjectNum_forceFields"+n);
+			e.addEventListener("click", (function(e, n) {
+				this._sec.PanelListObjects.select($(e), this._sec.forceFields[n]);
+			}).bind(this, e, n));
 		}
 	}
 	for(var n=0, f = this._sec.graphs.length; n < f; n++) {
@@ -114,9 +120,10 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			str = "<div id='TDID_StormObjectNum_graphs"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.graphs[n].name+"</div>";
 			$('#DIVID_STORMOBJECTS_LIST').append(str);
 			
-			document.getElementById("TDID_StormObjectNum_graphs"+n).addEventListener("click", (function() {
-				this._sec.PanelListObjects.select($(this), this._sec.graphs[n]);
-			}).bind(this));
+			var e = document.getElementById("TDID_StormObjectNum_graphs"+n);
+			e.addEventListener("click", (function(e, n) {
+				this._sec.PanelListObjects.select($(e), this._sec.graphs[n]);
+			}).bind(this, e, n));
 		}
 	}
 	for(var n=0, f = this._sec.voxelizators.length; n < f; n++) {
@@ -125,9 +132,10 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 		str = "<div id='TDID_StormObjectNum_voxelizators"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.voxelizators[n].name+"</div>";
 		$('#DIVID_STORMOBJECTS_LIST').append(str);
 		
-		document.getElementById("TDID_StormObjectNum_voxelizators"+n).addEventListener("click", (function() {
-			this._sec.PanelListObjects.select($(this), this._sec.voxelizators[n]);
-		}).bind(this));
+		var e = document.getElementById("TDID_StormObjectNum_voxelizators"+n);
+		e.addEventListener("click", (function(e, n) {
+			this._sec.PanelListObjects.select($(e), this._sec.voxelizators[n]);
+		}).bind(this, e, n));
 	}
 	
 	

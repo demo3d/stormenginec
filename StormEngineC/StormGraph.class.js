@@ -22,6 +22,7 @@ StormGraph = function(sec, jsonIn) { StormNode.call(this);
 	this.arrPP = [];
 	this.arrF = [];
 	var str_vfp = this.source_vertexFragmentProgram();
+	var str_vfp_nd = this.source_vertexFragmentProgram_NormalsDepth();
 	var str_posdir = this.source_positionByDirection();
 	var str_dir = this.source_direction();
 	
@@ -34,6 +35,11 @@ StormGraph = function(sec, jsonIn) { StormNode.call(this);
 	this.vfProgram_nodes.setVertexSource(str_vfp[1][0], str_vfp[0][0]);
 	this.vfProgram_nodes.setFragmentSource(str_vfp[3][0], str_vfp[2][0]);
 	
+	// VERTEX AND FRAGMENT PROGRAMS	NORMALS AND DEPTH
+	this.vfProgram_ND_nodes = this.webCLGL.createVertexFragmentProgram();
+	this.vfProgram_ND_nodes.setVertexSource(str_vfp_nd[1][0], str_vfp_nd[0][0]);
+	this.vfProgram_ND_nodes.setFragmentSource(str_vfp_nd[3][0], str_vfp_nd[2][0]);
+	
 	// KERNEL POSITION BY DIRECTION
 	this.kernel_positionByDirection_nodes = this.webCLGL.createKernel();
 	this.kernel_positionByDirection_nodes.setKernelSource(str_posdir);
@@ -43,7 +49,8 @@ StormGraph = function(sec, jsonIn) { StormNode.call(this);
 	this.kernel_direction_nodes.setKernelSource(str_dir);
 	
 	// ADD TO WORK
-	this.clglWork_nodes.addVertexFragmentProgram(this.vfProgram_nodes);
+	this.clglWork_nodes.addVertexFragmentProgram(this.vfProgram_nodes, "graph");
+	this.clglWork_nodes.addVertexFragmentProgram(this.vfProgram_ND_nodes, "graph_nd");
 	this.clglWork_nodes.addKernel(this.kernel_positionByDirection_nodes, "posXYZW");
 	this.clglWork_nodes.addKernel(this.kernel_direction_nodes, "dir");
 		
@@ -57,6 +64,11 @@ StormGraph = function(sec, jsonIn) { StormNode.call(this);
 	this.vfProgram_links.setVertexSource(str_vfp[1][0], str_vfp[0][0]);
 	this.vfProgram_links.setFragmentSource(str_vfp[3][0], str_vfp[2][0]);
 	
+	// VERTEX AND FRAGMENT PROGRAMS	NORMALS AND DEPTH
+	this.vfProgram_ND_links = this.webCLGL.createVertexFragmentProgram();
+	this.vfProgram_ND_links.setVertexSource(str_vfp_nd[1][0], str_vfp_nd[0][0]);
+	this.vfProgram_ND_links.setFragmentSource(str_vfp_nd[3][0], str_vfp_nd[2][0]);
+	
 	// KERNEL POSITION BY DIRECTION
 	this.kernel_positionByDirection_links = this.webCLGL.createKernel();
 	this.kernel_positionByDirection_links.setKernelSource(str_posdir);
@@ -66,7 +78,8 @@ StormGraph = function(sec, jsonIn) { StormNode.call(this);
 	this.kernel_direction_links.setKernelSource(str_dir);	
 	
 	// ADD TO WORK
-	this.clglWork_links.addVertexFragmentProgram(this.vfProgram_links);
+	this.clglWork_links.addVertexFragmentProgram(this.vfProgram_links, "graph");
+	this.clglWork_links.addVertexFragmentProgram(this.vfProgram_ND_links, "graph_nd");
 	this.clglWork_links.addKernel(this.kernel_positionByDirection_links, "posXYZW");
 	this.clglWork_links.addKernel(this.kernel_direction_links, "dir");
 	
@@ -168,31 +181,10 @@ StormGraph.prototype.remove = function() {
 
 /** @private **/
 StormGraph.prototype.source_vertexFragmentProgram = function() {
-	var str_vfp = [// vertex head
+	var str_vfp = [
+	    // vertex head
 		['varying vec4 vVertexColor;\n'+
-		 'varying vec4 vWNMatrix;\n'+
-		 
-		'float determinant(mat2 m) {'+
-		 	'return m[0][0]*m[1][1] - m[1][0]*m[0][1];'+
-		'}'+
-		'mat2 inverse(mat2 m) {'+
-			  'float d = 1.0 / determinant(m);'+
-			  'return d * mat2( m[1][1], -m[0][1], -m[1][0], m[0][0]);'+
-		'}'+
-		'mat4 inverse(mat4 m) {'+
-			  'mat2 a = inverse(mat2(m));'+
-			  'mat2 b = mat2(m[2].xy,m[3].xy);'+
-			  'mat2 c = mat2(m[0].zw,m[1].zw);'+
-			  'mat2 d = mat2(m[2].zw,m[3].zw);'+
-
-			  'mat2 t = c*a;'+
-			  'mat2 h = inverse(d - t*b);'+
-			  'mat2 g = - h*t;'+
-			  'mat2 f = - a*b*h;'+
-			  'mat2 e = a - f*t;'+
-
-			  'return mat4( vec4(e[0],g[0]), vec4(e[1],g[1]), vec4(f[0],h[0]), vec4(f[1],f[1]) );'+
-		'}'],
+		 'varying vec4 vWNMatrix;\n'],
 		
 		// vertex source
 		['void main(float* nodeId,'+
@@ -222,7 +214,7 @@ StormGraph.prototype.source_vertexFragmentProgram = function() {
 				'nodepos[3][1] = nodePosition.y;'+
 				'nodepos[3][2] = nodePosition.z;'+
 				
-				'vWNMatrix = inverse(nodeposG) * nodeVertexNormal[x];\n'+
+				'vWNMatrix = nodeposG * nodeVertexNormal[x];\n'+
 				
 				'vVertexColor = nodeVertexColor;'+
 								
@@ -251,6 +243,57 @@ StormGraph.prototype.source_vertexFragmentProgram = function() {
 		 '}']];
 	
 	return str_vfp;
+};
+/** @private **/
+StormGraph.prototype.source_vertexFragmentProgram_NormalsDepth = function() {
+	var str_vfp_nd = [// vertex head
+   		['varying vec4 vposition;\n'+
+   		 'varying vec4 vNormal;\n'],
+   		
+   		// vertex source
+   		['void main(float4*kernel posXYZW,'+
+   			'float4* nodeVertexPos,'+
+   			'float4* nodeVertexNormal,'+
+   			'mat4 PMatrix,'+
+   			'mat4 cameraWMatrix,'+
+   			'mat4 nodeWMatrix,'+
+   			'float pointSize) {'+
+   				'vec2 x = get_global_id();'+
+   		
+   				'vec4 nodePosition = posXYZW[x];\n'+
+   				'vec4 nodeVertexPosition = nodeVertexPos[x];\n'+
+   				//'vec4 nodeVertexColor = nodeVertexCol[x];\n'+
+   				
+   				'mat4 nodepos = nodeWMatrix;'+
+   				'nodepos[3][0] = nodePosition.x;'+
+   				'nodepos[3][1] = nodePosition.y;'+
+   				'nodepos[3][2] = nodePosition.z;'+
+   				
+   				
+   				'vposition = cameraWMatrix * nodepos * nodeVertexPosition;\n'+
+   				//'vWNMatrix = nodeposG * nodeVertexNormal[x];\n'+
+   				
+   				'vNormal = nodeVertexNormal;\n'+
+   				//'vVertexColor = nodeVertexColor;'+
+   								
+   				'gl_Position = PMatrix * vposition;\n'+
+   				'gl_PointSize = pointSize;\n'+
+   		'}'],
+   		
+   		// fragment head
+   		['varying vec4 vposition;\n'+
+   		 'varying vec4 vNormal;\n'+
+   		'float LinearDepthConstant = 1.0/uFar;'],
+   		 
+   		[// fragment source
+   		 'void main(float uFar) {'+
+   		 	'vec2 x = get_global_id();'+
+   		 	
+   		 	'float linearDepth = length(vposition) * LinearDepthConstant;'+
+   		 	'gl_FragColor = vec4((vNormal.r+1.0)/2.0,(vNormal.g+1.0)/2.0,(vNormal.b+1.0)/2.0, linearDepth);\n'+
+   		 '}']];
+   	
+   	return str_vfp_nd;
 };
 /** @private **/
 StormGraph.prototype.source_positionByDirection = function() {
@@ -801,12 +844,54 @@ StormGraph.prototype.prerender = function() {
 	if(this.arrayLinkId.length > 0) this.clglWork_links.enqueueNDRangeKernel();
 };
 /**
+* Render Normals and depth
+* @type Void
+*/
+StormGraph.prototype.render_ND = function() {
+	if(this.arrayNodeId.length > 0) {
+		this.clglWork_nodes.enqueueVertexFragmentProgram("posXYZW", "graph_nd", (function() {
+			//this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+			if(this._sec.stormGLContext.view_Normals) { 
+				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+			} else {
+				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this._sec.stormGLContext.fBuffer); 
+				this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this._sec.stormGLContext.textureFB_Normals, 0);
+				//this.gl.enable(this.gl.BLEND);
+				//this.gl.blendFunc(this.gl.ONE_MINUS_DST_COLOR, this.gl.ONE);
+			}
+			
+			this.clglWork_nodes.setArg("PMatrix", this._sec.defaultCamera.mPMatrix.transpose().e);
+			this.clglWork_nodes.setArg("cameraWMatrix", this._sec.defaultCamera.MPOS.transpose().e);
+			this.clglWork_nodes.setArg("nodeWMatrix", this.MPOS.transpose().e);
+			this.clglWork_nodes.setArg("uFar", this._sec.stormGLContext.far);
+		}).bind(this), this.nodeDrawMode);
+	}
+	if(this.arrayLinkId.length > 0) {
+		this.clglWork_links.enqueueVertexFragmentProgram("posXYZW", "graph_nd", (function() {
+			//this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+			if(this._sec.stormGLContext.view_Normals) {
+				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+			} else {
+				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this._sec.stormGLContext.fBuffer); 
+				this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this._sec.stormGLContext.textureFB_Normals, 0);
+				//this.gl.enable(this.gl.BLEND);
+				//this.gl.blendFunc(this.gl.ONE_MINUS_DST_COLOR, this.gl.ONE);
+			}
+			
+			this.clglWork_links.setArg("PMatrix", this._sec.defaultCamera.mPMatrix.transpose().e);
+			this.clglWork_links.setArg("cameraWMatrix", this._sec.defaultCamera.MPOS.transpose().e);
+			this.clglWork_links.setArg("nodeWMatrix", this.MPOS.transpose().e);
+			this.clglWork_links.setArg("uFar", this._sec.stormGLContext.far);
+		}).bind(this), this.linkDrawMode);
+	}
+};
+/**
 * Make render
 * @type Void
 */
 StormGraph.prototype.render = function() {
 	if(this.arrayNodeId.length > 0) {
-		this.clglWork_nodes.enqueueVertexFragmentProgram("posXYZW", (function() {
+		this.clglWork_nodes.enqueueVertexFragmentProgram("posXYZW", "graph", (function() {
 			//this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 			if(this._sec.stormGLContext.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) { 
 				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
@@ -824,7 +909,7 @@ StormGraph.prototype.render = function() {
 		}).bind(this), this.nodeDrawMode);
 	}
 	if(this.arrayLinkId.length > 0) {
-		this.clglWork_links.enqueueVertexFragmentProgram("posXYZW", (function() {
+		this.clglWork_links.enqueueVertexFragmentProgram("posXYZW", "graph", (function() {
 			//this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 			if(this._sec.stormGLContext.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) {
 				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);

@@ -781,7 +781,7 @@ StormEngineC.prototype.setZeroSamplesGIVoxels = function() {
 StormEngineC.prototype.selectNode = function(node) {
 	this.nearNode = node;   
 	
-	if(this.editMode == true && this.nearNode != undefined) {
+	if(this.editMode == true) {
 		if(this.PanelAnimationTimeline.De.style.display == 'block')
 			this.PanelAnimationTimeline.drawTimelineGrid();
 			
@@ -795,23 +795,25 @@ StormEngineC.prototype.selectNode = function(node) {
 		//}
 		
 		this.debugValues = [];
-		if(this.nearNode.objectType == 'line') {
-			var vecTranslation = this.nearNode.origin;
-			var vecTranslationE = this.nearNode.end; 
-			this.debugValues = [];
-			this.setDebugValue(0, vecTranslation, this.nearNode.name+' origin');
-			this.setDebugValue(1, vecTranslationE, this.nearNode.name+' end');
-		} else if(this.nearNode.objectType == 'camera') {
-			var vecGoal = this.nearNode.nodeGoal.getPosition();
-			var vecPivot = this.nearNode.nodePivot.getPosition();
-			this.debugValues = [];
-			this.setDebugValue(0, vecGoal, this.nearNode.name+' nodeGoal');
-			this.setDebugValue(1, vecPivot, this.nearNode.name+' nodePivot');
-		} else if(this.nearNode.getPosition != undefined) {    
-			var vec = this.nearNode.getPosition();
-			this.debugValues = [];
-			this.setDebugValue(0, vec, this.nearNode.name); 
-		} 
+		if(this.nearNode != undefined) {
+			if(this.nearNode.objectType == 'line') {
+				var vecTranslation = this.nearNode.origin;
+				var vecTranslationE = this.nearNode.end; 
+				this.debugValues = [];
+				this.setDebugValue(0, vecTranslation, this.nearNode.name+' origin');
+				this.setDebugValue(1, vecTranslationE, this.nearNode.name+' end');
+			} else if(this.nearNode.objectType == 'camera') {
+				var vecGoal = this.nearNode.nodeGoal.getPosition();
+				var vecPivot = this.nearNode.nodePivot.getPosition();
+				this.debugValues = [];
+				this.setDebugValue(0, vecGoal, this.nearNode.name+' nodeGoal');
+				this.setDebugValue(1, vecPivot, this.nearNode.name+' nodePivot');
+			} else if(this.nearNode.getPosition != undefined) {    
+				var vec = this.nearNode.getPosition();
+				this.debugValues = [];
+				this.setDebugValue(0, vec, this.nearNode.name); 
+			} 
+		}
 	}
 };
 

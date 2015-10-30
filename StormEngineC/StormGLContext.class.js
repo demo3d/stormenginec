@@ -641,6 +641,10 @@ StormGLContext.prototype.renderGLContext = function() {
 		this.render_Normals();
 		if(this.view_Normals) return;
 	}
+	for(var n=0; n < this._sec.graphs.length; n++) {
+		this._sec.graphs[n].render_ND();
+	}	
+	
 	if(	this.Shader_LightDepth_READY &&
 		this.Shader_Shadows_READY &&
 		this.shadowsEnable) {
