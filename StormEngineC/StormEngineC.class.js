@@ -655,12 +655,6 @@ StormEngineC.prototype.updateDivPosition = function(e) {
 	this.divPositionY = this.utils.getElementPosition(this.target).y;
 };
 /**  @private */
-StormEngineC.prototype.makePanel = function(panelobj, strAttrID, paneltitle, html) {
-	var p = new StormPanel(strAttrID, paneltitle, html);
-	panelobj.$ = p.$;
-	panelobj.De = p.De;
-};
-/**  @private */
 StormEngineC.prototype.mouseup = function(e) {
 	this.isMouseDown = false;
 	//e.preventDefault();
@@ -782,17 +776,13 @@ StormEngineC.prototype.selectNode = function(node) {
 	this.nearNode = node;   
 	
 	if(this.editMode == true) {
-		if(this.PanelAnimationTimeline.De.style.display == 'block')
-			this.PanelAnimationTimeline.drawTimelineGrid();
-			
-		//if(this.PanelListObjects.De.style.display == "block") {
-			this.PanelListObjects.showListObjects(); 
-			this.PanelListObjects.show();
-		//}
-		//if(this.PanelListObjects.De.style.display == "block") {
-			this.PanelEditNode.show();
-			this.PanelEditNode.updateNearNode();
-		//}
+		this.PanelAnimationTimeline.drawTimelineGrid();
+		
+		this.PanelListObjects.showListObjects(); 
+		this.PanelListObjects.show();
+
+		this.PanelEditNode.show();
+		this.PanelEditNode.updateNearNode();
 		
 		this.debugValues = [];
 		if(this.nearNode != undefined) {
@@ -1897,13 +1887,14 @@ StormEngineC.prototype.shadows = function(active) {
 * @param {Bool} pause Pause or unpause
 */
 StormEngineC.prototype.setWebGLpause = function(pau) {
-	if(this.pause == false || (pau != undefined && pau == true)) {
-		this.pause = true;
-		this.setStatus({id:'paused', str:'PAUSED'});
-	} else if(this.pause == true || (pau != undefined && pau == false)) {
-		this.pause = false;
-		this.setStatus({id:'paused', str:''});
-		//this.stormRender.makeRender();
+	this.pause = pau;
+	
+	if(this.editMode == true) {
+		if(this.pause == true) {
+			this.setStatus({id:'paused', str:'PAUSED'});
+		} else {
+			this.setStatus({id:'paused', str:''});
+		}
 	}
 };
 

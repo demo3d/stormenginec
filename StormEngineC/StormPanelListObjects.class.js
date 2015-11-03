@@ -11,10 +11,8 @@ StormEngineC_PanelListObjects = function(sec) {
 * @private
 */
 StormEngineC_PanelListObjects.prototype.loadPanel = function() {
-	var html = '<div id="DIVID_STORMOBJECTS_LIST"></div>';
-	
-	var _this = this;
-	this._sec.makePanel(_this, 'DIVID_StormPanelListObjects', 'LIST OBJECTS', html);
+	this.panel = new StormPanel({"id": 'DIVID_StormPanelListObjects',
+								"paneltitle": 'LIST OBJECTS'});
 };
 
 /**
@@ -22,8 +20,7 @@ StormEngineC_PanelListObjects.prototype.loadPanel = function() {
 * @private
 */
 StormEngineC_PanelListObjects.prototype.show = function() {
-	$(".SECmenu").css('z-index','0');
-	this.$.css('z-index','99').show(); 
+	this.panel.show(); 
 	
 	this.showListObjects();
 };
@@ -33,14 +30,14 @@ StormEngineC_PanelListObjects.prototype.show = function() {
 * @private
 */
 StormEngineC_PanelListObjects.prototype.showListObjects = function() {
-	$('#DIVID_STORMOBJECTS_LIST').html("");
+	$('#DIVID_StormPanelListObjects_content').html("");
 	var str = '';
 	for(var n=0, f = this._sec.nodes.length; n < f; n++) {
 		if(this._sec.nodes[n].objectType != 'light' && this._sec.nodes[n].systemVisible == true) {
 			var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'node' && this._sec.nearNode == this._sec.nodes[n]) ? '#444' : '#000';
 			var colorText = (this._sec.nodes[n].visibleOnContext == true) ? '#FFF': '#999';
 			str = "<div id='TDID_StormObjectNum_nodes"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.nodes[n].name+"</div>";
-			$('#DIVID_STORMOBJECTS_LIST').append(str);
+			$('#DIVID_StormPanelListObjects_content').append(str);
 			
 			var e = document.getElementById("TDID_StormObjectNum_nodes"+n);
 			e.addEventListener("click", (function(e, n) {
@@ -53,7 +50,7 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'camera' && this._sec.nearNode == this._sec.nodesCam[n]) ? '#444' : '#000';
 			var colorText = (this._sec.nodesCam[n].visibleOnContext == true) ? '#FFF': '#999';
 			str = "<div id='TDID_StormObjectNum_nodesCam"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.nodesCam[n].name+"</div>";
-			$('#DIVID_STORMOBJECTS_LIST').append(str);
+			$('#DIVID_StormPanelListObjects_content').append(str);
 			
 			var e = document.getElementById("TDID_StormObjectNum_nodesCam"+n);
 			e.addEventListener("click", (function(e, n) {
@@ -66,7 +63,7 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'line' && this._sec.nearNode == this._sec.lines[n]) ? '#444' : '#000';
 			var colorText = (this._sec.lines[n].visibleOnContext == true) ? '#FFF': '#999';
 			str = "<div id='TDID_StormObjectNum_lines"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.lines[n].name+"</div>";
-			$('#DIVID_STORMOBJECTS_LIST').append(str);
+			$('#DIVID_StormPanelListObjects_content').append(str);
 			
 			var e = document.getElementById("TDID_StormObjectNum_lines"+n);
 			e.addEventListener("click", (function(e, n) {
@@ -79,7 +76,7 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'light' && this._sec.nearNode == this._sec.lights[n]) ? '#444' : '#000';
 			var colorText = (this._sec.lights[n].visibleOnContext == true) ? '#FFF': '#999';
 			str = "<div id='TDID_StormObjectNum_lights"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.lights[n].name+"</div>";
-			$('#DIVID_STORMOBJECTS_LIST').append(str);
+			$('#DIVID_StormPanelListObjects_content').append(str);
 			
 			var e = document.getElementById("TDID_StormObjectNum_lights"+n);
 			e.addEventListener("click", (function(e, n) {
@@ -92,7 +89,7 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'polarityPoint' && this._sec.nearNode == this._sec.polarityPoints[n]) ? '#444' : '#000';
 			var colorText = (this._sec.polarityPoints[n].visibleOnContext == true) ? '#FFF': '#999';
 			str = "<div id='TDID_StormObjectNum_polarityPoints"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.polarityPoints[n].name+"</div>";
-			$('#DIVID_STORMOBJECTS_LIST').append(str);
+			$('#DIVID_StormPanelListObjects_content').append(str);
 			
 			var e = document.getElementById("TDID_StormObjectNum_polarityPoints"+n);
 			e.addEventListener("click", (function(e, n) {
@@ -105,7 +102,7 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'forceField' && this._sec.nearNode == this._sec.forceFields[n]) ? '#444' : '#000';
 			var colorText = (this._sec.forceFields[n].visibleOnContext == true) ? '#FFF': '#999';
 			str = "<div id='TDID_StormObjectNum_forceFields"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.forceFields[n].name+"</div>";
-			$('#DIVID_STORMOBJECTS_LIST').append(str);
+			$('#DIVID_StormPanelListObjects_content').append(str);
 			
 			var e = document.getElementById("TDID_StormObjectNum_forceFields"+n);
 			e.addEventListener("click", (function(e, n) {
@@ -118,7 +115,7 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 			var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'graphs' && this._sec.nearNode == this._sec.graphs[n]) ? '#444' : '#000';
 			var colorText = (this._sec.graphs[n].visibleOnContext == true) ? '#FFF': '#999';
 			str = "<div id='TDID_StormObjectNum_graphs"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.graphs[n].name+"</div>";
-			$('#DIVID_STORMOBJECTS_LIST').append(str);
+			$('#DIVID_StormPanelListObjects_content').append(str);
 			
 			var e = document.getElementById("TDID_StormObjectNum_graphs"+n);
 			e.addEventListener("click", (function(e, n) {
@@ -130,7 +127,7 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 		var colorBg = (this._sec.nearNode != undefined && this._sec.nearNode.objectType == 'voxelizator' && this._sec.nearNode == this._sec.voxelizators[n]) ? '#444' : '#000';
 		var colorText = '#FFF';
 		str = "<div id='TDID_StormObjectNum_voxelizators"+n+"' style='background-color:"+colorBg+";color:"+colorText+";'>"+this._sec.voxelizators[n].name+"</div>";
-		$('#DIVID_STORMOBJECTS_LIST').append(str);
+		$('#DIVID_StormPanelListObjects_content').append(str);
 		
 		var e = document.getElementById("TDID_StormObjectNum_voxelizators"+n);
 		e.addEventListener("click", (function(e, n) {
@@ -140,12 +137,12 @@ StormEngineC_PanelListObjects.prototype.showListObjects = function() {
 	
 	
 	
-	$("#DIVID_STORMOBJECTS_LIST div").css({	'cursor':'pointer',
+	$("#DIVID_StormPanelListObjects_content div").css({	'cursor':'pointer',
 											'border':'1px solid #444'});
-	$("#DIVID_STORMOBJECTS_LIST div").bind('mouseover', function() {
+	$("#DIVID_StormPanelListObjects_content div").bind('mouseover', function() {
 											$(this).css({'border':'1px solid #CCC'});
 										});
-	$("#DIVID_STORMOBJECTS_LIST div").bind('mouseout', function() {
+	$("#DIVID_StormPanelListObjects_content div").bind('mouseout', function() {
 											$(this).css({'border':'1px solid #444'});
 										});
 };
@@ -167,7 +164,7 @@ StormEngineC_PanelListObjects.prototype.select = function(element, node) {
 		if(element != undefined) element.css("background-color","#000");
 		this._sec.PanelEditNode.updateNearNode(); 
 	} else {
-		$("#DIVID_STORMOBJECTS_LIST div").css("background-color","#000");
+		$("#DIVID_StormPanelListObjects_content div").css("background-color","#000");
 		if(element != undefined) element.css("background-color","#444");  
 		this._sec.selectNode(node);
 	}

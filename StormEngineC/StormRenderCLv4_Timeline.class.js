@@ -14,21 +14,18 @@ StormRender_Timeline = function(sec) {
 * @private
 */
 StormRender_Timeline.prototype.loadPanel = function() {
-	var html = '<div id="DIVID_STORMTIMELINE_LIST" style="cursor:pointer"></div>';
-	
-	var _this = this;
-	this._sec.makePanel(_this, 'DIVID_StormPanelTimeline', 'FRAMES', html);	
-	
+	var html = '<div id="DIVID_STORMTIMELINE_LIST" style="cursor:pointer"></div>';	
+	this.panel = new StormPanel({"id": 'DIVID_StormPanelTimeline',
+								"paneltitle": 'FRAMES',
+								"html": html});
 	
 	
 	var html = '<div id="DIVID_STORMTIMELINE_PREV" style="cursor:pointer"></div>'+
-				'<canvas id="pathTracingCanvas"></canvas>';
-	
-	var _this = this;
-	this._sec.makePanel(_this, 'DIVID_StormPanelTimelinePrev', 'FRAMES PREV', html);	
-	
-	
-										
+				'<canvas id="pathTracingCanvas"></canvas>';	
+	this.panelB = new StormPanel({"id": 'DIVID_StormPanelTimelinePrev',
+								"paneltitle": 'FRAMES PREV',
+								"html": html});
+											
 										
 	this.ctx2Drender = document.getElementById('pathTracingCanvas').getContext("2d");
 };
@@ -38,8 +35,7 @@ StormRender_Timeline.prototype.loadPanel = function() {
 * @private
 */
 StormRender_Timeline.prototype.show = function() {
-	$(".SECmenu").css('z-index','0');
-	this.$.css('z-index','99').show(); 
+	this.panel.show();
 };
 
 /**

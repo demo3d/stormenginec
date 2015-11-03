@@ -36,10 +36,10 @@ StormEngineC_PanelRenderSettings.prototype.loadPanel = function() {
 					'<div id="DIVID_StormRenderTypeNet"></div>'+
 					'<div id="DIVID_StormRenderNetReceive"></div>'+
 				'</div>'+
-				'<div id="DIVID_aboutEMRvsPATHTRACING" style="display:none;"><img src="'+stormEngineCDirectory+'/resources/EMRvsPATHTRACING.jpg" /></div>';
-	
-	var _this = this;
-	this._sec.makePanel(_this, 'DIVID_StormRenderSettings', 'RENDER SETTINGS', html);	
+				'<div id="DIVID_aboutEMRvsPATHTRACING" style="display:none;"><img src="'+stormEngineCDirectory+'/resources/EMRvsPATHTRACING.jpg" /></div>';	
+	this.panel = new StormPanel({"id": 'DIVID_StormRenderSettings',
+								"paneltitle": 'RENDER SETTINGS',
+								"html": html});
 	
 	document.getElementById("BTNID_StormRenderTimelineBtn").addEventListener("click", (function() {
 		this._sec.timelinePathTracing.show();
@@ -55,8 +55,7 @@ StormEngineC_PanelRenderSettings.prototype.loadPanel = function() {
 * @private
 */
 StormEngineC_PanelRenderSettings.prototype.show = function() {
-	$(".SECmenu").css('z-index','0');
-	this.$.css('z-index','99').show(); 
+	this.panel.show();
 };
 
 /**

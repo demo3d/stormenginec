@@ -13,9 +13,9 @@ StormEngineC_PanelEditNode = function(sec) {
 StormEngineC_PanelEditNode.prototype.loadPanel = function() {
 	var html = '<span style="font-weight:bold" id="DIVID_StormEditNode_name"></span>'+
 				'<div id="DIVID_StormEditNode_edits"></div>';
-	
-	var _this = this;
-	this._sec.makePanel(_this, 'DIVID_StormPanelEditNode', 'EDIT OBJECT', html);
+	this.panel = new StormPanel({"id": 'DIVID_StormPanelEditNode',
+								"paneltitle": 'EDIT OBJECT',
+								"html": html});
 };
 
 /**
@@ -23,8 +23,7 @@ StormEngineC_PanelEditNode.prototype.loadPanel = function() {
 * @private
 */
 StormEngineC_PanelEditNode.prototype.show = function() {
-	$(".SECmenu").css('z-index','0');
-	this.$.css('z-index','99').show(); 
+	this.panel.show();
 };
 
 /**
@@ -48,7 +47,7 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 							' Y<input id="StormEN_spinnerRotY" name="value" value="0.0" style="color:#FFF;width:1px">'+
 							' Z<input id="StormEN_spinnerRotZ" name="value" value="0.0" style="color:#FFF;width:1px">'+
 						'</div>';
-			DGE('DIVID_StormEditNode_edits').appendChild(this._sec.actHelpers.stringToDom(str));
+			this._sec.actHelpers.appendStringChild(str, DGE('DIVID_StormEditNode_edits'));
 			
 			$("#StormEN_spinnerRotX").spinner({numberFormat:"n",
 												spin: (function(event, ui) {
@@ -80,7 +79,7 @@ StormEngineC_PanelEditNode.prototype.updateNearNode = function() {
 		}).bind(this);
 		add_removeBtn = (function(clickCallback) {
 			var str = '<button id="BUTTONID_remove">REMOVE</button><br />';
-			DGE('DIVID_StormEditNode_edits').appendChild(this._sec.actHelpers.stringToDom(str));
+			this._sec.actHelpers.appendStringChild(str, DGE('DIVID_StormEditNode_edits'));
 			
 			document.getElementById("BUTTONID_remove").addEventListener("click", (function() {
 				clickCallback();

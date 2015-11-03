@@ -17,10 +17,10 @@ StormEngineC_PanelMaterials.prototype.loadPanel = function() {
 				'<div style="border-top:1px solid #CCC"></div>'+
 				'<button type="button" id="BUTTONID_newmaterial">New material</button>'+
 				
-				'<div id="DIVID_STORMMATERIALS_MATERIAL" ></div>';
-	
-	var _this = this;
-	this._sec.makePanel(_this, 'DIVID_StormPanelMaterials', 'MATERIALS', html);
+				'<div id="DIVID_STORMMATERIALS_MATERIAL" ></div>';	
+	this.panel = new StormPanel({"id": 'DIVID_StormPanelMaterials',
+								"paneltitle": 'MATERIALS',
+								"html": html});
 	
 	document.getElementById("BUTTONID_newmaterial").addEventListener("click", (function() {
 		this._sec.PanelMaterials.createMaterial();
@@ -32,8 +32,7 @@ StormEngineC_PanelMaterials.prototype.loadPanel = function() {
 * @private
 */
 StormEngineC_PanelMaterials.prototype.show = function() {
-	$(".SECmenu").css('z-index','0');
-	this.$.css('z-index','99').show(); 
+	this.panel.show();
 	
 	this.showListMaterials();
 };

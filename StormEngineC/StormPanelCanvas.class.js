@@ -14,11 +14,10 @@ StormEngineC_PanelCanvas.prototype.loadPanel = function() {
 	var html = '<canvas id="CANVASID_STORM" ></canvas><br />'+
 				'<div id="DIVID_StormPanelCanvas_proc"></div>'+
 				'<button type="button" id="BTNID_StormPanelCanvas_renderBtn" >Render</button>'+
-				'<button type="button" id="BTNID_StormPanelCanvas_renderstopBtn" onclick="" ><div style="width:14px;height:14px;background:#FF0000;"></div></button>';
-	
-	var _this = this;
-	this._sec.makePanel(_this, 'DIVID_StormPanelCanvas', 'RENDER', html);
-	
+				'<button type="button" id="BTNID_StormPanelCanvas_renderstopBtn" onclick="" ><div style="width:14px;height:14px;background:#FF0000;"></div></button>';	
+	this.panel = new StormPanel({"id": 'DIVID_StormPanelCanvas', 
+								"paneltitle": 'RENDER',
+								"html": html});
 	
 										
 	$("#DIVID_StormPanelCanvas #BTNID_StormPanelCanvas_renderBtn").bind('click', (function() {
@@ -34,8 +33,7 @@ StormEngineC_PanelCanvas.prototype.loadPanel = function() {
 * @private
 */
 StormEngineC_PanelCanvas.prototype.show = function() {
-	$(".SECmenu").css('z-index','0');
-	this.$.css('z-index','99').show(); 
+	this.panel.show();
 };
 
 /**

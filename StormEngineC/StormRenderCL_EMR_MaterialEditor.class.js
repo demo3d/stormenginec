@@ -530,10 +530,10 @@ StormRenderEMR_MaterialEditor.prototype.loadMaterialEditor = function() {
 							'<div id="DIVID_EMRMATERIAL"></div>'+
 						'</td>'+
 					'</tr>'+
-				'</table>';
-	
-	var _this = this;
-	this._sec.makePanel(_this, 'DIVID_MaterialEditorEMR', 'EMR SPECTRUM EDITOR', html);		
+				'</table>';	
+	this.panel = new StormPanel({"id": 'DIVID_MaterialEditorEMR',
+								"paneltitle": 'EMR SPECTRUM EDITOR',
+								"html": html});
 	
 	document.getElementById("BUTTONID_createEmrEmissionMaterial").addEventListener("click", (function() {
 		this._sec.MaterialEditor.createEMRMaterial("emission");
@@ -555,8 +555,7 @@ StormRenderEMR_MaterialEditor.prototype.loadMaterialEditor = function() {
 * @private
 */
 StormRenderEMR_MaterialEditor.prototype.show = function() {
-	$(".SECmenu").css('z-index','0');
-	this.$.css('z-index','99').show(); 
+	this.panel.show();
 };
 
 /**

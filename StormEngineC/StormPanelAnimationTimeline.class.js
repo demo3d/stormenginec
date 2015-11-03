@@ -45,11 +45,10 @@ StormEngineC_PanelAnimationTimeline.prototype.loadPanel = function() {
 					'<div id="CANVASID_STORMANIMATIONTIMELINE_frames" style="height:10px;"></div>'+
 					'<div id="CANVASID_STORMANIMATIONTIMELINE_slider" class="StormShadowInset"><canvas id="CANVASID_STORMANIMATIONTIMELINE" height="30"></canvas></div><br />'+
 					
-				'</div>';
-	
-	var _this = this;
-	this._sec.makePanel(_this, 'DIVID_StormPanelAnimationTimeline', 'TIMELINE', html);	
-	
+				'</div>';	
+	this.panel = new StormPanel({"id": 'DIVID_StormPanelAnimationTimeline',
+								"paneltitle": 'TIMELINE',
+								"html": html});
 	
 	
 	
@@ -108,8 +107,7 @@ StormEngineC_PanelAnimationTimeline.prototype.loadPanel = function() {
 * @private
 */
 StormEngineC_PanelAnimationTimeline.prototype.show = function() {
-	$(".SECmenu").css('z-index','0');
-	this.$.css('z-index','99').show(); 
+	this.panel.show();
 };
 
 /**

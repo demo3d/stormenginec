@@ -12,9 +12,9 @@ StormEngineC_PanelEMRMaterialsDatabase = function(sec) {
 */
 StormEngineC_PanelEMRMaterialsDatabase.prototype.loadPanel = function() {
 	var html = '<div id="DIVID_StormPanelEMRMaterialsDatabase_content"></div>';
-	
-	var _this = this;
-	this._sec.makePanel(_this, 'DIVID_StormPanelEMRMaterialsDatabase', 'EMR MATERIALS DB', html);
+	this.panel = new StormPanel({"id": 'DIVID_StormPanelEMRMaterialsDatabase',
+								"paneltitle": 'EMR MATERIALS DB',
+								"html": html});
 };
 
 /**
@@ -23,8 +23,7 @@ StormEngineC_PanelEMRMaterialsDatabase.prototype.loadPanel = function() {
 * @param {String} type 'absorption' or 'emission'
 */
 StormEngineC_PanelEMRMaterialsDatabase.prototype.show = function(type) {
-	$(".SECmenu").css('z-index','0');
-	this.$.css('z-index','99').show(); 
+	this.panel.show();
 	
 	this.listSpectrums(type);
 };

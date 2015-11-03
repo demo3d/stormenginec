@@ -72,13 +72,15 @@ StormGLContext = function(sec, stormCanvasObject, loadScene) {
 	this.ctx2D = this.eStormCanvasPUB.getContext("2d"); // this is used for this.textureObject_Ctx2D (no append)
 	
 	// CANVAS FOR STATUS INFOS
-	this.eStormCanvasSTATUS = document.createElement('canvas');
-	this.eStormCanvasSTATUS.width = this.stormCanvasObject.width;
-	this.eStormCanvasSTATUS.height = 20;
-	this.eStormCanvasSTATUS.id = "stormCanvasStatus";
-	this.eStormCanvasSTATUS.style.position = "absolute";
-	$('#'+this.stormCanvasObject.id).parent().append(this.eStormCanvasSTATUS);
-	this.ctx2DStatus = this.eStormCanvasSTATUS.getContext("2d");
+	if(this._sec.editMode == true) {
+		this.eStormCanvasSTATUS = document.createElement('canvas');
+		this.eStormCanvasSTATUS.width = this.stormCanvasObject.width;
+		this.eStormCanvasSTATUS.height = 20;
+		this.eStormCanvasSTATUS.id = "stormCanvasStatus";
+		this.eStormCanvasSTATUS.style.position = "absolute";
+		$('#'+this.stormCanvasObject.id).parent().append(this.eStormCanvasSTATUS);
+		this.ctx2DStatus = this.eStormCanvasSTATUS.getContext("2d");
+	}
 	
 	// DIV DEBUG
 	var eDiv = '<div id="stormDIVInfos" style="position:absolute;font-size:13px;font-weight:bold;background-color:#FFF;color:#000;text-shadow:rgb(0, 0, 0) 0px 0px 22px;"></div>';
