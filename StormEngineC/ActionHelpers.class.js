@@ -160,7 +160,7 @@ ActionHelpers.prototype.add_slider = function(target, name, fvalue, min, max, st
 	
 	var exec_call = function(callback, e) {
 		var value = document.getElementById("INPUTID_"+name+"X").value;
-		callback(value);
+		callback(parseFloat(value));
 	};
 	
 	// spinners
