@@ -16,9 +16,13 @@ ActionHelpers.prototype.appendStringChild = function(str, target, location) {
 		target.appendChild(e.body.firstChild);
 	else 
 		target.insertBefore(e.body.firstChild, target.firstChild);
-	//return e.body.firstChild;
 };
 
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {Function} onClickCallback
+ */
 ActionHelpers.prototype.add_btn = function(target, name, onClickCallback) {
 	var str = ''+
 	'<div>'+
@@ -32,6 +36,14 @@ ActionHelpers.prototype.add_btn = function(target, name, onClickCallback) {
 	}).bind(this, onClickCallback));
 };
 
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {String} type Type for the input (number, text, etc..)
+ * @param {Array<String>} arrayTexts
+ * @param {Array<String|Float|Int>} arrayDefaultValues
+ * @param {Function} onClickCallback
+ */
 ActionHelpers.prototype.add_valuesAndBtn = function(target, name, type, arrayTexts, arrayDefaultValues, onClickCallback) {
 	var str = ''+
 	'<div>'+
@@ -56,6 +68,13 @@ ActionHelpers.prototype.add_valuesAndBtn = function(target, name, type, arrayTex
 	}).bind(this, onClickCallback));
 };
 
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {Int|Bool} variable
+ * @param {Function} checkCallback
+ * @param {Function} uncheckCallback
+ */
 ActionHelpers.prototype.add_checkbox = function(target, name, variable, checkCallback, uncheckCallback) {
 	var str = ''+
 	'<div>'+
@@ -84,6 +103,13 @@ ActionHelpers.prototype.add_checkbox = function(target, name, variable, checkCal
 	}).bind(this, checkCallback, uncheckCallback, e));
 };
 
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {Array<String>} valuesArray
+ * @param {Any} variable
+ * @param {Function} selectCallback
+ */
 ActionHelpers.prototype.add_select = function(target, name, valuesArray, variable, selectCallback) {
 	var str = ''+
 	'<div>'+
@@ -110,6 +136,15 @@ ActionHelpers.prototype.add_select = function(target, name, valuesArray, variabl
 	}).bind(this, selectCallback, e));
 };
 
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {Float} fvalue
+ * @param {Float} min
+ * @param {Float} max
+ * @param {Float} steps
+ * @param {Function} onChangeCallback
+ */
 ActionHelpers.prototype.add_slider = function(target, name, fvalue, min, max, steps, onChangeCallback) {
 	var str = ''+
 	'<div>'+
@@ -153,6 +188,15 @@ ActionHelpers.prototype.add_slider = function(target, name, fvalue, min, max, st
 	e.addEventListener("change", set_range.bind(this, onChangeCallback, e));
 };
 
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {Array<Float>} array3f Three float values
+ * @param {Float} min
+ * @param {Float} max
+ * @param {Float} steps
+ * @param {Function} onChangeCallback
+ */
 ActionHelpers.prototype.add_3dslider = function(target, name, array3f, min, max, steps, onChangeCallback) {
 	var str = ''+
 	'<div>'+
@@ -218,6 +262,12 @@ ActionHelpers.prototype.add_3dslider = function(target, name, array3f, min, max,
 	e.addEventListener("change", set_range.bind(this, onChangeCallback, e));
 };
 
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {String} hexVariable
+ * @param {Function} onChangeCallback
+ */
 ActionHelpers.prototype.add_colorpicker = function(target, name, hexVariable, onChangeCallback) {
 	var str = ''+
 	'<div>'+
@@ -236,6 +286,11 @@ ActionHelpers.prototype.add_colorpicker = function(target, name, hexVariable, on
 	}).bind(this, onChangeCallback, e));
 }; 
 
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {Function} onChangeCallback
+ */
 ActionHelpers.prototype.add_imageSelection = function(target, name, onChangeCallback) {
 	var str = ''+
 	'<div>'+

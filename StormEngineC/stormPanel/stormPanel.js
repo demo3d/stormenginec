@@ -8,8 +8,13 @@
 * 	@param {String} [jsonIn.html=""]
 *   @param {Function} [jsonIn.ondragstart= undefined]
 *   @param {Function} [jsonIn.ondragstop=undefined]
+*   @param {Function} [jsonIn.onresizestart=undefined]
+*   @param {Function} [jsonIn.onresizestop=undefined]
 */
 StormPanel = function(jsonIn) {
+	//************************************************
+	// PRIVATE METHODS
+	//************************************************
 	this.appendStringChild = function(str, target, location) {
 		var loc = (location != undefined) ? location : "end";
 		var parser = new DOMParser();
@@ -44,11 +49,18 @@ StormPanel = function(jsonIn) {
 		$("#"+this.strAttrID+"_MENU .SECmenuContent").css({	"height": (parseInt(height)-$("#"+this.strAttrID+"_MENU .SECmenuTitle").height()-10)+'px'});
 	};
 	
+	//************************************************
+	// ATTRIBUTES
+	//************************************************
 	this.strAttrID = jsonIn.id;
 	var paneltitle = jsonIn.paneltitle;
 	htmlStr = (jsonIn.html != undefined) ? jsonIn.html : "";
-	this.ondragstart_callback = jsonIn.ondragstart;
-	this.ondragstop_callback = jsonIn.ondragstop;
+	this.ondragstart_callback = (jsonIn != undefined && jsonIn.ondragstart != undefined) ? jsonIn.ondragstart : undefined;
+	this.ondragstop_callback = (jsonIn != undefined && jsonIn.ondragstop != undefined) ? jsonIn.ondragstop : undefined;
+	this.onresizestart_callback = (jsonIn != undefined && jsonIn.onresizestart != undefined) ? jsonIn.onresizestart : undefined;
+	this.onresizestop_callback = (jsonIn != undefined && jsonIn.onresizestop != undefined) ? jsonIn.onresizestop : undefined;
+	
+	this.timeout_onresizestop;
 	
 	var str = ''+
 		'<div id="'+this.strAttrID+'_MENU" class="SECmenu SECround5">'+ 
@@ -86,8 +98,15 @@ StormPanel = function(jsonIn) {
 	$("#"+this.strAttrID+"_MENU").resizable({resize: (function(event, ui) {
 		localStorage[this.strAttrID+'_width'] = ui.size.width+"px";
 		localStorage[this.strAttrID+'_height'] = ui.size.height+"px";
+		this.updatePanel();	
 		
-		this.updatePanel();		
+		if(this.onresizestart_callback != undefined) this.onresizestart_callback();
+		
+		clearTimeout(this.timeout_onresizestop);
+		this.timeout_onresizestop = setTimeout((function() {
+			if(this.onresizestop_callback != undefined) this.onresizestop_callback();
+		}).bind(this), 100);
+		
 	}).bind(this)});
 	
 	
