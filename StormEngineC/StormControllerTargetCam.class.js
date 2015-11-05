@@ -106,10 +106,8 @@ StormControllerTargetCam.prototype.mouseUpFC = function(event) {
 * @param event event
 */
 StormControllerTargetCam.prototype.mouseWheel = function(event) {
-	var currFov =(this._sec.defaultCamera.proy == 1) ? this._sec.defaultCamera.fov : this._sec.defaultCamera.fovOrtho;
-	var weightX = 0;
-	var weightY = 0;	
-	
+	var currFov = this._sec.defaultCamera.getFov();
+		
 	if(this._sec.defaultCamera.proy == 1) { // perspective
 		if(this._sec.defaultCamera.autofocus == false) {// then changing the focus
 			if(event.wheelDeltaY >= 0) {
@@ -119,32 +117,32 @@ StormControllerTargetCam.prototype.mouseWheel = function(event) {
 			}			
 		} else { // perspective fov
 			if(event.wheelDeltaY >= 0) {
-				weightX = (this._sec.mousePosX-(this._sec.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*-0.0004);
-				weightY = (this._sec.mousePosY-(this._sec.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*-0.0004);				
+				//weightX = (this._sec.mousePosX-(this._sec.stormGLContext.viewportWidth/2.0))*currFov*-0.0004;
+				//weightY = (this._sec.mousePosY-(this._sec.stormGLContext.viewportHeight/2.0))*currFov*-0.0004;				
 				this._sec.defaultCamera.setFov(currFov/1.1);// FRONT
 			} else {
-				weightX = (this._sec.mousePosX-(this._sec.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*0.0004);
-				weightY = (this._sec.mousePosY-(this._sec.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*0.0004);
+				//weightX = (this._sec.mousePosX-(this._sec.stormGLContext.viewportWidth/2.0))*currFov*0.0004;
+				//weightY = (this._sec.mousePosY-(this._sec.stormGLContext.viewportHeight/2.0))*currFov*0.0004;
 				this._sec.defaultCamera.setFov(currFov*1.1);// BACK    
 			}
 		}
 	} else { // ortho fov
+		var weightX = 0;
+		var weightY = 0;
 		if(event.wheelDeltaY >= 0) { // zoom in
-			weightX = (this._sec.mousePosX-(this._sec.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*-0.0004);
-			weightY = (this._sec.mousePosY-(this._sec.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*-0.0004);
+			weightX = (this._sec.mousePosX-(this._sec.stormGLContext.viewportWidth/2.0))*currFov*-0.0004;
+			weightY = (this._sec.mousePosY-(this._sec.stormGLContext.viewportHeight/2.0))*currFov*-0.0004;
 			this._sec.defaultCamera.setFov(currFov/1.1);// FRONT
 		} else { // zoom out
-			weightX = (this._sec.mousePosX-(this._sec.stormGLContext.viewportWidth/2.0))*(this.cameraNode.getFov()*0.0004);
-			weightY = (this._sec.mousePosY-(this._sec.stormGLContext.viewportHeight/2.0))*(this.cameraNode.getFov()*0.0004);
+			weightX = (this._sec.mousePosX-(this._sec.stormGLContext.viewportWidth/2.0))*currFov*0.0004;
+			weightY = (this._sec.mousePosY-(this._sec.stormGLContext.viewportHeight/2.0))*currFov*0.0004;
 			this._sec.defaultCamera.setFov(currFov*1.1);// BACK   
 		} 
-		
+		var left = this.cameraNode.nodePivot.getLeft();
+		var up = this.cameraNode.nodePivot.getUp();
+		this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add(left.x(weightX*-1.0).add(up.x(weightY)))); 
+		this.cameraNode.nodeGoal.setPosition(this.cameraNode.nodeGoal.getPosition().add(left.x(weightX*-1.0).add(up.x(weightY)))); 
 	}
-	
-	var X = this.cameraNode.nodePivot.getLeft().x(weightX);
-	var Y = this.cameraNode.nodePivot.getUp().x(weightY);
-	this.cameraNode.nodePivot.setPosition(this.cameraNode.nodePivot.getPosition().add($V3([X.e[0]*-1.0,0.0,Y.e[2]]))); 
-	//this.cameraNode.nodeGoal.setPosition(this.cameraNode.nodeGoal.getPosition().add($V3([X.e[0],0.0,Y.e[2]]))); 
 };
 
 /**

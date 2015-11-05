@@ -7,6 +7,8 @@
 StormGLContext = function(sec, stormCanvasObject, loadScene) {
 	this._sec = sec;
 	
+	this.DEBUG_programPick = false;
+	
 	this.utils = new StormUtils(this._sec);
 	this.stormCanvasObject = stormCanvasObject; 
 	var dim = (this._sec.$.width() > this._sec.$.height()) ? this._sec.$.width() : this._sec.$.height();

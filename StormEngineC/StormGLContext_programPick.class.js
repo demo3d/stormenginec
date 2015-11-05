@@ -215,7 +215,7 @@ StormGLContext.prototype.render_Pick = function() {
 			var pickEditionMode = (function() {
 				if(this._sec.getSelectedNode() != undefined && this._sec.getSelectedNode().selectedNodeIsInEditionMode()) { // selection is in edit mode
 					// check if makeMouseDown over node type graph
-					console.log("- rendering selected node in edit mode...");				
+					if(this.DEBUG_programPick == true) console.log("- rendering selected node in edit mode...");				
 					this.render();
 					this.gettedPixel = this.readPixel(); 
 					
@@ -233,21 +233,21 @@ StormGLContext.prototype.render_Pick = function() {
 			}).bind(this);
 			
 			// check if makeMouseDown over nodes
-			console.log("- rendering nodes & transform axis...");
+			if(this.DEBUG_programPick == true) console.log("- rendering nodes & transform axis...");
 			this.render(this.nodes);
 			this.gettedPixel = this.readPixel(this.nodes); 
 			if(this.gettedPixel !== false) {
 				pick(this.nodes); 
 				pickEditionMode();
 			} else {
-				console.log("- rendering polarityPoints & transform axis...");
+				if(this.DEBUG_programPick == true) console.log("- rendering polarityPoints & transform axis...");
 				this.render(this.polarityPoints);
 				this.gettedPixel = this.readPixel(this.polarityPoints); 				
 				if(this.gettedPixel !== false) {
 					pick(this.polarityPoints); 
 					pickEditionMode();
 				} else {
-					console.log("- rendering graph & transform axis...");
+					if(this.DEBUG_programPick == true) console.log("- rendering graph & transform axis...");
 					this.render(this.graphs);
 					this.gettedPixel = this.readPixel(this.graphs); 					
 					if(this.gettedPixel !== false) {
@@ -539,21 +539,21 @@ StormGLContext.prototype.render_transformsaxis = function(node) {
 StormGLContext.prototype.readPixel = function(nodes) {
 	var arrayPick = new Uint8Array(4);  
 	this.gl.readPixels(this._sec.mousePosX, (this._sec.$.height()-(this._sec.mousePosY)), 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, arrayPick);
-	console.log(arrayPick[0]+"	"+arrayPick[1]+"	"+arrayPick[2]+"	"+arrayPick[3]);
+	if(this.DEBUG_programPick == true) console.log(arrayPick[0]+"	"+arrayPick[1]+"	"+arrayPick[2]+"	"+arrayPick[3]);
 	
 	if(nodes == undefined) { // selection is edit mode?
 		if(this._sec.getSelectedNode().objectType == 'graph') { // selection is type graph
 			var unpackValue = this._sec.utils.unpack([arrayPick[0]/255, arrayPick[1]/255, arrayPick[2]/255, arrayPick[3]/255]); // value from 0.0 to 1.0
 			
 			var nodeIdNum = Math.round(unpackValue*1000000.0)-1.0;
-			console.log("graph: "+nodeIdNum);
+			if(this.DEBUG_programPick == true) console.log("graph: "+nodeIdNum);
 			
 			return nodeIdNum;
 		}
 	} else { // selection not in edit mode
 		if(arrayPick[0] == 0 && arrayPick[1] != 0 && arrayPick[2] == 0 && arrayPick[3] == 255) { // selection is overlay transforms?
 			var transformNum = parseFloat(arrayPick[1]/255).toFixed(1); // overlay transforms 
-			console.log("transform axis: "+transformNum);
+			if(this.DEBUG_programPick == true) console.log("transform axis: "+transformNum);
 			
 			if(transformNum == 0.1) {  // mouse over transform pos x 
 				return 1;
@@ -582,12 +582,12 @@ StormGLContext.prototype.readPixel = function(nodes) {
 			
 			
 			if(selectedNode != undefined) {// mouse over node
-				console.log("node: "+selectedNode.name);
+				if(this.DEBUG_programPick == true) console.log("node: "+selectedNode.name);
 				return selectedNode;
 			}
 		}	
 		
-		console.log("false");
+		if(this.DEBUG_programPick == true) console.log("false");
 		return false;		
 	}
 };

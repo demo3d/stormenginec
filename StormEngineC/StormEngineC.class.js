@@ -848,7 +848,7 @@ StormEngineC.prototype.render = function() {
 		var center = this.defaultCamera.nodePivot.getPosition();
 		
 		this.defaultCamera.MPOS = $M16().makeLookAt(cameraP.e[0], cameraP.e[1], cameraP.e[2],
-													center.e[0], center.e[1], center.e[2],
+													center.e[0], center.e[1], center.e[2]-0.001,
 													0.0,1.0,0.0);
 		
 		
