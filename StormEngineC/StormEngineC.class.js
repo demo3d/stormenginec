@@ -208,18 +208,6 @@ if(window.WebCL == undefined) {
 	document.write('<script type="text/javascript" src="'+stormEngineCDirectory+'/StormRenderCL_EMR.class.js"></script>'); // Electromagnetic radiation
 }
 
-/** @private */
-window.requestAnimFrame = (function(){
-	return  window.requestAnimationFrame       || 
-			window.webkitRequestAnimationFrame || 
-			window.mozRequestAnimationFrame    || 
-			window.oRequestAnimationFrame      || 
-			window.msRequestAnimationFrame     || 
-			function(callback){
-				window.setTimeout(callback, 1000 / 60);
-			};
-})();
- 
 /**
 * Engine contructor
 * @class

@@ -222,6 +222,12 @@ StormGLContext.prototype.render_Pick = function() {
 					
 					if(this._sec.getSelectedNode() instanceof StormNode && this._sec.getSelectedNode().objectType == 'graph') {
 						this._sec.dragging = true;
+						
+						var selNode = this._sec.getSelectedNode();
+						if(selNode._nodesById[this.gettedPixel].onmousedown != undefined) {
+							var n = selNode._nodesById[this.gettedPixel];
+							n.onmousedown(n.data);
+						}
 					}
 				}
 			}).bind(this);
@@ -716,6 +722,11 @@ StormGLContext.prototype.unpick = function() {
 			selNode.clglWork_links.setArg("MouseDragTranslationX", selNode.MouseDragTranslationX);
 			selNode.clglWork_links.setArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
 			selNode.clglWork_links.setArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
+						
+			if(selNode._nodesById[this.gettedPixel].onmouseup != undefined) {
+				var n = selNode._nodesById[this.gettedPixel];
+				n.onmouseup(n.data);
+			}
 		}
 	} else { // selection not in edit mode
 		this._sec.getSelectedNode().bodyActive(true);

@@ -97,8 +97,9 @@ StormGraph = function(sec, jsonIn) { StormNode.call(this);
 	
 
 	
-	this.nodes = {};
-	this.links = [];
+	this._nodesByName = {};
+	this._nodesById = {};
+	this._links = [];
 	
 	
 	
@@ -486,23 +487,43 @@ var str =	'void main(					float* idx'+
 /**
 * Create new node for the graph
 * @param	{Object} jsonIn
-* 	@param {String} name Name of node
+* 	@param {String} jsonIn.name Name of node
+*  	@param {Object} jsonIn.data 
 * 	@param {StormV3} jsonIn.position Position of node
 * 	@param {StormNode} jsonIn.node Node with the mesh for the node
 * 	@param {StormV3} jsonIn.color Color of the node (values from 0.0 to 1.0)
+* 	@param {Function} jsonIn.onmousedown
+* 	@param {Function} jsonIn.onmouseup
  * @returns {String}
  */
 StormGraph.prototype.addNode = function(jsonIn) {
-	var node = this.addNodeNow({
-									"position": jsonIn.position,
-									"node": jsonIn.node,
-									"color": jsonIn.color
-								});
+	var node = this.addNodeNow({"position": jsonIn.position,
+								"node": jsonIn.node,
+								"color": jsonIn.color});
+		
+	// add event onmousedown & onmouseup if exists
+	node.data = (jsonIn != undefined && jsonIn.data != undefined) ? jsonIn.data : undefined;
+	node.onmousedown = (jsonIn != undefined && jsonIn.onmousedown != undefined) ? jsonIn.onmousedown : undefined;
+	node.onmouseup = (jsonIn != undefined && jsonIn.onmouseup != undefined) ? jsonIn.onmouseup : undefined;
 	
 	
-	// ADD NODE TO ARRAY NODES
-	// this.nodes[__STRING_USER_NODEID__] = {"nodeId": __INT_this.currentNodeId__, "itemStart": __INT_this.nodeArrayItemStart__}
-	this.nodes[jsonIn.name] = node;
+	/* this._nodesByName[__STRING_USER_NODENAME__] = {	"nodeId": __INT_this.currentNodeId__,
+														"itemStart": __INT_this.nodeArrayItemStart__,
+														"data": {},
+														"onmousedown": Function,
+														"onmouseup": Function }*/
+	this._nodesByName[jsonIn.name] = node;
+	
+	/* this._nodesById[__INT_this.currentNodeId__] = {	"nodeName": __STRING_USER_NODENAME__,
+	  													"itemStart": __INT_this.nodeArrayItemStart__,
+	  													"data": {},
+	  													"onmousedown": Function,
+	  													"onmouseup": Function }*/
+	this._nodesById[node.nodeId] = {"nodeName": jsonIn.name,
+									"itemStart": node.itemStart,
+									"data": node.data,
+									"onmousedown": node.onmousedown,
+									"onmouseup": node.onmouseup};
 	
 	return jsonIn.name;
 };
@@ -512,7 +533,7 @@ StormGraph.prototype.addNode = function(jsonIn) {
 * 	@param {StormV3} jsonIn.position Position of node
 * 	@param {StormNode} jsonIn.node Node with the mesh for the node
 * 	@param {StormV3} jsonIn.color Color of the node (values from 0.0 to 1.0)
- * @returns {Int}
+ * @returns {Object}
  */
 StormGraph.prototype.addNodeNow = function(jsonIn) { 
 	var nAIS = this.nodeArrayItemStart;
@@ -677,22 +698,22 @@ StormGraph.prototype.addLink = function(jsonIn) {
 	var blId = this.addLinkNow({
 		"origin_nodeName": jsonIn.origin,
 		"target_nodeName": jsonIn.target,
-		"origin_nodeId": this.nodes[jsonIn.origin].nodeId,
-		"target_nodeId": this.nodes[jsonIn.target].nodeId,
-		"origin_itemStart": this.nodes[jsonIn.origin].itemStart,
-		"target_itemStart": this.nodes[jsonIn.target].itemStart,
+		"origin_nodeId": this._nodesByName[jsonIn.origin].nodeId,
+		"target_nodeId": this._nodesByName[jsonIn.target].nodeId,
+		"origin_itemStart": this._nodesByName[jsonIn.origin].itemStart,
+		"target_itemStart": this._nodesByName[jsonIn.target].itemStart,
 		"origin_color": orig_color,
 		"target_color": targ_color
 		});
 	
 	// ADD LINK TO ARRAY LINKS
-	this.links.push({
+	this._links.push({
 		"origin_nodeName": jsonIn.origin,
 		"target_nodeName": jsonIn.target,
-		"origin_nodeId": this.nodes[jsonIn.origin].nodeId,
-		"target_nodeId": this.nodes[jsonIn.target].nodeId,
-		"origin_itemStart": this.nodes[jsonIn.origin].itemStart,
-		"target_itemStart": this.nodes[jsonIn.target].itemStart,
+		"origin_nodeId": this._nodesByName[jsonIn.origin].nodeId,
+		"target_nodeId": this._nodesByName[jsonIn.target].nodeId,
+		"origin_itemStart": this._nodesByName[jsonIn.origin].itemStart,
+		"target_itemStart": this._nodesByName[jsonIn.target].itemStart,
 		"origin_color": orig_color,
 		"target_color": targ_color
 		});
@@ -762,17 +783,17 @@ StormGraph.prototype.updateLinks = function() {
 	if(this.clglWork_nodes.buffers_TEMP["posXYZW"] != undefined) {
 		var arr4Uint8_XYZW = this.webCLGL.enqueueReadBuffer_Float4(this.clglWork_nodes.buffers_TEMP["posXYZW"]);
 		//var arr4Uint8_XYZW = this.clglLayout_nodes.CLGL_bufferPosXYZW.Float4;
-		for(var n = 0, f = this.links.length; n < f; n++) {
+		for(var n = 0, f = this._links.length; n < f; n++) {
 			var idx = n*8;
-			this.arrayLinkPosXYZW[idx+0] = arr4Uint8_XYZW[0][this.links[n].origin_itemStart];
-			this.arrayLinkPosXYZW[idx+1] = arr4Uint8_XYZW[1][this.links[n].origin_itemStart];
-			this.arrayLinkPosXYZW[idx+2] = arr4Uint8_XYZW[2][this.links[n].origin_itemStart];
-			this.arrayLinkPosXYZW[idx+3] = arr4Uint8_XYZW[3][this.links[n].origin_itemStart];
+			this.arrayLinkPosXYZW[idx+0] = arr4Uint8_XYZW[0][this._links[n].origin_itemStart];
+			this.arrayLinkPosXYZW[idx+1] = arr4Uint8_XYZW[1][this._links[n].origin_itemStart];
+			this.arrayLinkPosXYZW[idx+2] = arr4Uint8_XYZW[2][this._links[n].origin_itemStart];
+			this.arrayLinkPosXYZW[idx+3] = arr4Uint8_XYZW[3][this._links[n].origin_itemStart];
 			
-			this.arrayLinkPosXYZW[idx+4] = arr4Uint8_XYZW[0][this.links[n].target_itemStart];
-			this.arrayLinkPosXYZW[idx+5] = arr4Uint8_XYZW[1][this.links[n].target_itemStart];
-			this.arrayLinkPosXYZW[idx+6] = arr4Uint8_XYZW[2][this.links[n].target_itemStart];
-			this.arrayLinkPosXYZW[idx+7] = arr4Uint8_XYZW[3][this.links[n].target_itemStart];
+			this.arrayLinkPosXYZW[idx+4] = arr4Uint8_XYZW[0][this._links[n].target_itemStart];
+			this.arrayLinkPosXYZW[idx+5] = arr4Uint8_XYZW[1][this._links[n].target_itemStart];
+			this.arrayLinkPosXYZW[idx+6] = arr4Uint8_XYZW[2][this._links[n].target_itemStart];
+			this.arrayLinkPosXYZW[idx+7] = arr4Uint8_XYZW[3][this._links[n].target_itemStart];
 		}
 	}
 	
@@ -1356,7 +1377,7 @@ StormGraph.prototype.setLinksDestinationToNodesDestination = function() {
 	this.arrayLinkDestination = [];	
 	for(var n=0; n < this.arrayLinkId.length; n++) {
 		var currentLinkNodeName = this.arrayLinkNodeName[n];		
-		var nodeNameItemStart = this.nodes[currentLinkNodeName].itemStart;
+		var nodeNameItemStart = this._nodesByName[currentLinkNodeName].itemStart;
 		
 		this.arrayLinkDestination.push(this.arrayNodeDestination[(nodeNameItemStart*4)],
 										this.arrayNodeDestination[(nodeNameItemStart*4)+1],
@@ -1404,7 +1425,7 @@ StormGraph.prototype.setLinksDirToNodesDir = function() {
 	this.arrayLinkDir = [];	
 	for(var n=0; n < this.arrayLinkId.length; n++) {
 		var currentLinkNodeName = this.arrayLinkNodeName[n];		
-		var nodeNameItemStart = this.nodes[currentLinkNodeName].itemStart;
+		var nodeNameItemStart = this._nodesByName[currentLinkNodeName].itemStart;
 		
 		this.arrayLinkDir.push(this.arrayNodeDir[(nodeNameItemStart*4)],
 								this.arrayNodeDir[(nodeNameItemStart*4)+1],
@@ -1476,7 +1497,7 @@ StormGraph.prototype.setLinksPosToNodesPos = function() {
 	this.arrayLinkPos = [];	
 	for(var n=0; n < this.arrayLinkId.length; n++) {
 		var currentLinkNodeName = this.arrayLinkNodeName[n];		
-		var nodeNameItemStart = this.nodes[currentLinkNodeName].itemStart;
+		var nodeNameItemStart = this._nodesByName[currentLinkNodeName].itemStart;
 		
 		this.arrayLinkPos.push(this.arrayNodePosXYZW[(nodeNameItemStart*4)],
 								this.arrayNodePosXYZW[(nodeNameItemStart*4)+1],
