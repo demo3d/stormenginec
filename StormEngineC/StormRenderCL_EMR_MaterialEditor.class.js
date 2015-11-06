@@ -570,17 +570,20 @@ StormRenderEMR_MaterialEditor.prototype.listEMRMaterials = function() {
 		var rgbB = (this._sec.EMR_Materials[n].type == 'absorption') ? Math.round(this._sec.EMR_Materials[n].rgbReflect.e[2]*255) : Math.round(this._sec.EMR_Materials[n].rgb.e[2]*255);
 		var strImg = (this._sec.EMR_Materials[n].type == 'absorption') ? 'EMRtypeAbsorption.png': 'EMRtypeEmission.png';
 		var colorBg = (n == this._sec.selectedEMRMaterial) ? '#FFF' : '#CCC';
-		str += 	"<button type='button' id='BUTTONID_showEmrMaterial' style='background-color:"+colorBg+"'>"+
+		str += 	"<button type='button' id='BUTTONID_showEmrMaterial"+n+"' style='background-color:"+colorBg+"'>"+
 					"Spectrum "+this._sec.EMR_Materials[n].idMaterial+" <div id='BTNDIVID_EMRMATERIAL"+n+"' style='width:20px;height:20px;background:rgb("+rgbR+", "+rgbG+", "+rgbB+");'></div>"+
 				"</button><img src='"+stormEngineCDirectory+"/resources/"+strImg+"' /><br />";
 	}
 	document.getElementById('DIVID_EMRMaterials').innerHTML = str;
 	
-	document.getElementById("BUTTONID_showEmrMaterial").addEventListener("click", (function() {
-		this._sec.MaterialEditor.showMaterial(n);
-		$("#DIVID_EMRMaterials button").css("background-color","#CCC");
-		$(this).css("background-color","#FFF");
-	}).bind(this));
+	for(var n = 0, f = this._sec.EMR_Materials.length; n < f; n++) {
+		var e = document.getElementById("BUTTONID_showEmrMaterial"+n);
+		e.addEventListener("click", (function(nn) {
+			this._sec.MaterialEditor.showMaterial(nn);
+			$("#DIVID_EMRMaterials button").css("background-color","#CCC");
+			$(this).css("background-color","#FFF");
+		}).bind(this, n));
+	}
 };
 
 /**
@@ -633,6 +636,7 @@ StormRenderEMR_MaterialEditor.prototype.showMaterial = function(idMaterial) {
 								'Reflect color'+
 								'<div id="colorRGBReflect"></div>'+
 								'<div id="colorReflect" style="width:40px;height:40px;border:1px solid #000;background:#FFF"></div>'+
+								
 								'Roughness: <input type="text" id="INPUTID_MATERIAL_NS" value="'+this._sec.EMR_Materials[idMaterial].Ns+'"/><br />'+
 							'</fieldset>'+
 						'</td>';
@@ -655,9 +659,11 @@ StormRenderEMR_MaterialEditor.prototype.showMaterial = function(idMaterial) {
 		alert(this._sec.EMR_Materials[idMaterial].spectrum.e);
 	}).bind(this));
 	
-	document.getElementById("INPUTID_MATERIAL_NS").addEventListener("click", (function() {
-		this._sec.MaterialEditor.setNs(idMaterial, $(this).val());
-	}).bind(this));
+	if(this._sec.EMR_Materials[idMaterial].type == 'absorption') {
+		document.getElementById("INPUTID_MATERIAL_NS").addEventListener("click", (function() {
+			this._sec.MaterialEditor.setNs(idMaterial, $(this).val());
+		}).bind(this));
+	}
 	
 	document.getElementById("BUTTONID_applyEmr").addEventListener("click", (function() {
 		this._sec.MaterialEditor.applyMaterial(this._sec.MaterialEditor.rgb,this._sec.MaterialEditor.rgbReflect);
@@ -669,16 +675,16 @@ StormRenderEMR_MaterialEditor.prototype.showMaterial = function(idMaterial) {
 	}).bind(this));
 	
 	
-	$('#panelColor').bind('mousedown', function(){
+	$('#panelColor').bind('mousedown', (function(){
 		this._sec.MaterialEditor.clickPanel=true;
 		this._sec.MaterialEditor.canvasAction();
-	});
-	$('#panelColor').bind('mouseup', function(){
+	}).bind(this));
+	$('#panelColor').bind('mouseup', (function(){
 		this._sec.MaterialEditor.clickPanel=false;
-	});
-	$('#panelColor').bind('mousemove', function(){
+	}).bind(this));
+	$('#panelColor').bind('mousemove', (function(){
 		this._sec.MaterialEditor.canvasAction();
-	});
+	}).bind(this));
 	
 	var newArray = new Float32Array(401);
 	if(this._sec.EMR_Materials[idMaterial].spectrum == undefined) {this._sec.EMR_Materials[idMaterial].spectrum = newArray;}
