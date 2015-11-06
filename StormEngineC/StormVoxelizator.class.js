@@ -2,7 +2,9 @@
 * @class
 * @constructor
 */
-StormVoxelizator = function() {
+StormVoxelizator = function(sec) {
+	this._sec = sec;
+	
 	this.idNum;
 	this.name;
 	this.objectType = 'voxelizator'; 
@@ -47,12 +49,12 @@ StormVoxelizator = function() {
 StormVoxelizator.prototype.initShader_VoxelizatorMaker = function() {
 	this.canvas.width = this.resolution;
 	this.canvas.height = this.resolution;
-	this.glVoxelizator = stormEngineC.utils.getWebGLContextFromCanvas(this.canvas, {antialias: false});
+	this.glVoxelizator = this._sec.utils.getWebGLContextFromCanvas(this.canvas, {antialias: false});
 	
 	var highPrecisionSupport = this.glVoxelizator.getShaderPrecisionFormat(this.glVoxelizator.FRAGMENT_SHADER, this.glVoxelizator.HIGH_FLOAT);
 	this.precision = (highPrecisionSupport.precision != 0) ? 'precision highp float;\n\nprecision highp int;\n\n' : 'precision lowp float;\n\nprecision lowp int;\n\n';
 	
-	var mesh = new StormMesh();
+	var mesh = new StormMesh(this._sec);
 	mesh.loadQuad(undefined,1.0,1.0);
 	this.vertexBuffer_QUAD = this.glVoxelizator.createBuffer();
 	this.glVoxelizator.bindBuffer(this.glVoxelizator.ARRAY_BUFFER, this.vertexBuffer_QUAD);
@@ -104,7 +106,7 @@ StormVoxelizator.prototype.initShader_VoxelizatorMaker = function() {
 				'vTextureUnit = aTextureUnitCoord;\n'+
 			'}';
 	var sf = this.precision+
-			'uniform sampler2D objectTexturesKd['+stormEngineC.stormGLContext.MAX_TEXTURESKD+'];\n\n\n'+
+			'uniform sampler2D objectTexturesKd['+this._sec.stormGLContext.MAX_TEXTURESKD+'];\n\n\n'+
 			
 			'uniform int uTypeFillMode;\n'+
 			'uniform int uFillModePos;\n'+
@@ -114,7 +116,7 @@ StormVoxelizator.prototype.initShader_VoxelizatorMaker = function() {
 			'varying vec3 vTextureCoord;\n'+
 			'varying float vTextureUnit;\n'+
 			
-			stormEngineC.utils.packGLSLFunctionString()+
+			this._sec.utils.packGLSLFunctionString()+
 			
 			'void main(void) {\n'+// RGB=COLOR, ALPHA=CELL BIT
 				
@@ -122,10 +124,10 @@ StormVoxelizator.prototype.initShader_VoxelizatorMaker = function() {
 					'vec4 textureColor;'+
 					'float texUnit = vTextureUnit;'+      
 					'if(texUnit < 0.1 ) {';
-					for(var n = 0, fn = stormEngineC.stormGLContext.MAX_TEXTURESKD; n < fn; n++) {
+					for(var n = 0, fn = this._sec.stormGLContext.MAX_TEXTURESKD; n < fn; n++) {
 					sf += ''+
 						'textureColor = texture2D(objectTexturesKd['+n+'], vec2(vTextureCoord.s, vTextureCoord.t));\n';
-					if(n < stormEngineC.stormGLContext.MAX_TEXTURESKD-1) sf += '} else if(texUnit < '+(n+1)+'.1) {';
+					if(n < this._sec.stormGLContext.MAX_TEXTURESKD-1) sf += '} else if(texUnit < '+(n+1)+'.1) {';
 					}
 					sf += ''+
 					'} else {'+
@@ -158,7 +160,7 @@ StormVoxelizator.prototype.initShader_VoxelizatorMaker = function() {
 				'}'+
 			'}';
 	this.shader_Voxelizator = this.glVoxelizator.createProgram();   
-	stormEngineC.stormGLContext.createShader(this.glVoxelizator, "VOXELIZATOR", sv, sf, this.shader_Voxelizator);
+	this._sec.stormGLContext.createShader(this.glVoxelizator, "VOXELIZATOR", sv, sf, this.shader_Voxelizator);
 	this.pointers_VoxelizatorMaker();
 };
 /** @private */
@@ -169,7 +171,7 @@ StormVoxelizator.prototype.pointers_VoxelizatorMaker = function() {
 	this.u_Voxelizator_nodeVScale = this.glVoxelizator.getUniformLocation(this.shader_Voxelizator, "u_nodeVScale");
 	
 	this.samplers_Voxelizator_objectTexturesKd = [];
-	for(var n = 0; n < stormEngineC.stormGLContext.MAX_TEXTURESKD; n++) {
+	for(var n = 0; n < this._sec.stormGLContext.MAX_TEXTURESKD; n++) {
 		this.samplers_Voxelizator_objectTexturesKd[n] = this.glVoxelizator.getUniformLocation(this.shader_Voxelizator, "objectTexturesKd["+n+"]");
 	}
 	
@@ -193,7 +195,7 @@ StormVoxelizator.prototype.pointers_VoxelizatorMaker = function() {
 * 	@param {Function} [jsonIn.ongenerate] On generate event.
 */
 StormVoxelizator.prototype.generateFromScene = function(jsonIn) { 
-	stormEngineC.setStatus({id:'voxelizator', str:'Performing voxelization...'});
+	this._sec.setStatus({id:'voxelizator', str:'Performing voxelization...'});
 	var _this = this;
 	setTimeout(function(){
 		_this.generateFromSceneNow(jsonIn);
@@ -203,7 +205,7 @@ StormVoxelizator.prototype.generateFromScene = function(jsonIn) {
 StormVoxelizator.prototype.generateFromSceneNow = function(jsonIn) { 	
 	this.ongeneratefunction = jsonIn.ongenerate;
 	
-	this.CLGL_Voxels = new WebCLGL(stormEngineC.stormGLContext.gl);  
+	this.CLGL_Voxels = new WebCLGL(this._sec.stormGLContext.gl);  
 	
 	this.size = (jsonIn.size != undefined) ? jsonIn.size: 2.1; 
 	this.resolution = (jsonIn.resolution != undefined) ? jsonIn.resolution: 32;
@@ -215,22 +217,22 @@ StormVoxelizator.prototype.generateFromSceneNow = function(jsonIn) {
 	
 	this.initShader_VoxelizatorMaker();
 	
-	var nodes = stormEngineC.nodes;
+	var nodes = this._sec.nodes;
 	this.BOS = [];
 	this.MATS = [];
 	for(var n = 0, f = nodes.length; n < f; n++) {
 		if(nodes[n].visibleOnContext == true && nodes[n].objectType == 'node') { 
 		
 			for(var mu = 0, fmu = nodes[n].materialUnits.length; mu < fmu; mu++) { 
-				this.MATS[mu] = new StormMaterial();
+				this.MATS[mu] = new StormMaterial(this._sec);
 				this.glVoxelizator.pixelStorei(this.glVoxelizator.UNPACK_FLIP_Y_WEBGL, false);      	 
 				this.glVoxelizator.pixelStorei(this.glVoxelizator.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-				this.MATS[mu].textureObjectKd.textureData = this.glVoxelizator.createTexture();
-				this.glVoxelizator.bindTexture(this.glVoxelizator.TEXTURE_2D, this.MATS[mu].textureObjectKd.textureData); 
-				var ar = nodes[n].materialUnits[mu].textureObjectKd.inData;
+				this.MATS[mu].textureObjectKd.items[0].textureData = this.glVoxelizator.createTexture();
+				this.glVoxelizator.bindTexture(this.glVoxelizator.TEXTURE_2D, this.MATS[mu].textureObjectKd.items[0].textureData); 
+				var ar = nodes[n].materialUnits[mu].textureObjectKd.items[0].inData;
 				this.glVoxelizator.texImage2D(this.glVoxelizator.TEXTURE_2D, 0, this.glVoxelizator.RGBA,
-												nodes[n].materialUnits[mu].textureObjectKd.W,
-												nodes[n].materialUnits[mu].textureObjectKd.H,
+												nodes[n].materialUnits[mu].textureObjectKd.items[0].W,
+												nodes[n].materialUnits[mu].textureObjectKd.items[0].H,
 												0, this.glVoxelizator.RGBA, this.glVoxelizator.UNSIGNED_BYTE,
 												new Uint8Array(ar));
 				this.glVoxelizator.texParameteri(this.glVoxelizator.TEXTURE_2D, this.glVoxelizator.TEXTURE_MAG_FILTER, this.glVoxelizator.NEAREST);
@@ -324,7 +326,7 @@ StormVoxelizator.prototype.generateFromSceneNow = function(jsonIn) {
 		}
 	}
 	if(this.ongeneratefunction != undefined) this.ongeneratefunction();
-	stormEngineC.setStatus({id:'voxelizator', str:''});
+	this._sec.setStatus({id:'voxelizator', str:''});
 };
 /** @private  */
 StormVoxelizator.prototype.renderVoxelHeight = function(currentHeight) { 
@@ -335,12 +337,12 @@ StormVoxelizator.prototype.renderVoxelHeight = function(currentHeight) {
 	var pc = p.add($V3([0.0,-1.0,0.0]));
 	/*var Mpos = $M16().setPosition(p);
 	var rot = 0; 
-	var MrotX = $M16().setRotationX(stormEngineC.utils.degToRad(-90+rot)); 
-	var MrotZ = $M16().setRotationZ(stormEngineC.utils.degToRad(rot));*/ 
+	var MrotX = $M16().setRotationX(this._sec.utils.degToRad(-90+rot)); 
+	var MrotZ = $M16().setRotationZ(this._sec.utils.degToRad(rot));*/ 
 	var Mcamera = $M16().makeLookAt(p.e[0], p.e[1], p.e[2],
 									pc.e[0], pc.e[1], pc.e[2], 
 									0.0,0.0,1.0);	 
-	var MrotY = $M16().setRotationY(stormEngineC.utils.degToRad(180));  
+	var MrotY = $M16().setRotationY(this._sec.utils.degToRad(180));  
 	var Mcamera = Mcamera.x(MrotY);
 	this.glVoxelizator.uniformMatrix4fv(this.u_Voxelizator_cameraWMatrix, false, Mcamera.transpose().e);   
 	
@@ -348,7 +350,7 @@ StormVoxelizator.prototype.renderVoxelHeight = function(currentHeight) {
 	
 	var idx3d = (currentHeight*(this.resolution*this.resolution))*4;  
 	var num = idx3d/this.wh;
-	var col = stormEngineC.utils.fract(num)*this.wh; 
+	var col = this._sec.utils.fract(num)*this.wh; 
 	var row = Math.floor(num);
 	
 	var fm;
@@ -425,7 +427,7 @@ StormVoxelizator.prototype.renderVoxelHeightPass = function() {
 		var next = 0; 
 		for(var n = 0; (n < this.MATS.length); n++) {
 			eval("this.glVoxelizator.activeTexture(this.glVoxelizator.TEXTURE"+(next)+");")
-			this.glVoxelizator.bindTexture(this.glVoxelizator.TEXTURE_2D, this.MATS[n].textureObjectKd.textureData);    
+			this.glVoxelizator.bindTexture(this.glVoxelizator.TEXTURE_2D, this.MATS[n].textureObjectKd.items[0].textureData);    
 			this.glVoxelizator.uniform1i(this.samplers_Voxelizator_objectTexturesKd[n], next);
 			next++;
 		}
@@ -549,7 +551,7 @@ StormVoxelizator.prototype.get3DImageElement = function(fillmode) {
 StormVoxelizator.prototype.generateFrom3DImageElement = function(jsonIn) {  
 	this.ongeneratefunction = jsonIn.ongenerate;
 	
-	this.CLGL_Voxels = new WebCLGL(stormEngineC.stormGLContext.gl);  
+	this.CLGL_Voxels = new WebCLGL(this._sec.stormGLContext.gl);  
 	
 	this.size = (jsonIn.size != undefined) ? jsonIn.size: 2.1; 
 	this.resolution = jsonIn.resolution;  
@@ -577,58 +579,55 @@ StormVoxelizator.prototype.generateFrom3DImageElement = function(jsonIn) {
 					var idx3d = (nb*(this.resolution*this.resolution))*4; 
 					
 					var imageElement = new Image();
-					imageElement.voxelizator = this;
-					imageElement.idx3d = idx3d;
-					imageElement.n = n;
-					imageElement.nb = nb;					
-					imageElement.onload = function() {		
-						if(this.voxelizator.typeFillMode == "albedo") {
-							this.voxelizator.arr_VoxelsColor.set(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(this), this.idx3d);							
-							if(this.nb == jsonIn.image[this.n].length-1) {
-								this.voxelizator.setVoxels({'image':this.voxelizator.arr_VoxelsColor, 'wh':this.voxelizator.wh});
+					imageElement.voxelizator = this;				
+					imageElement.onload = (function(n, nb, idx3d, imageElement) {		
+						if(this.typeFillMode == "albedo") {
+							this.arr_VoxelsColor.set(this._sec.utils.getUint8ArrayFromHTMLImageElement(imageElement), idx3d);							
+							if(nb == jsonIn.image[n].length-1) {
+								this.setVoxels({'image':this.arr_VoxelsColor, 'wh':this.wh});
 								
-								if(this.voxelizator.ongeneratefunction != undefined && this.n == (jsonIn.fillmode.length-1)) {
-									this.voxelizator.ongeneratefunction(this.voxelizator);
+								if(this.ongeneratefunction != undefined && n == (jsonIn.fillmode.length-1)) {
+									this.ongeneratefunction(this);
 								}
 							}
-						} else if(this.voxelizator.typeFillMode == "positionX") {
-							this.voxelizator.arr_VoxelsPositionX.set(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(this), this.idx3d);
-							if(this.nb == jsonIn.image[this.n].length-1) {
-								this.voxelizator.setVoxels({'image':this.voxelizator.arr_VoxelsPositionX, 'posChannel':0, 'wh':this.voxelizator.wh});
+						} else if(this.typeFillMode == "positionX") {
+							this.arr_VoxelsPositionX.set(this._sec.utils.getUint8ArrayFromHTMLImageElement(imageElement), idx3d);
+							if(nb == jsonIn.image[n].length-1) {
+								this.setVoxels({'image':this.arr_VoxelsPositionX, 'posChannel':0, 'wh':this.wh});
 								
-								if(this.voxelizator.ongeneratefunction != undefined && this.n == (jsonIn.fillmode.length-1)) {
-									this.voxelizator.ongeneratefunction(this.voxelizator);
+								if(this.ongeneratefunction != undefined && n == (jsonIn.fillmode.length-1)) {
+									this.ongeneratefunction(this);
 								}
 							}
-						} else if(this.voxelizator.typeFillMode == "positionY") {
-							this.voxelizator.arr_VoxelsPositionY.set(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(this), this.idx3d);
-							if(this.nb == jsonIn.image[this.n].length-1) {
-								this.voxelizator.setVoxels({'image':this.voxelizator.arr_VoxelsPositionY, 'posChannel':1, 'wh':this.voxelizator.wh});
+						} else if(this.typeFillMode == "positionY") {
+							this.arr_VoxelsPositionY.set(this._sec.utils.getUint8ArrayFromHTMLImageElement(imageElement), idx3d);
+							if(nb == jsonIn.image[n].length-1) {
+								this.setVoxels({'image':this.arr_VoxelsPositionY, 'posChannel':1, 'wh':this.wh});
 								
-								if(this.voxelizator.ongeneratefunction != undefined && this.n == (jsonIn.fillmode.length-1)) {
-									this.voxelizator.ongeneratefunction(this.voxelizator);
+								if(this.ongeneratefunction != undefined && n == (jsonIn.fillmode.length-1)) {
+									this.ongeneratefunction(this);
 								}
 							}
-						} else if(this.voxelizator.typeFillMode == "positionZ") {
-							this.voxelizator.arr_VoxelsPositionZ.set(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(this), this.idx3d);
-							if(this.nb == jsonIn.image[this.n].length-1) {
-								this.voxelizator.setVoxels({'image':this.voxelizator.arr_VoxelsPositionZ, 'posChannel':2, 'wh':this.voxelizator.wh});
+						} else if(this.typeFillMode == "positionZ") {
+							this.arr_VoxelsPositionZ.set(this._sec.utils.getUint8ArrayFromHTMLImageElement(imageElement), idx3d);
+							if(nb == jsonIn.image[n].length-1) {
+								this.setVoxels({'image':this.arr_VoxelsPositionZ, 'posChannel':2, 'wh':this.wh});
 								
-								if(this.voxelizator.ongeneratefunction != undefined && this.n == (jsonIn.fillmode.length-1)) {
-									this.voxelizator.ongeneratefunction(this.voxelizator);
+								if(this.ongeneratefunction != undefined && n == (jsonIn.fillmode.length-1)) {
+									this.ongeneratefunction(this);
 								}
 							}
-						} else if(this.voxelizator.typeFillMode == "normal"){
-							this.voxelizator.arr_VoxelsNormal.set(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(this), this.idx3d);
-							if(this.nb == jsonIn.image[this.n].length-1) {
-								this.voxelizator.setVoxels({'image':this.voxelizator.arr_VoxelsNormal, 'wh':this.voxelizator.wh});
+						} else if(this.typeFillMode == "normal"){
+							this.arr_VoxelsNormal.set(this._sec.utils.getUint8ArrayFromHTMLImageElement(imageElement), idx3d);
+							if(nb == jsonIn.image[n].length-1) {
+								this.setVoxels({'image':this.arr_VoxelsNormal, 'wh':this.wh});
 								
-								if(this.voxelizator.ongeneratefunction != undefined && this.n == (jsonIn.fillmode.length-1)) {
-									this.voxelizator.ongeneratefunction(this.voxelizator);
+								if(this.ongeneratefunction != undefined && n == (jsonIn.fillmode.length-1)) {
+									this.ongeneratefunction(this);
 								}
 							}
 						}						
-					};
+					}).bind(this, n, nb, idx3d, imageElement);
 					imageElement.src = jsonIn.image[n][nb];
 				}
 			} else {
@@ -660,61 +659,60 @@ StormVoxelizator.prototype.setVoxels = function(jsonIn) {
 		if(this.typeFillMode == "albedo") {
 			this.clglBuff_VoxelsColor = buffer; 
 			var canvas = (jsonIn.image instanceof Uint8Array) ?
-				stormEngineC.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
-				stormEngineC.utils.getCanvasFromUint8Array(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
-			this.image3D_VoxelsColor = stormEngineC.utils.getImageFromCanvas(canvas);
+				this._sec.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
+				this._sec.utils.getCanvasFromUint8Array(this._sec.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
+			this.image3D_VoxelsColor = this._sec.utils.getImageFromCanvas(canvas);
 		} else if(this.typeFillMode == "positionX") {
 			this.clglBuff_VoxelsPositionX = buffer; 
 			var canvas = (jsonIn.image instanceof Uint8Array) ?
-				stormEngineC.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
-				stormEngineC.utils.getCanvasFromUint8Array(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
-			this.image3D_VoxelsPositionX = stormEngineC.utils.getImageFromCanvas(canvas);
+				this._sec.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
+				this._sec.utils.getCanvasFromUint8Array(this._sec.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
+			this.image3D_VoxelsPositionX = this._sec.utils.getImageFromCanvas(canvas);
 		} else if(this.typeFillMode == "positionY") {
 			this.clglBuff_VoxelsPositionY = buffer; 
 			var canvas = (jsonIn.image instanceof Uint8Array) ?
-				stormEngineC.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
-				stormEngineC.utils.getCanvasFromUint8Array(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
-			this.image3D_VoxelsPositionY = stormEngineC.utils.getImageFromCanvas(canvas);
+				this._sec.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
+				this._sec.utils.getCanvasFromUint8Array(this._sec.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
+			this.image3D_VoxelsPositionY = this._sec.utils.getImageFromCanvas(canvas);
 		} else if(this.typeFillMode == "positionZ") {
 			this.clglBuff_VoxelsPositionZ = buffer; 
 			var canvas = (jsonIn.image instanceof Uint8Array) ?
-				stormEngineC.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
-				stormEngineC.utils.getCanvasFromUint8Array(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
-			this.image3D_VoxelsPositionZ = stormEngineC.utils.getImageFromCanvas(canvas);
+				this._sec.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
+				this._sec.utils.getCanvasFromUint8Array(this._sec.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
+			this.image3D_VoxelsPositionZ = this._sec.utils.getImageFromCanvas(canvas);
 		} else if(this.typeFillMode == "normal") {
 			this.clglBuff_VoxelsNormal = buffer; 
 			var canvas = (jsonIn.image instanceof Uint8Array) ?
-				stormEngineC.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
-				stormEngineC.utils.getCanvasFromUint8Array(stormEngineC.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
-			this.image3D_VoxelsNormal = stormEngineC.utils.getImageFromCanvas(canvas);
+				this._sec.utils.getCanvasFromUint8Array(jsonIn.image,jsonIn.wh,jsonIn.wh) :
+				this._sec.utils.getCanvasFromUint8Array(this._sec.utils.getUint8ArrayFromHTMLImageElement(jsonIn.image),jsonIn.wh,jsonIn.wh);
+			this.image3D_VoxelsNormal = this._sec.utils.getImageFromCanvas(canvas);
 		}
 	} else { 
 		var imageElement = new Image();
 		imageElement.voxelizator = this;
-		imageElement.ongenerate = jsonIn.ongenerate;
-		imageElement.onload = function() {
-			var buffer = this.voxelizator.CLGL_Voxels.createBuffer(this.width*this.height, 'FLOAT4', this.voxelizator.size/1.9);      
-			this.voxelizator.CLGL_Voxels.enqueueWriteBuffer(buffer, this);  
+		imageElement.onload = (function(ongenerate, imageElement) {
+			var buffer = this.CLGL_Voxels.createBuffer(imageElement.width*imageElement.height, 'FLOAT4', this.size/1.9);      
+			this.CLGL_Voxels.enqueueWriteBuffer(buffer, imageElement);  
 			
-			if(this.voxelizator.typeFillMode == "albedo") {
-				this.voxelizator.clglBuff_VoxelsColor = buffer; 
-				this.voxelizator.image3D_VoxelsColor = this;
-			} else if(this.voxelizator.typeFillMode == "positionX") {
-				this.voxelizator.clglBuff_VoxelsPositionX = buffer; 
-				this.voxelizator.image3D_VoxelsPositionX = this;
-			} else if(this.voxelizator.typeFillMode == "positionY") {
-				this.voxelizator.clglBuff_VoxelsPositionY = buffer; 
-				this.voxelizator.image3D_VoxelsPositionY = this;
-			} else if(this.voxelizator.typeFillMode == "positionZ") {
-				this.voxelizator.clglBuff_VoxelsPositionZ = buffer; 
-				this.voxelizator.image3D_VoxelsPositionZ = this;
-			} else if(this.voxelizator.typeFillMode == "normal"){
-				this.voxelizator.clglBuff_VoxelsNormal = buffer;
-				this.voxelizator.image3D_VoxelsNormal = this;
+			if(this.typeFillMode == "albedo") {
+				this.clglBuff_VoxelsColor = buffer; 
+				this.image3D_VoxelsColor = imageElement;
+			} else if(this.typeFillMode == "positionX") {
+				this.clglBuff_VoxelsPositionX = buffer; 
+				this.image3D_VoxelsPositionX = imageElement;
+			} else if(this.typeFillMode == "positionY") {
+				this.clglBuff_VoxelsPositionY = buffer; 
+				this.image3D_VoxelsPositionY = imageElement;
+			} else if(this.typeFillMode == "positionZ") {
+				this.clglBuff_VoxelsPositionZ = buffer; 
+				this.image3D_VoxelsPositionZ = imageElement;
+			} else if(this.typeFillMode == "normal"){
+				this.clglBuff_VoxelsNormal = buffer;
+				this.image3D_VoxelsNormal = imageElement;
 			}
 			
-			if(this.ongenerate != undefined) this.ongenerate(this.voxelizator);
-		};
+			if(ongenerate != undefined) ongenerate(this);
+		}).bind(this, jsonIn.ongenerate, imageElement);
 		imageElement.src = jsonIn.image;
 	}
 };

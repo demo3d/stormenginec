@@ -29,11 +29,31 @@
 					<ul class="dropdown-menu ">
 						
 						<li>
+							<a href="ActionHelpers.html">ActionHelpers</a>
+						</li>
+						
+						<li>
 							<a href="StormBufferObject.html">StormBufferObject</a>
 						</li>
 						
 						<li>
 							<a href="StormCamera.html">StormCamera</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerFollow.html">StormControllerFollow</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerPlayer.html">StormControllerPlayer</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerPlayerCar.html">StormControllerPlayerCar</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerTargetCam.html">StormControllerTargetCam</a>
 						</li>
 						
 						<li>
@@ -54,6 +74,14 @@
 						
 						<li>
 							<a href="StormGLContext.html">StormGLContext</a>
+						</li>
+						
+						<li>
+							<a href="StormGraph.html">StormGraph</a>
+						</li>
+						
+						<li>
+							<a href="StormGrid.html">StormGrid</a>
 						</li>
 						
 						<li>
@@ -85,10 +113,6 @@
 						</li>
 						
 						<li>
-							<a href="StormParticles.html">StormParticles</a>
-						</li>
-						
-						<li>
 							<a href="StormPolarityPoint.html">StormPolarityPoint</a>
 						</li>
 						
@@ -117,11 +141,27 @@
 						</li>
 						
 						<li>
+							<a href="WebCLGLBufferItem.html">WebCLGLBufferItem</a>
+						</li>
+						
+						<li>
 							<a href="WebCLGLKernel.html">WebCLGLKernel</a>
 						</li>
 						
 						<li>
+							<a href="WebCLGLKernelProgram.html">WebCLGLKernelProgram</a>
+						</li>
+						
+						<li>
 							<a href="WebCLGLUtils.html">WebCLGLUtils</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLVertexFragmentProgram.html">WebCLGLVertexFragmentProgram</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLWork.html">WebCLGLWork</a>
 						</li>
 						
 
@@ -177,12 +217,23 @@ D$ = alias(document, 'querySelector');
 D$$ = alias(document, 'querySelectorAll');
 
 
+window.requestAnimFrame = (function(){
+	return  window.requestAnimationFrame       || 
+			window.webkitRequestAnimationFrame || 
+			window.mozRequestAnimationFrame    || 
+			window.oRequestAnimationFrame      || 
+			window.msRequestAnimationFrame     || 
+			function(callback){
+				window.setTimeout(callback, 1000 / 60);
+			};
+})();
+
 /**
 * @class
 * @constructor
 */
-StormUtils = function(elements) {
-	
+StormUtils = function(sec) {
+	this._sec = sec;
 };
 
 /**
@@ -290,6 +341,34 @@ StormUtils.prototype.radToDeg = function(rad) {
 };
 
 /**
+ * 
+ * @param {String} hex
+ * @returns  {Array&lt;Float>} rgb values from 0 to 255
+ */
+StormUtils.prototype.hexToRgb = function(hex) {
+    // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+    var shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
+    hex = hex.replace(shorthandRegex, function(m, r, g, b) {
+        return r + r + g + g + b + b;
+    });
+
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : null;
+}
+/**
+ * @param {Array&lt;Float>} rgb values from 0 to 255
+ * @returns {String}
+ */
+StormUtils.prototype.rgbToHex = function(rgb) {
+    var rgbVal = rgb[2] | (rgb[1] &lt;&lt; 8) | (rgb[0] &lt;&lt; 16);
+    return '#' + (0x1000000 + rgbVal).toString(16).slice(1);
+}
+
+/**
 * Inverse sqrt
 * @returns {Float}
 * @param {Float} value
@@ -304,12 +383,12 @@ StormUtils.prototype.invsqrt = function(value) {
 * @returns {StormV3}
 */
 StormUtils.prototype.getDraggingScreenVector = function() {
-	var factordist = stormEngineC.getWebGLCam().fovOrtho*0.0039;
-	var factorxdim = (stormEngineC.mouseOldPosX - stormEngineC.mousePosX) * factordist;
-	var factorydim = (stormEngineC.mouseOldPosY - stormEngineC.mousePosY) * factordist;
+	var factordist = this._sec.getWebGLCam().fovOrtho*0.0039;
+	var factorxdim = (this._sec.mouseOldPosX - this._sec.mousePosX) * factordist;
+	var factorydim = (this._sec.mouseOldPosY - this._sec.mousePosY) * factordist;
 	
-	var X = stormEngineC.getWebGLCam().nodePivot.MPOS.x(stormEngineC.getWebGLCam().nodePivot.MROTXYZ).getLeft().x(factorxdim*-1.0); 
-	var Y = stormEngineC.getWebGLCam().nodePivot.MPOS.x(stormEngineC.getWebGLCam().nodePivot.MROTXYZ).getUp().x(factorydim); 
+	var X = this._sec.getWebGLCam().nodePivot.MPOS.x(this._sec.getWebGLCam().nodePivot.MROTXYZ).getLeft().x(factorxdim*-1.0); 
+	var Y = this._sec.getWebGLCam().nodePivot.MPOS.x(this._sec.getWebGLCam().nodePivot.MROTXYZ).getUp().x(factorydim); 
 	return X.add(Y);
 };
 /**
@@ -320,17 +399,17 @@ StormUtils.prototype.getDraggingScreenVector = function() {
 */
 StormUtils.prototype.getDraggingPosXVector = function(local) {
 	var loc = (local == undefined || local == true) ? true : false;
-	var factordist = stormEngineC.getWebGLCam().fovOrtho*0.0039;
-	var factorxdim = (stormEngineC.mouseOldPosX - stormEngineC.mousePosX) * factordist;
-	var factorydim = (stormEngineC.mouseOldPosY - stormEngineC.mousePosY) * factordist;
+	var factordist = this._sec.getWebGLCam().fovOrtho*0.0039;
+	var factorxdim = (this._sec.mouseOldPosX - this._sec.mousePosX) * factordist;
+	var factorydim = (this._sec.mouseOldPosY - this._sec.mousePosY) * factordist;
 
 	var X,Y;
 	if(loc) {
 		X = $V3([1.0,0.0,0.0]).x(-factorxdim); 
 		Y = $V3([1.0,0.0,0.0]).x(-factorydim); 
 	} else {
-		X = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getLeft().x(-factorxdim); 
-		Y = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getLeft().x(-factorydim); 
+		X = this._sec.getSelectedNode().MPOS.x(this._sec.getSelectedNode().MROTXYZ).getLeft().x(-factorxdim); 
+		Y = this._sec.getSelectedNode().MPOS.x(this._sec.getSelectedNode().MROTXYZ).getLeft().x(-factorydim); 
 	}
 	return X.add(Y);
 };
@@ -342,17 +421,17 @@ StormUtils.prototype.getDraggingPosXVector = function(local) {
 */
 StormUtils.prototype.getDraggingPosYVector = function(local) {
 	var loc = (local == undefined || local == true) ? true : false;
-	var factordist = stormEngineC.getWebGLCam().fovOrtho*0.0039;
-	var factorxdim = (stormEngineC.mouseOldPosX - stormEngineC.mousePosX) * factordist;
-	var factorydim = (stormEngineC.mouseOldPosY - stormEngineC.mousePosY) * factordist;
+	var factordist = this._sec.getWebGLCam().fovOrtho*0.0039;
+	var factorxdim = (this._sec.mouseOldPosX - this._sec.mousePosX) * factordist;
+	var factorydim = (this._sec.mouseOldPosY - this._sec.mousePosY) * factordist;
 
 	var X,Y;
 	if(loc) {
 		X = $V3([0.0,1.0,0.0]).x(-factorxdim); 
 		Y = $V3([0.0,1.0,0.0]).x(factorydim); 
 	} else {
-		X = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getUp().x(-factorxdim); 
-		Y = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getUp().x(-factorydim); 
+		X = this._sec.getSelectedNode().MPOS.x(this._sec.getSelectedNode().MROTXYZ).getUp().x(-factorxdim); 
+		Y = this._sec.getSelectedNode().MPOS.x(this._sec.getSelectedNode().MROTXYZ).getUp().x(-factorydim); 
 	}
 	return X.add(Y);
 };
@@ -364,17 +443,17 @@ StormUtils.prototype.getDraggingPosYVector = function(local) {
 */
 StormUtils.prototype.getDraggingPosZVector = function(local) {
 	var loc = (local == undefined || local == true) ? true : false;
-	var factordist = stormEngineC.getWebGLCam().fovOrtho*0.0039;
-	var factorxdim = (stormEngineC.mouseOldPosX - stormEngineC.mousePosX) * factordist;
-	var factorydim = (stormEngineC.mouseOldPosY - stormEngineC.mousePosY) * factordist;
+	var factordist = this._sec.getWebGLCam().fovOrtho*0.0039;
+	var factorxdim = (this._sec.mouseOldPosX - this._sec.mousePosX) * factordist;
+	var factorydim = (this._sec.mouseOldPosY - this._sec.mousePosY) * factordist;
 
 	var X,Y;
 	if(loc) {
 		X = $V3([0.0,0.0,1.0]).x(-factorxdim); 
 		Y = $V3([0.0,0.0,1.0]).x(-factorydim); 
 	} else {
-		X = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getForward().x(-factorxdim); 
-		Y = stormEngineC.getSelectedNode().MPOS.x(stormEngineC.getSelectedNode().MROTXYZ).getForward().x(-factorydim); 
+		X = this._sec.getSelectedNode().MPOS.x(this._sec.getSelectedNode().MROTXYZ).getForward().x(-factorxdim); 
+		Y = this._sec.getSelectedNode().MPOS.x(this._sec.getSelectedNode().MROTXYZ).getForward().x(-factorydim); 
 	}
 	return X.add(Y);
 };
@@ -466,10 +545,10 @@ StormUtils.prototype.unpack = function(colour) {
 */
 StormUtils.prototype.packGLSLFunctionString = function() {
 	return 'vec4 pack (float depth) {'+
-				'const vec4 bias = vec4(1.0 / 255.0,'+
-							'1.0 / 255.0,'+
-							'1.0 / 255.0,'+
-							'0.0);'+
+				'const vec4 bias = vec4( 1.0 / 255.0,'+
+										'1.0 / 255.0,'+
+										'1.0 / 255.0,'+
+										'0.0);'+
 
 				'float r = depth;'+
 				'float g = fract(r * 255.0);'+
@@ -487,9 +566,9 @@ StormUtils.prototype.packGLSLFunctionString = function() {
 StormUtils.prototype.unpackGLSLFunctionString = function() {
 	return 'float unpack (vec4 colour) {'+
 				'const vec4 bitShifts = vec4(1.0,'+
-								'1.0 / 255.0,'+
-								'1.0 / (255.0 * 255.0),'+
-								'1.0 / (255.0 * 255.0 * 255.0));'+
+											'1.0 / 255.0,'+
+											'1.0 / (255.0 * 255.0),'+
+											'1.0 / (255.0 * 255.0 * 255.0));'+
 				'return dot(colour, bitShifts);'+
 			'}';
 };
@@ -614,7 +693,7 @@ $('#gg').html("&lt;img src=\"" + img + "\" width=\"320\" height=\"480\"/>");
 					
 		<span class="jsdoc-message">
 		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha2</a>
-		on Sun Sep 20 2015 23:11:11 GMT+0200 (CEST) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		on Fri Nov 06 2015 21:30:55 GMT+0100 (CET) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
 		</span>
 				</footer>
 			</div>

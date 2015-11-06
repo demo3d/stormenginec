@@ -20,7 +20,7 @@ StormGLContext.prototype.initShader_Overlay = function() {
 		
 		'void main(void) {\n'+
 			'vec4 scaleVec = u_cameraWMatrix * u_nodeWMatrix * u_matrixNodeTranform * vec4(aVertexPosition, 1.0);\n'+
-			'float scale = (length(scaleVec) * LinearDepthConstant)*50.0;'+
+			'float scale = (length(scaleVec) * LinearDepthConstant)*100.0;'+
 			'vec4 pos;'+
 			'if(uNodeId == 0.1 || uNodeId == 0.2 || uNodeId == 0.3) {'+
 				'pos = vec4(0.0,-0.5,0.0,1.0)+vec4(vec3(aVertexPosition.x,aVertexPosition.y,aVertexPosition.z), 1.0);'+
@@ -91,20 +91,20 @@ StormGLContext.prototype.pointers_Overlay = function() {
 
 /** @private */
 StormGLContext.prototype.render_Overlay = function() {	
-	for(var n = 0, f = this.nodes.length; n < f; n++) { 
-		if(stormEngineC.editMode &&	stormEngineC.getSelectedNode() != undefined) {
+	if(this._sec.editMode &&	this._sec.getSelectedNode() != undefined) {
+		for(var n = 0, f = this.nodes.length; n < f; n++) { 			
 			if(	this.nodes[n].visibleOnContext &&
 				this.nodes[n].objectType != 'light' &&
-				this.nodes[n] == stormEngineC.getSelectedNode()) {
+				this.nodes[n] == this._sec.getSelectedNode()) {
 					this.render_OverlayAux(this.nodes[n]);
+					return;
 			}
 		}
-	}
-	for(var n = 0, f = this.polarityPoints.length; n < f; n++) { 
-		if(stormEngineC.editMode &&	stormEngineC.getSelectedNode() != undefined) {
+		for(var n = 0, f = this.polarityPoints.length; n < f; n++) { 
 			if(	this.polarityPoints[n].visibleOnContext &&
-				this.polarityPoints[n] == stormEngineC.getSelectedNode()) { 
+				this.polarityPoints[n] == this._sec.getSelectedNode()) { 
 					this.render_OverlayAux(this.polarityPoints[n]);
+					return;
 			}
 		}
 	}
@@ -119,22 +119,23 @@ StormGLContext.prototype.render_OverlayAux = function(node) {
 	this.gl.disable(this.gl.DEPTH_TEST);
 	
 	this.gl.uniform1f(this.u_Overlay_far, this.far);
-	this.gl.uniform1i(this.u_Overlay_overlaySelected, stormEngineC.stormGLContext.transformOverlaySelected);
-	this.gl.uniformMatrix4fv(this.u_Overlay_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
-	this.gl.uniformMatrix4fv(this.u_Overlay_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
+	this.gl.uniform1i(this.u_Overlay_overlaySelected, this._sec.stormGLContext.transformOverlaySelected);
+	this.gl.uniformMatrix4fv(this.u_Overlay_PMatrix, false, this._sec.defaultCamera.mPMatrix.transpose().e);
+	this.gl.uniformMatrix4fv(this.u_Overlay_cameraWMatrix, false, this._sec.defaultCamera.MPOS.transpose().e);
 	
-	if(stormEngineC.defaultTransformMode == 0) // world
+	this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
+	
+	if(this._sec.defaultTransformMode == 0) // world
 		this.gl.uniformMatrix4fv(this.u_Overlay_nodeWMatrix, false, node.MPOS.transpose().e); 
 	else // local
 		this.gl.uniformMatrix4fv(this.u_Overlay_nodeWMatrix, false, node.MPOSFrame.transpose().e); 
 		
-	if(stormEngineC.defaultTransform == 0 || (stormEngineC.defaultTransform == 2 && stormEngineC.defaultTransformMode == 1)) {
+	if(this._sec.defaultTransform == 0 || (this._sec.defaultTransform == 2 && this._sec.defaultTransformMode == 1)) {
 		// overlay pos X
 		this.gl.uniform1f(this.u_Overlay_nodeId, 0.1); 
 			
 		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayPosX.MPOS.x(this.nodeOverlayPosX.MROTXYZ).transpose().e);
-		
-		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
+				
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayPosX.buffersObjects[0].nodeMeshVertexBuffer);
 		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
 		
@@ -145,8 +146,7 @@ StormGLContext.prototype.render_OverlayAux = function(node) {
 		// overlay pos Y
 		this.gl.uniform1f(this.u_Overlay_nodeId, 0.2); 
 		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayPosY.MPOS.x(this.nodeOverlayPosY.MROTXYZ).transpose().e);
-		
-		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
+				
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayPosY.buffersObjects[0].nodeMeshVertexBuffer);
 		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
 		
@@ -158,7 +158,6 @@ StormGLContext.prototype.render_OverlayAux = function(node) {
 		this.gl.uniform1f(this.u_Overlay_nodeId, 0.3); 
 		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayPosZ.MPOS.x(this.nodeOverlayPosZ.MROTXYZ).transpose().e);
 		
-		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayPosZ.buffersObjects[0].nodeMeshVertexBuffer);
 		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
 		
@@ -166,12 +165,11 @@ StormGLContext.prototype.render_OverlayAux = function(node) {
 		
 		this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayPosZ.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
 	}
-	if(stormEngineC.defaultTransform == 1) {
+	if(this._sec.defaultTransform == 1) {
 		// overlay rot X
 		this.gl.uniform1f(this.u_Overlay_nodeId, 0.4); 
 		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayRotX.MPOS.x(this.nodeOverlayRotX.MROTXYZ).transpose().e);
 		
-		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayRotX.buffersObjects[0].nodeMeshVertexBuffer);
 		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
 		
@@ -183,7 +181,6 @@ StormGLContext.prototype.render_OverlayAux = function(node) {
 		this.gl.uniform1f(this.u_Overlay_nodeId, 0.5); 
 		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayRotY.MPOS.x(this.nodeOverlayRotY.MROTXYZ).transpose().e);
 		
-		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayRotY.buffersObjects[0].nodeMeshVertexBuffer);
 		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
 		
@@ -195,7 +192,6 @@ StormGLContext.prototype.render_OverlayAux = function(node) {
 		this.gl.uniform1f(this.u_Overlay_nodeId, 0.6); 
 		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayRotZ.MPOS.x(this.nodeOverlayRotZ.MROTXYZ).transpose().e);
 		
-		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayRotZ.buffersObjects[0].nodeMeshVertexBuffer);
 		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
 		
@@ -203,12 +199,11 @@ StormGLContext.prototype.render_OverlayAux = function(node) {
 		
 		this.gl.drawElements(this.gl.TRIANGLES, this.nodeOverlayRotZ.buffersObjects[0].nodeMeshIndexBufferNumItems, this.gl.UNSIGNED_SHORT, 0);	
 	}
-	if(stormEngineC.defaultTransform == 2 && stormEngineC.defaultTransformMode == 1) {
+	if(this._sec.defaultTransform == 2 && this._sec.defaultTransformMode == 1) {
 		// overlay scale X
 		this.gl.uniform1f(this.u_Overlay_nodeId, 0.7); 
 		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayScaX.MPOS.x(this.nodeOverlayScaX.MROTXYZ).transpose().e);
 		
-		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayScaX.buffersObjects[0].nodeMeshVertexBuffer);
 		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
 		
@@ -220,7 +215,6 @@ StormGLContext.prototype.render_OverlayAux = function(node) {
 		this.gl.uniform1f(this.u_Overlay_nodeId, 0.8); 
 		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayScaY.MPOS.x(this.nodeOverlayScaY.MROTXYZ).transpose().e);
 		
-		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayScaY.buffersObjects[0].nodeMeshVertexBuffer);
 		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
 		
@@ -232,7 +226,6 @@ StormGLContext.prototype.render_OverlayAux = function(node) {
 		this.gl.uniform1f(this.u_Overlay_nodeId, 0.9); 
 		this.gl.uniformMatrix4fv(this.u_Overlay_matrixNodeTranform, false, this.nodeOverlayScaZ.MPOS.x(this.nodeOverlayScaZ.MROTXYZ).transpose().e);
 		
-		this.gl.enableVertexAttribArray(this.attr_Overlay_pos);
 		this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.nodeOverlayScaZ.buffersObjects[0].nodeMeshVertexBuffer);
 		this.gl.vertexAttribPointer(this.attr_Overlay_pos, 3, this.gl.FLOAT, false, 0, 0);
 		

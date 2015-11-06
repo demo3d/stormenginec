@@ -2,7 +2,9 @@
 * @class
 * @constructor
 */
-StormMesh = function() {
+StormMesh = function(sec) {
+	this._sec = sec;
+	
 	this.vertexArray;	
 	this.normalArray;	
 	this.textureArray;	
@@ -20,13 +22,21 @@ StormMesh = function() {
 */
 StormMesh.prototype.loadPoint = function(node) {
 	this.vertexArray = [0.0, 0.0, 0.0];
+	this.normalArray = [0.0, 1.0, 0.0];	
+	this.textureArray = [0.0, 0.0, 0.0];
+	this.textureUnitArray = [0.0];
+	this.indexArray = [0];
 	
 	var meshObject = new Object;
 	meshObject.vertexArray = this.vertexArray;
+	meshObject.normalArray = this.normalArray;
+	meshObject.textureArray = this.textureArray;
+	meshObject.textureUnitArray = this.textureUnitArray;
+	meshObject.indexArray = this.indexArray;
 	
 	if(node != undefined) { 
 		var bObject = node.attachMesh(meshObject);
-		node.materialUnits[0] = stormEngineC.createMaterial();
+		node.materialUnits[0] = this._sec.createMaterial();
 		node.materialUnits[0].write($V3([Math.random(), Math.random(), Math.random()]));
 		bObject.drawElementsMode = 0;
 	} else {
@@ -61,7 +71,7 @@ StormMesh.prototype.loadTriangle = function(node) {
 	
 	if(node != undefined) { 
 		var bObject = node.attachMesh(meshObject);
-		node.materialUnits[0] = stormEngineC.createMaterial();
+		node.materialUnits[0] = this._sec.createMaterial();
 		node.materialUnits[0].write($V3([Math.random(), Math.random(), Math.random()]));
 	} else {
 		return this; 
@@ -189,7 +199,7 @@ StormMesh.prototype.loadBox = function(node, vecDim) {
 	
 	if(node != undefined) { 
 		var bObject = node.attachMesh(meshObject);
-		node.materialUnits[0] = stormEngineC.createMaterial();
+		node.materialUnits[0] = this._sec.createMaterial();
 		node.materialUnits[0].write($V3([Math.random(), Math.random(), Math.random()]));
 	} else {
 		return this; 
@@ -228,7 +238,7 @@ StormMesh.prototype.loadQuad = function(node, length, height) {
 	
 	if(node != undefined) { 
 		var bObject = node.attachMesh(meshObject);
-		node.materialUnits[0] = stormEngineC.createMaterial();
+		node.materialUnits[0] = this._sec.createMaterial();
 		node.materialUnits[0].write($V3([Math.random(), Math.random(), Math.random()]));
 	} else {
 		return this; 
@@ -274,8 +284,8 @@ StormMesh.prototype.loadTube = function(jsonIn) {
 	this.indexMax=0; 
 	
 	
-	cos = function(val) {return Math.cos(stormEngineC.utils.degToRad(val))};
-	sin = function(val) {return Math.sin(stormEngineC.utils.degToRad(val))};
+	cos = (function(val) {return Math.cos(this._sec.utils.degToRad(val))}).bind(this);
+	sin = (function(val) {return Math.sin(this._sec.utils.degToRad(val))}).bind(this);
 	var stepAngle = 180.0/(segments+1); 
 	var numSegH = 360.0/stepAngle;
 	for(var h=1, fh = numSegH; h <= fh; h++) { 
@@ -379,7 +389,7 @@ StormMesh.prototype.loadTube = function(jsonIn) {
 	
 	if(jsonIn.node != undefined) { 
 		var bObject = jsonIn.node.attachMesh(meshObject);
-		jsonIn.node.materialUnits[0] = stormEngineC.createMaterial();
+		jsonIn.node.materialUnits[0] = this._sec.createMaterial();
 		jsonIn.node.materialUnits[0].write(color);		
 	} else {
 		return this; 
@@ -409,8 +419,8 @@ StormMesh.prototype.loadSphere = function(jsonIn) {
 	var numSegV = 180.0/stepAngle;
 	var numSegH = 360.0/stepAngle;
 	
-	cos = function(val) {return Math.cos(stormEngineC.utils.degToRad(val))};
-	sin = function(val) {return Math.sin(stormEngineC.utils.degToRad(val))};
+	cos = (function(val) {return Math.cos(this._sec.utils.degToRad(val))}).bind(this);
+	sin = (function(val) {return Math.sin(this._sec.utils.degToRad(val))}).bind(this);
 	for(var v=1, fv = numSegV; v <= fv; v++) {
 		var currAngleV = stepAngle*v;
 	
@@ -479,7 +489,7 @@ StormMesh.prototype.loadSphere = function(jsonIn) {
 	
 	if(jsonIn.node != undefined) { 
 		var bObject = jsonIn.node.attachMesh(meshObject);
-		jsonIn.node.materialUnits[0] = stormEngineC.createMaterial();		
+		jsonIn.node.materialUnits[0] = this._sec.createMaterial();		
 		jsonIn.node.materialUnits[0].write(color);
 	} else {
 		return this; 
@@ -507,7 +517,7 @@ StormMesh.prototype.loadObj = function(jsonIn) {
 		_node.onloadFunction = undefined;
 	}
 	
-	stormEngineC.preloads++;
+	this._sec.preloads++;
     
 	
     if(_node != undefined && _name != undefined) _node.name = _name;
@@ -522,29 +532,29 @@ StormMesh.prototype.loadObj = function(jsonIn) {
 	req.open("GET", _objUrl, true);
 	req.responseType = "blob";
 	
-	req.onload = function() { 
+	req.onload = (function() { 
 		var filereader = new FileReader();
-		filereader.onload = function(event) {
+		filereader.onload = (function(event) {
 			var text = event.target.result;
 			
-			stormEngineC.setStatus({id:'node'+_objUrl, 
+			this._sec.setStatus({id:'node'+_objUrl, 
 									str:'Opening obj...'+_objUrl});
-			stormEngineC.stormMesh.loadObjFromSourceText({	node: _node,
+			this._sec.stormMesh.loadObjFromSourceText({	node: _node,
 															sourceText: text,
 															objDirectory: objDirectory,
 															textureUniqueUrl: _textureUniqueUrl,
 															albedo: jsonIn.albedo,
 															roughness: jsonIn.roughness	});
 															
-			stormEngineC.setStatus({id:'node'+_objUrl,
+			this._sec.setStatus({id:'node'+_objUrl,
 									str:''});
-			stormEngineC.preloads--;
+			this._sec.preloads--;
 			if(_node.onloadFunction != undefined && typeof(_node.onloadFunction) == 'function') _node.onloadFunction();
-		};
+		}).bind(this);
 		filereader.readAsText(req.response);
-	};
+	}).bind(this);
 
-	stormEngineC.setStatus({id:'node'+_objUrl,
+	this._sec.setStatus({id:'node'+_objUrl,
 							str:'Loading obj...'+_objUrl,
 							req:req}); // only show progress if call later of req.open()
     req.send(null);
@@ -586,7 +596,7 @@ StormMesh.prototype.loadObjFromSourceText = function(jsonIn) {
 	var currentIDX_INDEX = 0;
 	
 	var bufferEnCola = false;
-	var currBO = new StormBufferObject();
+	var currBO = new StormBufferObject(this._sec);
 	_node.buffersObjects.push(currBO);
 	currBO.node = _node;
 	
@@ -637,7 +647,7 @@ StormMesh.prototype.loadObjFromSourceText = function(jsonIn) {
 			currentIDX_texture++;
 		}
 		if(array[0] == "usemtl") {
-			_node.materialUnits[currentTextureUnit] = stormEngineC.createMaterial();
+			_node.materialUnits[currentTextureUnit] = this._sec.createMaterial();
 			currentMtlName = array[1];
 			
 			if(_textureUniqueUrl == undefined) {
@@ -748,7 +758,7 @@ StormMesh.prototype.loadObjFromSourceText = function(jsonIn) {
 					
 					// RESET
 					var bufferEnCola = false;
-					currBO = new StormBufferObject();
+					currBO = new StormBufferObject(this._sec);
 					_node.buffersObjects.push(currBO);
 					currBO.node = _node; 
 					
@@ -819,7 +829,7 @@ StormMesh.prototype.loadObjFromSourceText = function(jsonIn) {
 */
 StormMesh.prototype.loadCollada = function(jsonIn) {
 	// Multimaterial con plugin FBX de 3ds max requiere al menos la versión fbx20133
-	stormEngineC.preloads++;
+	this._sec.preloads++;
     var reqA = new XMLHttpRequest();
      
     var colladaDirectory = ''; 
@@ -828,29 +838,29 @@ StormMesh.prototype.loadCollada = function(jsonIn) {
     	colladaDirectory = colladaDirectory+expl[n]+'/';
     }
     
-    reqA.onreadystatechange = function () {
+    reqA.onreadystatechange = (function () {
     	if (reqA.readyState == 4) {
-			stormEngineC.setStatus({id:jsonIn.daeUrl,
+			this._sec.setStatus({id:jsonIn.daeUrl,
 									str:'Opening dae...'+jsonIn.daeUrl});
-			stormEngineC.stormMesh.loadColladaFromSourceText({	'group':jsonIn.group,
+			this._sec.stormMesh.loadColladaFromSourceText({	'group':jsonIn.group,
 																'sourceText':reqA.responseText,
 																'daeDirectory':colladaDirectory,
 																'textureUniqueUrl':jsonIn.textureUniqueUrl,
 																'setCam':jsonIn.setCam});
-			setTimeout(function() {
-							stormEngineC.setStatus({id:jsonIn.daeUrl,
+			setTimeout((function() {
+							this._sec.setStatus({id:jsonIn.daeUrl,
 													str:''});
-						},1);
-			stormEngineC.preloads--;
+						}).bind(this),1);
+			this._sec.preloads--;
 			if(jsonIn.onload != undefined && typeof(jsonIn.onload) == 'function') {
 				jsonIn.group.onloadFunction = jsonIn.onload;
 				jsonIn.group.onloadFunction();
 			}
         }
-    };
+    }).bind(this);
 	//reqA.setRequestHeader('Content-Type',  'text/xml');
     reqA.open("GET", jsonIn.daeUrl, true);
-	stormEngineC.setStatus({id:jsonIn.daeUrl,
+	this._sec.setStatus({id:jsonIn.daeUrl,
 							str:'Loading dae...'+jsonIn.daeUrl,
 							req:reqA}); // only show progress if call later of reqA.open()
     reqA.send(null);
@@ -887,7 +897,7 @@ StormMesh.prototype.loadColladaFromSourceText = function(jsonIn) {
 		var currentTagNode = library_visual_scenes[0].getElementsByTagName('node')[g];
 		
 		// GET THE MATRIX FOR THIS NODE
-		var sn = new StormNode();
+		var sn = new StormNode(this._sec);
 		
 		if(currentTagNode.getElementsByTagName('node')[0] != undefined) {
 			if(currentTagNode.getElementsByTagName('node')[0].getElementsByTagName('matrix')[0] != undefined) {
@@ -919,7 +929,7 @@ StormMesh.prototype.loadColladaFromSourceText = function(jsonIn) {
 			var rot = currentTagNode.getElementsByTagName('rotate')[0].textContent.replace(/\t+/gi, " ").replace(/\s+/gi, " ").replace(/^\s+/g,'').replace(/\s+$/g,'').split(' ');
 			
 			var m16 = $M16([1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0]);
-			var m = m16.rotation(stormEngineC.utils.radToDeg(rot[3]), $V3([rot[0],rot[1],rot[2]]));
+			var m = m16.rotation(this._sec.utils.radToDeg(rot[3]), $V3([rot[0],rot[1],rot[2]]));
 			var mm = $M16([
 						   m.e[0], m.e[1], m.e[2], 0.0,
 						   m.e[4], m.e[5], m.e[6], 0.0,
@@ -987,7 +997,7 @@ StormMesh.prototype.loadColladaFromSourceText = function(jsonIn) {
 		
 		// IS GEOMETRY
 		if(currentInstanceGeometry != undefined) {
-			var nodeC = stormEngineC.createNode();
+			var nodeC = this._sec.createNode();
 			jsonIn.group.addNode(nodeC);
 			
 			for(var m = 0, fm = library_geometries[0].getElementsByTagName('geometry').length; m < fm; m++) {
@@ -1170,7 +1180,7 @@ StormMesh.prototype.loadColladaFromSourceText = function(jsonIn) {
 					} // END CURRENT TRIANGLES (End of this StormBufferObject)
 			
 					
-					nodeC.setRotationX(stormEngineC.utils.degToRad(-90.0)); 
+					nodeC.setRotationX(this._sec.utils.degToRad(-90.0)); 
 					
 				}
 				
@@ -1227,7 +1237,7 @@ StormMesh.prototype.loadColladaFromSourceText = function(jsonIn) {
 		
 		// IS CAMERA
 		if(currentInstanceCamera != undefined) {
-			var nodeCam = stormEngineC.createCamera($V3([0.0, 10.0, 0.0]) , 1.0);
+			var nodeCam = this._sec.createCamera($V3([0.0, 10.0, 0.0]) , 1.0);
 			
 			var matTarget = undefined;
 			for(var gB = 0, fgb = library_visual_scenes[0].getElementsByTagName('node').length; gB < fgb; gB++) {
@@ -1243,7 +1253,7 @@ StormMesh.prototype.loadColladaFromSourceText = function(jsonIn) {
 						nodeCam.controller.camDistance = nodeCam.nodeGoal.getPosition().distance(nodeCam.nodePivot.getPosition());
 						
 						if(jsonIn.setCam == currentInstanceCameraName) {
-							stormEngineC.setWebGLCam(nodeCam);
+							this._sec.setWebGLCam(nodeCam);
 						}
 					}
 					
@@ -1304,7 +1314,7 @@ StormMesh.prototype.loadColladaFromSourceText = function(jsonIn) {
 		
 		// IS LIGHT
 		if(currentInstanceLight != undefined) {
-			var nodeLight = stormEngineC.createLight({'type':'spot',
+			var nodeLight = this._sec.createLight({'type':'spot',
 														'position': $V3([currentNodeMatrix.e[3], currentNodeMatrix.e[11], currentNodeMatrix.e[7]*-1.0]),
 														'color':currentInstanceLightColor});
 														

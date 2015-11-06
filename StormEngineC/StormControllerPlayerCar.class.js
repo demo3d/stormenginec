@@ -4,8 +4,10 @@
 * @constructor
 * @param {Float} camDistance Distance to pivot
 */
-StormControllerPlayerCar = function(camDistance) {
-	this.controllerType = stormEngineC.ControllerTypes["NODECAR"];
+StormControllerPlayerCar = function(sec, camDistance) {
+	this._sec = sec;
+	
+	this.controllerType = this._sec.ControllerTypes["NODECAR"];
 	this.g_forwardFC = 0;
 	this.g_backwardFC = 0;
 	this.g_strafeLeftFC = 0;
@@ -117,7 +119,7 @@ StormControllerPlayerCar.prototype.mouseUpFC = function(event) {
 */
 StormControllerPlayerCar.prototype.cameraSetupFC = function(cameraNode, meshNode, nodeCar) {
 	this.cameraNode = cameraNode;
-	this.meshNode = (meshNode == undefined) ? new StormNode() : meshNode;
+	this.meshNode = (meshNode == undefined) ? new StormNode(this._sec) : meshNode;
 	this.meshNode.shadows = false;
 	this.nodeCar = nodeCar;
 	
@@ -129,8 +131,8 @@ StormControllerPlayerCar.prototype.cameraSetupFC = function(cameraNode, meshNode
 		
 		if(this.meshNode.body != undefined) {
 			this.meshNode.body.setInactive();
-			stormEngineC.stormJigLibJS.dynamicsWorld.removeBody(this.meshNode.body);
-			stormEngineC.stormJigLibJS.colSystem.removeCollisionBody(this.meshNode.body);
+			this._sec.stormJigLibJS.dynamicsWorld.removeBody(this.meshNode.body);
+			this._sec.stormJigLibJS.colSystem.removeCollisionBody(this.meshNode.body);
 		}
 	} 
 		
@@ -200,7 +202,7 @@ StormControllerPlayerCar.prototype.updateFC = function(elapsed) {
 		this.lastTime = timeNow;
 		if(ws != undefined) {
 			ws.emit('dataclient', {
-				netID: stormEngineC.netID,
+				netID: this._sec.netID,
 				WM0: this.nodeCar.MPOS.e[0],
 				WM1: this.nodeCar.MPOS.e[1],
 				WM2: this.nodeCar.MPOS.e[2],
@@ -261,7 +263,7 @@ StormControllerPlayerCar.prototype.updateCameraGoalFC = function(event) {
 
 // REWRITE JIGLIB WHEEL UPDATE 
 jiglib.JWheel.prototype.update = function(dt) {
-	var carMaxVelocity = (stormEngineC.defaultCamera.controller.nodeCar != undefined) ? stormEngineC.defaultCamera.controller.nodeCar.carMaxVelocity : 100;
+	var carMaxVelocity = (this._car._sec.defaultCamera.controller.nodeCar != undefined) ? this._car._sec.defaultCamera.controller.nodeCar.carMaxVelocity : 100;
 	
 	if(dt <= 0) return;
 	

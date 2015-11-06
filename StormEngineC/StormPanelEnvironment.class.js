@@ -2,7 +2,9 @@
 * @class
 * @constructor
 */
-StormEngineC_PanelEnvironment = function() {
+StormEngineC_PanelEnvironment = function(sec) {
+	this._sec = sec;
+	
 	this.$;
 };
 
@@ -11,10 +13,8 @@ StormEngineC_PanelEnvironment = function() {
 * @private
 */
 StormEngineC_PanelEnvironment.prototype.loadPanel = function() {
-	var html = '<div id="DIVID_StormPanelEnvironment_CONTENT"></div>';
-	
-	var _this = this;
-	stormEngineC.makePanel(_this, 'DIVID_StormPanelEnvironment', 'ENVIRONMENT', html);
+	this.panel = new StormPanel({"id": 'DIVID_StormPanelEnvironment', 
+								"paneltitle": 'LIST ENVIRONMENT'});
 };
 
 /**
@@ -22,8 +22,7 @@ StormEngineC_PanelEnvironment.prototype.loadPanel = function() {
 * @private
 */
 StormEngineC_PanelEnvironment.prototype.show = function() {
-	$(".SECmenu").css('z-index','0');
-	this.$.css('z-index','99').show(); 
+	this.panel.show();
 	
 	this.update();
 };
@@ -33,132 +32,63 @@ StormEngineC_PanelEnvironment.prototype.show = function() {
 * @private
 */
 StormEngineC_PanelEnvironment.prototype.update = function() {
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►	
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►► AMBIENT COLOR ►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►	
-	var str = 	'<fieldset><legend>Ambient color</legend>'+
-					'setAmbientColor: <div id="DIVID_StormPanelEnvironment_colorAmbient" style="width:16px;height:16px;border:1px solid #CCC;cursor:pointer;" ></div>'+
-					'<input id="INPUTID_StormPanelEnvironment_colorAmbient" type="text" style="display:none"/>'+
-				'</fieldset>';
-	$('#DIVID_StormPanelEnvironment_CONTENT').html(str);
+	document.getElementById("DIVID_StormPanelEnvironment_content").innerHTML = "";
 	
-	//ambient color functions
-	$('#INPUTID_StormPanelEnvironment_colorAmbient').ColorPicker({'onChange':function(hsb, hex, rgb) {
-																	stormEngineC.setAmbientColor($V3([rgb.r/255, rgb.g/255, rgb.b/255]));
-																	$('#DIVID_StormPanelEnvironment_colorAmbient').css('background','rgb('+rgb.r+','+rgb.g+','+rgb.b+')');
-																}
-													});
-	var colorAmbient = stormEngineC.stormGLContext.ambientColor;
-	$('#DIVID_StormPanelEnvironment_colorAmbient').css('background-color','rgb('+parseInt(colorAmbient.e[0]*255)+','+parseInt(colorAmbient.e[1]*255)+','+parseInt(colorAmbient.e[2]*255)+')');
-	$('#INPUTID_StormPanelEnvironment_colorAmbient').ColorPickerSetColor({'r':colorAmbient.e[0], 'g': colorAmbient.e[1], 'b':colorAmbient.e[2]});//normalizado 0.0-1.0
-	$("#DIVID_StormPanelEnvironment_colorAmbient").on('click', function() {
-										$('#INPUTID_StormPanelEnvironment_colorAmbient').css('display','block');
-										$('#INPUTID_StormPanelEnvironment_colorAmbient').click();
-										$('#INPUTID_StormPanelEnvironment_colorAmbient').css('display','none');
-									});
+	var currentAmbientColor = this._sec.getAmbientColor();
+	var hexColor = this._sec.utils.rgbToHex([currentAmbientColor[0]*255, currentAmbientColor[1]*255, currentAmbientColor[2]*255]);
+    this._sec.actHelpers.add_colorpicker(DGE('DIVID_StormPanelEnvironment_content'), "AMBIENT_COLOR", hexColor, (function(colorValue) {
+    	var rgb = this._sec.utils.hexToRgb(colorValue);
+    	
+    	this._sec.setAmbientColor($V3([rgb.r/255, rgb.g/255, rgb.b/255]));
+	}).bind(this));
 	
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►	
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►► AO ►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►	
-	var str = 	'<fieldset><legend>AO</legend>'+
-					'<br />setWebGLSSAO: <span id="DIVID_StormPanelEnvironment_ssao_value">'+parseFloat(stormEngineC.stormGLContext.SSAOlevel).toFixed(1)+'</span><br />'+ 
-					'<div id="DIVID_StormPanelEnvironment_ssao"></div>'+
-				'</fieldset>';
-	$('#DIVID_StormPanelEnvironment_CONTENT').append(str);
+    this._sec.actHelpers.add_slider(DGE('DIVID_StormPanelEnvironment_content'), "AMBIENT_OCCLUSION", this._sec.stormGLContext.SSAOlevel, 0.0, 5.0, 0.1, (function(value) {
+    	this._sec.setWebGLSSAO(true, value);
+    	if(this._sec.stormGLContext.SSAOlevel >= 4.99) {
+    		this._sec.setWebGLSSAO(false, 5.0);
+		}
+	}).bind(this));
 	
-	// AO functions
-	$("#DIVID_StormPanelEnvironment_ssao").slider({max:5,
-												min:0,
-												value:(stormEngineC.stormGLContext.SSAOlevel).toFixed(1),
-												step:0.1,
-												slide:function(event,ui){
-														stormEngineC.setWebGLSSAO(true, ui.value);
-														if(stormEngineC.stormGLContext.SSAOlevel >= 4.99) {
-															stormEngineC.setWebGLSSAO(false, 5.0);
-														}
-														$('#DIVID_StormPanelEnvironment_ssao_value').text(parseFloat(ui.value).toFixed(1));
-													}}); 
+    this._sec.actHelpers.add_btn(DGE('DIVID_StormPanelEnvironment_content'), "SET_GLOBAL_ILLUMINATION_VOXELIZATOR", (function() {
+    	this._sec.selectNode(stormEngineC.giv2);
+    	this._sec.pickingCall='setVoxelizator(_selectedNode_); this._sec.PanelEnvironment.show();';  
+    	this._sec.PanelListObjects.show();
+		$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
+		document.body.style.cursor='pointer';
+	}).bind(this));	
+    
+    this._sec.actHelpers.add_checkbox(DGE('DIVID_StormPanelEnvironment_content'), "ENABLE_GI", this._sec.stormGLContext.GIv2enable,
+			(function() {
+    			this._sec.stormGLContext.GIv2enable = true;
+			}).bind(this), (function() {
+				this._sec.stormGLContext.GIv2enable = false;
+			}).bind(this));	
+    
+    this._sec.actHelpers.add_checkbox(DGE('DIVID_StormPanelEnvironment_content'), "GI_STOP_ONCAMERAMOVE", this._sec.stormGLContext.GIstopOncameramove,
+			(function() {
+				this._sec.stormGLContext.GIstopOncameramove = true;
+			}).bind(this), (function() {
+				this._sec.stormGLContext.GIstopOncameramove = false;
+			}).bind(this));	
+    
+    this._sec.actHelpers.add_slider(DGE('DIVID_StormPanelEnvironment_content'), "GI_MAX_BOUNDS", this._sec.giv2.maxBounds, 1.0, 10.0, 1.0, (function(value) {
+    	this._sec.giv2.setMaxBounds(ui.value);
+    	this._sec.setZeroSamplesGIVoxels();
+	}).bind(this));
 	
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►	
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►► GIv2 ►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►	
-	var str = ''+
-	'<fieldset><legend>GI</legend>'+
-		"<button type=\"button\" id=\"BUTTONID_StormPanelEnvironment_giv2_set\">setVoxelizator</button>"+ 
-		'<div id="DIVID_StormPanelEnvironment_GIv2panel" style="display:none">'; 
-			// GIv2enable 
-			var giStatus = stormEngineC.stormGLContext.GIv2enable == false ? '' : 'checked';
-			str += '<br />enable: <input id="INPUTID_StormPanelEnvironment_GIv2enable" type="checkbox" '+giStatus+'/>';
-			// GIstopOncameramove
-			var giStopOncameramoveStatus = stormEngineC.stormGLContext.GIstopOncameramove == false ? '' : 'checked';
-			str += '<br />stopOncameramove: <input id="INPUTID_StormPanelEnvironment_GIstopOncameramove" type="checkbox" '+giStopOncameramoveStatus+'/>';
-			// GIdistanceFactor
-			str += 	'<br />setMaxBounds: <span id="DIVID_StormPanelEnvironment_GIv2maxbounds">'+stormEngineC.giv2.maxBounds+'</span>'+
-						'<div id="DIVID_StormPanelEnvironment_GIv2maxbounds_SLIDER"></div>';
-		str += '</div>';
-	str += 	'</fieldset>';
-	$("#DIVID_StormPanelEnvironment_CONTENT").append(str);
-	
-	$("#BUTTONID_StormPanelEnvironment_giv2_set").on('click', function() {
-												stormEngineC.selectNode(stormEngineC.giv2);
-												stormEngineC.pickingCall='setVoxelizator(_selectedNode_);stormEngineC.PanelEnvironment.show();';  
-												stormEngineC.PanelListObjects.show();
-												$('#DIVID_STORMOBJECTS_LIST div').effect('highlight');
-												document.body.style.cursor='pointer';
-											}); 
-	
-	
-	if(stormEngineC.stormGLContext.Shader_GIv2_READY == true)
-		$('#DIVID_StormPanelEnvironment_GIv2panel').css('display','block');
-	
-	// GIv2enable functions
-	$("#INPUTID_StormPanelEnvironment_GIv2enable").on('click', function() {
-		stormEngineC.stormGLContext.GIv2enable = stormEngineC.stormGLContext.GIv2enable == false ? true : false;
-	});
-	
-	// GIstopOncameramove functions
-	$("#INPUTID_StormPanelEnvironment_GIstopOncameramove").on('click', function() {
-		stormEngineC.stormGLContext.GIstopOncameramove = stormEngineC.stormGLContext.GIstopOncameramove == false ? true : false;
-	});
-	
-	// GImaxbounds functions
-	$("#DIVID_StormPanelEnvironment_GIv2maxbounds_SLIDER").slider({max:10,
-												min:1,
-												value:stormEngineC.giv2.maxBounds,
-												step:1,
-												slide:function(event,ui){
-														stormEngineC.giv2.setMaxBounds(ui.value);
-														stormEngineC.setZeroSamplesGIVoxels();
-														$('#DIVID_StormPanelEnvironment_GIv2maxbounds').text(ui.value);
-													}});
-	
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►	
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►► SHADOWS ►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►	
-	var shadowStatus = stormEngineC.stormGLContext.shadowsEnable == false ? '' : 'checked';
-	var str = 	'<fieldset><legend>Shadows</legend>'+
-					'<br />Shadows: <input id="INPUTID_StormPanelEnvironment_enableShadows" type="checkbox" '+shadowStatus+'/>'+
-				'</fieldset>';
-	$('#DIVID_StormPanelEnvironment_CONTENT').append(str);
-	
-	// shadows functions
-	$("#INPUTID_StormPanelEnvironment_enableShadows").on('click', function() {
-		stormEngineC.stormGLContext.shadowsEnable = stormEngineC.stormGLContext.shadowsEnable == false ? true : false;
-	});
-	
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►	
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►► GRID LINES  ►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►
-	//►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►►	
-	var gridStatus = stormEngineC.grid.gridEnabled == false ? '' : 'checked';
-	var str = 	'<fieldset><legend>Grid</legend>'+
-					'<br />Grid: <input id="INPUTID_StormPanelEnvironment_enableGrid" type="checkbox" '+gridStatus+'/>'+
-				'</fieldset>';
-	$('#DIVID_StormPanelEnvironment_CONTENT').append(str);
-	
-	// shadows functions
-	$("#INPUTID_StormPanelEnvironment_enableGrid").on('click', function() {
-		stormEngineC.grid.gridEnabled = stormEngineC.grid.gridEnabled == false ? true : false;
-	});
+    this._sec.actHelpers.add_checkbox(DGE('DIVID_StormPanelEnvironment_content'), "SHADOWS", this._sec.stormGLContext.shadowsEnable,
+			(function() {
+				this._sec.stormGLContext.shadowsEnable = true;
+			}).bind(this), (function() {
+				this._sec.stormGLContext.shadowsEnable = false;
+			}).bind(this));	
+    
+    this._sec.actHelpers.add_checkbox(DGE('DIVID_StormPanelEnvironment_content'), "SHOW_GRID", this._sec.grid.gridEnabled,
+			(function() {
+				this._sec.grid.gridEnabled = true;
+			}).bind(this), (function() {
+				this._sec.grid.gridEnabled = false;
+			}).bind(this));
 };
 
 

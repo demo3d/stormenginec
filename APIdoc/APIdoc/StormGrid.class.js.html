@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>StormEngineC 1.2 API DOC Source: StormGrid.class.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	
+	<link type="text/css" rel="stylesheet" href="styles/site.stormenginec.css">
+	
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">StormEngineC 1.2 API DOC</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="ActionHelpers.html">ActionHelpers</a>
+						</li>
+						
+						<li>
+							<a href="StormBufferObject.html">StormBufferObject</a>
+						</li>
+						
+						<li>
+							<a href="StormCamera.html">StormCamera</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerFollow.html">StormControllerFollow</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerPlayer.html">StormControllerPlayer</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerPlayerCar.html">StormControllerPlayerCar</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerTargetCam.html">StormControllerTargetCam</a>
+						</li>
+						
+						<li>
+							<a href="StormEngineC.html">StormEngineC</a>
+						</li>
+						
+						<li>
+							<a href="StormEngineC_PanelAnimationTimeline.html">StormEngineC_PanelAnimationTimeline</a>
+						</li>
+						
+						<li>
+							<a href="StormForceField.html">StormForceField</a>
+						</li>
+						
+						<li>
+							<a href="StormGI.html">StormGI</a>
+						</li>
+						
+						<li>
+							<a href="StormGLContext.html">StormGLContext</a>
+						</li>
+						
+						<li>
+							<a href="StormGraph.html">StormGraph</a>
+						</li>
+						
+						<li>
+							<a href="StormGrid.html">StormGrid</a>
+						</li>
+						
+						<li>
+							<a href="StormGroupNodes.html">StormGroupNodes</a>
+						</li>
+						
+						<li>
+							<a href="StormLight.html">StormLight</a>
+						</li>
+						
+						<li>
+							<a href="StormLine.html">StormLine</a>
+						</li>
+						
+						<li>
+							<a href="StormLineSceneCollision.html">StormLineSceneCollision</a>
+						</li>
+						
+						<li>
+							<a href="StormM16.html">StormM16</a>
+						</li>
+						
+						<li>
+							<a href="StormMaterial.html">StormMaterial</a>
+						</li>
+						
+						<li>
+							<a href="StormNode.html">StormNode</a>
+						</li>
+						
+						<li>
+							<a href="StormPolarityPoint.html">StormPolarityPoint</a>
+						</li>
+						
+						<li>
+							<a href="StormTriangleBox.html">StormTriangleBox</a>
+						</li>
+						
+						<li>
+							<a href="StormUtils.html">StormUtils</a>
+						</li>
+						
+						<li>
+							<a href="StormV3.html">StormV3</a>
+						</li>
+						
+						<li>
+							<a href="StormVoxelizator.html">StormVoxelizator</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGL.html">WebCLGL</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLBuffer.html">WebCLGLBuffer</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLBufferItem.html">WebCLGLBufferItem</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLKernel.html">WebCLGLKernel</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLKernelProgram.html">WebCLGLKernelProgram</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLUtils.html">WebCLGLUtils</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLVertexFragmentProgram.html">WebCLGLVertexFragmentProgram</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLWork.html">WebCLGLWork</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#$M16">$M16</a>
+						</li>
+						
+						<li>
+							<a href="global.html#$V3">$V3</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: StormGrid.class.js</h1>
+    
+    <section>
+        <article>
+            <pre class="sunlight-highlight-javascript linenums">/**
+* @class
+* @constructor
+* @augments StormGrid
+  
+* @property {String} objectType
+*/
+StormGrid = function(sec) { StormNode.call(this); 
+	this._sec = sec;
+	
+	this.objectType = 'grid';
+	
+	this.gridEnabled = true;
+	
+	this.size = 100.0;
+	this.separation = 1.0; // separation in meters
+	this.gridColor = $V3([0.3,0.3,0.3]);
+	this.arrayLines = [];
+	
+	
+	this.stormGL = this._sec.stormGLContext;
+	this.gl = this.stormGL.gl;
+	
+	this.vertexBuffer = this.gl.createBuffer();	
+	this.vertexLocBuffer = this.gl.createBuffer();	
+	this.indexBuffer = this.gl.createBuffer();
+};
+StormGrid.prototype = Object.create(StormNode.prototype);
+
+/**
+* Show the grid
+* @type Void
+* @param {Float} [separation=1.0] separation of the grid
+*/
+StormGrid.prototype.generate = function(gridsize, separation) {  
+	this.gridEnabled = true;
+	
+	this.size = (gridsize != undefined) ? gridsize : this.size;
+	this.separation = (separation != undefined) ? separation : this.separation;
+	
+	this.countLines = (this.size/this.separation)+1;
+	this.countLines *= 2;
+	
+	var startX = -(this.size/2);
+	var endX = (this.size/2);
+	
+	var startZ = -(this.size/2);
+	var endZ = (this.size/2);	
+	
+	var currentX = startX;
+	var currentZ = startZ;
+	
+	
+	// generate lines for the grid
+	var linesVertexArray = [];
+	var linesVertexLocArray = [];
+	var linesIndexArray = [];
+	this.id = 0;
+	for(var n = 0, f = this.countLines; n &lt; f; n++) {
+		
+		
+		if(currentZ &lt;= endZ) {
+			// generate lines in Z
+			linesVertexArray.push(	startX, 0.0, currentZ,
+									endX, 0.0, currentZ);	
+			
+			currentZ += this.separation;
+		} else {
+			// generate lines in X
+			linesVertexArray.push(	currentX, 0.0, startZ,
+									currentX, 0.0, endZ);
+				
+			currentX += this.separation;
+		}
+		
+		linesVertexLocArray.push(this.gridColor.e[0], this.gridColor.e[1], this.gridColor.e[2],
+								this.gridColor.e[0], this.gridColor.e[1], this.gridColor.e[2]);
+		linesIndexArray.push(this.id, this.id+1);
+		
+		this.id += 2;
+	}
+	
+	// generate lines for axis
+	// X
+	linesVertexArray.push(	0.0, 0.0, 0.0,
+							10.0, 0.0, 0.0);
+	linesVertexLocArray.push(1.0, 0.0, 0.0,
+							1.0, 0.0, 0.0);
+	linesIndexArray.push(this.id, this.id+1);
+	this.id += 2;
+	
+	// Y
+	linesVertexArray.push(	0.0, 0.0, 0.0,
+							0.0, 10.0, 0.0);
+	linesVertexLocArray.push(0.0, 1.0, 0.0,
+							0.0, 1.0, 0.0);
+	linesIndexArray.push(this.id, this.id+1);
+	this.id += 2;
+	
+	// Z
+	linesVertexArray.push(	0.0, 0.0, 0.0,
+							0.0, 0.0, 10.0);
+	linesVertexLocArray.push(0.0, 0.0, 1.0,
+							0.0, 0.0, 1.0);
+	linesIndexArray.push(this.id, this.id+1);
+
+	
+	// make opengl buffers
+	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+	this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(linesVertexArray), this.gl.STATIC_DRAW);
+	
+	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexLocBuffer);
+	this.gl.bufferData(this.gl.ARRAY_BUFFER, new Float32Array(linesVertexLocArray), this.gl.STATIC_DRAW);
+	
+	this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+	this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(linesIndexArray), this.gl.STATIC_DRAW);
+};
+
+/**
+* Hide the grid
+* @type Void
+*/
+StormGrid.prototype.hide = function() {  
+	this.gridEnabled = false;
+};
+
+/**
+* Show the grid
+* @type Void
+*/
+StormGrid.prototype.show = function() {  
+	this.gridEnabled = true;
+};
+
+/**
+* Check if grid is enabled
+* @returns {Bool}
+*/
+StormGrid.prototype.isEnabled = function() {  
+	return this.gridEnabled;
+};
+
+/** @private */
+StormGrid.prototype.render = function() {  
+	if(this.stormGL.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) {
+		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+	} else {
+		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.stormGL.fBuffer); 
+		this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.stormGL.textureObject_DOF, 0);
+		//this.gl.enable(this.gl.BLEND);
+		//this.gl.blendFunc(this.gl.ONE_MINUS_DST_COLOR, this.gl.ONE);
+	}
+	this.gl.useProgram(this.stormGL.shader_Lines);
+	
+	this.gl.uniformMatrix4fv(this.stormGL.u_Lines_PMatrix, false, this._sec.defaultCamera.mPMatrix.transpose().e);
+	this.gl.uniformMatrix4fv(this.stormGL.u_Lines_cameraWMatrix, false, this._sec.defaultCamera.MPOS.transpose().e);
+	
+	
+	this.gl.enableVertexAttribArray(this.stormGL.attr_Lines_pos);
+	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer);
+	this.gl.vertexAttribPointer(this.stormGL.attr_Lines_pos, 3, this.gl.FLOAT, false, 0, 0);
+	
+	this.gl.enableVertexAttribArray(this.stormGL.attr_Lines_posLoc);
+	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexLocBuffer);
+	this.gl.vertexAttribPointer(this.stormGL.attr_Lines_posLoc, 3, this.gl.FLOAT, false, 0, 0);
+
+	this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.indexBuffer);
+	
+	
+	//this.gl.drawArrays(this.gl.LINES, 0, this.lines.length*2);
+	this.gl.drawElements(this.gl.LINES, (this.countLines*2)+(3*2), this.gl.UNSIGNED_SHORT, 0);
+	
+	
+	if(this.stormGL.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) {
+	} else {
+		//this.gl.disable(this.gl.BLEND);
+	}
+};
+</pre>
+        </article>
+    </section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					StormEngineC 1.2 API DOC
+					<br />
+					
+					
+		<span class="copyright">
+		2010 Roberto Gonzalez. http://stormcolour.appspot.com
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha2</a>
+		on Fri Nov 06 2015 21:30:55 GMT+0100 (CET) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<script src="scripts/sunlight.js"></script>
+	<script src="scripts/sunlight.javascript.js"></script>
+	<script src="scripts/sunlight-plugin.doclinks.js"></script>
+	<script src="scripts/sunlight-plugin.linenumbers.js"></script>
+	<script src="scripts/sunlight-plugin.menu.js"></script>
+	<script src="scripts/jquery.min.js"></script>
+	<script src="scripts/jquery.scrollTo.js"></script>
+	<script src="scripts/jquery.localScroll.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+
+	<script>  Sunlight.highlightAll({lineNumbers:true,  showMenu: true, enableDoclinks :true}); </script>
+
+	<script>
+		$( function () {
+			$( "#toc" ).toc( {
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : 60
+			} );
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+
+		} );
+	</script>
+
+	
+	<script>
+		$( function () {
+			$('#main').localScroll({
+				offset: { top: 56 } //offset by the height of your header (give or take a few px, see what works for you)
+			});
+			$( "dt h4.name" ).each( function () {
+				var $this = $( this );
+				var icon = $( "<i/>" ).addClass( "icon-plus-sign" ).addClass( "pull-right" ).addClass( "icon-white" );
+				var dt = $this.parents( "dt" );
+				var children = dt.next( "dd" );
+
+				$this.append( icon ).css( {cursor : "pointer"} );
+				$this.addClass( "member-collapsed" ).addClass( "member" );
+
+				children.hide();
+				$this.toggle( function () {
+					icon.addClass( "icon-minus-sign" ).removeClass( "icon-plus-sign" ).removeClass( "icon-white" );
+					$this.addClass( "member-open" ).removeClass( "member-collapsed" );
+					children.slideDown();
+				}, function () {
+					icon.addClass( "icon-plus-sign" ).removeClass( "icon-minus-sign" ).addClass( "icon-white" );
+					$this.addClass( "member-collapsed" ).removeClass( "member-open" );
+					children.slideUp();
+				} );
+			} );
+		} );
+	</script>
+	
+
+</body>
+</html>

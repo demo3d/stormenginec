@@ -2,7 +2,9 @@
 * @class
 * @constructor
 */
-StormRender_Timeline = function() {
+StormRender_Timeline = function(sec) {
+	this._sec = sec;
+	
 	this.frames = [];
 	this.tempFrames = [];
 };
@@ -12,21 +14,18 @@ StormRender_Timeline = function() {
 * @private
 */
 StormRender_Timeline.prototype.loadPanel = function() {
-	var html = '<div id="DIVID_STORMTIMELINE_LIST" style="cursor:pointer"></div>';
-	
-	var _this = this;
-	stormEngineC.makePanel(_this, 'DIVID_StormPanelTimeline', 'FRAMES', html);	
-	
+	var html = '<div id="DIVID_STORMTIMELINE_LIST" style="cursor:pointer"></div>';	
+	this.panel = new StormPanel({"id": 'DIVID_StormPanelTimeline',
+								"paneltitle": 'FRAMES',
+								"html": html});
 	
 	
 	var html = '<div id="DIVID_STORMTIMELINE_PREV" style="cursor:pointer"></div>'+
-				'<canvas id="pathTracingCanvas"></canvas>';
-	
-	var _this = this;
-	stormEngineC.makePanel(_this, 'DIVID_StormPanelTimelinePrev', 'FRAMES PREV', html);	
-	
-	
-										
+				'<canvas id="pathTracingCanvas"></canvas>';	
+	this.panelB = new StormPanel({"id": 'DIVID_StormPanelTimelinePrev',
+								"paneltitle": 'FRAMES PREV',
+								"html": html});
+											
 										
 	this.ctx2Drender = document.getElementById('pathTracingCanvas').getContext("2d");
 };
@@ -36,8 +35,7 @@ StormRender_Timeline.prototype.loadPanel = function() {
 * @private
 */
 StormRender_Timeline.prototype.show = function() {
-	$(".SECmenu").css('z-index','0');
-	this.$.css('z-index','99').show(); 
+	this.panel.show();
 };
 
 /**
@@ -165,7 +163,11 @@ StormRender_Timeline.prototype.setFrameSample = function(frameNumber, arraySampl
 	var n = 0;
 	for(n=0, f = $('#INPUTID_StormRenderSettings_frameEnd').val(); n <= f; n++) {
 		if(this.frames[n] != undefined) {
-			$('#DIVID_STORMTIMELINE_LIST').append('<button onclick="stormEngineC.timelinePathTracing.showFramePrev('+n+');">Frame '+n+' - s '+this.frames[n].arraySample[0]+' - '+this.frames[frameNumber].width+'*'+this.frames[frameNumber].height+'</button><br />');
+			$('#DIVID_STORMTIMELINE_LIST').append('<button id="BUTTONID_timelinePathtracing_prevFrame'+n+'">Frame '+n+' - s '+this.frames[n].arraySample[0]+' - '+this.frames[frameNumber].width+'*'+this.frames[frameNumber].height+'</button><br />');
+			
+			document.getElementById('BUTTONID_timelinePathtracing_prevFrame'+n).addEventListener("click", (function() {
+				this._sec.timelinePathTracing.showFramePrev(n);
+			}).bind(this));
 		}
 	}
 	
@@ -208,7 +210,7 @@ StormRender_Timeline.prototype.showFramePrev = function(frameNumber) {
 	
 	this.ctx2Drender.putImageData(this.canvasData, 0, 0);
 		
-	/*var canvasImg = stormEngineC.utils.getImageFromCanvas(stormEngineC.timelinePathTracing.frames[frameNumber]);
+	/*var canvasImg = this._sec.utils.getImageFromCanvas(this._sec.timelinePathTracing.frames[frameNumber]);
 	canvasImg.style.width = '16px';
 	canvasImg.style.height = '16px';
 	$('#DIVID_STORMTIMELINE_PREV').append(canvasImg);*/

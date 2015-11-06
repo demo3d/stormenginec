@@ -5,7 +5,9 @@
 
 * @property {String} objectType
 */
-StormPolarityPoint = function(jsonIn) {	StormNode.call(this); 
+StormPolarityPoint = function(sec, jsonIn) {	StormNode.call(this); 
+	this._sec = sec;
+	
 	this.objectType = 'polarityPoint';
 	
 	this.pointSize = 2.0;
@@ -25,50 +27,61 @@ StormPolarityPoint.prototype = Object.create(StormNode.prototype);
 */
 StormPolarityPoint.prototype.remove = function() {
 	var idToRemove = undefined;
-	for(var n = 0, f = stormEngineC.polarityPoints.length; n < f; n++) {
-		if(stormEngineC.polarityPoints[n].idNum == this.idNum) idToRemove = n;
+	for(var n = 0, f = this._sec.polarityPoints.length; n < f; n++) {
+		if(this._sec.polarityPoints[n].idNum == this.idNum) idToRemove = n;
 	}
-	stormEngineC.polarityPoints.splice(idToRemove,1);
+	this._sec.polarityPoints.splice(idToRemove,1);
 	
 	for(var n = 0, f = this.nodesProc.length; n < f; n++) {
-		var kernelDir_Source = this.nodesProc[n].generatekernelDir_Source(); 
-		var kernelDirX_Source = kernelDir_Source+
-								'out_float4 = vec4(newDir,1.0);\n'+
-								'}';
-		this.nodesProc[n].kernelDirXYZ.setKernelSource(kernelDirX_Source);	
-		this.nodesProc[n].updatekernelDir_Arguments(); 
+		if(this.nodesProc[n].kernelDir != undefined) {
+			this.nodesProc[n].kernelDir.setKernelSource(this.nodesProc[n].generatekernelDir_Source());	
+			this.nodesProc[n].updatekernelDir_Arguments(); 
+		}
+		if(this.nodesProc[n].clglWork_nodes != undefined) { 
+			this.nodesProc[n].updateNodes();
+			this.nodesProc[n].updateLinks(); 
+		}
 	}
 	
 	this.nodesProc = [];
 };
 
 /**
-* Get a node of particles
+* Get a graph node
 * @type Void
 * @param	{Object} jsonIn
-* 	@param {StormNode} jsonIn.node The node.
+* 	@param {StormGraph} jsonIn.node The node.
 */
-StormPolarityPoint.prototype.get = function(jsonIn) {   
-	var push = true;
-	if(jsonIn.node.objectType != 'particles') {
-		alert('No particle node');
+StormPolarityPoint.prototype.get = function(jsonIn) {   	
+	if(jsonIn.node.objectType != 'graph') {
+		alert('you must select a particle or graph');
 		return;
 	}
-	for(var n = 0, f = this.nodesProc.length; n < f; n++) if(jsonIn.node.idNum == this.nodesProc[n].idNum) {push = false; break;}
-	if(push == true) {
-		this.nodesProc.push(jsonIn.node);
-		
+	for(var n = 0, f = this.nodesProc.length; n < f; n++) {
+		if(jsonIn.node.objectType == this.nodesProc[n].objectType && jsonIn.node.idNum == this.nodesProc[n].idNum) {
+			alert('This particle or graph already exist in this polarity point');
+			return;
+		}
+	}
+	
+	this.nodesProc.push(jsonIn.node);
+	var nproc = this.nodesProc[this.nodesProc.length-1];
+	console.log(nproc);
+	
+	
+	if(nproc.kernelDir != undefined && nproc.kernelDir instanceof WebCLGLKernel) {
 		var kernelDir_Source = jsonIn.node.generatekernelDir_Source(); 
-		var kernelDirX_Source = kernelDir_Source+
-								'out_float4 = vec4(newDir,1.0);\n'+
-								'}';
-		jsonIn.node.kernelDirXYZ.setKernelSource(kernelDirX_Source);		
-		jsonIn.node.updatekernelDir_Arguments(); 
-	} else alert('This particle already exist in this polarity point');
+		nproc.kernelDir.setKernelSource(kernelDir_Source);	
+		nproc.updatekernelDir_Arguments(); 
+	}
+	if(nproc.clglWork_nodes != undefined) {
+		nproc.updateNodes();
+		nproc.updateLinks(); 		
+	}
 };
 
 /**
-* Remove a node of particles
+* Remove a graph node
 * @type Void
 * @param	{Object} jsonIn
 * 	@param {StormNode} jsonIn.node The node.
@@ -92,7 +105,21 @@ StormPolarityPoint.prototype.setPolarity = function(polarity) {
 	else this.color = $V3([0.0,0.0,1.0]);
 	this.setAlbedo(this.color);
 	
-	for(var n = 0, f = this.nodesProc.length; n < f; n++) this.nodesProc[n].updatekernelDir_Arguments(); 
+	for(var p = 0, fp = this._sec.polarityPoints.length; p < fp; p++) {
+		if(this._sec.polarityPoints[p] == this) {
+			for(var n = 0, fn = this.nodesProc.length; n < fn; n++) {				
+				var selectedKernel;
+				if(this.nodesProc[n].kernelDir != undefined) {
+					selectedKernel = this.nodesProc[n].kernelDir;	
+					selectedKernel.setKernelArg('pole'+p+'Polarity', polarity); 
+				}
+				if(this.nodesProc[n].clglWork_nodes != undefined) {
+					this.nodesProc[n].clglWork_nodes.setArg('pole'+p+'Polarity', polarity);
+					this.nodesProc[n].clglWork_links.setArg('pole'+p+'Polarity', polarity);
+				}
+			}
+		}
+	}
 };
 
 /**
@@ -103,7 +130,21 @@ StormPolarityPoint.prototype.setPolarity = function(polarity) {
 StormPolarityPoint.prototype.setForce = function(force) {  
 	this.force = force;
 	
-	for(var n = 0, f = this.nodesProc.length; n < f; n++) this.nodesProc[n].updatekernelDir_Arguments(); 
+	for(var p = 0, fp = this._sec.polarityPoints.length; p < fp; p++) {
+		if(this._sec.polarityPoints[p] == this) {
+			for(var n = 0, fn = this.nodesProc.length; n < fn; n++) {				
+				var selectedKernel;
+				if(this.nodesProc[n].kernelDir != undefined) {
+					selectedKernel = this.nodesProc[n].kernelDir;	
+					selectedKernel.setKernelArg('pole'+p+'Force', force); 
+				}
+				if(this.nodesProc[n].clglWork_nodes != undefined) {
+					this.nodesProc[n].clglWork_nodes.setArg('pole'+p+'Force', force);
+					this.nodesProc[n].clglWork_links.setArg('pole'+p+'Force', force);
+				}
+			}
+		}
+	}
 };
 
 /**
@@ -113,7 +154,21 @@ StormPolarityPoint.prototype.setForce = function(force) {
 StormPolarityPoint.prototype.enableOrbit = function() {  
 	this.orbit = 1;
 	
-	for(var n = 0, f = this.nodesProc.length; n < f; n++) this.nodesProc[n].updatekernelDir_Arguments(); 
+	for(var p = 0, fp = this._sec.polarityPoints.length; p < fp; p++) {
+		if(this._sec.polarityPoints[p] == this) {
+			for(var n = 0, fn = this.nodesProc.length; n < fn; n++) {				
+				var selectedKernel;
+				if(this.nodesProc[n].kernelDir != undefined) {
+					selectedKernel = this.nodesProc[n].kernelDir;	
+					selectedKernel.setKernelArg('pole'+p+'Orbit', 1.0); 
+				}
+				if(this.nodesProc[n].clglWork_nodes != undefined) {
+					this.nodesProc[n].clglWork_nodes.setArg('pole'+p+'Orbit', 1.0);
+					this.nodesProc[n].clglWork_links.setArg('pole'+p+'Orbit', 1.0); 
+				}
+			}
+		}
+	}
 };
 
 /**
@@ -123,5 +178,19 @@ StormPolarityPoint.prototype.enableOrbit = function() {
 StormPolarityPoint.prototype.disableOrbit = function(force) {  
 	this.orbit = 0;
 	
-	for(var n = 0, f = this.nodesProc.length; n < f; n++) this.nodesProc[n].updatekernelDir_Arguments(); 
+	for(var p = 0, fp = this._sec.polarityPoints.length; p < fp; p++) {
+		if(this._sec.polarityPoints[p] == this) {
+			for(var n = 0, fn = this.nodesProc.length; n < fn; n++) {				
+				var selectedKernel;
+				if(this.nodesProc[n].kernelDir != undefined) {
+					selectedKernel = this.nodesProc[n].kernelDir;	
+					selectedKernel.setKernelArg('pole'+p+'Orbit', 0.0); 
+				}
+				if(this.nodesProc[n].clglWork_nodes != undefined) {
+					this.nodesProc[n].clglWork_nodes.setArg('pole'+p+'Orbit', 0.0);
+					this.nodesProc[n].clglWork_links.setArg('pole'+p+'Orbit', 0.0);
+				}
+			}
+		}
+	}
 };

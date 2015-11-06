@@ -27,7 +27,7 @@
 .SECmenu {
 	display:none;
 	position:absolute;
-	min-width:200px;
+	min-width:300px;
 	font-size:12px;
 	-webkit-box-shadow:rgba(0, 0, 0, 0.683594) 3px 3px 8px 1px,rgb(255, 255, 255) 0px 0px 5px 0px inset;
 	-moz-box-shadow:rgba(0, 0, 0, 0.683594) 3px 3px 8px 1px,rgb(255, 255, 255) 0px 0px 5px 0px inset;

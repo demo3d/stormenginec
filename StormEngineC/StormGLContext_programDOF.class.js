@@ -170,9 +170,9 @@ StormGLContext.prototype.render_DOF = function() {
 	
 	this.gl.uniform1f(this.u_DOF_viewportWidth, this.viewportWidth);
 	this.gl.uniform1f(this.u_DOF_viewportHeight, this.viewportHeight);
-	this.gl.uniform1f(this.u_DOF_focus, stormEngineC.defaultCamera.focusExtern);
-	this.gl.uniform1i(this.u_DOF_autofocus, (stormEngineC.defaultCamera.autofocus)?1:0);
-	this.gl.uniform1f(this.u_DOF_fNumber, stormEngineC.defaultCamera.fNumber);
+	this.gl.uniform1f(this.u_DOF_focus, this._sec.defaultCamera.focusExtern);
+	this.gl.uniform1i(this.u_DOF_autofocus, (this._sec.defaultCamera.autofocus)?1:0);
+	this.gl.uniform1f(this.u_DOF_fNumber, this._sec.defaultCamera.fNumber);
 	
 	this.gl.activeTexture(this.gl.TEXTURE0);
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureObject_DOF);

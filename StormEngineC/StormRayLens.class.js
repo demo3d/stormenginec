@@ -2,7 +2,9 @@
 * @class
 * @constructor
 */
-StormRayLens = function() {
+StormRayLens = function(sec) {
+	this._sec = sec;
+	
 	this.N1 = null;
 };
 /**
@@ -26,7 +28,7 @@ StormRayLens.prototype.setRayLens = function(vecRayOrigin, vecRayEnd, m1, m2) {
 	var dir = rayEnd.subtract(rayOrigin);
 	dir = dir.normalize();
 	
-	var dC = stormEngineC.defaultCamera;
+	var dC = this._sec.defaultCamera;
 	var vecVertexA = dC.centroPlanoProyeccion.add(dC.vecXPlanoProyeccion.x(-dC.widthLens)); //top-left
 	vecVertexA = vecVertexA.add(dC.vecYPlanoProyeccion.x(dC.widthLens));
 	var vecVertexB = dC.centroPlanoProyeccion.add(dC.vecXPlanoProyeccion.x(-dC.widthLens)); //bottom-left
@@ -64,7 +66,7 @@ StormRayLens.prototype.setRayLens = function(vecRayOrigin, vecRayEnd, m1, m2) {
 			normal = normal.normalize();
 			this.N1 = normal;
 			
-		var vecNormalRefract = stormEngineC.utils.refract(dir, normal, m1, m2);
+		var vecNormalRefract = this._sec.utils.refract(dir, normal, m1, m2);
 		var outRayend = vecNormalRefract.normalize();
 		
 		col = 1.0;
@@ -94,7 +96,7 @@ StormRayLens.prototype.setRayLens = function(vecRayOrigin, vecRayEnd, m1, m2) {
 				normal = normal.normalize();
 				this.N1 = normal;
 				
-			var vecNormalRefract = stormEngineC.utils.refract(dir, normal, m1, m2);
+			var vecNormalRefract = this._sec.utils.refract(dir, normal, m1, m2);
 			var outRayend = vecNormalRefract.normalize();
 			
 			col = 1.0;

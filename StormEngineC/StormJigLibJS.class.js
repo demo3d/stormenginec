@@ -2,11 +2,13 @@
 * @class
 * @constructor
 */
-StormJigLibJS = function() {
+StormJigLibJS = function(sec) {
+	this._sec = sec;
+	
 	this.dynamicsWorld;
 	var t0=new Date().getTime(),ta=0,oi=0;
-	this.nodes = stormEngineC.nodes;
-	this.nodesCam = stormEngineC.nodesCam;
+	this.nodes = this._sec.nodes;
+	this.nodesCam = this._sec.nodesCam;
 };
 
 /**
@@ -84,35 +86,35 @@ StormJigLibJS.prototype.update = function(elapsed) {
 			// WHEELFL
 			this.nodes[n].ndWheelFL.MPOS.setPosition($V3([this.nodes[n].wheelFL.worldPos.x, this.nodes[n].wheelFL.worldPos.y, this.nodes[n].wheelFL.worldPos.z]));
 			
-			var mSteer = $M16().setRotationY(stormEngineC.utils.degToRad(this.nodes[n].wheelFL.getSteerAngle()), false);
+			var mSteer = $M16().setRotationY(this._sec.utils.degToRad(this.nodes[n].wheelFL.getSteerAngle()), false);
 			var mVel = $M16().setRotationX(currVel, false);
-			//var mRoll = $M16().setRotationZ(stormEngineC.utils.degToRad(this.nodes[n].wheelFL.getRollAngle()), false);
+			//var mRoll = $M16().setRotationZ(this._sec.utils.degToRad(this.nodes[n].wheelFL.getRollAngle()), false);
 			this.nodes[n].ndWheelFL.MROTXYZ = mWorld.x(mSteer.x(mVel));
 			
 			
 			// WHEELFR
 			this.nodes[n].ndWheelFR.MPOS.setPosition($V3([this.nodes[n].wheelFR.worldPos.x, this.nodes[n].wheelFR.worldPos.y, this.nodes[n].wheelFR.worldPos.z]));
 			
-			var mSteer = $M16().setRotationY(stormEngineC.utils.degToRad(this.nodes[n].wheelFL.getSteerAngle()), false);
+			var mSteer = $M16().setRotationY(this._sec.utils.degToRad(this.nodes[n].wheelFL.getSteerAngle()), false);
 			var mVel = $M16().setRotationX(currVel, false);
-			//var mRoll = $M16().setRotationZ(stormEngineC.utils.degToRad(this.nodes[n].wheelFL.getRollAngle()), false);
+			//var mRoll = $M16().setRotationZ(this._sec.utils.degToRad(this.nodes[n].wheelFL.getRollAngle()), false);
 			this.nodes[n].ndWheelFR.MROTXYZ = mWorld.x(mSteer.x(mVel));	
 
 			
 			// WHEELBL
 			this.nodes[n].ndWheelBL.MPOS.setPosition($V3([this.nodes[n].wheelBL.worldPos.x, this.nodes[n].wheelBL.worldPos.y, this.nodes[n].wheelBL.worldPos.z]));
 			
-			var mSteer = $M16().setRotationY(stormEngineC.utils.degToRad(this.nodes[n].wheelFL.getSteerAngle()), false);
+			var mSteer = $M16().setRotationY(this._sec.utils.degToRad(this.nodes[n].wheelFL.getSteerAngle()), false);
 			var mVel = $M16().setRotationX(currVel, false);
-			//var mRoll = $M16().setRotationZ(stormEngineC.utils.degToRad(this.nodes[n].wheelFL.getRollAngle()), false);
+			//var mRoll = $M16().setRotationZ(this._sec.utils.degToRad(this.nodes[n].wheelFL.getRollAngle()), false);
 			this.nodes[n].ndWheelBL.MROTXYZ = mWorld.x(mVel);	
 
 			// WHEELBR
 			this.nodes[n].ndWheelBR.MPOS.setPosition($V3([this.nodes[n].wheelBR.worldPos.x, this.nodes[n].wheelBR.worldPos.y, this.nodes[n].wheelBR.worldPos.z]));
 			
-			var mSteer = $M16().setRotationY(stormEngineC.utils.degToRad(this.nodes[n].wheelFL.getSteerAngle()), false);
+			var mSteer = $M16().setRotationY(this._sec.utils.degToRad(this.nodes[n].wheelFL.getSteerAngle()), false);
 			var mVel = $M16().setRotationX(currVel, false);
-			//var mRoll = $M16().setRotationZ(stormEngineC.utils.degToRad(this.nodes[n].wheelFL.getRollAngle()), false);
+			//var mRoll = $M16().setRotationZ(this._sec.utils.degToRad(this.nodes[n].wheelFL.getRollAngle()), false);
 			this.nodes[n].ndWheelBR.MROTXYZ = mWorld.x(mVel);
 		}
 		

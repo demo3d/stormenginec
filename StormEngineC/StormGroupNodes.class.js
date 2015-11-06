@@ -8,7 +8,9 @@
 * @property {StormM16} MPOS
 
 */
-StormGroupNodes = function() {	
+StormGroupNodes = function(sec) {	
+	this._sec = sec;
+	
 	this.idNum;
 	this.name = '';
 	this.MPOS = $M16([1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0,0.0,0.0,0.0,0.0,1.0]);
@@ -26,7 +28,7 @@ StormGroupNodes = function() {
 * 	@param {Function} [jsonIn.onload] Function to call after load
 */
 StormGroupNodes.prototype.loadCollada = function(jsonIn) {		
-	var mesh = new StormMesh();
+	var mesh = new StormMesh(this._sec);
 	mesh.loadCollada({	'group':this,
 					'daeUrl':jsonIn.daeUrl,
 					'textureUniqueUrl':jsonIn.textureUniqueUrl,
@@ -43,7 +45,7 @@ StormGroupNodes.prototype.loadCollada = function(jsonIn) {
 * 	@param {String} [jsonIn.setCam] Set the camera for the WebGL Context by the name of the imported camera
 */
 StormGroupNodes.prototype.loadColladaFromSourceText = function(jsonIn) {
-	var mesh = new StormMesh();
+	var mesh = new StormMesh(this._sec);
 	mesh.loadColladaFromSourceText({	'group':this,
 										'sourceText':jsonIn.sourceText,
 										'daeDirectory':jsonIn.daeDirectory,

@@ -16,7 +16,7 @@
 	<body>
 		<canvas id="stormCanvas" width="512" height="512"></canvas>
 		<script>
-			
+			var stormEngineC = new StormEngineC();
 			stormEngineC.createWebGL({'target':	'stormCanvas', // ID canvas
 									  'callback':	function(){},
 									  'editMode':	true,
@@ -42,6 +42,7 @@
 		
 			var parkingLines = stormEngineC.createGroup();
 			var meshGround = new StormMesh();
+			meshGround._sec = stormEngineC;
 			meshGround.loadCollada({'group':parkingLines,
 									'daeUrl':"../_RESOURCES/camera_animation2/parkingLines.DAE",
 									'onload':function() {

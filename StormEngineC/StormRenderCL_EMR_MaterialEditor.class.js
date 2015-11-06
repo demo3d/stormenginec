@@ -2,7 +2,9 @@
 * @class
 * @constructor
 */
-StormRenderEMR_MaterialEditor = function() {
+StormRenderEMR_MaterialEditor = function(sec) {
+	this._sec = sec;
+	
 	// 2 degree field of view
 	// table of 1931 CIE XYZ matching functions.
 	// data from: http://cvrl.ioo.ucl.ac.uk/database/data/cmfs/ciexyz31_1.txt
@@ -520,20 +522,26 @@ StormRenderEMR_MaterialEditor.prototype.loadMaterialEditor = function() {
 	var html = '<table style="width:100%">'+
 					'<tr>'+
 						'<td style="vertical-align:top">'+
-							"<button type='button' onclick='stormEngineC.MaterialEditor.createEMRMaterial(\"emission\");'>Create emission spectrum</button><br />"+
-							"<button type='button' onclick='stormEngineC.MaterialEditor.createEMRMaterial(\"absorption\");'>Create absorption spectrum</button>"+
+							"<button type='button' id='BUTTONID_createEmrEmissionMaterial'>Create emission spectrum</button><br />"+
+							"<button type='button' id='BUTTONID_createEmrAbsorptionMaterial'>Create absorption spectrum</button>"+
 							'<div id="DIVID_EMRMaterials"></div>'+
 						'</td>'+
 						'<td style="text-align:left;vertical-align:top;">'+
 							'<div id="DIVID_EMRMATERIAL"></div>'+
 						'</td>'+
 					'</tr>'+
-				'</table>';
+				'</table>';	
+	this.panel = new StormPanel({"id": 'DIVID_MaterialEditorEMR',
+								"paneltitle": 'EMR SPECTRUM EDITOR',
+								"html": html});
 	
-	var _this = this;
-	stormEngineC.makePanel(_this, 'DIVID_MaterialEditorEMR', 'EMR SPECTRUM EDITOR', html);		
+	document.getElementById("BUTTONID_createEmrEmissionMaterial").addEventListener("click", (function() {
+		this._sec.MaterialEditor.createEMRMaterial("emission");
+	}).bind(this));
 	
-	
+	document.getElementById("BUTTONID_createEmrAbsorptionMaterial").addEventListener("click", (function() {
+		this._sec.MaterialEditor.createEMRMaterial("absorption");
+	}).bind(this));
 					
 
 
@@ -547,8 +555,7 @@ StormRenderEMR_MaterialEditor.prototype.loadMaterialEditor = function() {
 * @private
 */
 StormRenderEMR_MaterialEditor.prototype.show = function() {
-	$(".SECmenu").css('z-index','0');
-	this.$.css('z-index','99').show(); 
+	this.panel.show();
 };
 
 /**
@@ -557,17 +564,26 @@ StormRenderEMR_MaterialEditor.prototype.show = function() {
 */
 StormRenderEMR_MaterialEditor.prototype.listEMRMaterials = function() {
 	var str = '';
-	for(var n = 0, f = stormEngineC.EMR_Materials.length; n < f; n++) {
-		var rgbR = (stormEngineC.EMR_Materials[n].type == 'absorption') ? Math.round(stormEngineC.EMR_Materials[n].rgbReflect.e[0]*255) : Math.round(stormEngineC.EMR_Materials[n].rgb.e[0]*255);
-		var rgbG = (stormEngineC.EMR_Materials[n].type == 'absorption') ? Math.round(stormEngineC.EMR_Materials[n].rgbReflect.e[1]*255) : Math.round(stormEngineC.EMR_Materials[n].rgb.e[1]*255);
-		var rgbB = (stormEngineC.EMR_Materials[n].type == 'absorption') ? Math.round(stormEngineC.EMR_Materials[n].rgbReflect.e[2]*255) : Math.round(stormEngineC.EMR_Materials[n].rgb.e[2]*255);
-		var strImg = (stormEngineC.EMR_Materials[n].type == 'absorption') ? 'EMRtypeAbsorption.png': 'EMRtypeEmission.png';
-		var colorBg = (n == stormEngineC.selectedEMRMaterial) ? '#FFF' : '#CCC';
-		str += 	"<button type='button' onclick='stormEngineC.MaterialEditor.showMaterial("+n+");$(\"#DIVID_EMRMaterials button\").css(\"background-color\",\"#CCC\");$(this).css(\"background-color\",\"#FFF\");' style='background-color:"+colorBg+"'>"+
-					"Spectrum "+stormEngineC.EMR_Materials[n].idMaterial+" <div id='BTNDIVID_EMRMATERIAL"+n+"' style='width:20px;height:20px;background:rgb("+rgbR+", "+rgbG+", "+rgbB+");'></div>"+
+	for(var n = 0, f = this._sec.EMR_Materials.length; n < f; n++) {
+		var rgbR = (this._sec.EMR_Materials[n].type == 'absorption') ? Math.round(this._sec.EMR_Materials[n].rgbReflect.e[0]*255) : Math.round(this._sec.EMR_Materials[n].rgb.e[0]*255);
+		var rgbG = (this._sec.EMR_Materials[n].type == 'absorption') ? Math.round(this._sec.EMR_Materials[n].rgbReflect.e[1]*255) : Math.round(this._sec.EMR_Materials[n].rgb.e[1]*255);
+		var rgbB = (this._sec.EMR_Materials[n].type == 'absorption') ? Math.round(this._sec.EMR_Materials[n].rgbReflect.e[2]*255) : Math.round(this._sec.EMR_Materials[n].rgb.e[2]*255);
+		var strImg = (this._sec.EMR_Materials[n].type == 'absorption') ? 'EMRtypeAbsorption.png': 'EMRtypeEmission.png';
+		var colorBg = (n == this._sec.selectedEMRMaterial) ? '#FFF' : '#CCC';
+		str += 	"<button type='button' id='BUTTONID_showEmrMaterial"+n+"' style='background-color:"+colorBg+"'>"+
+					"Spectrum "+this._sec.EMR_Materials[n].idMaterial+" <div id='BTNDIVID_EMRMATERIAL"+n+"' style='width:20px;height:20px;background:rgb("+rgbR+", "+rgbG+", "+rgbB+");'></div>"+
 				"</button><img src='"+stormEngineCDirectory+"/resources/"+strImg+"' /><br />";
 	}
 	document.getElementById('DIVID_EMRMaterials').innerHTML = str;
+	
+	for(var n = 0, f = this._sec.EMR_Materials.length; n < f; n++) {
+		var e = document.getElementById("BUTTONID_showEmrMaterial"+n);
+		e.addEventListener("click", (function(nn) {
+			this._sec.MaterialEditor.showMaterial(nn);
+			$("#DIVID_EMRMaterials button").css("background-color","#CCC");
+			$(this).css("background-color","#FFF");
+		}).bind(this, n));
+	}
 };
 
 /**
@@ -576,10 +592,10 @@ StormRenderEMR_MaterialEditor.prototype.listEMRMaterials = function() {
 * @param {String} type 'absorption' or 'emission'
 */
 StormRenderEMR_MaterialEditor.prototype.createEMRMaterial = function(type) {
-	var material = new StormRenderEMR_Material();
-	material.idMaterial = stormEngineC.idxEMR_Materials++;
-	material.name = 'material '+stormEngineC.idxEMR_Materials;
-	stormEngineC.EMR_Materials.push(material);
+	var material = new StormRenderEMR_Material(this._sec);
+	material.idMaterial = this._sec.idxEMR_Materials++;
+	material.name = 'material '+this._sec.idxEMR_Materials;
+	this._sec.EMR_Materials.push(material);
 	
 	material.type = (type == 'absorption') ? 'absorption': 'emission';
 	
@@ -592,19 +608,19 @@ StormRenderEMR_MaterialEditor.prototype.createEMRMaterial = function(type) {
 * @param {Int} idMaterial
 */
 StormRenderEMR_MaterialEditor.prototype.showMaterial = function(idMaterial) {
-	stormEngineC.selectedEMRMaterial = idMaterial;
+	this._sec.selectedEMRMaterial = idMaterial;
 	
 	var str = ''+
 	'<span id="infoc">Nm:0 I:0</span><br />'+ 
 	'<canvas id="panelColor" width="400px" height="100px" style="cursor:crosshair;"></canvas>'+
 	'<div id="panelSpectrumGrid" style="width:400px;height:23px;border:1px solid #000;background:url('+stormEngineCDirectory+'/resources/spectrumGrid.jpg)" ></div>'+
 	'<div style="text-align:right">'+
-		"<button type='button' onclick='stormEngineC.PanelEMRMaterialsDatabase.show(stormEngineC.EMR_Materials["+idMaterial+"].type);'>Load spectrum</button>"+
-		"<button type='button' onclick='alert(stormEngineC.EMR_Materials["+idMaterial+"].spectrum.e);'>Show spectrum</button>"+
+		"<button type='button' id='BUTTONID_loadEmrSpectrum'>Load spectrum</button>"+
+		"<button type='button' id='BUTTONID_showEmrSpectrum'>Show spectrum</button>"+
 	'</div>'+
 	'<table style="width:100%">'+
 		'<tr>';
-			if(stormEngineC.EMR_Materials[idMaterial].type == 'emission') {
+			if(this._sec.EMR_Materials[idMaterial].type == 'emission') {
 				str += 	'<td style="vertical-align:top">'+
 							'<fieldset style="padding-top:0px;">'+
 								'<legend style="padding:3px;font-weight:bold;">Emission spectrum</legend>'+
@@ -613,42 +629,65 @@ StormRenderEMR_MaterialEditor.prototype.showMaterial = function(idMaterial) {
 								'<div id="colorEmission" style="width:40px;height:40px;border:1px solid #000;background:#FFF"></div>'+
 							'</fieldset>'+
 						'</td>';
-			} else if(stormEngineC.EMR_Materials[idMaterial].type == 'absorption') {
+			} else if(this._sec.EMR_Materials[idMaterial].type == 'absorption') {
 				str += 	'<td style="vertical-align:top">'+
 							'<fieldset style="padding-top:0px;">'+
 								'<legend style="padding:3px;font-weight:bold;">Absorption spectrum</legend>'+
 								'Reflect color'+
 								'<div id="colorRGBReflect"></div>'+
 								'<div id="colorReflect" style="width:40px;height:40px;border:1px solid #000;background:#FFF"></div>'+
-								'Roughness: <input type="text" id="INPUTID_MATERIAL_NS" onkeyup="stormEngineC.MaterialEditor.setNs('+idMaterial+', $(this).val());" value="'+stormEngineC.EMR_Materials[idMaterial].Ns+'"/><br />'+
+								
+								'Roughness: <input type="text" id="INPUTID_MATERIAL_NS" value="'+this._sec.EMR_Materials[idMaterial].Ns+'"/><br />'+
 							'</fieldset>'+
 						'</td>';
 			}
 		str += 	'</tr>'+
 	'</table>'+
 	
-	"<button type='button' onclick='stormEngineC.MaterialEditor.applyMaterial(stormEngineC.MaterialEditor.rgb,stormEngineC.MaterialEditor.rgbReflect);stormEngineC.PanelMaterials.showListMaterials();'>Apply</button> "+
-	'<button type="button" onclick="stormEngineC.MaterialEditor.deleteMaterial('+idMaterial+');">Delete</button>'+
+	"<button type='button' id='BUTTONID_applyEmr'>Apply</button> "+
+	'<button type="button" id="BUTTONID_deleteEmr" onclick="">Delete</button>'+
 	//<div id="colorXYZ"></div>
 	//<div id="colorRGB"></div>
 	'';
 	$('#DIVID_EMRMATERIAL').html(str);
 	
+	document.getElementById("BUTTONID_loadEmrSpectrum").addEventListener("click", (function() {
+		this._sec.PanelEMRMaterialsDatabase.show(this._sec.EMR_Materials[idMaterial].type);
+	}).bind(this));
+	
+	document.getElementById("BUTTONID_showEmrSpectrum").addEventListener("click", (function() {
+		alert(this._sec.EMR_Materials[idMaterial].spectrum.e);
+	}).bind(this));
+	
+	if(this._sec.EMR_Materials[idMaterial].type == 'absorption') {
+		document.getElementById("INPUTID_MATERIAL_NS").addEventListener("click", (function() {
+			this._sec.MaterialEditor.setNs(idMaterial, $(this).val());
+		}).bind(this));
+	}
+	
+	document.getElementById("BUTTONID_applyEmr").addEventListener("click", (function() {
+		this._sec.MaterialEditor.applyMaterial(this._sec.MaterialEditor.rgb,this._sec.MaterialEditor.rgbReflect);
+		this._sec.PanelMaterials.showListMaterials();
+	}).bind(this));
+	
+	document.getElementById("BUTTONID_deleteEmr").addEventListener("click", (function() {
+		this._sec.MaterialEditor.deleteMaterial(idMaterial);
+	}).bind(this));
 	
 	
-	$('#panelColor').bind('mousedown', function(){
-		stormEngineC.MaterialEditor.clickPanel=true;
-		stormEngineC.MaterialEditor.canvasAction();
-	});
-	$('#panelColor').bind('mouseup', function(){
-		stormEngineC.MaterialEditor.clickPanel=false;
-	});
-	$('#panelColor').bind('mousemove', function(){
-		stormEngineC.MaterialEditor.canvasAction();
-	});
+	$('#panelColor').bind('mousedown', (function(){
+		this._sec.MaterialEditor.clickPanel=true;
+		this._sec.MaterialEditor.canvasAction();
+	}).bind(this));
+	$('#panelColor').bind('mouseup', (function(){
+		this._sec.MaterialEditor.clickPanel=false;
+	}).bind(this));
+	$('#panelColor').bind('mousemove', (function(){
+		this._sec.MaterialEditor.canvasAction();
+	}).bind(this));
 	
 	var newArray = new Float32Array(401);
-	if(stormEngineC.EMR_Materials[idMaterial].spectrum == undefined) {stormEngineC.EMR_Materials[idMaterial].spectrum = newArray;}
+	if(this._sec.EMR_Materials[idMaterial].spectrum == undefined) {this._sec.EMR_Materials[idMaterial].spectrum = newArray;}
 	this.drawSpectrum(idMaterial);
 };
 
@@ -660,16 +699,16 @@ StormRenderEMR_MaterialEditor.prototype.canvasAction = function() {
 	var posi = $("#panelColor").offset(); 
 	var originPanelColorX = posi.left;
 	var originPanelColorY = posi.top;
-	var mousePosX = stormEngineC.mousePosX-originPanelColorX;
-	var mousePosY = stormEngineC.mousePosY-originPanelColorY;
-	stormEngineC.MaterialEditor.posNm = mousePosX;
-	stormEngineC.MaterialEditor.posIntensity = Math.round(100-mousePosY);
-	if(stormEngineC.MaterialEditor.posIntensity < 0) stormEngineC.MaterialEditor.posIntensity = 0;
-	if(stormEngineC.MaterialEditor.posIntensity > 100) stormEngineC.MaterialEditor.posIntensity = 100;
+	var mousePosX = this._sec.mousePosX-originPanelColorX;
+	var mousePosY = this._sec.mousePosY-originPanelColorY;
+	this._sec.MaterialEditor.posNm = mousePosX;
+	this._sec.MaterialEditor.posIntensity = Math.round(100-mousePosY);
+	if(this._sec.MaterialEditor.posIntensity < 0) this._sec.MaterialEditor.posIntensity = 0;
+	if(this._sec.MaterialEditor.posIntensity > 100) this._sec.MaterialEditor.posIntensity = 100;
 	
-	$('#infoc').html('Nm:'+(stormEngineC.MaterialEditor.posNm+380)+' I:'+stormEngineC.MaterialEditor.posIntensity);
-	if(stormEngineC.MaterialEditor.clickPanel == true && stormEngineC.selectedEMRMaterial != undefined) {
-		stormEngineC.MaterialEditor.drawSpectrum(stormEngineC.selectedEMRMaterial);
+	$('#infoc').html('Nm:'+(this._sec.MaterialEditor.posNm+380)+' I:'+this._sec.MaterialEditor.posIntensity);
+	if(this._sec.MaterialEditor.clickPanel == true && this._sec.selectedEMRMaterial != undefined) {
+		this._sec.MaterialEditor.drawSpectrum(this._sec.selectedEMRMaterial);
 	}
 };
 
@@ -679,12 +718,12 @@ StormRenderEMR_MaterialEditor.prototype.canvasAction = function() {
 * @param {Int} idMaterial
 */
 StormRenderEMR_MaterialEditor.prototype.drawSpectrum = function(idMaterial) { 
-	var spectrum = stormEngineC.EMR_Materials[idMaterial].spectrum;
+	var spectrum = this._sec.EMR_Materials[idMaterial].spectrum;
 	
 	this.ctxSpectrum = document.getElementById('panelColor').getContext("2d");
 	this.ctxSpectrum.clearRect(0,0,400,100);
 	
-	stormEngineC.MaterialEditor.ctxSpectrum.drawImage(this.imageSpectrum, 0, 0);
+	this._sec.MaterialEditor.ctxSpectrum.drawImage(this.imageSpectrum, 0, 0);
 	
 	this.ctxSpectrum.beginPath();
 	this.ctxSpectrum.lineWidth = 1;
@@ -707,7 +746,7 @@ StormRenderEMR_MaterialEditor.prototype.drawSpectrum = function(idMaterial) {
 	this.ctxSpectrum.closePath();
 	this.ctxSpectrum.fill();
 	
-	stormEngineC.EMR_Materials[idMaterial].spectrum = spectrum;
+	this._sec.EMR_Materials[idMaterial].spectrum = spectrum;
 	
 	var XYZ = $V3([0.0,0.0,0.0]);
 	for(var n = 380, f = 780; n <= f; n++) {
@@ -718,7 +757,7 @@ StormRenderEMR_MaterialEditor.prototype.drawSpectrum = function(idMaterial) {
 		//document.getElementById('colorXYZ').innerHTML = XYZ.e[0].toFixed(2)+' '+XYZ.e[1].toFixed(2)+' '+XYZ.e[2].toFixed(2);
 
 	this.rgb = this.XYZtoRGB(XYZ);
-	if(stormEngineC.EMR_Materials[idMaterial].type == 'emission') {
+	if(this._sec.EMR_Materials[idMaterial].type == 'emission') {
 		if((Math.round(this.rgb.e[0]*255) > 255 || Math.round(this.rgb.e[1]*255) > 255 || Math.round(this.rgb.e[2]*255) > 255) ||
 			(Math.round(this.rgb.e[0]*255) < 0 || Math.round(this.rgb.e[1]*255) < 0 || Math.round(this.rgb.e[2]*255) < 0)) {
 			document.getElementById('colorEmission').style.background = 'rgba(0,0,0,0)';
@@ -728,11 +767,11 @@ StormRenderEMR_MaterialEditor.prototype.drawSpectrum = function(idMaterial) {
 			document.getElementById('colorEmission').style.background = 'rgb('+Math.round(this.rgb.e[0]*255)+', '+Math.round(this.rgb.e[1]*255)+', '+Math.round(this.rgb.e[2]*255)+')';
 			document.getElementById('colorRGBEmission').innerHTML = Math.round(this.rgb.e[0]*255)+', '+Math.round(this.rgb.e[1]*255)+', '+Math.round(this.rgb.e[2]*255);
 			document.getElementById('BTNDIVID_EMRMATERIAL'+idMaterial).style.background = 'rgb('+Math.round(this.rgb.e[0]*255)+', '+Math.round(this.rgb.e[1]*255)+', '+Math.round(this.rgb.e[2]*255)+')';
-			stormEngineC.EMR_Materials[idMaterial].rgb = this.rgb;
+			this._sec.EMR_Materials[idMaterial].rgb = this.rgb;
 		}
 	}
 	
-	if(stormEngineC.EMR_Materials[idMaterial].type == 'absorption') {
+	if(this._sec.EMR_Materials[idMaterial].type == 'absorption') {
 		var TMPrgbReflect = $V3([1.0-this.rgb.e[0], 1.0-this.rgb.e[1], 1.0-this.rgb.e[2]]);
 		if((Math.round(TMPrgbReflect.e[0]*255) > 255 || Math.round(TMPrgbReflect.e[1]*255) > 255 || Math.round(TMPrgbReflect.e[2]*255) > 255) ||
 			(Math.round(TMPrgbReflect.e[0]*255) < 0 || Math.round(TMPrgbReflect.e[1]*255) < 0 || Math.round(TMPrgbReflect.e[2]*255) < 0)) {
@@ -744,23 +783,23 @@ StormRenderEMR_MaterialEditor.prototype.drawSpectrum = function(idMaterial) {
 			document.getElementById('colorReflect').style.background = 'rgb('+Math.round(this.rgbReflect.e[0]*255)+', '+Math.round(this.rgbReflect.e[1]*255)+', '+Math.round(this.rgbReflect.e[2]*255)+')';
 			document.getElementById('colorRGBReflect').innerHTML = Math.round(this.rgbReflect.e[0]*255)+', '+Math.round(this.rgbReflect.e[1]*255)+', '+Math.round(this.rgbReflect.e[2]*255);
 			document.getElementById('BTNDIVID_EMRMATERIAL'+idMaterial).style.background = 'rgb('+Math.round(this.rgbReflect.e[0]*255)+', '+Math.round(this.rgbReflect.e[1]*255)+', '+Math.round(this.rgbReflect.e[2]*255)+')';
-			stormEngineC.EMR_Materials[idMaterial].rgbReflect = this.rgbReflect;
+			this._sec.EMR_Materials[idMaterial].rgbReflect = this.rgbReflect;
 		}
 	}
 
 
-	for(var n = 0, f = stormEngineC.nodes.length; n < f; n++) {
-		if(stormEngineC.nodes[n].materialEMR != undefined) {
-			if(stormEngineC.nodes[n].materialEMR.idMaterial == stormEngineC.EMR_Materials[idMaterial].idMaterial) {
-				stormEngineC.nodes[n].setAlbedo(this.rgbReflect);
+	for(var n = 0, f = this._sec.nodes.length; n < f; n++) {
+		if(this._sec.nodes[n].materialEMR != undefined) {
+			if(this._sec.nodes[n].materialEMR.idMaterial == this._sec.EMR_Materials[idMaterial].idMaterial) {
+				this._sec.nodes[n].setAlbedo(this.rgbReflect);
 			}
 		}
 	}
-	for(var n = 0, f = stormEngineC.lights.length; n < f; n++) {
-		if(stormEngineC.lights[n].materialEMR != undefined) {
-			if(stormEngineC.lights[n].materialEMR.idMaterial == stormEngineC.EMR_Materials[idMaterial].idMaterial) {
-				stormEngineC.lights[n].setLightColor(this.rgb);
-				stormEngineC.lights[n].nodeCtxWebGL.setAlbedo(this.rgb);
+	for(var n = 0, f = this._sec.lights.length; n < f; n++) {
+		if(this._sec.lights[n].materialEMR != undefined) {
+			if(this._sec.lights[n].materialEMR.idMaterial == this._sec.EMR_Materials[idMaterial].idMaterial) {
+				this._sec.lights[n].setLightColor(this.rgb);
+				this._sec.lights[n].nodeCtxWebGL.setAlbedo(this.rgb);
 			}
 		}
 	}
@@ -774,10 +813,10 @@ StormRenderEMR_MaterialEditor.prototype.drawSpectrum = function(idMaterial) {
 StormRenderEMR_MaterialEditor.prototype.deleteMaterial = function(idMaterial) {
 	var tmArray = [];
 	
-	for(var n = 0, f = stormEngineC.EMR_Materials.length; n < f; n++) {
-		if(n != idMaterial) {tmArray.push(stormEngineC.EMR_Materials[n])}
+	for(var n = 0, f = this._sec.EMR_Materials.length; n < f; n++) {
+		if(n != idMaterial) {tmArray.push(this._sec.EMR_Materials[n])}
 	}
-	stormEngineC.EMR_Materials = tmArray;
+	this._sec.EMR_Materials = tmArray;
 	this.listEMRMaterials();
 	$('#DIVID_EMRMATERIAL').html('');
 };
@@ -789,12 +828,12 @@ StormRenderEMR_MaterialEditor.prototype.deleteMaterial = function(idMaterial) {
 * @param {Float} Ns 0 to 100
 */
 StormRenderEMR_MaterialEditor.prototype.setNs = function(idMaterial, Ns) {
-	stormEngineC.EMR_Materials[stormEngineC.selectedEMRMaterial].Ns = Ns;
+	this._sec.EMR_Materials[this._sec.selectedEMRMaterial].Ns = Ns;
 	
-	for(var n = 0, f = stormEngineC.nodes.length; n < f; n++) {
-		if(stormEngineC.nodes[n].materialEMR != undefined) {
-			if(stormEngineC.nodes[n].materialEMR.idMaterial == stormEngineC.EMR_Materials[idMaterial].idMaterial) {
-				stormEngineC.nodes[n].materialEMR.Ns = Ns;
+	for(var n = 0, f = this._sec.nodes.length; n < f; n++) {
+		if(this._sec.nodes[n].materialEMR != undefined) {
+			if(this._sec.nodes[n].materialEMR.idMaterial == this._sec.EMR_Materials[idMaterial].idMaterial) {
+				this._sec.nodes[n].materialEMR.Ns = Ns;
 			}
 		}
 	}
@@ -806,16 +845,16 @@ StormRenderEMR_MaterialEditor.prototype.setNs = function(idMaterial, Ns) {
 * @private
 */
 StormRenderEMR_MaterialEditor.prototype.applyMaterial = function(rgb,rgbReflect) {
-	if(stormEngineC.nearNode != undefined) {
-		if(stormEngineC.nearNode.objectType == 'light') {
-			if(stormEngineC.EMR_Materials[stormEngineC.selectedEMRMaterial].type == 'emission') {
-				stormEngineC.nearNode.nodeCtxWebGL.setAlbedo(rgb);
-				stormEngineC.nearNode.materialEMR = stormEngineC.EMR_Materials[stormEngineC.selectedEMRMaterial];
+	if(this._sec.nearNode != undefined) {
+		if(this._sec.nearNode.objectType == 'light') {
+			if(this._sec.EMR_Materials[this._sec.selectedEMRMaterial].type == 'emission') {
+				this._sec.nearNode.nodeCtxWebGL.setAlbedo(rgb);
+				this._sec.nearNode.materialEMR = this._sec.EMR_Materials[this._sec.selectedEMRMaterial];
 			} else {alert('Absorption spectrum only on objects');}
-		} else if(stormEngineC.nearNode.objectType == 'node') {
-			if(stormEngineC.EMR_Materials[stormEngineC.selectedEMRMaterial].type == 'absorption') {
-				stormEngineC.nearNode.setAlbedo(rgbReflect);
-				stormEngineC.nearNode.materialEMR = stormEngineC.EMR_Materials[stormEngineC.selectedEMRMaterial];
+		} else if(this._sec.nearNode.objectType == 'node') {
+			if(this._sec.EMR_Materials[this._sec.selectedEMRMaterial].type == 'absorption') {
+				this._sec.nearNode.setAlbedo(rgbReflect);
+				this._sec.nearNode.materialEMR = this._sec.EMR_Materials[this._sec.selectedEMRMaterial];
 			} else {alert('Emission spectrum only on lights');}
 		} else {
 			alert('spectrums only on lights and objects');
@@ -915,7 +954,9 @@ StormRenderEMR_MaterialEditor.prototype.xyz_color = function(x, y, z) {
 * @class
 * @constructor
 */
-StormRenderEMR_Material = function() {
+StormRenderEMR_Material = function(sec) {
+	this._sec = sec;
+	
 	this.idMaterial;
 	this.type = 'absorption'; // absorption or emission
 	this.spectrum = undefined;

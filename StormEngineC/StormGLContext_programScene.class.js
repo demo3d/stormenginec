@@ -765,7 +765,7 @@ StormGLContext.prototype.pointers_Scene = function() {
  */
 StormGLContext.prototype.render_Scene = function() {
 	this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
-	if(this.view_SceneNoDOF || stormEngineC.defaultCamera.DOFenable == false) {
+	if(this.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 	} else {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fBuffer); 
@@ -868,9 +868,9 @@ StormGLContext.prototype.render_Scene = function() {
 	this.gl.uniform1f(this.u_Scene_viewportWidth, this.viewportWidth);
 	this.gl.uniform1f(this.u_Scene_viewportHeight, this.viewportHeight);
 	
-	this.gl.uniformMatrix4fv(this.u_Scene_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
-	this.gl.uniformMatrix4fv(this.u_Scene_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
-	this.gl.uniform3f(this.u_Scene_cameraPos, stormEngineC.defaultCamera.MPOS.e[3], stormEngineC.defaultCamera.MPOS.e[7], stormEngineC.defaultCamera.MPOS.e[11]);
+	this.gl.uniformMatrix4fv(this.u_Scene_PMatrix, false, this._sec.defaultCamera.mPMatrix.transpose().e);
+	this.gl.uniformMatrix4fv(this.u_Scene_cameraWMatrix, false, this._sec.defaultCamera.MPOS.transpose().e);
+	this.gl.uniform3f(this.u_Scene_cameraPos, this._sec.defaultCamera.MPOS.e[3], this._sec.defaultCamera.MPOS.e[7], this._sec.defaultCamera.MPOS.e[11]);
 	
 	var kdName;
 	for(var n = 0, f = this.nodes.length; n < f; n++) {
@@ -896,7 +896,7 @@ StormGLContext.prototype.render_Scene = function() {
 		}
 	}
 	
-	var polPoints = stormEngineC.polarityPoints;
+	var polPoints = this._sec.polarityPoints;
 	for(var n = 0, f = polPoints.length; n < f; n++) {
 		if(polPoints[n].visibleOnContext == true) {
 			for(var nb = 0, fb = polPoints[n].buffersObjects.length; nb < fb; nb++) {
@@ -923,43 +923,36 @@ StormGLContext.prototype.renderSceneNow = function(node, buffersObject) {
 	this.gl.useProgram(this.shader_Scene);
 	this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
 	
-	this.gl.activeTexture(this.gl.TEXTURE0);
+	var currentTextureUnit = 0;
+	this.gl.activeTexture(this.gl["TEXTURE"+currentTextureUnit++]);
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_Normals);
 	this.gl.uniform1i(this.sampler_Scene_textureFBNormals, 0);
 	
-	this.gl.activeTexture(this.gl.TEXTURE1);
+	this.gl.activeTexture(this.gl["TEXTURE"+currentTextureUnit++]);
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureRandom);
 	this.gl.uniform1i(this.sampler_Scene_textureRandom, 1);
 	
-	this.gl.activeTexture(this.gl.TEXTURE2);
+	this.gl.activeTexture(this.gl["TEXTURE"+currentTextureUnit++]);
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_Shadows);
 	this.gl.uniform1i(this.sampler_Scene_textureFBShadows, 2);
 	
-	this.gl.activeTexture(this.gl.TEXTURE3);
+	this.gl.activeTexture(this.gl["TEXTURE"+currentTextureUnit++]);
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.environmentMap);
 	this.gl.uniform1i(this.sampler_Scene_reflectionMap, 3);
 	
-	this.gl.activeTexture(this.gl.TEXTURE4);
+	this.gl.activeTexture(this.gl["TEXTURE"+currentTextureUnit++]);
 	this.gl.bindTexture(this.gl.TEXTURE_2D, this.textureFB_GIVoxel);
 	this.gl.uniform1i(this.sampler_Scene_textureFB_GIVoxel, 4);
 		
 	var next = this.OCCUPIEDSAMPLES_SHADERSCENE; 
-	for(var n = 0; (n < node.materialUnits.length && n < this.MAX_TEXTURESKD); n++) {
-		if(next == 5) this.gl.activeTexture(this.gl.TEXTURE5);
-		else if(next == 6) this.gl.activeTexture(this.gl.TEXTURE6);
-		else if(next == 7) this.gl.activeTexture(this.gl.TEXTURE7);
-		else if(next == 8) this.gl.activeTexture(this.gl.TEXTURE8);
-		else if(next == 9) this.gl.activeTexture(this.gl.TEXTURE9);
-		else if(next == 10) this.gl.activeTexture(this.gl.TEXTURE10);
-		else if(next == 11) this.gl.activeTexture(this.gl.TEXTURE11);
-		else if(next == 12) this.gl.activeTexture(this.gl.TEXTURE12);
-		else if(next == 13) this.gl.activeTexture(this.gl.TEXTURE13);
-		else if(next == 14) this.gl.activeTexture(this.gl.TEXTURE14);
-		else if(next == 15) this.gl.activeTexture(this.gl.TEXTURE15);
-		else if(next == 16) this.gl.activeTexture(this.gl.TEXTURE16);
-		else this.gl.activeTexture(this.gl.TEXTURE16);
-		if(node.materialUnits[n].textureObjectKd.textureData != undefined) {
-			this.gl.bindTexture(this.gl.TEXTURE_2D, node.materialUnits[n].textureObjectKd.textureData);    
+	for(var n = 0; (n < node.materialUnits.length && n < this.MAX_TEXTURESKD); n++) {		
+		if(currentTextureUnit < 16)
+			this.gl.activeTexture(this.gl["TEXTURE"+currentTextureUnit++]);
+		else
+			this.gl.activeTexture(this.gl["TEXTURE16"]);
+		
+		if(node.materialUnits[n].textureObjectKd != undefined) {
+			this.gl.bindTexture(this.gl.TEXTURE_2D, node.materialUnits[n].textureObjectKd.items[0].textureData);    
 			this.gl.uniform1i(this.samplers_Scene_objectTexturesKd[n], next);
 		}
 		next++;
@@ -972,7 +965,7 @@ StormGLContext.prototype.renderSceneNow = function(node, buffersObject) {
 	//if(node.materialUnits[0].textureObjectBump != undefined) this.gl.uniform1i(this.u_Scene_useBump, 1);
 	
 	this.gl.uniform1i(this.u_Scene_selectedNode, 0);
-	if(stormEngineC.editMode == true && stormEngineC.nearNode != null && node == stormEngineC.nearNode)
+	if(this._sec.editMode == true && this._sec.nearNode != null && node == this._sec.nearNode)
 		this.gl.uniform1i(this.u_Scene_selectedNode, 1);
 	
 	

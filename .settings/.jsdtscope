@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry excluding="JigLibJS/cof/|nodeClient/|JigLibJS/data/|JQuery/|JigLibJS/|JigLibJS/physics/|JigLibJS/math/|JigLibJS/geometry/|stormMenu/|JigLibJS/events/|JQuery/ui/|JigLibJS/vehicles/|stormPanel/|colorPicker/|JigLibJS/geom/|JigLibJS/collision/|websocketNode/|JigLibJS/physics/constraint/|JigLibJS/debug/" kind="src" path="StormEngineC"/>
-	<classpathentry kind="src" path="StormEngineC/colorPicker"/>
 	<classpathentry excluding="cof/|data/|physics/|math/|geometry/|events/|vehicles/|geom/|collision/|physics/constraint/|debug/" kind="src" path="StormEngineC/JigLibJS"/>
 	<classpathentry kind="src" path="StormEngineC/JigLibJS/cof"/>
 	<classpathentry kind="src" path="StormEngineC/JigLibJS/collision"/>

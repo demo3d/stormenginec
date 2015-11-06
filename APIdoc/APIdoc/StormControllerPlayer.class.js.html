@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>StormEngineC 1.2 API DOC Source: StormControllerPlayer.class.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	
+	<link type="text/css" rel="stylesheet" href="styles/site.stormenginec.css">
+	
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">StormEngineC 1.2 API DOC</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="ActionHelpers.html">ActionHelpers</a>
+						</li>
+						
+						<li>
+							<a href="StormBufferObject.html">StormBufferObject</a>
+						</li>
+						
+						<li>
+							<a href="StormCamera.html">StormCamera</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerFollow.html">StormControllerFollow</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerPlayer.html">StormControllerPlayer</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerPlayerCar.html">StormControllerPlayerCar</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerTargetCam.html">StormControllerTargetCam</a>
+						</li>
+						
+						<li>
+							<a href="StormEngineC.html">StormEngineC</a>
+						</li>
+						
+						<li>
+							<a href="StormEngineC_PanelAnimationTimeline.html">StormEngineC_PanelAnimationTimeline</a>
+						</li>
+						
+						<li>
+							<a href="StormForceField.html">StormForceField</a>
+						</li>
+						
+						<li>
+							<a href="StormGI.html">StormGI</a>
+						</li>
+						
+						<li>
+							<a href="StormGLContext.html">StormGLContext</a>
+						</li>
+						
+						<li>
+							<a href="StormGraph.html">StormGraph</a>
+						</li>
+						
+						<li>
+							<a href="StormGrid.html">StormGrid</a>
+						</li>
+						
+						<li>
+							<a href="StormGroupNodes.html">StormGroupNodes</a>
+						</li>
+						
+						<li>
+							<a href="StormLight.html">StormLight</a>
+						</li>
+						
+						<li>
+							<a href="StormLine.html">StormLine</a>
+						</li>
+						
+						<li>
+							<a href="StormLineSceneCollision.html">StormLineSceneCollision</a>
+						</li>
+						
+						<li>
+							<a href="StormM16.html">StormM16</a>
+						</li>
+						
+						<li>
+							<a href="StormMaterial.html">StormMaterial</a>
+						</li>
+						
+						<li>
+							<a href="StormNode.html">StormNode</a>
+						</li>
+						
+						<li>
+							<a href="StormPolarityPoint.html">StormPolarityPoint</a>
+						</li>
+						
+						<li>
+							<a href="StormTriangleBox.html">StormTriangleBox</a>
+						</li>
+						
+						<li>
+							<a href="StormUtils.html">StormUtils</a>
+						</li>
+						
+						<li>
+							<a href="StormV3.html">StormV3</a>
+						</li>
+						
+						<li>
+							<a href="StormVoxelizator.html">StormVoxelizator</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGL.html">WebCLGL</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLBuffer.html">WebCLGLBuffer</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLBufferItem.html">WebCLGLBufferItem</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLKernel.html">WebCLGLKernel</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLKernelProgram.html">WebCLGLKernelProgram</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLUtils.html">WebCLGLUtils</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLVertexFragmentProgram.html">WebCLGLVertexFragmentProgram</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLWork.html">WebCLGLWork</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#$M16">$M16</a>
+						</li>
+						
+						<li>
+							<a href="global.html#$V3">$V3</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: StormControllerPlayer.class.js</h1>
+    
+    <section>
+        <article>
+            <pre class="sunlight-highlight-javascript linenums">/**
+* Controller type player
+* @class
+* @constructor
+* @param {Float} camDistance Distance to target
+*/
+StormControllerPlayer = function(sec, camDistance) {
+	this._sec = sec;
+	
+	this.controllerType = this._sec.ControllerTypes["PLAYER"];
+	this.g_forwardFC = 0;
+	this.g_backwardFC = 0;
+	this.g_strafeLeftFC = 0;
+	this.g_strafeRightFC = 0;
+	this.leftButton = 0;
+	this.middleButton = 0;
+	this.rightButton = 0;
+	
+	this.lastX = 0;
+	this.lastY = 0;
+	this.camDistance = (camDistance==undefined)?5.0:camDistance; 
+	
+	this.meshNode;
+	this.cameraNode;
+};
+
+/**
+* @type Void
+* @private 
+* @param event event
+*/
+StormControllerPlayer.prototype.keyDownFC = function(event) {
+	if (String.fromCharCode(event.keyCode) == "W") {
+		this.g_forwardFC = 1;
+    }
+	if (String.fromCharCode(event.keyCode) == "S") {
+		this.g_backwardFC = 1;
+    }
+	if (String.fromCharCode(event.keyCode) == "A") {
+		this.g_strafeLeftFC = 1;
+    }
+	if (String.fromCharCode(event.keyCode) == "D") {
+		this.g_strafeRightFC = 1;
+    }
+};
+
+/**
+* @type Void
+* @private 
+* @param event event
+*/
+StormControllerPlayer.prototype.keyUpFC = function(event) {
+	if (String.fromCharCode(event.keyCode) == "W") {
+		this.g_forwardFC = 0;
+		this.meshNode.body.setLineVelocity( new Vector3D(0,0,0), false );
+    }
+	if (String.fromCharCode(event.keyCode) == "S") {
+		this.g_backwardFC = 0;
+		this.meshNode.body.setLineVelocity( new Vector3D(0,0,0), false );
+    }
+	if (String.fromCharCode(event.keyCode) == "A") {
+		this.g_strafeLeftFC = 0;
+		this.meshNode.body.setLineVelocity( new Vector3D(0,0,0), false );
+    }
+	if (String.fromCharCode(event.keyCode) == "D") {
+		this.g_strafeRightFC = 0;
+		this.meshNode.body.setLineVelocity( new Vector3D(0,0,0), false );
+    }
+};
+
+/**
+* @type Void
+* @private 
+* @param event event
+*/
+StormControllerPlayer.prototype.mouseMoveFC = function(event) {
+	this.updateCameraGoalFC(event);
+};
+
+/**
+* @type Void
+* @private 
+* @param event event
+*/
+StormControllerPlayer.prototype.mouseDownFC = function(event) {
+	if(event.button == 0) { // LEFT BUTTON
+		this.leftButton = 1;
+	} else if(event.button == 1) { // MIDDLE BUTTON
+		this.middleButton = 1;
+	} else if(event.button == 2) { // RIGHT BUTTON
+		this.rightButton = 1;
+	}
+	this.updateCameraGoalFC(event);
+};
+
+/**
+* @type Void
+* @private 
+* @param event event
+*/
+StormControllerPlayer.prototype.mouseUpFC = function(event) {
+	if(event.button == 0) { // LEFT BUTTON
+		this.leftButton = 0;
+	} else if(event.button == 1) { // MIDDLE BUTTON
+		this.middleButton = 0;
+	} else if(event.button == 2) { // RIGHT BUTTON
+		this.rightButton = 0;
+	}
+	this.updateCameraGoalFC(event);
+};
+
+/**
+* @type Void
+* @private 
+*/
+StormControllerPlayer.prototype.cameraSetupFC = function(cameraNode, meshNode) {
+	this.cameraNode = cameraNode;
+	this.meshNode = (meshNode == undefined) ? new StormNode(this._sec) : meshNode;
+	this.meshNode.shadows = false;
+	
+	if(this.meshNode != undefined) {
+		this.cameraNode.nodePivot.MROTX = this.meshNode.MROTX;
+		this.cameraNode.nodePivot.MROTY = this.meshNode.MROTY;
+		this.cameraNode.nodePivot.MROTZ = this.meshNode.MROTZ;
+		this.cameraNode.nodePivot.MROTXYZ = this.meshNode.MROTXYZ;
+		
+		if(this.meshNode.body != undefined) {
+			this.meshNode.body.setActive();
+			this.meshNode.body.moveTo(new Vector3D(this.cameraNode.nodePivot.MPOS.e[3],this.cameraNode.nodePivot.MPOS.e[7],this.cameraNode.nodePivot.MPOS.e[11],0));
+			this._sec.stormJigLibJS.dynamicsWorld.addBody(this.meshNode.body);
+			this._sec.stormJigLibJS.colSystem.addCollisionBody(this.meshNode.body);
+		}
+	} 
+	
+	this.lastTime = new Date().getTime();
+};
+
+/**
+* @type Void
+* @private 
+* @param {Float} elapsed
+*/
+StormControllerPlayer.prototype.updateFC = function(elapsed) {
+	if(this.meshNode.body != undefined &amp;&amp; this.meshNode.body._collideBodies.length > 0) {
+		if(this.g_forwardFC == 1) {
+			var dir = this.meshNode.getForward().x(-10.0);
+			this.meshNode.body.setLineVelocity( new Vector3D( dir.e[0],dir.e[1],dir.e[2]));
+		}
+		if(this.g_backwardFC == 1) {
+			var dir = this.meshNode.getForward().x(10.0);
+			this.meshNode.body.setLineVelocity( new Vector3D( dir.e[0],dir.e[1],dir.e[2]));
+		}
+		if(this.g_strafeLeftFC == 1) {
+			var dir = this.meshNode.getLeft().x(-10.0);
+			this.meshNode.body.setLineVelocity( new Vector3D( dir.e[0],dir.e[1],dir.e[2]));
+		}
+		if(this.g_strafeRightFC == 1) {
+			var dir = this.meshNode.getLeft().x(10.0);
+			this.meshNode.body.setLineVelocity( new Vector3D( dir.e[0],dir.e[1],dir.e[2]));
+		}	
+	}	
+	
+	this.cameraNode.nodePivot.setPosition(this.meshNode.getPosition());
+
+	
+	var newPosGoal = this.cameraNode.nodePivot.getPosition().add(this.cameraNode.nodePivot.MROTXYZ.getForward().x(this.camDistance));
+	var vecForGoal = newPosGoal.subtract(this.cameraNode.nodeGoal.getPosition());
+	this.cameraNode.nodeGoal.setPosition(this.cameraNode.nodeGoal.getPosition().add(vecForGoal.x(0.5)));   
+	
+	if(this.meshNode != undefined) {
+		this.meshNode.setRotationX(0.0, false);
+		this.meshNode.setRotationZ(0.0, false);
+	}
+	
+	
+	
+	
+	var timeNow = new Date().getTime();
+	var elap = timeNow - this.lastTime;
+	if(elap > (1000/20)) {  
+		this.lastTime = timeNow;
+		if(ws != undefined) {
+			ws.emit('dataclient', {
+				netID: this._sec.netID,
+				WM0: this.meshNode.MPOS.e[0],
+				WM1: this.meshNode.MPOS.e[1],
+				WM2: this.meshNode.MPOS.e[2],
+				WM3: this.meshNode.MPOS.e[3],
+				WM4: this.meshNode.MPOS.e[4],
+				WM5: this.meshNode.MPOS.e[5],
+				WM6: this.meshNode.MPOS.e[6],
+				WM7: this.meshNode.MPOS.e[7],
+				WM8: this.meshNode.MPOS.e[8],
+				WM9: this.meshNode.MPOS.e[9],
+				WM10: this.meshNode.MPOS.e[10],
+				WM11: this.meshNode.MPOS.e[11],
+				WM12: this.meshNode.MPOS.e[12],
+				WM13: this.meshNode.MPOS.e[13],
+				WM14: this.meshNode.MPOS.e[14],
+				WM15: this.meshNode.MPOS.e[15],
+				RM0: this.meshNode.MROTXYZ.e[0],
+				RM1: this.meshNode.MROTXYZ.e[1],
+				RM2: this.meshNode.MROTXYZ.e[2],
+				RM3: this.meshNode.MROTXYZ.e[3],
+				RM4: this.meshNode.MROTXYZ.e[4],
+				RM5: this.meshNode.MROTXYZ.e[5],
+				RM6: this.meshNode.MROTXYZ.e[6],
+				RM7: this.meshNode.MROTXYZ.e[7],
+				RM8: this.meshNode.MROTXYZ.e[8],
+				RM9: this.meshNode.MROTXYZ.e[9],
+				RM10: this.meshNode.MROTXYZ.e[10],
+				RM11: this.meshNode.MROTXYZ.e[11],
+				RM12: this.meshNode.MROTXYZ.e[12],
+				RM13: this.meshNode.MROTXYZ.e[13],
+				RM14: this.meshNode.MROTXYZ.e[14],
+				RM15: this.meshNode.MROTXYZ.e[15]
+			});
+		}
+	}
+};
+
+/**
+* @type Void
+* @private 
+*/
+StormControllerPlayer.prototype.updateCameraGoalFC = function(event) {
+	var factorRot = 0.01;
+	if(this.lastX > event.screenX) {
+		this.cameraNode.nodePivot.setRotationY((this.lastX - event.screenX)*factorRot);  
+		 
+		if(this.meshNode != undefined) this.meshNode.setRotationY((this.lastX - event.screenX)*factorRot);
+	} else {
+		this.cameraNode.nodePivot.setRotationY(-(event.screenX - this.lastX)*factorRot);
+		
+		if(this.meshNode != undefined) this.meshNode.setRotationY(-(event.screenX - this.lastX)*factorRot);
+	}
+	
+	if(this.lastY > event.screenY) 
+		this.cameraNode.nodePivot.setRotationX((this.lastY - event.screenY)*factorRot);
+	else
+		this.cameraNode.nodePivot.setRotationX(-(event.screenY - this.lastY)*factorRot);
+	
+	this.lastX = event.screenX;
+	this.lastY = event.screenY;
+};</pre>
+        </article>
+    </section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					StormEngineC 1.2 API DOC
+					<br />
+					
+					
+		<span class="copyright">
+		2010 Roberto Gonzalez. http://stormcolour.appspot.com
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha2</a>
+		on Fri Nov 06 2015 21:30:55 GMT+0100 (CET) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<script src="scripts/sunlight.js"></script>
+	<script src="scripts/sunlight.javascript.js"></script>
+	<script src="scripts/sunlight-plugin.doclinks.js"></script>
+	<script src="scripts/sunlight-plugin.linenumbers.js"></script>
+	<script src="scripts/sunlight-plugin.menu.js"></script>
+	<script src="scripts/jquery.min.js"></script>
+	<script src="scripts/jquery.scrollTo.js"></script>
+	<script src="scripts/jquery.localScroll.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+
+	<script>  Sunlight.highlightAll({lineNumbers:true,  showMenu: true, enableDoclinks :true}); </script>
+
+	<script>
+		$( function () {
+			$( "#toc" ).toc( {
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : 60
+			} );
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+
+		} );
+	</script>
+
+	
+	<script>
+		$( function () {
+			$('#main').localScroll({
+				offset: { top: 56 } //offset by the height of your header (give or take a few px, see what works for you)
+			});
+			$( "dt h4.name" ).each( function () {
+				var $this = $( this );
+				var icon = $( "<i/>" ).addClass( "icon-plus-sign" ).addClass( "pull-right" ).addClass( "icon-white" );
+				var dt = $this.parents( "dt" );
+				var children = dt.next( "dd" );
+
+				$this.append( icon ).css( {cursor : "pointer"} );
+				$this.addClass( "member-collapsed" ).addClass( "member" );
+
+				children.hide();
+				$this.toggle( function () {
+					icon.addClass( "icon-minus-sign" ).removeClass( "icon-plus-sign" ).removeClass( "icon-white" );
+					$this.addClass( "member-open" ).removeClass( "member-collapsed" );
+					children.slideDown();
+				}, function () {
+					icon.addClass( "icon-plus-sign" ).removeClass( "icon-minus-sign" ).addClass( "icon-white" );
+					$this.addClass( "member-collapsed" ).removeClass( "member-open" );
+					children.slideUp();
+				} );
+			} );
+		} );
+	</script>
+	
+
+</body>
+</html>

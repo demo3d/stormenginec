@@ -4,24 +4,27 @@
 
 * @property {WebGLRenderingContext} gl WebGLRenderingContext
 */
-StormGLContext = function(stormCanvasObject, loadScene) {
-	this.utils = new StormUtils();
+StormGLContext = function(sec, stormCanvasObject, loadScene) {
+	this._sec = sec;
+	
+	this.DEBUG_programPick = false;
+	
+	this.utils = new StormUtils(this._sec);
 	this.stormCanvasObject = stormCanvasObject; 
-	var dim = (stormEngineC.$.width() > stormEngineC.$.height()) ? stormEngineC.$.width() : stormEngineC.$.height();
+	var dim = (this._sec.$.width() > this._sec.$.height()) ? this._sec.$.width() : this._sec.$.height();
 	this.viewportWidth = dim;
 	this.viewportHeight = dim;
 	this.maxViewportWidth = 2048;
 	this.maxViewportHeight = 2048;
 	
-	this.nodes = stormEngineC.nodes;
-	this.nodesCam = stormEngineC.nodesCam;
-	this.lines = stormEngineC.lines;
-	this.particles = stormEngineC.particles;
-	this.polarityPoints = stormEngineC.polarityPoints;
-	this.lights = stormEngineC.lights;
+	this.nodes = this._sec.nodes;
+	this.nodesCam = this._sec.nodesCam;
+	this.lines = this._sec.lines;
+	this.polarityPoints = this._sec.polarityPoints;
+	this.lights = this._sec.lights;
+	this.graphs = this._sec.graphs;
 	
-	this.far = 500.0;
-	this.glowSize = 0.5;
+	this.far = 500.0; 
 	
 	// AMBIENT
 	this.ambientColor = $V3([0.7, 0.75, 0.8]);
@@ -71,13 +74,15 @@ StormGLContext = function(stormCanvasObject, loadScene) {
 	this.ctx2D = this.eStormCanvasPUB.getContext("2d"); // this is used for this.textureObject_Ctx2D (no append)
 	
 	// CANVAS FOR STATUS INFOS
-	this.eStormCanvasSTATUS = document.createElement('canvas');
-	this.eStormCanvasSTATUS.width = this.stormCanvasObject.width;
-	this.eStormCanvasSTATUS.height = 20;
-	this.eStormCanvasSTATUS.id = "stormCanvasStatus";
-	this.eStormCanvasSTATUS.style.position = "absolute";
-	$('#'+this.stormCanvasObject.id).parent().append(this.eStormCanvasSTATUS);
-	this.ctx2DStatus = this.eStormCanvasSTATUS.getContext("2d");
+	if(this._sec.editMode == true) {
+		this.eStormCanvasSTATUS = document.createElement('canvas');
+		this.eStormCanvasSTATUS.width = this.stormCanvasObject.width;
+		this.eStormCanvasSTATUS.height = 20;
+		this.eStormCanvasSTATUS.id = "stormCanvasStatus";
+		this.eStormCanvasSTATUS.style.position = "absolute";
+		$('#'+this.stormCanvasObject.id).parent().append(this.eStormCanvasSTATUS);
+		this.ctx2DStatus = this.eStormCanvasSTATUS.getContext("2d");
+	}
 	
 	// DIV DEBUG
 	var eDiv = '<div id="stormDIVInfos" style="position:absolute;font-size:13px;font-weight:bold;background-color:#FFF;color:#000;text-shadow:rgb(0, 0, 0) 0px 0px 22px;"></div>';
@@ -125,7 +130,7 @@ StormGLContext.prototype.initContext = function() {
 	
 	
 	// SCREEN QUAD BUFFER
-	var mesh = new StormMesh();
+	var mesh = new StormMesh(this._sec);
 	mesh.loadQuad(undefined,1.0,1.0);
 	this.vertexBuffer_QUAD = this.gl.createBuffer();
 	this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vertexBuffer_QUAD);
@@ -422,13 +427,12 @@ StormGLContext.prototype.initShaders = function() {
 			
 			if(!this._typeMobile && this._supportFormat == this.gl.FLOAT) {
 				this.initShader_Ctx2D();
-				stormEngineC.update2DContext();
+				this._sec.update2DContext();
 			}
 			
 			this.initShader_Normals();
 			if(this._supportFormat == this.gl.FLOAT) { 
 				this.initShader_LightDepth();
-				this.initShader_LightDepthParticles();
 					this.initShader_Shadows();
 			}
 			
@@ -437,7 +441,6 @@ StormGLContext.prototype.initShaders = function() {
 			this.initShader_Scene();
 			
 			if(!this._typeMobile && this._supportFormat == this.gl.FLOAT) {
-				this.initShader_ParticlesAux();
 				this.initShader_Lines();
 				this.initShader_DOF();
 			} 
@@ -569,6 +572,10 @@ StormGLContext.prototype.createShader = function(gl, name, sourceVertex, sourceF
  * @private 
  */
 StormGLContext.prototype.renderGLContext = function() {
+	for(var n=0; n < this._sec.graphs.length; n++) {
+		this._sec.graphs[n].prerender();
+	}
+	
 	this.gl.viewport(0, 0, this.viewportWidth, this.viewportHeight);
 	
 	if(this.Shader_Pick_READY) {
@@ -616,9 +623,9 @@ StormGLContext.prototype.renderGLContext = function() {
 			this.gl.uniform1i(this.u_GIv2_typePass, 2);// normal
 			this.render_GIv2(); 
 			
-			stormEngineC.clgl.copy(this.textureFB_GIv2_screenColorTEMP, this.textureFB_GIv2_screenColor);
-			stormEngineC.clgl.copy(this.textureFB_GIv2_screenPosTEMP, this.textureFB_GIv2_screenPos);  
-			stormEngineC.clgl.copy(this.textureFB_GIv2_screenNormalTEMP, this.textureFB_GIv2_screenNormal);  
+			this._sec.clgl.copy(this.textureFB_GIv2_screenColorTEMP, this.textureFB_GIv2_screenColor);
+			this._sec.clgl.copy(this.textureFB_GIv2_screenPosTEMP, this.textureFB_GIv2_screenPos);  
+			this._sec.clgl.copy(this.textureFB_GIv2_screenNormalTEMP, this.textureFB_GIv2_screenNormal);  
 			this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenColorTEMP, 0);
 			this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 			this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this.textureFB_GIv2_screenPosTEMP, 0);
@@ -631,15 +638,18 @@ StormGLContext.prototype.renderGLContext = function() {
 			this.gl.useProgram(this.shader_GIv2Exec); 
 			this.render_GIv2Exec();  
 			
-			stormEngineC.clgl.copy(this.textureFB_GIVoxel_TEMP, this.textureFB_GIVoxel);  
+			this._sec.clgl.copy(this.textureFB_GIVoxel_TEMP, this.textureFB_GIVoxel);  
 		}
 	}
 	if(this.Shader_Normals_READY) {
 		this.render_Normals();
 		if(this.view_Normals) return;
 	}
+	for(var n=0; n < this._sec.graphs.length; n++) {
+		this._sec.graphs[n].render_ND();
+	}	
+	
 	if(	this.Shader_LightDepth_READY &&
-		this.Shader_LightDepthParticles_READY &&
 		this.Shader_Shadows_READY &&
 		this.shadowsEnable) {
 			this.render_LightDepth();
@@ -651,26 +661,27 @@ StormGLContext.prototype.renderGLContext = function() {
     if(this.Shader_Scene_READY) {
 		this.render_Scene();
 		if(this.view_SceneNoDOF) return;
-	}
+	}    
 	if(this.Shader_Lines_READY) {
 		if(this.lines.length > 0) {
 			this.render_Lines();
 		}
 		
-		if(stormEngineC.editMode == true && stormEngineC.grid.gridEnabled == true) { 
-			stormEngineC.grid.render();
+		if(this._sec.editMode == true && this._sec.grid.gridEnabled == true) { 
+			this._sec.grid.render();
 		}
 	}
-	if(this.Shader_ParticlesAux_READY && this.particles.length > 0) {
-		this.render_ParticlesAux();
-	}
+		
+	for(var n=0; n < this._sec.graphs.length; n++) {
+		this._sec.graphs[n].render();
+	}	
 	
-	
+    
 	this.hitRectRegion_onclick(); 
-	if(this.Shader_DOF_READY && stormEngineC.defaultCamera.DOFenable) {
+	if(this.Shader_DOF_READY && this._sec.defaultCamera.DOFenable) {
 		this.render_DOF(); 
 	}
-	if(this.Shader_Overlay_READY && stormEngineC.editMode) {  
+	if(this.Shader_Overlay_READY && this._sec.editMode) {  
 		this.render_Overlay();
 	}   
 	this.hitRectRegion_onmouseover();
@@ -688,15 +699,15 @@ StormGLContext.prototype.renderGLContext = function() {
 
 /** @private  */
 StormGLContext.prototype.hitRectRegion_onclick = function() {
-	if(stormEngineC.arrHitsRectRegions.length > 0) {
-		this.arrHitsRectRegions = stormEngineC.arrHitsRectRegions;
+	if(this._sec.arrHitsRectRegions.length > 0) {
+		this.arrHitsRectRegions = this._sec.arrHitsRectRegions;
 		for(var n = 0, f = this.arrHitsRectRegions.length; n < f; n++) {
 			if(this.arrHitsRectRegions[n].onclick != undefined) {
-				if(	stormEngineC.mousePosX > (this.arrHitsRectRegions[n].x) &&
-					stormEngineC.mousePosX < (this.arrHitsRectRegions[n].x+this.arrHitsRectRegions[n].width) &&
-					stormEngineC.mousePosY > (this.arrHitsRectRegions[n].y) &&
-					stormEngineC.mousePosY < (this.arrHitsRectRegions[n].y+this.arrHitsRectRegions[n].height) &&
-					stormEngineC.isMouseDown	) {
+				if(	this._sec.mousePosX > (this.arrHitsRectRegions[n].x) &&
+					this._sec.mousePosX < (this.arrHitsRectRegions[n].x+this.arrHitsRectRegions[n].width) &&
+					this._sec.mousePosY > (this.arrHitsRectRegions[n].y) &&
+					this._sec.mousePosY < (this.arrHitsRectRegions[n].y+this.arrHitsRectRegions[n].height) &&
+					this._sec.isMouseDown	) {
 					this.arrHitsRectRegions[n].onclick();
 				}
 			}
@@ -705,13 +716,13 @@ StormGLContext.prototype.hitRectRegion_onclick = function() {
 };
 /** @private  */
 StormGLContext.prototype.hitRectRegion_onmouseover = function() {
-	if(stormEngineC.arrHitsRectRegions.length > 0) {
-		this.arrHitsRectRegions = stormEngineC.arrHitsRectRegions;
+	if(this._sec.arrHitsRectRegions.length > 0) {
+		this.arrHitsRectRegions = this._sec.arrHitsRectRegions;
 		for(var n = 0, f = this.arrHitsRectRegions.length; n < f; n++) {
-			if(	(stormEngineC.mousePosX > (this.arrHitsRectRegions[n].x) &&
-				stormEngineC.mousePosX < (this.arrHitsRectRegions[n].x+this.arrHitsRectRegions[n].width) &&
-				stormEngineC.mousePosY > (this.arrHitsRectRegions[n].y) &&
-				stormEngineC.mousePosY < (this.arrHitsRectRegions[n].y+this.arrHitsRectRegions[n].height)) &&
+			if(	(this._sec.mousePosX > (this.arrHitsRectRegions[n].x) &&
+				this._sec.mousePosX < (this.arrHitsRectRegions[n].x+this.arrHitsRectRegions[n].width) &&
+				this._sec.mousePosY > (this.arrHitsRectRegions[n].y) &&
+				this._sec.mousePosY < (this.arrHitsRectRegions[n].y+this.arrHitsRectRegions[n].height)) &&
 				this.arrHitsRectRegions[n]._over == false) {
 					this.arrHitsRectRegions[n]._over = true;
 					if(this.arrHitsRectRegions[n].onmouseover != undefined)	this.arrHitsRectRegions[n].onmouseover();
@@ -721,13 +732,13 @@ StormGLContext.prototype.hitRectRegion_onmouseover = function() {
 };
 /** @private  */
 StormGLContext.prototype.hitRectRegion_onmouseout = function() {
-	if(stormEngineC.arrHitsRectRegions.length > 0) {
-		this.arrHitsRectRegions = stormEngineC.arrHitsRectRegions;
+	if(this._sec.arrHitsRectRegions.length > 0) {
+		this.arrHitsRectRegions = this._sec.arrHitsRectRegions;
 		for(var n = 0, f = this.arrHitsRectRegions.length; n < f; n++) {
-			if(	(stormEngineC.mousePosX < (this.arrHitsRectRegions[n].x) ||
-				stormEngineC.mousePosX > (this.arrHitsRectRegions[n].x+this.arrHitsRectRegions[n].width) ||
-				stormEngineC.mousePosY < (this.arrHitsRectRegions[n].y) ||
-				stormEngineC.mousePosY > (this.arrHitsRectRegions[n].y+this.arrHitsRectRegions[n].height)) &&
+			if(	(this._sec.mousePosX < (this.arrHitsRectRegions[n].x) ||
+				this._sec.mousePosX > (this.arrHitsRectRegions[n].x+this.arrHitsRectRegions[n].width) ||
+				this._sec.mousePosY < (this.arrHitsRectRegions[n].y) ||
+				this._sec.mousePosY > (this.arrHitsRectRegions[n].y+this.arrHitsRectRegions[n].height)) &&
 				this.arrHitsRectRegions[n]._over == true) {
 					this.arrHitsRectRegions[n]._over = false;
 					if(this.arrHitsRectRegions[n].onmouseout != undefined) this.arrHitsRectRegions[n].onmouseout();
@@ -743,14 +754,6 @@ StormGLContext.prototype.hitRectRegion_onmouseout = function() {
 */
 StormGLContext.prototype.drawElementsMode = function(mode) {
 	for(var n = 0, f = this.nodes.length; n < f; n++) for(var nb = 0, fb = this.nodes[n].buffersObjects.length; nb < fb; nb++) this.nodes[n].buffersObjects[nb].drawElementsMode = mode;
-};
-
-//Change the glow size for particles
-//@type Void
-//@param {Float} [glowSize=0.5]
-/** @private  */
-StormGLContext.prototype.setGlowSize = function(glowSize) {
-	this.glowSize = glowSize;
 };
 
 /** @private  */

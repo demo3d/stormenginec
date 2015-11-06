@@ -21,11 +21,11 @@
     <script>
 		var URL_RESOURCES = "../_RESOURCES/bingo/";
     	var nodeSphereChild, nodeCam, nodeTirador, nodeFont;
-	var changeFR=false;
-	var idHitRegion;
+		var changeFR=false;
+		var idHitRegion;
 		
 		
-		
+		var stormEngineC = new StormEngineC();
 		stormEngineC.createWebGL({'target':	'stormCanvas', // ID canvas
                               'callback':	function(elapsed){},
                               'editMode':	true,

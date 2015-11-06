@@ -29,11 +29,31 @@
 					<ul class="dropdown-menu ">
 						
 						<li>
+							<a href="ActionHelpers.html">ActionHelpers</a>
+						</li>
+						
+						<li>
 							<a href="StormBufferObject.html">StormBufferObject</a>
 						</li>
 						
 						<li>
 							<a href="StormCamera.html">StormCamera</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerFollow.html">StormControllerFollow</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerPlayer.html">StormControllerPlayer</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerPlayerCar.html">StormControllerPlayerCar</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerTargetCam.html">StormControllerTargetCam</a>
 						</li>
 						
 						<li>
@@ -54,6 +74,14 @@
 						
 						<li>
 							<a href="StormGLContext.html">StormGLContext</a>
+						</li>
+						
+						<li>
+							<a href="StormGraph.html">StormGraph</a>
+						</li>
+						
+						<li>
+							<a href="StormGrid.html">StormGrid</a>
 						</li>
 						
 						<li>
@@ -85,10 +113,6 @@
 						</li>
 						
 						<li>
-							<a href="StormParticles.html">StormParticles</a>
-						</li>
-						
-						<li>
 							<a href="StormPolarityPoint.html">StormPolarityPoint</a>
 						</li>
 						
@@ -117,11 +141,27 @@
 						</li>
 						
 						<li>
+							<a href="WebCLGLBufferItem.html">WebCLGLBufferItem</a>
+						</li>
+						
+						<li>
 							<a href="WebCLGLKernel.html">WebCLGLKernel</a>
 						</li>
 						
 						<li>
+							<a href="WebCLGLKernelProgram.html">WebCLGLKernelProgram</a>
+						</li>
+						
+						<li>
 							<a href="WebCLGLUtils.html">WebCLGLUtils</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLVertexFragmentProgram.html">WebCLGLVertexFragmentProgram</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLWork.html">WebCLGLWork</a>
 						</li>
 						
 
@@ -453,7 +493,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-166">line 166</a>
+        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-158">line 158</a>
     </li></ul></dd>
     
 
@@ -489,7 +529,7 @@
 			
 				
 <dt>
-    <h4 class="name" id="createBuffer"><span class="type-signature"></span>createBuffer<span class="signature">(length, <span class="optional">type</span>, <span class="optional">offset</span>)</span><span class="type-signature"> &rarr; {<a href="WebCLGLBuffer.html">WebCLGLBuffer</a>}</span></h4>
+    <h4 class="name" id="createBuffer"><span class="type-signature"></span>createBuffer<span class="signature">(length, <span class="optional">type</span>, <span class="optional">offset</span>, <span class="optional">linear</span>, <span class="optional">mode</span>, <span class="optional">splits</span>)</span><span class="type-signature"> &rarr; {<a href="WebCLGLBuffer.html">WebCLGLBuffer</a>}</span></h4>
     
     
 </dt>
@@ -566,8 +606,7 @@
                 </td>
             
 
-            <td class="description last"><p>Length of buffer.<br>
-Or Array with width and height values if is for a WebGLTexture</p></td>
+            <td class="description last"><p>Length of buffer or Array with width and height values if is for a WebGLTexture</p></td>
         </tr>
 
 	
@@ -606,7 +645,7 @@ Or Array with width and height values if is for a WebGLTexture</p></td>
                 </td>
             
 
-            <td class="description last"><p>type FLOAT or FLOAT4</p></td>
+            <td class="description last"><p>type FLOAT4 OR FLOAT</p></td>
         </tr>
 
 	
@@ -649,42 +688,6 @@ Or Array with width and height values if is for a WebGLTexture</p></td>
         </tr>
 
 	
-	</tbody>
-</table>
-
-    
-    
-    
-<dl class="details">
-    
-
-        <h5 class="subsection-title">Properties:</h5>
-
-        <dl>
-
-<table class="props table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-		<th>Argument</th>
-		
-
-		
-		<th>Default</th>
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
 
         <tr>
             
@@ -707,6 +710,8 @@ Or Array with width and height values if is for a WebGLTexture</p></td>
                 
 
                 
+
+                
                 </td>
             
 
@@ -722,10 +727,91 @@ Or Array with width and height values if is for a WebGLTexture</p></td>
         </tr>
 
 	
+
+        <tr>
+            
+                <td class="name"><code>mode</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    "FRAGMENT"
+                
+                </td>
+            
+
+            <td class="description last"><p>Mode for this buffer. &quot;FRAGMENT&quot;, &quot;VERTEX&quot;, &quot;VERTEX_INDEX&quot;, &quot;VERTEX_FROM_KERNEL&quot;, &quot;VERTEX_AND_FRAGMENT&quot;</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>splits</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Array</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    [length]
+                
+                </td>
+            
+
+            <td class="description last"><p>Splits length for this buffer.</p></td>
+        </tr>
+
+	
 	</tbody>
 </table>
-</dl>
 
+    
+    
+    
+<dl class="details">
     
 
     
@@ -747,7 +833,7 @@ Or Array with width and height values if is for a WebGLTexture</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-203">line 203</a>
+        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-208">line 208</a>
     </li></ul></dd>
     
 
@@ -945,7 +1031,7 @@ Or Array with width and height values if is for a WebGLTexture</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-217">line 217</a>
+        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-218">line 218</a>
     </li></ul></dd>
     
 
@@ -994,7 +1080,373 @@ Or Array with width and height values if is for a WebGLTexture</p></td>
 			
 				
 <dt>
-    <h4 class="name" id="enqueueNDRangeKernel"><span class="type-signature"></span>enqueueNDRangeKernel<span class="signature">(kernel, buffer)</span><span class="type-signature"></span></h4>
+    <h4 class="name" id="createVertexFragmentProgram"><span class="type-signature"></span>createVertexFragmentProgram<span class="signature">(<span class="optional">vertexSource</span>, <span class="optional">vertexHeader</span>, <span class="optional">fragmentSource</span>, <span class="optional">fragmentHeader</span>)</span><span class="type-signature"> &rarr; {<a href="WebCLGLVertexFragmentProgram.html">WebCLGLVertexFragmentProgram</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Create a vertex and fragment programs for a WebGL graphical representation after some enqueueNDRangeKernel</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Argument</th>
+		
+
+		
+		<th>Default</th>
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>vertexSource</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    undefined
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>vertexHeader</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    undefined
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>fragmentSource</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    undefined
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>fragmentHeader</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    undefined
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-231">line 231</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="WebCLGLVertexFragmentProgram.html">WebCLGLVertexFragmentProgram</a></span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+			
+        
+			
+				
+<dt>
+    <h4 class="name" id="createWork"><span class="type-signature"></span>createWork<span class="signature">()</span><span class="type-signature"> &rarr; {<a href="WebCLGLWork.html">WebCLGLWork</a>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Create work</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+    
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-240">line 240</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type"><a href="WebCLGLWork.html">WebCLGLWork</a></span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+			
+        
+			
+				
+<dt>
+    <h4 class="name" id="enqueueNDRangeKernel"><span class="type-signature"></span>enqueueNDRangeKernel<span class="signature">(webCLGLKernel, webCLGLBuffer)</span><span class="type-signature"></span></h4>
     
     
 </dt>
@@ -1036,7 +1488,7 @@ Or Array with width and height values if is for a WebGLTexture</p></td>
 
         <tr>
             
-                <td class="name"><code>kernel</code></td>
+                <td class="name"><code>webCLGLKernel</code></td>
             
 
             <td class="type">
@@ -1059,7 +1511,7 @@ Or Array with width and height values if is for a WebGLTexture</p></td>
 
         <tr>
             
-                <td class="name"><code>buffer</code></td>
+                <td class="name"><code>webCLGLBuffer</code></td>
             
 
             <td class="type">
@@ -1107,7 +1559,7 @@ Or Array with width and height values if is for a WebGLTexture</p></td>
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-283">line 283</a>
+        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-267">line 267</a>
     </li></ul></dd>
     
 
@@ -1137,7 +1589,7 @@ Or Array with width and height values if is for a WebGLTexture</p></td>
 			
 				
 <dt>
-    <h4 class="name" id="enqueueReadBuffer_Float"><span class="type-signature"></span>enqueueReadBuffer_Float<span class="signature">(buffer)</span><span class="type-signature"> &rarr; {Float32Array}</span></h4>
+    <h4 class="name" id="enqueueReadBuffer"><span class="type-signature"></span>enqueueReadBuffer<span class="signature">(buffer, channel)</span><span class="type-signature"> &rarr; {Uint8Array}</span></h4>
     
     
 </dt>
@@ -1145,8 +1597,8 @@ Or Array with width and height values if is for a WebGLTexture</p></td>
     
     
     <div class="description">
-        <p>Get Float32Array from WebCLGLBuffer type FLOAT <br>
-Internally performs one calls to enqueueReadBuffer_Float_Packet4Uint8Array and makes unpacking</p>
+        <p>Get RGBAUint8Array array from a WebCLGLBuffer <br>
+Read buffer in a specifics WebGL 32bit channel and return the data in one array of packets RGBA_Uint8Array <br></p>
     </div>
     
 
@@ -1200,133 +1652,16 @@ Internally performs one calls to enqueueReadBuffer_Float_Packet4Uint8Array and m
         </tr>
 
 	
-	</tbody>
-</table>
-
-    
-    
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-412">line 412</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
-<span class="param-type">Float32Array</span>
-
-
-	</dd>
-</dl>
-
-
-        
-    
-    
-</dd>
-
-			
-        
-			
-				
-<dt>
-    <h4 class="name" id="enqueueReadBuffer_Float4"><span class="type-signature"></span>enqueueReadBuffer_Float4<span class="signature">(buffer)</span><span class="type-signature"> &rarr; {Float32Array}</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Get 4Float32Array from WebCLGLBuffer type FLOAT4 <br>
-Internally performs four calls to enqueueReadBuffer_Float_Packet4Uint8Array and makes unpacking</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
 
         <tr>
             
-                <td class="name"><code>buffer</code></td>
+                <td class="name"><code>channel</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type"><a href="WebCLGLBuffer.html">WebCLGLBuffer</a></span>
+<span class="param-type">Int</span>
 
 
             
@@ -1336,7 +1671,7 @@ Internally performs four calls to enqueueReadBuffer_Float_Packet4Uint8Array and 
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>Channel to read</p></td>
         </tr>
 
 	
@@ -1368,147 +1703,7 @@ Internally performs four calls to enqueueReadBuffer_Float_Packet4Uint8Array and 
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-441">line 441</a>
-    </li></ul></dd>
-    
-
-    
-
-    
-
-    
-</dl>
-
-    
-    
-
-    
-
-    
-    
-    
-    
-    
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-	<dt>
-		Type
-	</dt>
-	<dd>
-		
-<span class="param-type">Float32Array</span>
-
-
-	</dd>
-</dl>
-
-
-        
-    
-    
-</dd>
-
-			
-        
-			
-				
-<dt>
-    <h4 class="name" id="enqueueReadBuffer_Float_Packet4Uint8Array"><span class="type-signature"></span>enqueueReadBuffer_Float_Packet4Uint8Array<span class="signature">(buffer)</span><span class="type-signature"> &rarr; {Uint8Array}</span></h4>
-    
-    
-</dt>
-<dd>
-    
-    
-    <div class="description">
-        <p>Get native packet 4Uint8Array from WebCLGLBuffer type FLOAT <br>
-Internally performs one renderToTexture from the computed WebGLTexture storing the result in a &quot;packetUint8Array RGBA&quot; and returns the result through a gl.readPixels().</p>
-    </div>
-    
-
-    
-    
-    
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-	<tr>
-		
-		<th>Name</th>
-		
-
-		<th>Type</th>
-
-		
-
-		
-
-		<th class="last">Description</th>
-	</tr>
-	</thead>
-
-	<tbody>
-	
-
-        <tr>
-            
-                <td class="name"><code>buffer</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="WebCLGLBuffer.html">WebCLGLBuffer</a></span>
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last"></td>
-        </tr>
-
-	
-	</tbody>
-</table>
-
-    
-    
-    
-<dl class="details">
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <dt class="tag-source">Source:</dt>
-    <dd class="tag-source"><ul class="dummy"><li>
-        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-397">line 397</a>
+        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-422">line 422</a>
     </li></ul></dd>
     
 
@@ -1550,11 +1745,533 @@ Internally performs one renderToTexture from the computed WebGLTexture storing t
         
     
     
+</dd>
+
+			
+        
+			
+				
+<dt>
+    <h4 class="name" id="enqueueReadBuffer_Float"><span class="type-signature"></span>enqueueReadBuffer_Float<span class="signature">(buffer)</span><span class="type-signature"> &rarr; {Array.&lt;Array>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Get 1 Float32Array array from a WebCLGLBuffer type FLOAT <br>
+Internally performs one calls to enqueueReadBuffer and return the data in one array of one Float32Array</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>buffer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="WebCLGLBuffer.html">WebCLGLBuffer</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-584">line 584</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Array.&lt;Array></span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+			
+        
+			
+				
+<dt>
+    <h4 class="name" id="enqueueReadBuffer_Float4"><span class="type-signature"></span>enqueueReadBuffer_Float4<span class="signature">(buffer)</span><span class="type-signature"> &rarr; {Array.&lt;Array>}</span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Get 4 Float32Array arrays from a WebCLGLBuffer type FLOAT4 <br>
+Internally performs one calls to enqueueReadBuffer and return the data in one array of four Float32Array</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>buffer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="WebCLGLBuffer.html">WebCLGLBuffer</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-496">line 496</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    <h5>Returns:</h5>
+    
+            
+
+
+<dl>
+	<dt>
+		Type
+	</dt>
+	<dd>
+		
+<span class="param-type">Array.&lt;Array></span>
+
+
+	</dd>
+</dl>
+
+
+        
+    
+    
+</dd>
+
+			
+        
+			
+				
+<dt>
+    <h4 class="name" id="enqueueReadBuffer_Packet4Uint8Array_Float"><span class="type-signature"></span>enqueueReadBuffer_Packet4Uint8Array_Float<span class="signature">(buffer)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Get 1 RGBAUint8Array array from a WebCLGLBuffer type FLOAT <br>
+Internally performs one call to enqueueReadBuffer and return the data in one array of one packets RGBA_Uint8Array</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>buffer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="WebCLGLBuffer.html">WebCLGLBuffer</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-565">line 565</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
+    
         <h5>Example</h5>
         
-    <pre class="sunlight-highlight-javascript">// Unpack in your shader to float with:float unpack (vec4 4Uint8Array) {	const vec4 bitShifts = vec4(1.0,1.0 / 255.0, 1.0 / (255.0 * 255.0), 1.0 / (255.0 * 255.0 * 255.0));	return dot(4Uint8Array, bitShifts);}float offset = "OFFSET OF BUFFER";vec4 4Uint8Array = atributeFloatInPacket4Uint8Array; // IF UNPACK IN VERTEX PROGRAMvec4 4Uint8Array = texture2D(samplerFloatInPacket4Uint8Array, vTextureScreenCoord); // IF UNPACK IN FRAGMENT PROGRAMfloat value = (offset > 0.0) ? (unpack(4Uint8Array)*(offset*2.0))-offset : unpack(4Uint8Array);// JAVASCRIPT IF UNPACK IN VERTEX PROGRAMattr_FloatInPacket4Uint8Array = gl.getAttribLocation(shaderProgram, "atributeFloatInPacket4Uint8Array");gl.bindBuffer(gl.ARRAY_BUFFER, webGLBufferObject);gl.bufferSubData(gl.ARRAY_BUFFER, 0, webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(buffer_XX));  gl.vertexAttribPointer(attr_FloatInPacket4Uint8Array, 4, gl.UNSIGNED_BYTE, true, 0, 0); // true for normalize// JAVASCRIPT IF UNPACK IN FRAGMENT PROGRAMsampler_FloatInPacket4Uint8Array = gl.getUniformLocation(shaderProgram, "samplerFloatInPacket4Uint8Array");gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D, webGLTextureObject);gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, viewportWidth,viewportHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, webCLGL.enqueueReadBuffer_Float_Packet4Uint8Array(buffer_XX));gl.uniform1i(sampler_FloatInPacket4Uint8Array, 0);</pre>
+    <pre class="sunlight-highlight-javascript">// Unpack in your shader to float with:float unpack (vec4 4Uint8Array) {	const vec4 bitShifts = vec4(1.0,1.0 / 255.0, 1.0 / (255.0 * 255.0), 1.0 / (255.0 * 255.0 * 255.0));	return dot(4Uint8Array, bitShifts);}float offset = "OFFSET OF BUFFER";vec4 4Uint8Array = atributeFloatInPacket4Uint8Array; // IF UNPACK IN VERTEX PROGRAMvec4 4Uint8Array = texture2D(samplerFloatInPacket4Uint8Array, vTextureScreenCoord); // IF UNPACK IN FRAGMENT PROGRAMfloat value = (offset > 0.0) ? (unpack(4Uint8Array)*(offset*2.0))-offset : unpack(4Uint8Array);// JAVASCRIPT IF UNPACK IN VERTEX PROGRAMattr_FloatInPacket4Uint8Array = gl.getAttribLocation(shaderProgram, "atributeFloatInPacket4Uint8Array");gl.bindBuffer(gl.ARRAY_BUFFER, webGLBufferObject);gl.bufferSubData(gl.ARRAY_BUFFER, 0, webCLGL.enqueueReadBuffer_Packet4Uint8Array_Float(buffer_XX)[0]);  gl.vertexAttribPointer(attr_FloatInPacket4Uint8Array, 4, gl.UNSIGNED_BYTE, true, 0, 0); // true for normalize// JAVASCRIPT IF UNPACK IN FRAGMENT PROGRAMsampler_FloatInPacket4Uint8Array = gl.getUniformLocation(shaderProgram, "samplerFloatInPacket4Uint8Array");gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D, webGLTextureObject);gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, viewportWidth,viewportHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, webCLGL.enqueueReadBuffer_Packet4Uint8Array_Float(buffer_XX)[0]);gl.uniform1i(sampler_FloatInPacket4Uint8Array, 0);</pre>
 
 
+    
+</dd>
+
+			
+        
+			
+				
+<dt>
+    <h4 class="name" id="enqueueReadBuffer_Packet4Uint8Array_Float4"><span class="type-signature"></span>enqueueReadBuffer_Packet4Uint8Array_Float4<span class="signature">(buffer)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Get 4 RGBAUint8Array arrays from a WebCLGLBuffer type FLOAT4 <br>
+Internally performs four calls to enqueueReadBuffer and return the data in one array of four packets RGBA_Uint8Array</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>buffer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="WebCLGLBuffer.html">WebCLGLBuffer</a></span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-474">line 474</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
+    
     
 </dd>
 
@@ -1571,7 +2288,7 @@ Internally performs one renderToTexture from the computed WebGLTexture storing t
     
     
     <div class="description">
-        <p>Get the internally WebGLTexture (type FLOAT), if the WebGLRenderingContext was given. <br></p>
+        <p>Get the internally WebGLTexture (type FLOAT), if the WebGLRenderingContext was given.</p>
     </div>
     
 
@@ -1604,7 +2321,7 @@ Internally performs one renderToTexture from the computed WebGLTexture storing t
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-331">line 331</a>
+        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-411">line 411</a>
     </li></ul></dd>
     
 
@@ -1644,6 +2361,216 @@ Internally performs one renderToTexture from the computed WebGLTexture storing t
 
 
         
+    
+    
+</dd>
+
+			
+        
+			
+				
+<dt>
+    <h4 class="name" id="enqueueVertexFragmentProgram"><span class="type-signature"></span>enqueueVertexFragmentProgram<span class="signature">(webCLGLVertexFragmentProgram, buffer, <span class="optional">drawMode</span>)</span><span class="type-signature"></span></h4>
+    
+    
+</dt>
+<dd>
+    
+    
+    <div class="description">
+        <p>Perform WebGL graphical representation</p>
+    </div>
+    
+
+    
+    
+    
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+	<tr>
+		
+		<th>Name</th>
+		
+
+		<th>Type</th>
+
+		
+		<th>Argument</th>
+		
+
+		
+		<th>Default</th>
+		
+
+		<th class="last">Description</th>
+	</tr>
+	</thead>
+
+	<tbody>
+	
+
+        <tr>
+            
+                <td class="name"><code>webCLGLVertexFragmentProgram</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="WebCLGLVertexFragmentProgram.html">WebCLGLVertexFragmentProgram</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>buffer</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="WebCLGLBuffer.html">WebCLGLBuffer</a></span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last"><p>Buffer to draw type (type indices or vertex)</p></td>
+        </tr>
+
+	
+
+        <tr>
+            
+                <td class="name"><code>drawMode</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Int</span>
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    4
+                
+                </td>
+            
+
+            <td class="description last"><p>0=POINTS, 3=LINE_STRIP, 2=LINE_LOOP, 1=LINES, 5=TRIANGLE_STRIP, 6=TRIANGLE_FAN and 4=TRIANGLES</p></td>
+        </tr>
+
+	
+	</tbody>
+</table>
+
+    
+    
+    
+<dl class="details">
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-314">line 314</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+    
+    
+
+    
+
+    
+    
+    
+    
+    
     
     
 </dd>
@@ -1845,7 +2772,7 @@ Internally performs one renderToTexture from the computed WebGLTexture storing t
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-229">line 229</a>
+        <a href="WebCLGL.class.js.html">WebCLGL.class.js</a>, <a href="WebCLGL.class.js.html#sunlight-1-line-252">line 252</a>
     </li></ul></dd>
     
 
@@ -1876,6 +2803,16 @@ Internally performs one renderToTexture from the computed WebGLTexture storing t
 		
 		
 		
+			
+        
+			
+        
+			
+        
+			
+        
+			
+        
 			
         
 			
@@ -1925,7 +2862,7 @@ Internally performs one renderToTexture from the computed WebGLTexture storing t
 					
 		<span class="jsdoc-message">
 		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha2</a>
-		on Sun Sep 20 2015 23:11:19 GMT+0200 (CEST) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		on Fri Nov 06 2015 21:31:07 GMT+0100 (CET) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
 		</span>
 				</footer>
 			</div>

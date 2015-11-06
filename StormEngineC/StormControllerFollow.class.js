@@ -4,8 +4,10 @@
 * @constructor
 * @param {Float} camDistance Distance to pivot
 */
-StormControllerFollow = function(camDistance) {
-	this.controllerType = stormEngineC.ControllerTypes["FOLLOW"];
+StormControllerFollow = function(sec, camDistance) {
+	this._sec = sec;
+	
+	this.controllerType = this._sec.ControllerTypes["FOLLOW"];
 	this.g_forwardFC = 0;
 	this.g_backwardFC = 0;
 	this.g_strafeLeftFC = 0;
@@ -113,7 +115,7 @@ StormControllerFollow.prototype.mouseUpFC = function(event) {
 */
 StormControllerFollow.prototype.cameraSetupFC = function(cameraNode, meshNode) {
 	this.cameraNode = cameraNode;
-	this.meshNode = (meshNode == undefined) ? new StormNode() : meshNode;
+	this.meshNode = (meshNode == undefined) ? new StormNode(this._sec) : meshNode;
 	this.meshNode.shadows = false;
 	
 	if(this.meshNode != undefined) {
@@ -125,8 +127,8 @@ StormControllerFollow.prototype.cameraSetupFC = function(cameraNode, meshNode) {
 		if(this.meshNode.body != undefined) {
 			this.meshNode.body.setActive();
 			this.meshNode.body.moveTo(new Vector3D(this.cameraNode.nodePivot.MPOS.e[3],this.cameraNode.nodePivot.MPOS.e[7],this.cameraNode.nodePivot.MPOS.e[11],0));
-			stormEngineC.stormJigLibJS.dynamicsWorld.addBody(this.meshNode.body);
-			stormEngineC.stormJigLibJS.colSystem.addCollisionBody(this.meshNode.body);
+			this._sec.stormJigLibJS.dynamicsWorld.addBody(this.meshNode.body);
+			this._sec.stormJigLibJS.colSystem.addCollisionBody(this.meshNode.body);
 		}
 	} 
 	

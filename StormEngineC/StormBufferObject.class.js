@@ -25,8 +25,10 @@
 
 * @property {Int} [drawElementsMode=4] 0=POINTS, 3=LINE_STRIP, 2=LINE_LOOP, 1=LINES, 5=TRIANGLE_STRIP, 6=TRIANGLE_FAN and 4=TRIANGLES
 */
-StormBufferObject = function() {
-	this.gl = stormEngineC.stormGLContext.gl;
+StormBufferObject = function(sec) {
+	this._sec = sec;
+	
+	this.gl = this._sec.stormGLContext.gl;
 	
 	this.node;
 	
@@ -172,17 +174,17 @@ StormBufferObject.prototype.attachBuffersSeparateXYZ = function(arrX,arrY,arrZ) 
 	for(var n = 0, f = arrX.length; n < f; n++) {  
 		var idd = n*4;
 		var arrPack;
-		arrPack = stormEngineC.utils.pack((arrX[n]+1000.0)/2000.0);
+		arrPack = this._sec.utils.pack((arrX[n]+1000.0)/2000.0);
 		arrayX[idd+0] = arrPack[0]*256;
 		arrayX[idd+1] = arrPack[1]*256;
 		arrayX[idd+2] = arrPack[2]*256;
 		arrayX[idd+3] = arrPack[3]*256;
-		arrPack = stormEngineC.utils.pack((arrY[n]+1000.0)/2000.0);
+		arrPack = this._sec.utils.pack((arrY[n]+1000.0)/2000.0);
 		arrayY[idd+0] = arrPack[0]*256;
 		arrayY[idd+1] = arrPack[1]*256;
 		arrayY[idd+2] = arrPack[2]*256;
 		arrayY[idd+3] = arrPack[3]*256;
-		arrPack = stormEngineC.utils.pack((arrZ[n]+1000.0)/2000.0);
+		arrPack = this._sec.utils.pack((arrZ[n]+1000.0)/2000.0);
 		arrayZ[idd+0] = arrPack[0]*256;
 		arrayZ[idd+1] = arrPack[1]*256;
 		arrayZ[idd+2] = arrPack[2]*256;

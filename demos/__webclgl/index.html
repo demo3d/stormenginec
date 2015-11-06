@@ -6,7 +6,9 @@
 		
 		<script src="../../StormEngineC/WebCLGLUtils.class.js"></script>
 		<script src="../../StormEngineC/WebCLGLBuffer.class.js"></script>
+		<script src="../../StormEngineC/WebCLGLBufferItems.class.js"></script>
 		<script src="../../StormEngineC/WebCLGLKernel.class.js"></script>
+		<script src="../../StormEngineC/WebCLGLKernelProgram.class.js"></script>
 		<script src="../../StormEngineC/WebCLGL.class.js"></script>
 		
 	</head>
@@ -54,8 +56,8 @@
                                 'out_float = _A+_B.z;'+
                             '}';
     var kernel_add = webCLGL.createKernel(kernel_add_source);
-    kernel_add.setKernelArg(0, buffer_A);
-    kernel_add.setKernelArg(1, buffer_B);
+    kernel_add.setKernelArg("A", buffer_A);
+    kernel_add.setKernelArg("B", buffer_B);
     kernel_add.compile();
     
     webCLGL.enqueueNDRangeKernel(kernel_add, buffer_C); 

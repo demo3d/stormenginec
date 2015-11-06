@@ -45,7 +45,7 @@ StormGLContext.prototype.pointers_Lines = function() {
  * @private 
  */
 StormGLContext.prototype.render_Lines = function() {
-	if(this.view_SceneNoDOF || stormEngineC.defaultCamera.DOFenable == false) {
+	if(this.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 	} else {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this.fBuffer); 
@@ -55,8 +55,8 @@ StormGLContext.prototype.render_Lines = function() {
 	}
 	this.gl.useProgram(this.shader_Lines);
 	
-	this.gl.uniformMatrix4fv(this.u_Lines_PMatrix, false, stormEngineC.defaultCamera.mPMatrix.transpose().e);
-	this.gl.uniformMatrix4fv(this.u_Lines_cameraWMatrix, false, stormEngineC.defaultCamera.MPOS.transpose().e);
+	this.gl.uniformMatrix4fv(this.u_Lines_PMatrix, false, this._sec.defaultCamera.mPMatrix.transpose().e);
+	this.gl.uniformMatrix4fv(this.u_Lines_cameraWMatrix, false, this._sec.defaultCamera.MPOS.transpose().e);
 	
 	for(var n = 0, f = this.lines.length; n < f; n++) {
 		this.gl.enableVertexAttribArray(this.attr_Lines_pos);
@@ -74,7 +74,7 @@ StormGLContext.prototype.render_Lines = function() {
 		this.gl.drawElements(this.gl.LINES, 2, this.gl.UNSIGNED_SHORT, 0);
 	}
 	
-	if(this.view_SceneNoDOF || stormEngineC.defaultCamera.DOFenable == false) {
+	if(this.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) {
 	} else {
 		//this.gl.disable(this.gl.BLEND);
 	}
