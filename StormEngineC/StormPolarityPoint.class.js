@@ -50,15 +50,13 @@ StormPolarityPoint.prototype.remove = function() {
 * Get a graph node
 * @type Void
 * @param	{Object} jsonIn
-* 	@param {StormNode} jsonIn.node The node.
+* 	@param {StormGraph} jsonIn.node The node.
 */
 StormPolarityPoint.prototype.get = function(jsonIn) {   	
 	if(jsonIn.node.objectType != 'graph') {
 		alert('you must select a particle or graph');
 		return;
 	}
-
-
 	for(var n = 0, f = this.nodesProc.length; n < f; n++) {
 		if(jsonIn.node.objectType == this.nodesProc[n].objectType && jsonIn.node.idNum == this.nodesProc[n].idNum) {
 			alert('This particle or graph already exist in this polarity point');

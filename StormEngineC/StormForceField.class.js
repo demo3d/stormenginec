@@ -32,15 +32,23 @@ StormForceField.prototype.updateJigLib = function() {
 StormForceField.prototype.setDirection = function(direction) {  
 	this.direction = direction;
 	
-	for(var n = 0, f = this.nodesProc.length; n < f; n++) this.nodesProc[n].updatekernelDir_Arguments(); 
-	
+	for(var n = 0, f = this.nodesProc.length; n < f; n++) {
+		if(this.nodesProc[n].kernelDir != undefined) {
+			this.nodesProc[n].updatekernelDir_Arguments(); 
+		}
+		if(this.nodesProc[n].clglWork_nodes != undefined) { 
+			this.nodesProc[n].updateNodes();
+			this.nodesProc[n].updateLinks(); 
+		}
+	}
+		
 	this.updateJigLib();
 };
 /**
 * Delete this force field
 * @type Void
 */
-StormForceField.prototype.deleteForceField = function() {
+StormForceField.prototype.remove = function() {
 	var idToRemove = undefined;
 	for(var n = 0, f = this._sec.forceFields.length; n < f; n++) {
 		if(this._sec.forceFields[n].idNum == this.idNum) idToRemove = n;
@@ -48,12 +56,14 @@ StormForceField.prototype.deleteForceField = function() {
 	this._sec.forceFields.splice(idToRemove,1);
 	
 	for(var n = 0, f = this.nodesProc.length; n < f; n++) {
-		var kernelDir_Source = this.nodesProc[n].generatekernelDir_Source(); 
-		var kernelDirX_Source = kernelDir_Source+
-								'out_float4 = vec4(newDir,1.0);\n'+
-								'}';
-		this.nodesProc[n].kernelDirXYZ.setKernelSource(kernelDirX_Source);
-		this.nodesProc[n].updatekernelDir_Arguments(); 
+		if(this.nodesProc[n].kernelDir != undefined) {
+			this.nodesProc[n].kernelDir.setKernelSource(this.nodesProc[n].generatekernelDir_Source());	
+			this.nodesProc[n].updatekernelDir_Arguments(); 
+		}
+		if(this.nodesProc[n].clglWork_nodes != undefined) { 
+			this.nodesProc[n].updateNodes();
+			this.nodesProc[n].updateLinks(); 
+		}
 	}
 	
 	this.updateJigLib();
@@ -63,25 +73,34 @@ StormForceField.prototype.deleteForceField = function() {
 * Get a graph node
 * @type Void
 * @param {Object} jsonIn
-* 	@param {StormNode} jsonIn.node The node
+* 	@param {StormGraph} jsonIn.node The node
 */
 StormForceField.prototype.get = function(jsonIn) {   
-	var push = true;
 	if(jsonIn.node.objectType != 'graph') {
-		alert('No particle node');
+		alert('you must select a particle or graph');
 		return;
 	}
-	for(var n = 0, f = this.nodesProc.length; n < f; n++) if(jsonIn.node.idNum == this.nodesProc[n].idNum) {push = false; break;}
-	if(push == true) {
-		this.nodesProc.push(jsonIn.node);
-		
+	for(var n = 0, f = this.nodesProc.length; n < f; n++) {
+		if(jsonIn.node.objectType == this.nodesProc[n].objectType && jsonIn.node.idNum == this.nodesProc[n].idNum) {
+			alert('This particle or graph already exist in this polarity point');
+			return;
+		}
+	}
+	
+	this.nodesProc.push(jsonIn.node);
+	var nproc = this.nodesProc[this.nodesProc.length-1];
+	console.log(nproc);
+	
+	
+	if(nproc.kernelDir != undefined && nproc.kernelDir instanceof WebCLGLKernel) {
 		var kernelDir_Source = jsonIn.node.generatekernelDir_Source(); 
-		var kernelDirX_Source = kernelDir_Source+
-								'out_float4 = vec4(newDir,1.0);\n'+
-								'}';
-		jsonIn.node.kernelDirXYZ.setKernelSource(kernelDirX_Source);
-		jsonIn.node.updatekernelDir_Arguments(); 
-	} else alert('This particle already exist in this polarity point');
+		nproc.kernelDir.setKernelSource(kernelDir_Source);	
+		nproc.updatekernelDir_Arguments(); 
+	}
+	if(nproc.clglWork_nodes != undefined) {
+		nproc.updateNodes();
+		nproc.updateLinks(); 		
+	}
 };
 
 /**

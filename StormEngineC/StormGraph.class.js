@@ -1003,7 +1003,7 @@ StormGraph.prototype.updateForcesAndPP = function(clglwork) {
 			if(this.objectType == this._sec.polarityPoints[n].nodesProc[nb].objectType && this.idNum == this._sec.polarityPoints[n].nodesProc[nb].idNum) {
 				var oper = this.MPOS.x(this._sec.polarityPoints[n].getPosition());
 				
-				this.arrPP.push({"x": oper.e[3], "y": oper.e[7], "z": oper.e[11],
+				this.arrPP.push({"x": oper.e[0], "y": oper.e[1], "z": oper.e[2],
 							"polarity": this._sec.polarityPoints[n].polarity,
 							"orbit": this._sec.polarityPoints[n].orbit,
 							"force": this._sec.polarityPoints[n].force});
@@ -1014,10 +1014,10 @@ StormGraph.prototype.updateForcesAndPP = function(clglwork) {
 	this.arrF = [];
 	for(var n = 0, f = this._sec.forceFields.length; n < f; n++) {
 		for(var nb = 0, fb = this._sec.forceFields[n].nodesProc.length; nb < fb; nb++) {
-			if(this.objectType == this._sec.polarityPoints[n].nodesProc[nb].objectType && this.idNum == this._sec.forceFields[n].nodesProc[nb].idNum) {
+			if(this.objectType == this._sec.forceFields[n].nodesProc[nb].objectType && this.idNum == this._sec.forceFields[n].nodesProc[nb].idNum) {
 				var oper = this._sec.forceFields[n].direction;
 				
-				this.arrF.push({"x": oper.e[3], "y": oper.e[7], "z": oper.e[11]});
+				this.arrF.push({"x": oper.e[0], "y": oper.e[1], "z": oper.e[2]});
 			}
 		}
 	}
