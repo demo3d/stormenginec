@@ -140,10 +140,7 @@ StormGrid.prototype.isEnabled = function() {
 	return this.gridEnabled;
 };
 
-/**
-* Hide the grid
-* @type Void
-*/
+/** @private */
 StormGrid.prototype.render = function() {  
 	if(this.stormGL.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) {
 		this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);

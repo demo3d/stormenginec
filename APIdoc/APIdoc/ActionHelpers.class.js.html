@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>StormEngineC 1.2 API DOC Source: ActionHelpers.class.js</title>
+
+	<!--[if lt IE 9]>
+	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+	<![endif]-->
+	<link type="text/css" rel="stylesheet" href="styles/sunlight.default.css">
+
+	
+	<link type="text/css" rel="stylesheet" href="styles/site.stormenginec.css">
+	
+</head>
+
+<body>
+<div class="container-fluid">
+	<div class="navbar navbar-fixed-top ">
+		<div class="navbar-inner">
+			<a class="brand" href="index.html">StormEngineC 1.2 API DOC</a>
+			<ul class="nav">
+				
+				<li class="dropdown">
+					<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="ActionHelpers.html">ActionHelpers</a>
+						</li>
+						
+						<li>
+							<a href="StormBufferObject.html">StormBufferObject</a>
+						</li>
+						
+						<li>
+							<a href="StormCamera.html">StormCamera</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerFollow.html">StormControllerFollow</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerPlayer.html">StormControllerPlayer</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerPlayerCar.html">StormControllerPlayerCar</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerTargetCam.html">StormControllerTargetCam</a>
+						</li>
+						
+						<li>
+							<a href="StormEngineC.html">StormEngineC</a>
+						</li>
+						
+						<li>
+							<a href="StormEngineC_PanelAnimationTimeline.html">StormEngineC_PanelAnimationTimeline</a>
+						</li>
+						
+						<li>
+							<a href="StormForceField.html">StormForceField</a>
+						</li>
+						
+						<li>
+							<a href="StormGI.html">StormGI</a>
+						</li>
+						
+						<li>
+							<a href="StormGLContext.html">StormGLContext</a>
+						</li>
+						
+						<li>
+							<a href="StormGraph.html">StormGraph</a>
+						</li>
+						
+						<li>
+							<a href="StormGrid.html">StormGrid</a>
+						</li>
+						
+						<li>
+							<a href="StormGroupNodes.html">StormGroupNodes</a>
+						</li>
+						
+						<li>
+							<a href="StormLight.html">StormLight</a>
+						</li>
+						
+						<li>
+							<a href="StormLine.html">StormLine</a>
+						</li>
+						
+						<li>
+							<a href="StormLineSceneCollision.html">StormLineSceneCollision</a>
+						</li>
+						
+						<li>
+							<a href="StormM16.html">StormM16</a>
+						</li>
+						
+						<li>
+							<a href="StormMaterial.html">StormMaterial</a>
+						</li>
+						
+						<li>
+							<a href="StormNode.html">StormNode</a>
+						</li>
+						
+						<li>
+							<a href="StormPolarityPoint.html">StormPolarityPoint</a>
+						</li>
+						
+						<li>
+							<a href="StormTriangleBox.html">StormTriangleBox</a>
+						</li>
+						
+						<li>
+							<a href="StormUtils.html">StormUtils</a>
+						</li>
+						
+						<li>
+							<a href="StormV3.html">StormV3</a>
+						</li>
+						
+						<li>
+							<a href="StormVoxelizator.html">StormVoxelizator</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGL.html">WebCLGL</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLBuffer.html">WebCLGLBuffer</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLBufferItem.html">WebCLGLBufferItem</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLKernel.html">WebCLGLKernel</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLKernelProgram.html">WebCLGLKernelProgram</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLUtils.html">WebCLGLUtils</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLVertexFragmentProgram.html">WebCLGLVertexFragmentProgram</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLWork.html">WebCLGLWork</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+				<li class="dropdown">
+					<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b
+						class="caret"></b></a>
+
+					<ul class="dropdown-menu ">
+						
+						<li>
+							<a href="global.html#$M16">$M16</a>
+						</li>
+						
+						<li>
+							<a href="global.html#$V3">$V3</a>
+						</li>
+						
+
+					</ul>
+				</li>
+				
+			</ul>
+		</div>
+	</div>
+
+	<div class="row-fluid">
+
+		
+			<div class="span12">
+				
+				<div id="main">
+					
+
+
+		<h1 class="page-title">Source: ActionHelpers.class.js</h1>
+    
+    <section>
+        <article>
+            <pre class="sunlight-highlight-javascript linenums">/**
+* @class
+* @constructor
+*/
+ActionHelpers = function() {
+	"use strict";
+	
+	this.firstColumWidth = "40%";
+	this.secondColumWidth = "60%";
+};
+/**
+ * 
+ * @param {String} str
+ * @param {HTMLElement} target
+ * @param {String} [location="end"] end or init
+ */
+ActionHelpers.prototype.appendStringChild = function(str, target, location) {
+	var loc = (location != undefined) ? location : "end";
+	var parser = new DOMParser();
+	var e = parser.parseFromString(str, "text/html");
+	
+	if(loc == "end") 
+		target.appendChild(e.body.firstChild);
+	else 
+		target.insertBefore(e.body.firstChild, target.firstChild);
+};
+
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {Function} onClickCallback
+ */
+ActionHelpers.prototype.add_btn = function(target, name, onClickCallback) {
+	var str = ''+
+	'&lt;div>'+
+		"&lt;button id='BUTTONID_"+name+"' style='width:100%'>"+name+"&lt;/button>"+
+	'&lt;/div>';
+	this.appendStringChild(str, target);
+	
+	var e = document.getElementById("BUTTONID_"+name);
+	e.addEventListener('click', (function(callback) {
+		callback();
+	}).bind(this, onClickCallback));
+};
+
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {String} type Type for the input (number, text, etc..)
+ * @param {Array&lt;String>} arrayTexts
+ * @param {Array&lt;String|Float|Int>} arrayDefaultValues
+ * @param {Function} onClickCallback
+ */
+ActionHelpers.prototype.add_valuesAndBtn = function(target, name, type, arrayTexts, arrayDefaultValues, onClickCallback) {
+	var str = ''+
+	'&lt;div>'+
+		'&lt;div style="display:inline-block;width:'+this.firstColumWidth+';vertical-align:top;overflow:hidden;">'+
+			"&lt;button id='BUTTONID_"+name+"' style='width:100%'>"+name+"&lt;/button>"+
+		'&lt;/div>'+
+		'&lt;div style="display:inline-block;width:'+this.secondColumWidth+';">';
+			for(var n=0; n &lt; arrayTexts.length; n++) {
+				str += '&lt;input type="'+type+'" id="INPUTID_'+name+'_'+arrayTexts[n]+'" step="'+(arrayDefaultValues[n]/20)+'" value="'+arrayDefaultValues[n]+'" title="'+arrayTexts[n]+'" style="width:'+((100/arrayTexts.length)-1)+'%"/>';			
+			}	
+		str += "&lt;/div>"+
+	'&lt;/div>';
+	this.appendStringChild(str, target);
+		
+	var e = document.getElementById("BUTTONID_"+name);
+	e.addEventListener('click', (function(callback) {
+		var arrayValues = [];
+		for(var n=0; n &lt; arrayTexts.length; n++) {
+			arrayValues.push($('#INPUTID_'+name+'_'+arrayTexts[n]).val());
+		}
+		callback(arrayValues);
+	}).bind(this, onClickCallback));
+};
+
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {Int|Bool} variable
+ * @param {Function} checkCallback
+ * @param {Function} uncheckCallback
+ */
+ActionHelpers.prototype.add_checkbox = function(target, name, variable, checkCallback, uncheckCallback) {
+	var str = ''+
+	'&lt;div>'+
+		'&lt;div style="display:inline-block;width:'+this.firstColumWidth+';vertical-align:top;overflow:hidden;">'+
+			name+
+		'&lt;/div>'+
+		'&lt;div style="display:inline-block;width:'+this.secondColumWidth+';">'+
+			'&lt;input type="checkbox" id="INPUTID_'+name+'" />'+
+		'&lt;/div>'+
+	'&lt;/div>';
+	this.appendStringChild(str, target);
+	
+	var e = document.getElementById("INPUTID_"+name);
+	if(variable === true || variable === 1) {
+		e.checked = true;
+	} else {
+		e.checked = false;
+	}
+	
+	e.addEventListener("click", (function(checkCall, uncheckCall, e) {	
+		if(e.checked == false) {
+			uncheckCall();
+		} else {
+			checkCall();
+		}
+	}).bind(this, checkCallback, uncheckCallback, e));
+};
+
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {Array&lt;String>} valuesArray
+ * @param {Any} variable
+ * @param {Function} selectCallback
+ */
+ActionHelpers.prototype.add_select = function(target, name, valuesArray, variable, selectCallback) {
+	var str = ''+
+	'&lt;div>'+
+		'&lt;div style="display:inline-block;width:'+this.firstColumWidth+';vertical-align:top;overflow:hidden;">'+
+			name+
+		'&lt;/div>'+
+		'&lt;div style="display:inline-block;width:'+this.secondColumWidth+';">'+
+			'&lt;select id="SELECTID_'+name+'" style="width:100%">';
+		for(var n=0; n &lt; valuesArray.length; n++) {
+			isSelected = "";
+			if(variable == valuesArray[n]) 
+				isSelected = "selected='selected'";
+			
+			str += "&lt;option value='"+valuesArray[n]+"' "+isSelected+">"+valuesArray[n]+"&lt;/option>";
+		}					
+		str += '&lt;/select>'+
+		'&lt;/div>'+
+	'&lt;/div>';
+	this.appendStringChild(str, target);
+		
+	var e = document.getElementById("SELECTID_"+name);
+	e.addEventListener("change", (function(callback, e) {
+		callback(e.options[e.selectedIndex].value);
+	}).bind(this, selectCallback, e));
+};
+
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {Float} fvalue
+ * @param {Float} min
+ * @param {Float} max
+ * @param {Float} steps
+ * @param {Function} onChangeCallback
+ */
+ActionHelpers.prototype.add_slider = function(target, name, fvalue, min, max, steps, onChangeCallback) {
+	var str = ''+
+	'&lt;div>'+
+		'&lt;div style="display:inline-block;width:'+this.firstColumWidth+';vertical-align:top;overflow:hidden;">'+
+			name+
+		'&lt;/div>'+
+		'&lt;div style="display:inline-block;width:'+this.secondColumWidth+';">'+
+			'&lt;input id="INPUTID_'+name+'X" type="number" 		min="'+min+'" max="'+max+'" step="'+steps+'" value="'+fvalue+'" style="vertical-align:middle;width:20%">'+
+			'&lt;input id="INPUTID_'+name+'X_slider" type="range" 	min="'+min+'" max="'+max+'" step="'+steps+'" value="'+fvalue+'" style="vertical-align:middle;width:78%">'+
+		'&lt;/div>'+
+	'&lt;/div>';
+	this.appendStringChild(str, target);
+	
+	var exec_call = function(callback, e) {
+		var value = document.getElementById("INPUTID_"+name+"X").value;
+		callback(parseFloat(value));
+	};
+	
+	// spinners
+	var set_spinner = function(callback, e) {
+		e.nextSibling.value = parseFloat(e.value).toFixed(3);
+		
+		exec_call(callback, e);
+	};
+	
+	var e = document.getElementById("INPUTID_"+name+"X");
+	e.addEventListener("mousewheel", set_spinner.bind(this, onChangeCallback, e));
+	e.addEventListener("keydown", set_spinner.bind(this, onChangeCallback, e));
+	e.addEventListener("keyup", set_spinner.bind(this, onChangeCallback, e));
+	e.addEventListener("click", set_spinner.bind(this, onChangeCallback, e));
+	
+	
+	// range elements
+	var set_range = function(callback, e) {
+		e.previousSibling.value = parseFloat(e.value).toFixed(3);
+		
+		exec_call(callback, e);
+	};
+	
+	var e = document.getElementById("INPUTID_"+name+"X_slider");
+	e.addEventListener("change", set_range.bind(this, onChangeCallback, e));
+};
+
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {Array&lt;Float>} array3f Three float values
+ * @param {Float} min
+ * @param {Float} max
+ * @param {Float} steps
+ * @param {Function} onChangeCallback
+ */
+ActionHelpers.prototype.add_3dslider = function(target, name, array3f, min, max, steps, onChangeCallback) {
+	var str = ''+
+	'&lt;div>'+
+		'&lt;div style="display:inline-block;width:'+this.firstColumWidth+';vertical-align:top;overflow:hidden;">'+
+			name+
+		'&lt;/div>'+
+		'&lt;div style="display:inline-block;width:'+this.secondColumWidth+';">'+
+			'&lt;input id="INPUTID_'+name+'X" type="number" 		min="'+min+'" max="'+max+'" step="'+steps+'" value="'+array3f[0]+'" style="background:red;color:#FFF;vertical-align:middle;width:20%">'+
+			'&lt;input id="INPUTID_'+name+'X_slider" type="range" 	min="'+min+'" max="'+max+'" step="'+steps+'" value="'+array3f[0]+'" style="background:red;color:#FFF;vertical-align:middle;width:78%">'+
+			
+			'&lt;input id="INPUTID_'+name+'Y" type="number" 		min="'+min+'" max="'+max+'" step="'+steps+'" value="'+array3f[1]+'" style="background:green;color:#FFF;vertical-align:middle;width:20%">'+
+			'&lt;input id="INPUTID_'+name+'Y_slider" type="range" 	min="'+min+'" max="'+max+'" step="'+steps+'" value="'+array3f[1]+'" style="background:green;color:#FFF;vertical-align:middle;width:78%">'+
+			
+			'&lt;input id="INPUTID_'+name+'Z" type="number" 		min="'+min+'" max="'+max+'" step="'+steps+'" value="'+array3f[2]+'" style="background:blue;color:#FFF;vertical-align:middle;width:20%">'+
+			'&lt;input id="INPUTID_'+name+'Z_slider" type="range" 	min="'+min+'" max="'+max+'" step="'+steps+'" value="'+array3f[2]+'" style="background:blue;color:#FFF;vertical-align:middle;width:78%">'+
+		'&lt;/div>'+
+	'&lt;/div>';
+	this.appendStringChild(str, target);
+	
+	var exec_call = function(callback, e) {
+		var vector = [document.getElementById("INPUTID_"+name+"X").value, document.getElementById("INPUTID_"+name+"Y").value, document.getElementById("INPUTID_"+name+"Z").value];
+		callback(vector);
+	};
+	
+	// spinners
+	var set_spinner = function(callback, e) {
+		e.nextSibling.value = parseFloat(e.value).toFixed(3);
+		
+		exec_call(callback, e);
+	};
+	
+	var e = document.getElementById("INPUTID_"+name+"X");
+	e.addEventListener("mousewheel", set_spinner.bind(this, onChangeCallback, e));
+	e.addEventListener("keydown", set_spinner.bind(this, onChangeCallback, e));
+	e.addEventListener("keyup", set_spinner.bind(this, onChangeCallback, e));
+	e.addEventListener("click", set_spinner.bind(this, onChangeCallback, e));
+		
+	var e = document.getElementById("INPUTID_"+name+"Y");
+	e.addEventListener("mousewheel", set_spinner.bind(this, onChangeCallback, e));
+	e.addEventListener("keydown", set_spinner.bind(this, onChangeCallback, e));
+	e.addEventListener("keyup", set_spinner.bind(this, onChangeCallback, e));
+		
+	var e = document.getElementById("INPUTID_"+name+"Z");
+	e.addEventListener("mousewheel", set_spinner.bind(this, onChangeCallback, e));
+	e.addEventListener("keydown", set_spinner.bind(this, onChangeCallback, e));
+	e.addEventListener("keyup", set_spinner.bind(this, onChangeCallback, e));
+	
+	
+	// range elements
+	var set_range = function(callback, e) {
+		e.previousSibling.value = parseFloat(e.value).toFixed(3);
+		
+		exec_call(callback, e);
+	};
+	
+	var e = document.getElementById("INPUTID_"+name+"X_slider");
+	e.addEventListener("change", set_range.bind(this, onChangeCallback, e));
+	
+	var e = document.getElementById("INPUTID_"+name+"Y_slider");
+	e.addEventListener("change", set_range.bind(this, onChangeCallback, e));
+	
+	var e = document.getElementById("INPUTID_"+name+"Z_slider");
+	e.addEventListener("change", set_range.bind(this, onChangeCallback, e));
+};
+
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {String} hexVariable
+ * @param {Function} onChangeCallback
+ */
+ActionHelpers.prototype.add_colorpicker = function(target, name, hexVariable, onChangeCallback) {
+	var str = ''+
+	'&lt;div>'+
+		'&lt;div style="display:inline-block;width:'+this.firstColumWidth+';overflow:hidden;">'+
+			name+
+		'&lt;/div>'+
+		'&lt;div style="display:inline-block;width:'+this.secondColumWidth+';">'+
+			'&lt;input type="color" id="INPUTID_'+name+'" value="'+hexVariable+'" style="width:100%">'+
+		'&lt;/div>'+
+	'&lt;/div>';
+	this.appendStringChild(str, target);
+	
+	var e = document.getElementById("INPUTID_"+name);
+	e.addEventListener("change", (function(callback, e) {			
+		callback(e.value);
+	}).bind(this, onChangeCallback, e));
+}; 
+
+/**
+ * @param {HTMLElement} target
+ * @param {String} name
+ * @param {Function} onChangeCallback
+ */
+ActionHelpers.prototype.add_imageSelection = function(target, name, onChangeCallback) {
+	var str = ''+
+	'&lt;div>'+
+		'&lt;div style="display:inline-block;width:'+this.firstColumWidth+';overflow:hidden;">'+
+			name+
+		'&lt;/div>'+
+		'&lt;div style="display:inline-block;width:'+this.secondColumWidth+';">'+
+			"&lt;input id='INPUTID_"+name+"' type='file' style='display:none'/>"+
+			"&lt;div id='DIVID_"+name+"' onclick='$(this).prev().click();' style='cursor:pointer;width:16px;height:16px;border:1px solid #FFF'>&lt;/div>"+
+		"&lt;/div>"+
+	'&lt;/div>';
+	this.appendStringChild(str, target);
+	
+	document.getElementById('INPUTID_'+name).onchange=function() {
+		var filereader = new FileReader();
+		filereader.onload = function(event) {
+			var img = new Image();
+			img.onload = function() {
+				var splitName = $('#INPUTID_'+name).val().split('/');
+				splitName = splitName[splitName.length-1];								
+				img.style.width = '16px';
+				img.style.height = '16px';
+				$('#DIVID_'+name).html(img);
+				$('#DIVID_'+name).attr('title',splitName);
+				
+				onChangeCallback(img);
+			};
+			img.src = event.target.result; // Set src from upload, original byte sequence
+		};
+		filereader.readAsDataURL(this.files[0]);
+	};
+}; 
+</pre>
+        </article>
+    </section>
+
+
+
+
+
+				</div>
+
+				<div class="clearfix"></div>
+				<footer>
+					
+					StormEngineC 1.2 API DOC
+					<br />
+					
+					
+		<span class="copyright">
+		2010 Roberto Gonzalez. http://stormcolour.appspot.com
+		</span>
+					<br />
+					
+		<span class="jsdoc-message">
+		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha2</a>
+		on Fri Nov 06 2015 21:30:55 GMT+0100 (CET) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		</span>
+				</footer>
+			</div>
+
+			
+			<br clear="both">
+		</div>
+
+	</div>
+	<script src="scripts/sunlight.js"></script>
+	<script src="scripts/sunlight.javascript.js"></script>
+	<script src="scripts/sunlight-plugin.doclinks.js"></script>
+	<script src="scripts/sunlight-plugin.linenumbers.js"></script>
+	<script src="scripts/sunlight-plugin.menu.js"></script>
+	<script src="scripts/jquery.min.js"></script>
+	<script src="scripts/jquery.scrollTo.js"></script>
+	<script src="scripts/jquery.localScroll.js"></script>
+	<script src="scripts/bootstrap-dropdown.js"></script>
+	<script src="scripts/toc.js"></script>
+
+
+	<script>  Sunlight.highlightAll({lineNumbers:true,  showMenu: true, enableDoclinks :true}); </script>
+
+	<script>
+		$( function () {
+			$( "#toc" ).toc( {
+				selectors   : "h1,h2,h3,h4",
+				showAndHide : false,
+				scrollTo    : 60
+			} );
+			$( "#toc>ul" ).addClass( "nav nav-pills nav-stacked" );
+			$( "#main span[id^='toc']" ).addClass( "toc-shim" );
+
+		} );
+	</script>
+
+	
+	<script>
+		$( function () {
+			$('#main').localScroll({
+				offset: { top: 56 } //offset by the height of your header (give or take a few px, see what works for you)
+			});
+			$( "dt h4.name" ).each( function () {
+				var $this = $( this );
+				var icon = $( "<i/>" ).addClass( "icon-plus-sign" ).addClass( "pull-right" ).addClass( "icon-white" );
+				var dt = $this.parents( "dt" );
+				var children = dt.next( "dd" );
+
+				$this.append( icon ).css( {cursor : "pointer"} );
+				$this.addClass( "member-collapsed" ).addClass( "member" );
+
+				children.hide();
+				$this.toggle( function () {
+					icon.addClass( "icon-minus-sign" ).removeClass( "icon-plus-sign" ).removeClass( "icon-white" );
+					$this.addClass( "member-open" ).removeClass( "member-collapsed" );
+					children.slideDown();
+				}, function () {
+					icon.addClass( "icon-plus-sign" ).removeClass( "icon-minus-sign" ).addClass( "icon-white" );
+					$this.addClass( "member-collapsed" ).removeClass( "member-open" );
+					children.slideUp();
+				} );
+			} );
+		} );
+	</script>
+	
+
+</body>
+</html>

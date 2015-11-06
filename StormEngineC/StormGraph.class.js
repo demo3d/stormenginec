@@ -536,6 +536,8 @@ StormGraph.prototype.addNode = function(jsonIn) {
 * 	@param {StormNode} jsonIn.node Node with the mesh for the node
 * 	@param {StormV3} jsonIn.color Color of the node (values from 0.0 to 1.0)
  * @returns {Object}
+ * 
+ * @private
  */
 StormGraph.prototype.addNodeNow = function(jsonIn) { 
 	var nAIS = this.nodeArrayItemStart;
@@ -607,6 +609,9 @@ StormGraph.prototype.addNodeNow = function(jsonIn) {
 	//return this.currentNodeId-1;
 	return {"nodeId": this.currentNodeId-1, "itemStart": nAIS}; // nodeArrayItemStart
 };
+/**
+ * Update nodes
+ */
 StormGraph.prototype.updateNodes = function() {
 	this.updateForcesAndPP(this.clglWork_nodes);
 	
@@ -728,6 +733,8 @@ StormGraph.prototype.addLink = function(jsonIn) {
 * 	@param {Array<Float>} jsonIn.origin_color Vector3F for the origin color
 * 	@param {Array<Float>} jsonIn.target_color Vector3F for the target color
  * @returns {Int}
+ * 
+ * @private
  */
 StormGraph.prototype.addLinkNow = function(jsonIn) {
 	// (origin)
@@ -771,6 +778,9 @@ StormGraph.prototype.addLinkNow = function(jsonIn) {
 	
 	return this.currentLinkId-2;
 };
+/**
+ * Update links
+ */
 StormGraph.prototype.updateLinks = function() {
 	this.updateForcesAndPP(this.clglWork_links);
 	
@@ -859,6 +869,8 @@ StormGraph.prototype.updateLinks = function() {
 /**
 * Make prerender
 * @type Void
+* 
+* @private
 */
 StormGraph.prototype.prerender = function() {
 	if(this.arrayNodeId.length > 0) this.clglWork_nodes.enqueueNDRangeKernel();
@@ -867,6 +879,8 @@ StormGraph.prototype.prerender = function() {
 /**
 * Render Normals and depth
 * @type Void
+* 
+* @private
 */
 StormGraph.prototype.render_ND = function() {
 	if(this.arrayNodeId.length > 0) {
@@ -909,6 +923,8 @@ StormGraph.prototype.render_ND = function() {
 /**
 * Make render
 * @type Void
+* 
+* @private
 */
 StormGraph.prototype.render = function() {
 	if(this.arrayNodeId.length > 0) {
@@ -995,6 +1011,7 @@ StormGraph.prototype.setLinksSplitEvery = function(value) {
 	this.splitLinksEvery = value;
 };
 
+/** @private **/
 StormGraph.prototype.updateForcesAndPP = function(clglwork) {
 	// POLARITY POINTS
 	this.arrPP = [];
@@ -1090,7 +1107,7 @@ StormGraph.prototype.set_pointSize = function(value) {
 };
 /**
 * Polarity
-* @param {Int} polarity
+* @param {Array<Float>} polarity
 * @type Void
 */
 StormGraph.prototype.set_polarity = function(arr) {
@@ -1195,7 +1212,7 @@ StormGraph.prototype.set_linkColor = function(color) {
 /**
 * Destination by array XYZ
 * @type Void
-* @param {Array} arr 
+* @param {Array<Float3>} arr 
 * @param {Float} spacing
 */
 StormGraph.prototype.set_destinationArray = function(arr, spacing) {
@@ -1493,6 +1510,9 @@ StormGraph.prototype.set_pos = function(jsonIn) {
 	
 	this.setLinksPosToNodesPos();
 };
+/**
+ * setLinksPosToNodesPos
+ */
 StormGraph.prototype.setLinksPosToNodesPos = function() {
 	this.arrayLinkPos = [];	
 	for(var n=0; n < this.arrayLinkId.length; n++) {

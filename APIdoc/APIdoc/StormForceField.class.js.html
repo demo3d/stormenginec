@@ -29,11 +29,31 @@
 					<ul class="dropdown-menu ">
 						
 						<li>
+							<a href="ActionHelpers.html">ActionHelpers</a>
+						</li>
+						
+						<li>
 							<a href="StormBufferObject.html">StormBufferObject</a>
 						</li>
 						
 						<li>
 							<a href="StormCamera.html">StormCamera</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerFollow.html">StormControllerFollow</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerPlayer.html">StormControllerPlayer</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerPlayerCar.html">StormControllerPlayerCar</a>
+						</li>
+						
+						<li>
+							<a href="StormControllerTargetCam.html">StormControllerTargetCam</a>
 						</li>
 						
 						<li>
@@ -54,6 +74,14 @@
 						
 						<li>
 							<a href="StormGLContext.html">StormGLContext</a>
+						</li>
+						
+						<li>
+							<a href="StormGraph.html">StormGraph</a>
+						</li>
+						
+						<li>
+							<a href="StormGrid.html">StormGrid</a>
 						</li>
 						
 						<li>
@@ -85,10 +113,6 @@
 						</li>
 						
 						<li>
-							<a href="StormParticles.html">StormParticles</a>
-						</li>
-						
-						<li>
 							<a href="StormPolarityPoint.html">StormPolarityPoint</a>
 						</li>
 						
@@ -117,11 +141,27 @@
 						</li>
 						
 						<li>
+							<a href="WebCLGLBufferItem.html">WebCLGLBufferItem</a>
+						</li>
+						
+						<li>
 							<a href="WebCLGLKernel.html">WebCLGLKernel</a>
 						</li>
 						
 						<li>
+							<a href="WebCLGLKernelProgram.html">WebCLGLKernelProgram</a>
+						</li>
+						
+						<li>
 							<a href="WebCLGLUtils.html">WebCLGLUtils</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLVertexFragmentProgram.html">WebCLGLVertexFragmentProgram</a>
+						</li>
+						
+						<li>
+							<a href="WebCLGLWork.html">WebCLGLWork</a>
 						</li>
 						
 
@@ -170,7 +210,9 @@
 
 * @property {String} objectType
 */
-StormForceField = function(jsonIn) { StormNode.call(this); 
+StormForceField = function(sec, jsonIn) { StormNode.call(this); 
+	this._sec = sec;
+	
 	this.objectType = 'forceField';
 	this.forceFieldType = 'direction'; // direction or gravity
 	
@@ -182,7 +224,7 @@ StormForceField.prototype = Object.create(StormNode.prototype);
 /** @private */
 StormForceField.prototype.updateJigLib = function() {  
 	if(this.forceFieldType == 'gravity') {  
-		stormEngineC.stormJigLibJS.dynamicsWorld.setGravity(new Vector3D( this.direction.e[0], this.direction.e[1], this.direction.e[2], 0 ));
+		this._sec.stormJigLibJS.dynamicsWorld.setGravity(new Vector3D( this.direction.e[0], this.direction.e[1], this.direction.e[2], 0 ));
 	} else {
 	
 	} 
@@ -195,60 +237,79 @@ StormForceField.prototype.updateJigLib = function() {
 StormForceField.prototype.setDirection = function(direction) {  
 	this.direction = direction;
 	
-	for(var n = 0, f = this.nodesProc.length; n &lt; f; n++) this.nodesProc[n].updatekernelDir_Arguments(); 
-	
+	for(var n = 0, f = this.nodesProc.length; n &lt; f; n++) {
+		if(this.nodesProc[n].kernelDir != undefined) {
+			this.nodesProc[n].updatekernelDir_Arguments(); 
+		}
+		if(this.nodesProc[n].clglWork_nodes != undefined) { 
+			this.nodesProc[n].updateNodes();
+			this.nodesProc[n].updateLinks(); 
+		}
+	}
+		
 	this.updateJigLib();
 };
 /**
 * Delete this force field
 * @type Void
 */
-StormForceField.prototype.deleteForceField = function() {
+StormForceField.prototype.remove = function() {
 	var idToRemove = undefined;
-	for(var n = 0, f = stormEngineC.forceFields.length; n &lt; f; n++) {
-		if(stormEngineC.forceFields[n].idNum == this.idNum) idToRemove = n;
+	for(var n = 0, f = this._sec.forceFields.length; n &lt; f; n++) {
+		if(this._sec.forceFields[n].idNum == this.idNum) idToRemove = n;
 	}
-	stormEngineC.forceFields.splice(idToRemove,1);
+	this._sec.forceFields.splice(idToRemove,1);
 	
 	for(var n = 0, f = this.nodesProc.length; n &lt; f; n++) {
-		var kernelDir_Source = this.nodesProc[n].generatekernelDir_Source(); 
-		var kernelDirX_Source = kernelDir_Source+
-								'out_float4 = vec4(newDir,1.0);\n'+
-								'}';
-		this.nodesProc[n].kernelDirXYZ.setKernelSource(kernelDirX_Source);
-		this.nodesProc[n].updatekernelDir_Arguments(); 
+		if(this.nodesProc[n].kernelDir != undefined) {
+			this.nodesProc[n].kernelDir.setKernelSource(this.nodesProc[n].generatekernelDir_Source());	
+			this.nodesProc[n].updatekernelDir_Arguments(); 
+		}
+		if(this.nodesProc[n].clglWork_nodes != undefined) { 
+			this.nodesProc[n].updateNodes();
+			this.nodesProc[n].updateLinks(); 
+		}
 	}
 	
 	this.updateJigLib();
 };
 
 /**
-* Get a node of particles
+* Get a graph node
 * @type Void
 * @param {Object} jsonIn
-* 	@param {StormNode} jsonIn.node The node
+* 	@param {StormGraph} jsonIn.node The node
 */
 StormForceField.prototype.get = function(jsonIn) {   
-	var push = true;
-	if(jsonIn.node.objectType != 'particles') {
-		alert('No particle node');
+	if(jsonIn.node.objectType != 'graph') {
+		alert('you must select a particle or graph');
 		return;
 	}
-	for(var n = 0, f = this.nodesProc.length; n &lt; f; n++) if(jsonIn.node.idNum == this.nodesProc[n].idNum) {push = false; break;}
-	if(push == true) {
-		this.nodesProc.push(jsonIn.node);
-		
+	for(var n = 0, f = this.nodesProc.length; n &lt; f; n++) {
+		if(jsonIn.node.objectType == this.nodesProc[n].objectType &amp;&amp; jsonIn.node.idNum == this.nodesProc[n].idNum) {
+			alert('This particle or graph already exist in this polarity point');
+			return;
+		}
+	}
+	
+	this.nodesProc.push(jsonIn.node);
+	var nproc = this.nodesProc[this.nodesProc.length-1];
+	console.log(nproc);
+	
+	
+	if(nproc.kernelDir != undefined &amp;&amp; nproc.kernelDir instanceof WebCLGLKernel) {
 		var kernelDir_Source = jsonIn.node.generatekernelDir_Source(); 
-		var kernelDirX_Source = kernelDir_Source+
-								'out_float4 = vec4(newDir,1.0);\n'+
-								'}';
-		jsonIn.node.kernelDirXYZ.setKernelSource(kernelDirX_Source);
-		jsonIn.node.updatekernelDir_Arguments(); 
-	} else alert('This particle already exist in this polarity point');
+		nproc.kernelDir.setKernelSource(kernelDir_Source);	
+		nproc.updatekernelDir_Arguments(); 
+	}
+	if(nproc.clglWork_nodes != undefined) {
+		nproc.updateNodes();
+		nproc.updateLinks(); 		
+	}
 };
 
 /**
-* Remove a node of particles
+* Remove a graph node
 * @type Void
 * @param {Object} jsonIn
 * 	@param {StormNode} jsonIn.node The node
@@ -286,7 +347,7 @@ StormForceField.prototype.removeParticles = function(jsonIn) {
 					
 		<span class="jsdoc-message">
 		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha2</a>
-		on Sun Sep 20 2015 23:11:11 GMT+0200 (CEST) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		on Fri Nov 06 2015 21:30:55 GMT+0100 (CET) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
 		</span>
 				</footer>
 			</div>

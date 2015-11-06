@@ -1585,55 +1585,57 @@ StormEngineC.prototype.setView = function(view) {
 * 			<b>'req' : {XMLHttpRequest}</b> Show XHR progress 
 */
 StormEngineC.prototype.setStatus = function(jsonIn) {
-	var exist = false;
-	for(var n = 0, f = this.statusValues.length; n < f; n++) {
-		if(this.statusValues[n].id == jsonIn.id) {  
-			this.statusValues[n] = jsonIn;
-			exist = true; break;
-		}
-	} 
-	if(jsonIn.str == "") { // update the array
-		var tmpArr = [];
+	if(this.editMode == true) {
+		var exist = false;
 		for(var n = 0, f = this.statusValues.length; n < f; n++) {
-			if(this.statusValues[n].str != '') tmpArr.push(this.statusValues[n]);
-		}
-		this.statusValues = tmpArr;
-	} else if(exist == false) { // add the new value to the array
-		this.statusValues.push({id:jsonIn.id, str:jsonIn.str});
-	}
-	
-	var bars = 0, barsAcum = 0; 
-	var ctx = this.stormGLContext.ctx2DStatus; 
-	ctx.clearRect(0, 0, this.stormGLContext.viewportWidth, this.stormGLContext.viewportHeight);
-	for(var n = 0, f = this.statusValues.length; n < f; n++) { // messages
-		ctx.fillStyle="#333";
-		ctx.fillRect(0,0,this.stormGLContext.viewportWidth,20);
-		ctx.fillStyle = "#CCC";
-		ctx.strokeStyle = "#FFF";
-		ctx.font = 'italic bold 12px sans-serif';
-		ctx.textBaseline = 'bottom';
-		ctx.fillText(this.statusValues[n].str, 5, 18); 
-		
-		if(this.statusValues[n].reqProgress != undefined || this.statusValues[n].req != undefined) {
-			bars++;
-			if(this.statusValues[n].reqProgress == undefined) this.statusValues[n].reqProgress = 0.1;
-		}
-	}
-	for(var n = 0, f = this.statusValues.length; n < f; n++) { // progress bars
-		if(this.statusValues[n].reqProgress != undefined)
-			barsAcum += (this.statusValues[n].reqProgress/bars);
-	}
-	ctx.fillStyle="#22ACAC";
-	ctx.fillRect(0,0,barsAcum*this.stormGLContext.viewportWidth,2);
-	
-	
-	if(jsonIn.req != undefined) {
-		jsonIn.req.onprogress = (function(evt) {
-			if(evt.lengthComputable) {
-				var current = evt.loaded/evt.total;
-				this.setStatus({id:jsonIn.id, str: jsonIn.str, reqProgress:current});
+			if(this.statusValues[n].id == jsonIn.id) {  
+				this.statusValues[n] = jsonIn;
+				exist = true; break;
 			}
-		}).bind(this);
+		} 
+		if(jsonIn.str == "") { // update the array
+			var tmpArr = [];
+			for(var n = 0, f = this.statusValues.length; n < f; n++) {
+				if(this.statusValues[n].str != '') tmpArr.push(this.statusValues[n]);
+			}
+			this.statusValues = tmpArr;
+		} else if(exist == false) { // add the new value to the array
+			this.statusValues.push({id:jsonIn.id, str:jsonIn.str});
+		}
+		
+		var bars = 0, barsAcum = 0; 
+		var ctx = this.stormGLContext.ctx2DStatus; 
+		ctx.clearRect(0, 0, this.stormGLContext.viewportWidth, this.stormGLContext.viewportHeight);
+		for(var n = 0, f = this.statusValues.length; n < f; n++) { // messages
+			ctx.fillStyle="#333";
+			ctx.fillRect(0,0,this.stormGLContext.viewportWidth,20);
+			ctx.fillStyle = "#CCC";
+			ctx.strokeStyle = "#FFF";
+			ctx.font = 'italic bold 12px sans-serif';
+			ctx.textBaseline = 'bottom';
+			ctx.fillText(this.statusValues[n].str, 5, 18); 
+			
+			if(this.statusValues[n].reqProgress != undefined || this.statusValues[n].req != undefined) {
+				bars++;
+				if(this.statusValues[n].reqProgress == undefined) this.statusValues[n].reqProgress = 0.1;
+			}
+		}
+		for(var n = 0, f = this.statusValues.length; n < f; n++) { // progress bars
+			if(this.statusValues[n].reqProgress != undefined)
+				barsAcum += (this.statusValues[n].reqProgress/bars);
+		}
+		ctx.fillStyle="#22ACAC";
+		ctx.fillRect(0,0,barsAcum*this.stormGLContext.viewportWidth,2);
+		
+		
+		if(jsonIn.req != undefined) {
+			jsonIn.req.onprogress = (function(evt) {
+				if(evt.lengthComputable) {
+					var current = evt.loaded/evt.total;
+					this.setStatus({id:jsonIn.id, str: jsonIn.str, reqProgress:current});
+				}
+			}).bind(this);
+		}
 	}
 };
 
