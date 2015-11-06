@@ -527,7 +527,7 @@ StormGraph.prototype.addNode = function(jsonIn) {
 										"onmouseup": node.onmouseup};
 		
 		return jsonIn.name;
-	}
+	} else console.log("node "+jsonIn.name+" already exists");
 };
 /**
 * Create new node for the graph
@@ -694,7 +694,7 @@ StormGraph.prototype.updateNodes = function() {
 * 	@param {Array<Float>} jsonIn.target_color Vector3F for the target color
  */
 StormGraph.prototype.addLink = function(jsonIn) {
-	if(this._links.hasOwnProperty(jsonIn.origin+jsonIn.target) == false) {
+	if(this._links.hasOwnProperty(jsonIn.origin+"->"+jsonIn.target) == false) {
 		var orig_color = (jsonIn != undefined && jsonIn.origin_color != undefined) ? jsonIn.origin_color : [1.0, 1.0, 1.0];
 		var targ_color = (jsonIn != undefined && jsonIn.target_color != undefined) ? jsonIn.target_color : [1.0, 1.0, 1.0];
 		
@@ -712,8 +712,8 @@ StormGraph.prototype.addLink = function(jsonIn) {
 		var blId = this.addLinkNow(json);
 		
 		// ADD LINK TO ARRAY LINKS
-		this._links[jsonIn.origin+jsonIn.target] = json;
-	} else console.log("link already exists");
+		this._links[jsonIn.origin+"->"+jsonIn.target] = json;
+	} else console.log("link "+jsonIn.origin+"->"+jsonIn.target+" already exists");
 };
 /**
 * Create new link for the graph

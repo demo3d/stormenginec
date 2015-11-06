@@ -1,5 +1,12 @@
+/**
+* @class
+* @constructor
+*/
 ActionHelpers = function() {
+	"use strict";
 	
+	this.firstColumWidth = "40%";
+	this.secondColumWidth = "60%";
 };
 /**
  * 
@@ -47,10 +54,10 @@ ActionHelpers.prototype.add_btn = function(target, name, onClickCallback) {
 ActionHelpers.prototype.add_valuesAndBtn = function(target, name, type, arrayTexts, arrayDefaultValues, onClickCallback) {
 	var str = ''+
 	'<div>'+
-		'<div style="display:inline-block;width:20%;vertical-align:top;overflow:hidden;">'+
+		'<div style="display:inline-block;width:'+this.firstColumWidth+';vertical-align:top;overflow:hidden;">'+
 			"<button id='BUTTONID_"+name+"' style='width:100%'>"+name+"</button>"+
 		'</div>'+
-		'<div style="display:inline-block;width:80%;">';
+		'<div style="display:inline-block;width:'+this.secondColumWidth+';">';
 			for(var n=0; n < arrayTexts.length; n++) {
 				str += '<input type="'+type+'" id="INPUTID_'+name+'_'+arrayTexts[n]+'" step="'+(arrayDefaultValues[n]/20)+'" value="'+arrayDefaultValues[n]+'" title="'+arrayTexts[n]+'" style="width:'+((100/arrayTexts.length)-1)+'%"/>';			
 			}	
@@ -78,10 +85,10 @@ ActionHelpers.prototype.add_valuesAndBtn = function(target, name, type, arrayTex
 ActionHelpers.prototype.add_checkbox = function(target, name, variable, checkCallback, uncheckCallback) {
 	var str = ''+
 	'<div>'+
-		'<div style="display:inline-block;width:20%;vertical-align:top;overflow:hidden;">'+
+		'<div style="display:inline-block;width:'+this.firstColumWidth+';vertical-align:top;overflow:hidden;">'+
 			name+
 		'</div>'+
-		'<div style="display:inline-block;width:80%;">'+
+		'<div style="display:inline-block;width:'+this.secondColumWidth+';">'+
 			'<input type="checkbox" id="INPUTID_'+name+'" />'+
 		'</div>'+
 	'</div>';
@@ -113,10 +120,10 @@ ActionHelpers.prototype.add_checkbox = function(target, name, variable, checkCal
 ActionHelpers.prototype.add_select = function(target, name, valuesArray, variable, selectCallback) {
 	var str = ''+
 	'<div>'+
-		'<div style="display:inline-block;width:20%;vertical-align:top;overflow:hidden;">'+
+		'<div style="display:inline-block;width:'+this.firstColumWidth+';vertical-align:top;overflow:hidden;">'+
 			name+
 		'</div>'+
-		'<div style="display:inline-block;width:80%;">'+
+		'<div style="display:inline-block;width:'+this.secondColumWidth+';">'+
 			'<select id="SELECTID_'+name+'" style="width:100%">';
 		for(var n=0; n < valuesArray.length; n++) {
 			isSelected = "";
@@ -148,10 +155,10 @@ ActionHelpers.prototype.add_select = function(target, name, valuesArray, variabl
 ActionHelpers.prototype.add_slider = function(target, name, fvalue, min, max, steps, onChangeCallback) {
 	var str = ''+
 	'<div>'+
-		'<div style="display:inline-block;width:20%;vertical-align:top;overflow:hidden;">'+
+		'<div style="display:inline-block;width:'+this.firstColumWidth+';vertical-align:top;overflow:hidden;">'+
 			name+
 		'</div>'+
-		'<div style="display:inline-block;width:80%;">'+
+		'<div style="display:inline-block;width:'+this.secondColumWidth+';">'+
 			'<input id="INPUTID_'+name+'X" type="number" 		min="'+min+'" max="'+max+'" step="'+steps+'" value="'+fvalue+'" style="vertical-align:middle;width:20%">'+
 			'<input id="INPUTID_'+name+'X_slider" type="range" 	min="'+min+'" max="'+max+'" step="'+steps+'" value="'+fvalue+'" style="vertical-align:middle;width:78%">'+
 		'</div>'+
@@ -200,10 +207,10 @@ ActionHelpers.prototype.add_slider = function(target, name, fvalue, min, max, st
 ActionHelpers.prototype.add_3dslider = function(target, name, array3f, min, max, steps, onChangeCallback) {
 	var str = ''+
 	'<div>'+
-		'<div style="display:inline-block;width:20%;vertical-align:top;overflow:hidden;">'+
+		'<div style="display:inline-block;width:'+this.firstColumWidth+';vertical-align:top;overflow:hidden;">'+
 			name+
 		'</div>'+
-		'<div style="display:inline-block;width:80%;">'+
+		'<div style="display:inline-block;width:'+this.secondColumWidth+';">'+
 			'<input id="INPUTID_'+name+'X" type="number" 		min="'+min+'" max="'+max+'" step="'+steps+'" value="'+array3f[0]+'" style="background:red;color:#FFF;vertical-align:middle;width:20%">'+
 			'<input id="INPUTID_'+name+'X_slider" type="range" 	min="'+min+'" max="'+max+'" step="'+steps+'" value="'+array3f[0]+'" style="background:red;color:#FFF;vertical-align:middle;width:78%">'+
 			
@@ -271,10 +278,10 @@ ActionHelpers.prototype.add_3dslider = function(target, name, array3f, min, max,
 ActionHelpers.prototype.add_colorpicker = function(target, name, hexVariable, onChangeCallback) {
 	var str = ''+
 	'<div>'+
-		'<div style="display:inline-block;width:20%;overflow:hidden;">'+
+		'<div style="display:inline-block;width:'+this.firstColumWidth+';overflow:hidden;">'+
 			name+
 		'</div>'+
-		'<div style="display:inline-block;width:80%;">'+
+		'<div style="display:inline-block;width:'+this.secondColumWidth+';">'+
 			'<input type="color" id="INPUTID_'+name+'" value="'+hexVariable+'" style="width:100%">'+
 		'</div>'+
 	'</div>';
@@ -294,10 +301,10 @@ ActionHelpers.prototype.add_colorpicker = function(target, name, hexVariable, on
 ActionHelpers.prototype.add_imageSelection = function(target, name, onChangeCallback) {
 	var str = ''+
 	'<div>'+
-		'<div style="display:inline-block;width:20%;overflow:hidden;">'+
+		'<div style="display:inline-block;width:'+this.firstColumWidth+';overflow:hidden;">'+
 			name+
 		'</div>'+
-		'<div style="display:inline-block;width:80%;">'+
+		'<div style="display:inline-block;width:'+this.secondColumWidth+';">'+
 			"<input id='INPUTID_"+name+"' type='file' style='display:none'/>"+
 			"<div id='DIVID_"+name+"' onclick='$(this).prev().click();' style='cursor:pointer;width:16px;height:16px;border:1px solid #FFF'></div>"+
 		"</div>"+
