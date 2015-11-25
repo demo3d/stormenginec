@@ -131,7 +131,8 @@
 					var B = parseInt(Math.random()*numNodes).toString();
 					
 					graph.addLink({"origin": A,
-									"target": B});
+									"target": B,
+									"directed": true});
 				}
 				graph.updateLinks();
 				

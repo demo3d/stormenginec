@@ -618,6 +618,12 @@ StormGLContext.prototype.drag = function() {
 			selNode.clglWork_links.setArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
 			selNode.clglWork_links.setArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
 			
+			selNode.clglWork_arrows.setArg("enableDrag", selNode.enableDrag);
+			selNode.clglWork_arrows.setArg("idToDrag", selNode.idToDrag);	 		
+			selNode.clglWork_arrows.setArg("MouseDragTranslationX", selNode.MouseDragTranslationX);
+			selNode.clglWork_arrows.setArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
+			selNode.clglWork_arrows.setArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
+			
 			setTimeout(function() {
 				selNode.clglWork_nodes.setArg("MouseDragTranslationX", 0.0);
 				selNode.clglWork_nodes.setArg("MouseDragTranslationY", 0.0);
@@ -626,6 +632,10 @@ StormGLContext.prototype.drag = function() {
 				selNode.clglWork_links.setArg("MouseDragTranslationX", 0.0);
 				selNode.clglWork_links.setArg("MouseDragTranslationY", 0.0);
 				selNode.clglWork_links.setArg("MouseDragTranslationZ", 0.0);
+				
+				selNode.clglWork_arrows.setArg("MouseDragTranslationX", 0.0);
+				selNode.clglWork_arrows.setArg("MouseDragTranslationY", 0.0);
+				selNode.clglWork_arrows.setArg("MouseDragTranslationZ", 0.0);
 			}, 10);
 		}
 	} else { // selection not in edit mode
@@ -722,6 +732,12 @@ StormGLContext.prototype.unpick = function() {
 			selNode.clglWork_links.setArg("MouseDragTranslationX", selNode.MouseDragTranslationX);
 			selNode.clglWork_links.setArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
 			selNode.clglWork_links.setArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
+			
+			selNode.clglWork_arrows.setArg("enableDrag", selNode.enableDrag);
+			selNode.clglWork_arrows.setArg("idToDrag", selNode.idToDrag);			
+			selNode.clglWork_arrows.setArg("MouseDragTranslationX", selNode.MouseDragTranslationX);
+			selNode.clglWork_arrows.setArg("MouseDragTranslationY", selNode.MouseDragTranslationY);
+			selNode.clglWork_arrows.setArg("MouseDragTranslationZ", selNode.MouseDragTranslationZ);
 						
 			if(selNode._nodesById[this.gettedPixel].onmouseup != undefined) {
 				var n = selNode._nodesById[this.gettedPixel];

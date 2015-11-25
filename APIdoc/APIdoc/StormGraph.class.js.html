@@ -222,6 +222,11 @@ StormGraph = function(sec, jsonIn) { StormNode.call(this);
 	
 	this.webCLGL = new WebCLGL(this.gl);
 	
+	// mesh to use
+	this.nodeArrow = new StormNode(this._sec);
+	this.nodeArrow.loadTriangle();
+	this.nodeArrow.visible(false);
+	
 	
 	// WebCLGL Sources
 	this.arrPP = [];
@@ -229,10 +234,12 @@ StormGraph = function(sec, jsonIn) { StormNode.call(this);
 	var str_vfp = this.source_vertexFragmentProgram();
 	var str_vfp_nd = this.source_vertexFragmentProgram_NormalsDepth();
 	var str_posdir = this.source_positionByDirection();
+	var str_posOpposite = this.source_positionOpposite();
 	var str_dir = this.source_direction();
 	
-	
-	// NODES 
+	//******************************
+	// NODES
+	//******************************
 	this.clglWork_nodes = this.webCLGL.createWork(this.offset);	
 	
 	// VERTEX AND FRAGMENT PROGRAMS	
@@ -261,7 +268,9 @@ StormGraph = function(sec, jsonIn) { StormNode.call(this);
 		
 	this.nodeDrawMode = 4; // 4 TRIANGLES
 		
+	//******************************
 	// LINKS
+	//******************************
 	this.clglWork_links = this.webCLGL.createWork(this.offset);
 	
 	//VERTEX AND FRAGMENT PROGRAMS	
@@ -270,9 +279,9 @@ StormGraph = function(sec, jsonIn) { StormNode.call(this);
 	this.vfProgram_links.setFragmentSource(str_vfp[3][0], str_vfp[2][0]);
 	
 	// VERTEX AND FRAGMENT PROGRAMS	NORMALS AND DEPTH
-	this.vfProgram_ND_links = this.webCLGL.createVertexFragmentProgram();
-	this.vfProgram_ND_links.setVertexSource(str_vfp_nd[1][0], str_vfp_nd[0][0]);
-	this.vfProgram_ND_links.setFragmentSource(str_vfp_nd[3][0], str_vfp_nd[2][0]);
+	//this.vfProgram_ND_links = this.webCLGL.createVertexFragmentProgram();
+	//this.vfProgram_ND_links.setVertexSource(str_vfp_nd[1][0], str_vfp_nd[0][0]);
+	//this.vfProgram_ND_links.setFragmentSource(str_vfp_nd[3][0], str_vfp_nd[2][0]);
 	
 	// KERNEL POSITION BY DIRECTION
 	this.kernel_positionByDirection_links = this.webCLGL.createKernel();
@@ -284,13 +293,47 @@ StormGraph = function(sec, jsonIn) { StormNode.call(this);
 	
 	// ADD TO WORK
 	this.clglWork_links.addVertexFragmentProgram(this.vfProgram_links, "graph");
-	this.clglWork_links.addVertexFragmentProgram(this.vfProgram_ND_links, "graph_nd");
+	//this.clglWork_links.addVertexFragmentProgram(this.vfProgram_ND_links, "graph_nd");
 	this.clglWork_links.addKernel(this.kernel_positionByDirection_links, "posXYZW");
 	this.clglWork_links.addKernel(this.kernel_direction_links, "dir");
 	
 	this.linkDrawMode = 1; // 1 LINES
 	
+	//******************************
+	// ARROWS
+	//******************************
+	this.clglWork_arrows = this.webCLGL.createWork(this.offset);
 	
+	//VERTEX AND FRAGMENT PROGRAMS	
+	this.vfProgram_arrows = this.webCLGL.createVertexFragmentProgram();
+	this.vfProgram_arrows.setVertexSource(str_vfp[1][0], str_vfp[0][0]);
+	this.vfProgram_arrows.setFragmentSource(str_vfp[3][0], str_vfp[2][0]);
+	
+	// VERTEX AND FRAGMENT PROGRAMS	NORMALS AND DEPTH
+	//this.vfProgram_ND_arrows = this.webCLGL.createVertexFragmentProgram();
+	//this.vfProgram_ND_arrows.setVertexSource(str_vfp_nd[1][0], str_vfp_nd[0][0]);
+	//this.vfProgram_ND_arrows.setFragmentSource(str_vfp_nd[3][0], str_vfp_nd[2][0]);
+	
+	// KERNEL POSITION BY DIRECTION
+	this.kernel_positionByDirection_arrows = this.webCLGL.createKernel();
+	this.kernel_positionByDirection_arrows.setKernelSource(str_posdir);
+	
+	// KERNEL POSITION OPPOSITE
+	this.kernel_positionOpposite_arrows = this.webCLGL.createKernel();
+	this.kernel_positionOpposite_arrows.setKernelSource(str_posOpposite);
+	
+	// KERNEL DIRECTION
+	this.kernel_direction_arrows = this.webCLGL.createKernel(); 
+	this.kernel_direction_arrows.setKernelSource(str_dir);	
+	
+	// ADD TO WORK
+	this.clglWork_arrows.addVertexFragmentProgram(this.vfProgram_arrows, "graph");
+	//this.clglWork_arrows.addVertexFragmentProgram(this.vfProgram_ND_arrows, "graph_nd");
+	this.clglWork_arrows.addKernel(this.kernel_positionByDirection_arrows, "posXYZW");
+	this.clglWork_arrows.addKernel(this.kernel_positionOpposite_arrows, "posXYZW_opposite");
+	this.clglWork_arrows.addKernel(this.kernel_direction_arrows, "dir");
+	
+	this.arrowDrawMode = 4; // 4 TRIANGLES
 	
 	
 	
@@ -358,6 +401,32 @@ StormGraph = function(sec, jsonIn) { StormNode.call(this);
 	
 	
 	
+	this.splitArrows;
+	this.splitArrowsIndices;
+	this.splitArrowsEvery = parseInt((256*256)/3); // 3 arrow indices
+	
+	this.arrayArrowId = [];
+	this.arrayArrowNodeName = [];
+	this.arrayArrowNodeId = [];
+	this.arrayArrowPosXYZW = [];
+	this.arrayArrowPosXYZW_opposite = [];
+	this.arrayArrow_oppositeId = [];	
+	this.arrayArrowVertexPos = [];
+	this.arrayArrowVertexNormal = [];
+	this.arrayArrowVertexColor = [];
+	this.startIndexId_arrow = 0;
+	this.arrayArrowIndices = [];
+	
+	this.arrayArrowDir = [];
+	this.arrayArrowPolaritys = [];
+	this.arrayArrowDestination = [];
+	
+	this.currentArrowId = 0;	
+	this.arrowArrayItemStart = 0;
+	
+	
+	
+	
 	this.enDestination = 0;
 	this.polarity = 1; // positive
 	this.lifeDistance = 0.0;
@@ -390,11 +459,58 @@ StormGraph.prototype.source_vertexFragmentProgram = function() {
 	var str_vfp = [
 	    // vertex head
 		['varying vec4 vVertexColor;\n'+
-		 'varying vec4 vWNMatrix;\n'],
+		 'varying vec4 vWNMatrix;\n'+
+		 'mat4 lookAt(vec3 eye, vec3 center, vec3 up) {'+
+		     'vec3 zaxis = normalize(center - eye);'+
+		     'vec3 xaxis = normalize(cross(up, zaxis));'+
+		     'vec3 yaxis = cross(zaxis, xaxis);'+
+
+		     'mat4 matrix;'+
+		     //Column Major
+		     'matrix[0][0] = xaxis.x;'+
+		     'matrix[1][0] = yaxis.x;'+
+		     'matrix[2][0] = zaxis.x;'+
+		     'matrix[3][0] = 0.0;'+
+
+		     'matrix[0][1] = xaxis.y;'+
+		     'matrix[1][1] = yaxis.y;'+
+		     'matrix[2][1] = zaxis.y;'+
+		     'matrix[3][1] = 0.0;'+
+
+		     'matrix[0][2] = xaxis.z;'+
+		     'matrix[1][2] = yaxis.z;'+
+		     'matrix[2][2] = zaxis.z;'+
+		     'matrix[3][2] = 0.0;'+
+
+		     'matrix[0][3] = -dot(xaxis, eye);'+
+		     'matrix[1][3] = -dot(yaxis, eye);'+
+		     'matrix[2][3] = -dot(zaxis, eye);'+
+		     'matrix[3][3] = 1.0;'+
+
+		     'return matrix;'+
+		 '}'+
+		 'mat4 transpose(mat4 m) {'+
+			  'return mat4(  m[0][0], m[1][0], m[2][0], m[3][0],'+
+			                'm[0][1], m[1][1], m[2][1], m[3][1],'+
+			  				'm[0][2], m[1][2], m[2][2], m[3][2],'+
+			  				'm[0][3], m[1][3], m[2][3], m[3][3]);'+
+		'}'+
+		'mat4 rotationMatrix(vec3 axis, float angle) {'+
+			'axis = normalize(axis);'+
+			'float s = sin(angle);'+
+			'float c = cos(angle);'+
+			'float oc = 1.0 - c;'+
+			
+			'return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,'+
+			'oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,'+
+			'oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,'+
+			'0.0,                                0.0,                                0.0,                                1.0);'+
+		'}'],
 		
 		// vertex source
 		['void main(float* nodeId,'+
 			'float4*kernel posXYZW,'+
+			'float4*kernel posXYZW_opposite,'+
 			'float4* nodeVertexPos,'+
 			'float4* nodeVertexNormal,'+
 			'float4* nodeVertexCol,'+
@@ -402,24 +518,47 @@ StormGraph.prototype.source_vertexFragmentProgram = function() {
 			'mat4 cameraWMatrix,'+
 			'mat4 nodeWMatrix,'+
 			'float nodesSize,'+
-			'float pointSize) {'+
+			'float pointSize,'+
+			'float isArrow,'+
+			'float bufferWidth) {'+
 				'vec2 x = get_global_id();'+
 		
 				'float nodeIdx = nodeId[x];\n'+  
 				'vec4 nodePosition = posXYZW[x];\n'+
 				'vec4 nodeVertexPosition = nodeVertexPos[x];\n'+
 				'vec4 nodeVertexColor = nodeVertexCol[x];\n'+
-				
+								
 				'mat4 nodepos = nodeWMatrix;'+
+				
+				'if(isArrow == 1.0) {'+
+					'vec4 XYZW_opposite = posXYZW_opposite[x];\n'+	
+					
+					'mat4 pp = lookAt(vec3(XYZW_opposite.x, XYZW_opposite.y, XYZW_opposite.z), vec3(nodePosition.x, nodePosition.y, nodePosition.z), vec3(0.0, 1.0, 0.0));'+
+					'pp = transpose(pp);'+					
+					'nodepos[0][0] = pp[0][0];'+
+					'nodepos[0][1] = pp[1][0];'+
+					'nodepos[0][2] = pp[2][0];'+
+					
+					'nodepos[1][0] = pp[0][1];'+
+					'nodepos[1][1] = pp[1][1];'+
+					'nodepos[1][2] = pp[2][1];'+
+					
+					'nodepos[2][0] = pp[0][2];'+
+					'nodepos[2][1] = pp[1][2];'+
+					'nodepos[2][2] = pp[2][2];'+
+					
+					'mat4 mm = rotationMatrix(vec3(1.0,0.0,0.0), 3.1416/2.0);'+
+					'mat4 mmB = rotationMatrix(vec3(0.0,0.0,1.0), -3.1416/4.0);'+
+					'nodepos = nodepos*(mm*mmB);'+
+					
+					'vec3 dir = normalize(vec3(XYZW_opposite.x, XYZW_opposite.y, XYZW_opposite.z)-vec3(nodePosition.x, nodePosition.y, nodePosition.z));'+
+					'nodePosition = nodePosition+(vec4(dir,1.0)*0.5);'+
+				'}'+
 				'nodepos[3][0] = nodePosition.x;'+
 				'nodepos[3][1] = nodePosition.y;'+
 				'nodepos[3][2] = nodePosition.z;'+
 				
-				'mat4 nodeposG = nodeWMatrix;'+
-				'nodepos[3][0] = nodePosition.x;'+
-				'nodepos[3][1] = nodePosition.y;'+
-				'nodepos[3][2] = nodePosition.z;'+
-				
+				'mat4 nodeposG = nodeWMatrix;'+								
 				'vWNMatrix = nodeposG * nodeVertexNormal[x];\n'+
 				
 				'vVertexColor = nodeVertexColor;'+
@@ -518,6 +657,29 @@ StormGraph.prototype.source_positionByDirection = function() {
 								'newPos = vec3(initPos.x,initPos.y,initPos.z);'+
 								
 							'out_float4 = vec4(newPos, 1.0);\n'+ 
+			'}';
+	return str;
+};
+/** @private **/
+StormGraph.prototype.source_positionOpposite = function() {
+	var str = 'void main(float4* posXYZW,'+
+						'float* oppositeId,'+
+						'float bufferWidth,'+
+						'float bufferHeight) {'+
+							'vec2 x = get_global_id();'+
+							
+							'float id_opposite = oppositeId[x];\n'+		
+							'float num = id_opposite/bufferWidth;'+
+							'float column = fract(num)*bufferWidth;'+
+							'float row = floor(num);'+ 
+							
+							'float ts = 1.0/(bufferWidth-1.0);'+
+							'float xx = column*ts;'+
+							'float yy = row*ts;'+
+							
+							'vec4 tex = texture2D(posXYZW, vec2(xx, yy));'+
+								
+							'out_float4 = tex;\n'+ 
 			'}';
 	return str;
 };
@@ -897,16 +1059,18 @@ StormGraph.prototype.updateNodes = function() {
 
 /**
 * Create new node for the graph
-* @param	{Object} jsonIn
-* 	@param {String} jsonIn.origin NodeName Origin for this link
-* 	@param {String} jsonIn.target NodeName Target for this link
-* 	@param {Array&lt;Float>} jsonIn.origin_color Vector3F for the origin color
-* 	@param {Array&lt;Float>} jsonIn.target_color Vector3F for the target color
+* @param {Object} jsonIn
+* @param {String} jsonIn.origin - NodeName Origin for this link
+* @param {String} jsonIn.target - NodeName Target for this link
+* @param {Array&lt;Float>} [jsonIn.origin_color=[1.0, 0.0, 0.0]] - Vector3F for the origin color
+* @param {Array&lt;Float>} [jsonIn.target_color=[0.0, 1.0, 0.0]] - Vector3F for the target color
+* @param {Bool} [jsonIn.directed=false] - 
  */
 StormGraph.prototype.addLink = function(jsonIn) {
 	if(this._links.hasOwnProperty(jsonIn.origin+"->"+jsonIn.target) == false) {
-		var orig_color = (jsonIn != undefined &amp;&amp; jsonIn.origin_color != undefined) ? jsonIn.origin_color : [1.0, 1.0, 1.0];
-		var targ_color = (jsonIn != undefined &amp;&amp; jsonIn.target_color != undefined) ? jsonIn.target_color : [1.0, 1.0, 1.0];
+		var orig_color = (jsonIn != undefined &amp;&amp; jsonIn.origin_color != undefined) ? jsonIn.origin_color : [1.0, 0.0, 0.0];
+		var targ_color = (jsonIn != undefined &amp;&amp; jsonIn.target_color != undefined) ? jsonIn.target_color : [0.0, 1.0, 0.0];
+		var directed = (jsonIn != undefined &amp;&amp; jsonIn.directed != undefined) ? jsonIn.directed : false;
 		
 		var json = {
 				"origin_nodeName": jsonIn.origin,
@@ -916,30 +1080,32 @@ StormGraph.prototype.addLink = function(jsonIn) {
 				"origin_itemStart": this._nodesByName[jsonIn.origin].itemStart,
 				"target_itemStart": this._nodesByName[jsonIn.target].itemStart,
 				"origin_color": orig_color,
-				"target_color": targ_color
+				"target_color": targ_color,
+				"directed": directed
 				};
 		
 		var blId = this.addLinkNow(json);
+		if(directed == true) this.addArrowNow(json);
 		
 		// ADD LINK TO ARRAY LINKS
 		this._links[jsonIn.origin+"->"+jsonIn.target] = json;
+				
 	} else console.log("link "+jsonIn.origin+"->"+jsonIn.target+" already exists");
 };
 /**
 * Create new link for the graph
+* @param {Object} jsonIn* 
+* @param {Int} jsonIn.origin_nodeName
+* @param {Int} jsonIn.target_nodeName
+* @param {Int} jsonIn.origin_nodeId
+* @param {Int} jsonIn.target_nodeId
+* @param {Int} jsonIn.origin_itemStart
+* @param {Int} jsonIn.target_itemStart
+* @param {Array&lt;Float>} [jsonIn.origin_color=[1.0, 0.0, 0.0]] - Vector3F for the origin color
+* @param {Array&lt;Float>} [jsonIn.target_color=[0.0, 1.0, 0.0]] - Vector3F for the target color
+* @param {Bool} [jsonIn.directed=false]
+* @returns {Int}
 * @private
-* @param	{Object} jsonIn
-* 	@param {Int} jsonIn.origin_nodeName
-* 	@param {Int} jsonIn.target_nodeName
-* 	@param {Int} jsonIn.origin_nodeId
-* 	@param {Int} jsonIn.target_nodeId
-* 	@param {Int} jsonIn.origin_itemStart
-* 	@param {Int} jsonIn.target_itemStart
-* 	@param {Array&lt;Float>} jsonIn.origin_color Vector3F for the origin color
-* 	@param {Array&lt;Float>} jsonIn.target_color Vector3F for the target color
- * @returns {Int}
- * 
- * @private
  */
 StormGraph.prototype.addLinkNow = function(jsonIn) {
 	// (origin)
@@ -1043,7 +1209,7 @@ StormGraph.prototype.updateLinks = function() {
 	this.clglWork_links.setArg("nodeWMatrix", this.MPOS.transpose().e);
 	this.clglWork_links.setArg("nodesSize", this.currentLinkId-2);
 	this.clglWork_links.setArg("sunPos", [this._sec.lights[0].direction.e[0], this._sec.lights[0].direction.e[1], this._sec.lights[0].direction.e[2], 1.0]);
-	this.clglWork_links.setArg("selfShadows", ((this.selfShadows == true)?1.0:0.0));
+	this.clglWork_links.setArg("selfShadows", 0.0);
 	this.clglWork_links.setArg("ambientColor", [this._sec.getAmbientColor()[0], this._sec.getAmbientColor()[1], this._sec.getAmbientColor()[2], 1.0]);
 	
 	this.clglWork_links.setArg("enableDestination", this.enDestination);
@@ -1056,10 +1222,176 @@ StormGraph.prototype.updateLinks = function() {
 	this.clglWork_links.setArg("MouseDragTranslationY", 0);
 	this.clglWork_links.setArg("MouseDragTranslationZ", 0);
 	this.clglWork_links.setArg("islink", 1);
+	
+	
+	this.updateArrows();
+};
+/**
+* Create new arrow for the graph
+* @param {Object} jsonIn
+* @param {Int} jsonIn.origin_nodeName
+* @param {Int} jsonIn.target_nodeName
+* @param {Int} jsonIn.origin_nodeId
+* @param {Int} jsonIn.target_nodeId
+* @param {Int} jsonIn.origin_itemStart
+* @param {Int} jsonIn.target_itemStart
+* @param {Array&lt;Float>} [jsonIn.origin_color=[1.0, 0.0, 0.0]] - Vector3F for the origin color
+* @param {Array&lt;Float>} [jsonIn.target_color=[0.0, 1.0, 0.0]] - Vector3F for the target color
+* @param {Bool} [jsonIn.directed=false]
+* @returns {Int}
+* @private
+ */
+StormGraph.prototype.addArrowNow = function(jsonIn) {
+	var oppositeId = 0;
+	for(var o=0; o &lt; 2; o++) {
+		
+		for(var i=0; i &lt; this.nodeArrow.buffersObjects.length; i++) {
+			var bo = this.nodeArrow.buffersObjects[i];
+			for(var n=0; n &lt; bo.nodeMeshVertexArray.length/3; n++) {
+				var idxVertex = n*3;
+				if(o == 0) oppositeId = this.arrowArrayItemStart; 
+				this.arrayArrowId.push(this.currentArrowId);
+				
+				this.arrayArrowPosXYZW.push(0.0, 0.0, 0.0, 1.0);
+				this.arrayArrowPosXYZW_opposite.push(0.0, 0.0, 0.0, 1.0);
+				this.arrayArrow_oppositeId.push(oppositeId);
+				this.arrayArrowVertexPos.push(bo.nodeMeshVertexArray[idxVertex], bo.nodeMeshVertexArray[idxVertex+1], bo.nodeMeshVertexArray[idxVertex+2], 1.0);
+				this.arrayArrowVertexNormal.push(bo.nodeMeshNormalArray[idxVertex], bo.nodeMeshNormalArray[idxVertex+1], bo.nodeMeshNormalArray[idxVertex+2], 1.0);
+				//console.log(bo.nodeMeshVertexArray[idxVertex]);
+				if(o == 0) {
+					this.arrayArrowNodeName.push(jsonIn.origin_nodeName);
+					this.arrayArrowNodeId.push(jsonIn.origin_nodeId);
+					this.arrayArrowVertexColor.push(jsonIn.origin_color[0], jsonIn.origin_color[1], jsonIn.origin_color[2], 1.0);
+				} else {
+					this.arrayArrowNodeName.push(jsonIn.target_nodeName);
+					this.arrayArrowNodeId.push(jsonIn.target_nodeId);
+					this.arrayArrowVertexColor.push(jsonIn.target_color[0], jsonIn.target_color[1], jsonIn.target_color[2], 1.0);
+				}
+				
+				this.arrowArrayItemStart++;
+			}
+		}
+			
+		var maxArrowIndexId = 0;
+		for(var i=0; i &lt; this.nodeArrow.buffersObjects.length; i++) {
+			var bo = this.nodeArrow.buffersObjects[i];
+			for(var n=0; n &lt; bo.nodeMeshIndexArray.length; n++) {
+				var idxIndex = n;
+				
+				this.arrayArrowIndices.push(this.startIndexId_arrow+bo.nodeMeshIndexArray[idxIndex]);
+				//console.log(this.startIndexId+bo.nodeMeshIndexArray[idxIndex]);
+				
+				if(bo.nodeMeshIndexArray[idxIndex] > maxArrowIndexId) {
+					maxArrowIndexId = bo.nodeMeshIndexArray[idxIndex];			
+				}
+			}
+		}
+		
+		if(this.startIndexId_arrow == 0) {
+			if(this.splitArrows == undefined) {
+				this.splitArrows = [];
+				this.splitArrowsIndices = [];
+				this.splitArrows.push(this.arrayArrowId.length*this.splitArrowsEvery);
+				this.splitArrowsIndices.push(this.arrayArrowIndices.length*this.splitArrowsEvery);
+			} else {
+				this.splitArrows.push(this.splitArrows[0]*(this.splitArrows.length+1));
+				this.splitArrowsIndices.push(this.splitArrowsIndices[0]*(this.splitArrowsIndices.length+1)); 
+			}		
+		}
+		this.startIndexId_arrow += (maxArrowIndexId+1);
+		if(this.arrayArrowIndices.length == this.splitArrowsIndices[this.splitArrowsIndices.length-1]) { 
+			this.startIndexId_arrow = 0;
+		}
+		
+		this.currentArrowId++; // augment arrow id
+	}
+};
+/**
+ * Update arrows
+ */
+StormGraph.prototype.updateArrows = function() {
+	this.updateForcesAndPP(this.clglWork_arrows);
+	
+	this.clglWork_arrows.setArg("idx", this.arrayArrowId, this.splitArrows); 
+	this.clglWork_arrows.setArg("nodeId", this.arrayArrowNodeId, this.splitArrows);
+	
+	if(this.clglWork_nodes.buffers_TEMP["posXYZW"] != undefined) {
+		this.arrayArrowPosXYZW = [];
+		var arr4Uint8_XYZW = this.webCLGL.enqueueReadBuffer_Float4(this.clglWork_nodes.buffers_TEMP["posXYZW"]);
+		//var arr4Uint8_XYZW = this.clglLayout_nodes.CLGL_bufferPosXYZW.Float4;
+		for(var key in this._links) {
+			for(var o=0; o &lt; 2; o++) {
+				for(var i=0; i &lt; this.nodeArrow.buffersObjects.length; i++) {
+					var bo = this.nodeArrow.buffersObjects[i];
+					for(var n=0; n &lt; bo.nodeMeshVertexArray.length/3; n++) {
+						if(o == 0) {
+							this.arrayArrowPosXYZW.push(arr4Uint8_XYZW[0][this._links[key].origin_itemStart],
+														arr4Uint8_XYZW[1][this._links[key].origin_itemStart],
+														arr4Uint8_XYZW[2][this._links[key].origin_itemStart],
+														arr4Uint8_XYZW[3][this._links[key].origin_itemStart]);
+						} else {
+							this.arrayArrowPosXYZW.push(arr4Uint8_XYZW[0][this._links[key].target_itemStart],
+														arr4Uint8_XYZW[1][this._links[key].target_itemStart],
+														arr4Uint8_XYZW[2][this._links[key].target_itemStart],
+														arr4Uint8_XYZW[3][this._links[key].target_itemStart]);
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	this.clglWork_arrows.setArg("posXYZW", this.arrayArrowPosXYZW, this.splitArrows);
+	this.clglWork_arrows.setArg("posXYZW_opposite", this.arrayArrowPosXYZW_opposite, this.splitArrows);	 
+	this.clglWork_arrows.setArg("oppositeId", this.arrayArrow_oppositeId, this.splitArrows);	
+	this.clglWork_arrows.setArg("isArrow", 1.0);
+	this.clglWork_arrows.setArg("bufferWidth", this.clglWork_arrows.buffers["posXYZW"].items[0].W);
+	this.clglWork_arrows.setArg("bufferHeight", this.clglWork_arrows.buffers["posXYZW"].items[0].H);
+	 
+	this.clglWork_arrows.setArg("initPos", this.arrayArrowPosXYZW, this.splitArrows);
+	this.clglWork_arrows.setArg("nodeVertexPos", this.arrayArrowVertexPos, this.splitArrows);
+	this.clglWork_arrows.setArg("nodeVertexNormal", this.arrayArrowVertexNormal, this.splitArrows);
+	this.clglWork_arrows.setArg("nodeVertexCol", this.arrayArrowVertexColor, this.splitArrows);
+	this.clglWork_arrows.setIndices(this.arrayArrowIndices, this.splitArrowIndices);
+	
+	this.arrayArrowDir = [];	
+	for(var n=0; n &lt; this.arrayArrowId.length; n++) {
+		this.arrayArrowDir.push(0, 0, 0, 255);
+	}
+	this.clglWork_arrows.setArg("dir", this.arrayArrowDir, this.splitArrows);
+	this.clglWork_arrows.setArg("initDir", this.arrayArrowDir, this.splitArrows);
+	
+	this.arrayArrowPolaritys = [];	
+	for(var n=0; n &lt; this.arrayArrowId.length; n++) {
+		this.arrayArrowPolaritys.push(1);
+	}
+	this.clglWork_arrows.setArg("particlePolarity", this.arrayArrowPolaritys, this.splitArrows);
+	
+	this.arrayArrowDestination = [];	
+	for(var n=0; n &lt; this.arrayArrowId.length; n++) {
+		this.arrayArrowDestination.push(0, 0, 0, 255);
+	}
+	this.clglWork_arrows.setArg("dest", this.arrayArrowDestination, this.splitArrows);
+	
+	this.clglWork_arrows.setArg("PMatrix", this._sec.defaultCamera.mPMatrix.transpose().e);
+	this.clglWork_arrows.setArg("cameraWMatrix", this._sec.defaultCamera.MPOS.transpose().e);
+	this.clglWork_arrows.setArg("nodeWMatrix", this.MPOS.transpose().e);
+	this.clglWork_arrows.setArg("nodesSize", this.currentArrowId-1);
+	this.clglWork_arrows.setArg("sunPos", [this._sec.lights[0].direction.e[0], this._sec.lights[0].direction.e[1], this._sec.lights[0].direction.e[2], 1.0]);
+	this.clglWork_arrows.setArg("selfShadows", 0.0);
+	this.clglWork_arrows.setArg("ambientColor", [this._sec.getAmbientColor()[0], this._sec.getAmbientColor()[1], this._sec.getAmbientColor()[2], 1.0]);
+	
+	this.clglWork_arrows.setArg("enableDestination", this.enDestination);
+	this.clglWork_arrows.setArg("destinationForce", this.destinationForce);
+	this.clglWork_arrows.setArg("lifeDistance", this.lifeDistance);
+	this.clglWork_arrows.setArg("pointSize", this.pointSize);
+	this.clglWork_arrows.setArg("enableDrag", 0);
+	this.clglWork_arrows.setArg("idToDrag", 0);
+	this.clglWork_arrows.setArg("MouseDragTranslationX", 0);
+	this.clglWork_arrows.setArg("MouseDragTranslationY", 0);
+	this.clglWork_arrows.setArg("MouseDragTranslationZ", 0);
+	this.clglWork_arrows.setArg("islink", 1);
 }; 
-
-
-
 
 
 
@@ -1080,6 +1412,7 @@ StormGraph.prototype.updateLinks = function() {
 StormGraph.prototype.prerender = function() {
 	if(this.arrayNodeId.length > 0) this.clglWork_nodes.enqueueNDRangeKernel();
 	if(this.arrayLinkId.length > 0) this.clglWork_links.enqueueNDRangeKernel();
+	if(this.arrayArrowId.length > 0) this.clglWork_arrows.enqueueNDRangeKernel();
 };
 /**
 * Render Normals and depth
@@ -1089,7 +1422,7 @@ StormGraph.prototype.prerender = function() {
 */
 StormGraph.prototype.render_ND = function() {
 	if(this.arrayNodeId.length > 0) {
-		this.clglWork_nodes.enqueueVertexFragmentProgram("posXYZW", "graph_nd", (function() {
+		this.clglWork_nodes.enqueueVertexFragmentProgram(undefined, "graph_nd", (function() {
 			//this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 			if(this._sec.stormGLContext.view_Normals) { 
 				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
@@ -1106,8 +1439,8 @@ StormGraph.prototype.render_ND = function() {
 			this.clglWork_nodes.setArg("uFar", this._sec.stormGLContext.far);
 		}).bind(this), this.nodeDrawMode);
 	}
-	if(this.arrayLinkId.length > 0) {
-		this.clglWork_links.enqueueVertexFragmentProgram("posXYZW", "graph_nd", (function() {
+	/*if(this.arrayLinkId.length > 0) {
+		this.clglWork_links.enqueueVertexFragmentProgram(undefined, "graph_nd", (function() {
 			//this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 			if(this._sec.stormGLContext.view_Normals) {
 				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
@@ -1124,6 +1457,24 @@ StormGraph.prototype.render_ND = function() {
 			this.clglWork_links.setArg("uFar", this._sec.stormGLContext.far);
 		}).bind(this), this.linkDrawMode);
 	}
+	if(this.arrayArrowId.length > 0) {
+		this.clglWork_arrows.enqueueVertexFragmentProgram(undefined, "graph_nd", (function() {
+			//this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+			if(this._sec.stormGLContext.view_Normals) {
+				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+			} else {
+				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this._sec.stormGLContext.fBuffer); 
+				this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this._sec.stormGLContext.textureFB_Normals, 0);
+				//this.gl.enable(this.gl.BLEND);
+				//this.gl.blendFunc(this.gl.ONE_MINUS_DST_COLOR, this.gl.ONE);
+			}
+			
+			this.clglWork_arrows.setArg("PMatrix", this._sec.defaultCamera.mPMatrix.transpose().e);
+			this.clglWork_arrows.setArg("cameraWMatrix", this._sec.defaultCamera.MPOS.transpose().e);
+			this.clglWork_arrows.setArg("nodeWMatrix", this.MPOS.transpose().e);
+			this.clglWork_arrows.setArg("uFar", this._sec.stormGLContext.far);
+		}).bind(this), this.arrowDrawMode);
+	}*/
 };
 /**
 * Make render
@@ -1133,7 +1484,7 @@ StormGraph.prototype.render_ND = function() {
 */
 StormGraph.prototype.render = function() {
 	if(this.arrayNodeId.length > 0) {
-		this.clglWork_nodes.enqueueVertexFragmentProgram("posXYZW", "graph", (function() {
+		this.clglWork_nodes.enqueueVertexFragmentProgram(undefined, "graph", (function() {
 			//this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 			if(this._sec.stormGLContext.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) { 
 				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
@@ -1151,7 +1502,7 @@ StormGraph.prototype.render = function() {
 		}).bind(this), this.nodeDrawMode);
 	}
 	if(this.arrayLinkId.length > 0) {
-		this.clglWork_links.enqueueVertexFragmentProgram("posXYZW", "graph", (function() {
+		this.clglWork_links.enqueueVertexFragmentProgram(undefined, "graph", (function() {
 			//this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
 			if(this._sec.stormGLContext.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) {
 				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
@@ -1168,6 +1519,24 @@ StormGraph.prototype.render = function() {
 			this.clglWork_links.setArg("nodesSize", parseFloat(this.currentNodeId-1));
 		}).bind(this), this.linkDrawMode);
 	}
+	if(this.arrayArrowId.length > 0) {
+		this.clglWork_arrows.enqueueVertexFragmentProgram(undefined, "graph", (function() {
+			//this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+			if(this._sec.stormGLContext.view_SceneNoDOF || this._sec.defaultCamera.DOFenable == false) {
+				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, null);
+			} else {
+				this.gl.bindFramebuffer(this.gl.FRAMEBUFFER, this._sec.stormGLContext.fBuffer); 
+				this.gl.framebufferTexture2D(this.gl.FRAMEBUFFER, this.gl.COLOR_ATTACHMENT0, this.gl.TEXTURE_2D, this._sec.stormGLContext.textureObject_DOF, 0);
+				//this.gl.enable(this.gl.BLEND);
+				//this.gl.blendFunc(this.gl.ONE_MINUS_DST_COLOR, this.gl.ONE);
+			}
+			
+			this.clglWork_arrows.setArg("PMatrix", this._sec.defaultCamera.mPMatrix.transpose().e);
+			this.clglWork_arrows.setArg("cameraWMatrix", this._sec.defaultCamera.MPOS.transpose().e);
+			this.clglWork_arrows.setArg("nodeWMatrix", this.MPOS.transpose().e);
+			this.clglWork_arrows.setArg("nodesSize", parseFloat(this.currentNodeId-1));
+		}).bind(this), this.arrowDrawMode);
+	}
 };
 
 /**
@@ -1180,6 +1549,7 @@ StormGraph.prototype.setSelfShadows = function(bselfShadows) {
 	
 	this.clglWork_nodes.setArg("selfShadows", ((this.selfShadows == true)?1.0:0.0));
 	this.clglWork_links.setArg("selfShadows", ((this.selfShadows == true)?1.0:0.0));
+	this.clglWork_arrows.setArg("selfShadows", ((this.selfShadows == true)?1.0:0.0));
 };
 
 /**
@@ -1271,6 +1641,7 @@ StormGraph.prototype.set_destinationForce = function(value) {
 	this.destinationForce = value;
 	this.clglWork_nodes.setArg("destinationForce", this.destinationForce);
 	this.clglWork_links.setArg("destinationForce", this.destinationForce);
+	this.clglWork_arrows.setArg("destinationForce", this.destinationForce);
 };
 /**
 * Disable destination
@@ -1280,6 +1651,7 @@ StormGraph.prototype.set_disableDestination = function() {
 	this.enDestination = 0;	
 	this.clglWork_nodes.setArg("enableDestination", this.enDestination);
 	this.clglWork_links.setArg("enableDestination", this.enDestination);
+	this.clglWork_arrows.setArg("enableDestination", this.enDestination);
 };
 /**
 * Enable destination
@@ -1289,6 +1661,7 @@ StormGraph.prototype.set_enableDestination = function() {
 	this.enDestination = 1;	
 	this.clglWork_nodes.setArg("enableDestination", this.enDestination);
 	this.clglWork_links.setArg("enableDestination", this.enDestination);
+	this.clglWork_arrows.setArg("enableDestination", this.enDestination);
 };
 /**
 * Life distance
@@ -1299,6 +1672,7 @@ StormGraph.prototype.set_lifeDistance = function(value) {
 	this.lifeDistance = value;
 	this.clglWork_nodes.setArg("lifeDistance", this.lifeDistance);
 	this.clglWork_links.setArg("lifeDistance", this.lifeDistance);
+	this.clglWork_arrows.setArg("lifeDistance", this.lifeDistance);
 };
 /**
 * Point size
@@ -1309,6 +1683,7 @@ StormGraph.prototype.set_pointSize = function(value) {
 	this.pointSize = value;
 	this.clglWork_nodes.setArg("pointSize", this.pointSize);
 	this.clglWork_links.setArg("pointSize", this.pointSize);
+	this.clglWork_arrows.setArg("pointSize", this.pointSize);
 };
 /**
 * Polarity
@@ -1320,6 +1695,7 @@ StormGraph.prototype.set_polarity = function(arr) {
 	this.arrayLinkPolaritys = arr;
 	this.clglWork_nodes.setArg("particlePolarity", this.arrayNodePolaritys, this.splitNodes);
 	this.clglWork_links.setArg("particlePolarity", this.arrayLinkPolaritys, this.splitLinks);
+	this.clglWork_arrows.setArg("particlePolarity", this.arrayLinkPolaritys, this.splitLinks);
 };
 
 /**
@@ -1447,6 +1823,7 @@ StormGraph.prototype.set_destinationArray = function(arr, spacing) {
 	this.clglWork_nodes.setArg("dest", this.arrayNodeDestination, this.splitNodes);
 	
 	this.setLinksDestinationToNodesDestination();	
+	this.setArrowsDestinationToNodesDestination();
 };
 /**
 * Destination by width and height
@@ -1492,6 +1869,7 @@ StormGraph.prototype.set_destinationWidthHeight = function(jsonIn) {
 	this.clglWork_nodes.setArg("dest", this.arrayNodeDestination, this.splitNodes);
 	
 	this.setLinksDestinationToNodesDestination();	
+	this.setArrowsDestinationToNodesDestination();
 };
 /**
 * Destination to voxel volume
@@ -1589,6 +1967,7 @@ StormGraph.prototype.set_destinationVolume = function(voxelizator) {
 	this.clglWork_nodes.setArg("nodeVertexCol", this.arrayNodeVertexColor, this.splitNodes);
 	
 	this.setLinksDestinationToNodesDestination();
+	this.setArrowsDestinationToNodesDestination();
 };
 /**
 * Set Destination of links to actual destination of nodes
@@ -1607,6 +1986,24 @@ StormGraph.prototype.setLinksDestinationToNodesDestination = function() {
 										1.0);
 	}
 	this.clglWork_links.setArg("dest", this.arrayLinkDestination, this.splitLinks);
+};
+/**
+* Set Destination of arrows to actual destination of nodes
+* @type Void
+*/
+StormGraph.prototype.setArrowsDestinationToNodesDestination = function() {
+	// update destination for arrows
+	this.arrayArrowDestination = [];	
+	for(var n=0; n &lt; this.arrayArrowId.length; n++) {
+		var currentArrowNodeName = this.arrayArrowNodeName[n];		
+		var nodeNameItemStart = this._nodesByName[currentArrowNodeName].itemStart;
+		
+		this.arrayArrowDestination.push(this.arrayNodeDestination[(nodeNameItemStart*4)],
+										this.arrayNodeDestination[(nodeNameItemStart*4)+1],
+										this.arrayNodeDestination[(nodeNameItemStart*4)+2],
+										1.0);
+	}
+	this.clglWork_arrows.setArg("dest", this.arrayArrowDestination, this.splitArrows);
 };
 
 /**
@@ -1638,6 +2035,7 @@ StormGraph.prototype.set_dir = function(direction) {
 	this.clglWork_nodes.setArg("dir", this.arrayNodeDir, this.splitNodes);
 	
 	this.setLinksDirToNodesDir();
+	this.setArrowsDirToNodesDir();
 };
 /**
 * Set Direction of links to actual direction of nodes
@@ -1656,6 +2054,24 @@ StormGraph.prototype.setLinksDirToNodesDir = function() {
 	}
 	this.clglWork_links.setArg("dir", this.arrayLinkDir, this.splitLinks);
 };
+/**
+* Set Direction of arrows to actual direction of nodes
+* @type Void
+*/
+StormGraph.prototype.setArrowsDirToNodesDir = function() {
+	this.arrayArrowDir = [];	
+	for(var n=0; n &lt; this.arrayArrowId.length; n++) {
+		var currentArrowNodeName = this.arrayArrowNodeName[n];		
+		var nodeNameItemStart = this._nodesByName[currentArrowNodeName].itemStart;
+		
+		this.arrayArrowDir.push(this.arrayNodeDir[(nodeNameItemStart*4)],
+								this.arrayNodeDir[(nodeNameItemStart*4)+1],
+								this.arrayNodeDir[(nodeNameItemStart*4)+2],
+								1.0);
+	}
+	this.clglWork_arrows.setArg("dir", this.arrayArrowDir, this.splitArrows);
+};
+
 /**
 * Set position
 * @type Void
@@ -1714,22 +2130,39 @@ StormGraph.prototype.set_pos = function(jsonIn) {
 	this.clglWork_nodes.setArg("posXYZW", this.arrayNodePosXYZW, this.splitNodes);
 	
 	this.setLinksPosToNodesPos();
+	this.setArrowsPosToNodesPos();
 };
 /**
  * setLinksPosToNodesPos
  */
 StormGraph.prototype.setLinksPosToNodesPos = function() {
-	this.arrayLinkPos = [];	
+	this.arrayLinkPosXYZW = [];	
 	for(var n=0; n &lt; this.arrayLinkId.length; n++) {
 		var currentLinkNodeName = this.arrayLinkNodeName[n];		
 		var nodeNameItemStart = this._nodesByName[currentLinkNodeName].itemStart;
 		
-		this.arrayLinkPos.push(this.arrayNodePosXYZW[(nodeNameItemStart*4)],
+		this.arrayLinkPosXYZW.push(this.arrayNodePosXYZW[(nodeNameItemStart*4)],
 								this.arrayNodePosXYZW[(nodeNameItemStart*4)+1],
 								this.arrayNodePosXYZW[(nodeNameItemStart*4)+2],
 								1.0);
 	}
-	this.clglWork_links.setArg("posXYZW", this.arrayLinkPos, this.splitLinks);
+	this.clglWork_links.setArg("posXYZW", this.arrayLinkPosXYZW, this.splitLinks);
+};
+/**
+ * setLinksPosToNodesPos
+ */
+StormGraph.prototype.setArrowsPosToNodesPos = function() {
+	this.arrayArrowPosXYZW = [];	
+	for(var n=0; n &lt; this.arrayArrowId.length; n++) {
+		var currentArrowNodeName = this.arrayArrowNodeName[n];		
+		var nodeNameItemStart = this._nodesByName[currentArrowNodeName].itemStart;
+		
+		this.arrayArrowPosXYZW.push(this.arrayNodePosXYZW[(nodeNameItemStart*4)],
+								this.arrayNodePosXYZW[(nodeNameItemStart*4)+1],
+								this.arrayNodePosXYZW[(nodeNameItemStart*4)+2],
+								1.0);
+	}
+	this.clglWork_arrows.setArg("posXYZW", this.arrayArrowPosXYZW, this.splitArrows);
 };</pre>
         </article>
     </section>
@@ -1754,7 +2187,7 @@ StormGraph.prototype.setLinksPosToNodesPos = function() {
 					
 		<span class="jsdoc-message">
 		Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.3.0-alpha2</a>
-		on Fri Nov 06 2015 21:30:55 GMT+0100 (CET) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
+		on Wed Nov 25 2015 23:11:11 GMT+0100 (CET) using the <a href="https://github.com/terryweiss/docstrap">DocStrap template</a>.
 		</span>
 				</footer>
 			</div>
